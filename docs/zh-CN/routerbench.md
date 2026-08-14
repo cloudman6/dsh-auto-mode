@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routerbench.md
-translation-source-blob: a014975851f16667f73f1adb11b4521b5b0cd3dd
+translation-source-blob: 228909f3daf0f60636817cd855f403b759ac5549
 translation-status: current
 -->
 
@@ -10,149 +10,196 @@ translation-status: current
 
 ## 目的
 
-RouterBench 是 Auto Mode 的质量证据基础，不是附属演示。它回答：
+RouterBench 是 Auto Mode 的证据基础。它必须分别回答两个问题，不能用同一份数据或同一个 runner 混合回答：
 
-- 某个模型与 effort 在哪类任务上能维持 strong 质量基线？
-- 路由器在哪些任务上有足够证据自动选择较弱 route？
-- 升级、降级和恢复是否真的改善端到端结果？
-- 分类器、切换和重试的开销是否抵消模型节省？
+1. Route Capability Bench：哪些 provider/model/reasoning-selection 配置能在某类任务上通过绝对与相对质量门槛？
+2. Policy Scenario Bench：生产策略能否正确选择、升级、降级、abstain 和恢复；每层新增控制面是否改善端到端结果？
 
-在线路由和 Benchmark 必须使用同一 Task Assessment、Routing Policy、Route Profile 和版本化配置。
+凡是运行策略的地方，Benchmark 与在线执行使用同一策略核心和 schema。Benchmark 的实验分组、oracle 元数据和 evaluator 不得进入生产策略输入。
 
-## 实验单位
+## 证据分层与数据隔离
 
-一个 Benchmark case 至少包括：
+每个 Benchmark 版本必须区分：
+
+- 用于选择阈值或拟合评估规则的校准集。
+- Policy Pack 构建过程中使用的验证集。
+- 只有 taxonomy、assessor、policy、profile 和 evaluator 版本冻结后才能打开的留出验收集。
+- 用于漂移与 abstain 测试的时间外和分布外数据集。
+
+数据切分按 fixture、仓库、来源、任务族和近重复簇分组。case 必须把执行可见输入与 evaluator 专用 oracle 元数据隔离：
 
 ```ts
-interface RouterBenchCase {
+interface CapabilityCase {
   id: string
   version: number
-  taskKind: TaskKind
-  prompt: string
-  fixture: FixtureRef
-  risk: RiskLevel
-  verifiability: Verifiability
-  evaluators: EvaluatorSpec[]
-  expectedEvidence?: EvidenceRequirement[]
-  allowedSideEffects: SideEffectPolicy
+  executionInput: {
+    prompt: string
+    fixture: FixtureRef
+  }
+  oracleMetadata: {
+    taskKind: TaskKind
+    risk: RiskLevel
+    verifiability: Verifiability
+    evaluators: EvaluatorSpec[]
+    expectedEvidence: EvidenceRequirement[]
+    allowedSideEffects: SideEffectPolicy
+  }
 }
 ```
 
-同一 case 对候选 route 和 strong 基线进行配对运行。需要随机化执行顺序、记录模型快照和 profile 版本，并使用多次重复处理模型方差。
+Task Assessment 和 Routing Policy 绝不能接收 `oracleMetadata`。
+
+## Route Capability Bench
+
+把同一 case 随机配对运行在候选配置和已配置基线上。使用多次独立运行估计模型与环境方差。记录：
+
+- 精确 deployment profile、reasoning-selection encoding 和已知 model/provider 指纹。
+- Fixture hash 和环境摘要。
+- Evaluator、rubric、judge 和 taxonomy 版本。
+- 执行顺序 seed 与重复实验标识。
+- 原始结果、结构化证据、延迟、token 和成本。
+
+基线自身必须先通过绝对门槛。候选配置不能因为“与一个失败的基线相当”而获准进入 Auto。
+
+## Policy Scenario Bench
+
+策略行为需要显式事件场景，不能只依赖不透明 fixture：
+
+```ts
+interface ScenarioCase {
+  id: string
+  version: number
+  initialSession: SessionFixtureRef
+  initialExecutionWorld: ExecutionWorldFixtureRef
+  actors: ScenarioActor[]
+  eventSchedule: ScheduledEvent[]
+  faultSchedule: ScheduledFault[]
+  checkpoints: CheckpointFixture[]
+  routingConstraints: RoutingConstraintFixture[]
+  expectedTrace: TraceInvariant[]
+  sideEffectOracle: SideEffectOracle
+}
+```
+
+场景覆盖可信 phase 转换、多 episode、restart 血缘、冷恢复、provider 丢失、事件持久化失败、并发修改、子 Agent 约束和 Session handoff。确定性状态机仿真与真实 DSH adapter contract test 是两个独立测试层。
 
 ## 初始任务类别
 
-### 可机械验证编码
+分类体系采用层级结构。任务类型、风险、可验证性、可逆性和错误可检测性是独立维度；宽泛类别上的准入不能掩盖高风险切片失败。
 
-- 局部 API 参数校验。
-- 多文件重构与类型更新。
-- 测试失败诊断。
-- 并发、生命周期和资源释放问题。
-- 安全边界与权限检查。
+初始内容覆盖：
 
-### 部分可验证工作
-
-- 有来源的文档总结。
-- 代码评审和风险清单。
-- 公共 API 文档同步。
-- 迁移方案比较。
-
-### 无单一客观答案
-
-- 架构方案与权衡。
-- 研究综合。
-- 技术写作与论证。
-- 长期演进建议。
-
-### 路由与恢复场景
-
-- 首次 route 选择。
-- 弱模型停滞后 continue。
-- 错误修改后的 salvage/restart。
-- 同一 turn 从复杂实现进入低风险尾部工作。
-- 子 Agent 高风险约束和模型多样性。
+- 可机械验证编码：参数校验、重构、诊断、并发、资源生命周期和权限边界。
+- 部分可验证工作：有来源的总结、代码评审、API 文档和迁移方案比较。
+- 开放任务：架构权衡、研究综合、技术论证和演进建议。
+- 路由场景：初始选择、abstain、provider 丢失和 `no-safe-route`。
+- 恢复场景：continue、可归因修改、checkpoint 失败、salvage/restart 和未知外部副作用。
+- 委派场景：父约束接受/拒绝、系统性过度升级、持久化子约束和模型多样性请求。
 
 ## 质量评价
 
-### 机械验证
+### 机械验证工作
 
-优先使用真实测试、类型检查、静态分析、构建和确定性不变量。测试通过是必要证据，但不能自动证明需求完整；case 需要覆盖遗漏和投机性 workaround。
+使用真实测试、类型检查、静态分析、构建、隐藏要求、mutation oracle 和确定性不变量。通过可见测试是必要证据，不代表需求完整性已经得到证明。
 
 ### 开放任务
 
-没有标准答案时，不伪造单一正确文本。组合使用：
+组合使用以下证据：
 
-- 预先编写的关键遗漏项和错误模式清单。
+- 绝对 rubric 和预先编写的关键遗漏项清单。
+- 隐藏事实图或基于来源的证据要求。
 - 引用正确性、来源忠实度和覆盖率。
-- 候选与 strong 输出的盲化成对比较。
-- 多个独立 evaluator，报告分歧而不是只取平均。
-- 对高风险任务保留人工或领域专家抽检。
+- 盲化随机配对比较。
+- evaluator 多样化并版本化，记录模型家族及已知训练关系元数据。
+- 高风险 case、evaluator 分歧或基线失败时，必须进行人工或领域专家盲审。
 
-LLM judge 不是真理。必须版本化 judge、测量位置偏差和同源模型偏差，并保留原始判定依据。
+只能称 evaluator 具有多样性，不能宣称它们统计独立。必须版本化 judge、测量位置偏差和同家族偏差、保留判定理由，并公开分歧而不是用平均值掩盖。
+
+## 统计准入协议
+
+每个 Policy Pack 需要预注册：
+
+- `epsilon`：单侧非劣性界值。
+- `delta`：不可接受结果概率上界。
+- 置信水平、统计功效、最小效应和区间方法。
+- 对 case、模型运行、仓库和 evaluator 方差建模所需的重复次数。
+- 候选配置 × 任务类别决策的多重比较校正。
+- 由罕见严重失败目标推导的最低样本量。
+
+二元不可接受结果应使用有依据的精确或保守置信上界。零次观测失败不等于零风险；95% 置信下的粗略 `3/n` 法则说明，小样本不能支撑严格的 `delta`。
+
+准入必须同时满足：
+
+```text
+基线通过绝对质量与不可接受结果门槛
+AND 候选的非劣性区间满足 epsilon
+AND 候选的不可接受结果上界满足 delta
+AND 达到预注册的功效与样本量
+AND 不存在未解释的严重失败簇
+AND 留出验收数据覆盖该任务切片
+```
+
+## 策略消融实验
+
+使用相同 case、预算和随机执行顺序，至少比较：
+
+1. Always Baseline：整个任务都使用已准入的基线配置。
+2. Session Static Auto：每个 Session/任务目标只选择一次已准入 route。
+3. Within-turn Auto：不带完整恢复的可信 phase 路由。
+4. Full Auto：turn 内路由加上被评估的恢复控制面。
+
+报告相邻实验组的增量差异。如果某项恢复收益在 Always Baseline 下同样存在，它属于通用执行监督收益，不是路由收益。
+
+只有 turn 内路由和完整 salvage/restart 能带来实质端到端增益，同时继续通过全部质量与安全门槛时，才进入产品范围。
 
 ## 核心指标
 
-### 质量
+### 质量与覆盖
 
-- `quality_gap_to_strong`：候选 route 相对 strong 的质量差。
-- `unacceptable_result_rate`：不可接受结果比例。
-- `under_routing_loss`：因选择过弱造成的严重损失。
-- 分位数和最坏类别表现，而不只报告平均值。
+- 基线绝对通过率。
+- 带区间的 `quality_gap_to_baseline`。
+- `unacceptable_result_rate` 上界。
+- `under_routing_loss`、严重失败簇、分位数和最差切片。
+- `auto_coverage`、abstain、`no-safe-route` 和分布外比例。
 
-### 覆盖
+### 性能与产品价值
 
-- `auto_coverage`：无需 abstain 即自动优化的任务比例。
-- `abstention_rate`：证据不足而使用 fallback 的比例。
-- `out_of_distribution_rate`：无法映射到已校准任务类别的比例。
+- 首个有效结果延迟和完整任务延迟。
+- 输入、输出、assessor、replay、retry 和 recovery token。
+- 模型调用成本和 Benchmark 摊销成本。
+- Prompt cache 损失和切换开销。
+- 各策略实验组的增量价值。
 
-### 性能
+### 恢复与委派
 
-- 端到端首个有效结果延迟。
-- 完成任务总延迟。
-- 输入/输出/辅助模型 token。
-- 模型调用成本。
-- 切换导致的缓存和历史重读开销。
+- 升级 precision/recall 和 selective risk。
+- Episode 持续时间分布、未解决 survival 和 release 正确性。
+- Continue/salvage/restart 的增量成功率与成本。
+- 对已声明支持副作用的有害修改逃逸率。
+- 父 Agent 升级请求、接受、拒绝和 override 比例。
 
-### 恢复
+## 准入生命周期与撤销
 
-- escalation precision/recall。
-- episode 平均持续 step 与未解决率。
-- continue、salvage、restart 的成功率和额外成本。
-- 错误修改逃逸率，即恢复后仍残留的弱模型副作用。
+Route Admission 记录配置身份、支持能力、任务切片、证据版本、样本量、统计结果、数据日期、过期时间、失效条件和撤销状态。
 
-## 准入规则
+出现以下情况时暂停或撤销准入：
 
-每个任务类别单独决定 route 准入。建议形式：
+- Provider/model 指纹变化或无法识别。
+- 配置别名可能指向未经验证的部署。
+- 周期性配对 canary 越过漂移阈值。
+- Policy Pack 过期。
+- 出现新的严重失败簇。
+- 所需能力或 evaluator 假设发生变化。
 
-```text
-候选 route 的质量差置信区间满足 epsilon
-AND 不可接受结果率上界满足 delta
-AND 样本量达到最低要求
-AND 没有未解释的高严重度失败簇
-```
-
-平均通过不能覆盖某个高风险子类的系统性失败。安全、并发、不可逆外部操作等类别应使用更严格阈值或固定 strong。
-
-## 模型档案
-
-公开模型能力榜单可以作为 cold-start prior，但不能直接成为产品路由真值。Route Profile 需要记录：
-
-- provider、model、effort 和能力。
-- 上下文窗口、视觉/工具支持等硬约束。
-- RouterBench 版本和样本量。
-- 质量、延迟、成本及置信区间。
-- 数据日期和失效条件。
-
-模型更新、provider 别名和服务端行为变化都可能使历史档案失效。运行 canary 与版本指纹是后续设计问题。
+撤销后立即从较弱的自动 route 移除该配置。如果不再存在已准入基线，Auto 返回 `no-safe-route`。
 
 ## 不使用的标签
 
-以下信号不表示 route 正确：
+以下事实不能证明 route 正确：
 
-- 用户手工选择了某个模型。
-- 用户接受或拒绝了一次切换建议。
-- 父 Agent 指定了某个 route。
-- 模型自称任务简单或已经解决。
-- 单次输出没有被用户重做。
+- 用户或父 Agent 选择了某个模型或 route。
+- 用户接受或拒绝了切换。
+- 模型声称任务简单、完成或问题已解决。
+- 一次结果没有被重做。
 
-可用事实包括可复现验证结果、明确用户纠正、任务最终是否完成、恢复动作与副作用，以及经过设计的成对评估。
+可用证据包括刻意设计的配对评估、可复现验证、与客观证据绑定的明确纠正、确认的任务完成条件，以及可归因的恢复副作用。

@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 6616c7b832fcf13886e23be15a2d54581a902206
+translation-source-blob: 9be46d4f471ecf141f30dd1c33bab86dd660c9ca
 translation-status: current
 -->
 
@@ -12,17 +12,17 @@ translation-status: current
 
 ## 一句话项目定位
 
-为个人重度 Agent 用户提供 DeepSeek Harness 自适应 Auto 模式：在维持固定 `strong` route 质量基线的前提下，根据任务、运行证据和用户约束自动选择模型与 reasoning effort，优先降低延迟，其次降低成本，并在误路由后限制损失和恢复。
+为个人重度 Agent 用户提供 DeepSeek Harness 自适应 Auto 模式：baseline 通过绝对质量门槛后，才根据任务、运行证据和用户约束从已准入 route 中自动选择模型与 reasoning effort；优先降低延迟，其次降低成本，并在误路由后限制损失。
 
 ## 项目快照
 
 | 项目 | 当前状态 |
 |---|---|
 | 项目阶段 | 规范评审；尚未进入实施计划、任务拆分或编码 |
-| 已有成果 | 产品规范、架构、路由、恢复、委派、RouterBench、路线图、开放问题、4 项 Proposed ADR 和 1 项 Accepted 文档语言 ADR |
+| 已有成果 | 产品规范、架构、路由、恢复、委派、RouterBench、DSH 接入证据、路线图、开放问题、6 项 Proposed ADR 和 1 项 Accepted 文档语言 ADR |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
-| 优化顺序 | 固定 strong 质量基线 → 端到端延迟 → 总成本 |
+| 优化顺序 | baseline 绝对质量门槛 + candidate 非劣性 → 端到端延迟 → 总成本 |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
 | 下一阶段入口 | 用户评审规范与 Proposed ADR；通过后才进入实施计划 |
@@ -46,6 +46,8 @@ translation-status: current
 - attempt、episode、continue/salvage/restart：`docs/recovery.md`。
 - 父 Agent 与子 Agent 权限：`docs/delegation.md`。
 - 任务集、质量门槛和评估：`docs/routerbench.md`。
+- 已验证的 DSH 扩展点和上游缺口：`docs/dsh-integration.md`。
+- 历史多视角评审证据：`docs/reviews/2026-08-14-multi-view-design-review.md`。
 - 术语定义：`docs/glossary.md`。
 - 文档语言和翻译同步：`docs/localization.md`。
 - 某项高代价决策的依据：对应 `docs/decisions/*.md`。
@@ -73,16 +75,18 @@ translation-status: current
 
 ## 产品关键不变量
 
-1. 质量基线优先：每个任务类别以配置的 `strong` route 为基线，先优化端到端延迟，再优化总成本。
+1. 质量优先：baseline 必须先通过绝对质量门槛，candidate 再满足预声明的非劣效界限；之后先优化端到端延迟，再优化总成本。
 2. 不把用户选择、父 Agent override 或模型自我报告当作正确路由标签。
 3. Host Routing Policy 拥有常规路由决策权；模型只提供任务意图或可选语义评估。
-4. 高风险、分布外或证据不足的任务必须 `abstain`，执行安全 fallback。
-5. 自动决策必须可解释、可审计、可恢复；实际 provider/model/effort 和原因必须可持久重建。
-6. 同一未解决 episode 内 route floor 只能保持或升级；可信阶段边界后允许在同一 turn 内重新路由和降级。
-7. 父 Agent 默认只能提高质量下限或增加语义约束，不能绕过 Routing Policy 指定任意 provider/model。
+4. 高风险、分布外或证据不足的任务必须 `abstain`；若没有当前已准入的安全配置，返回 `no-safe-route`，不得调用模型。
+5. 自动决策必须可解释、可审计；实际 provider/model/reasoning selection、request encoding 和原因必须可持久重建。只有明确声明且测试过的副作用类别才能宣称可恢复。
+6. 同一未解决 episode 内 route floor 只能保持或升级；阶段变化后的降级是需要证据准入的能力，不是无条件产品承诺。
+7. 父 Agent 约束只是提议。只有 Host 认可的要求或用户明确授权的 override 才成为硬约束；父 Agent 不得静默提高、降低或绕过 Routing Policy 指定任意 provider/model。
 8. Recovery Supervisor 核心通过形式化事件工作，不建立每 turn 注入 prompt 的自我报告协议。
 9. 不用裸 Git 回滚实现工作区恢复；Session checkpoint 与工作区 checkpoint 分别拥有明确语义和所有权。
-10. RouterBench 与在线运行使用同一策略实现；辅助评估器、切换、重试和恢复成本进入端到端指标。
+10. route 能力评估与生产策略场景评估使用独立数据集和 runner；涉及策略时，RouterBench 与在线运行使用同一 policy core。辅助评估器、切换、重试和恢复成本进入端到端指标。
+11. 普通用户只在 `Auto` 与手动 provider/model/reasoning selection 之间选择。默认值、校准、过期和撤销由维护者负责的版本化 Policy Pack 承担；高级 override 只是可选项。
+12. 一个模型 step 的 route 必须在依赖 provider 的 prompt/tool 组装之前冻结，并在 `agent/request` 原样应用。
 
 ## 文档权威位置
 
@@ -95,6 +99,7 @@ translation-status: current
 | attempt、episode、恢复动作和 checkpoint | `docs/recovery.md` |
 | 子 Agent 委派约束和权限 | `docs/delegation.md` |
 | Benchmark 任务、指标、评价和 route 准入 | `docs/routerbench.md` |
+| 已验证的 DSH 扩展点、阻塞和上游 seam | `docs/dsh-integration.md` |
 | 阶段依赖、阶段验收、明确不做 | `docs/roadmap.md` |
 | 未决问题 | `docs/open-questions.md` |
 | 文档语言和翻译同步 | `docs/localization.md` |
@@ -128,10 +133,13 @@ translation-status: current
 开始任何实质工作前，按顺序完成：
 
 1. 读取本文件和“新会话必读”，再按当前任务加载相关专题文档。
-2. 将 `/Users/wanglei/dsh-auto-mode` 视为主工作区；先确认 Git 状态和当前分支：
+2. 先初始化可移植本地路径，再把 `$main_worktree` 视为主工作区。非默认安装可以通过 `DSH_AUTO_MODE_ROOT` 和 `CODEX_TOOLS_DIR` 覆盖：
    ```bash
+   main_worktree="${DSH_AUTO_MODE_ROOT:-$HOME/dsh-auto-mode}"
+   codex_tools_dir="${CODEX_TOOLS_DIR:-$HOME/.codex/bin}"
+   cd "$main_worktree"
    git status --short --branch
-   sh /Users/wanglei/.codex/bin/codex-git-read branch-current
+   sh "$codex_tools_dir/codex-git-read" branch-current
    ```
 3. 修改文件前，主工作区必须是 clean `main`。若不是，停止并报告；不得把已有改动带入新任务。
 4. 只读核对远端 `main` 与本地 `main`。远端不可达、SHA 不一致或默认分支异常时停止并请求同步授权，不从未知基线继续：
@@ -140,7 +148,7 @@ translation-status: current
    git ls-remote --symref origin HEAD
    git ls-remote origin refs/heads/main
    ```
-5. 每个修改文件的任务都从 clean、已核对的 `main` 创建独立 `codex/<task-slug>` 分支和 worktree。若运行环境已经为本任务提供独立 worktree，不创建嵌套 worktree。
+5. 每个修改文件的任务都从 clean、已核对的 `main` 创建独立 `codex/<task-slug>` 分支和 worktree。维护者已长期授权通过受限 `codex-worktree add` 包装命令创建，今后直接执行，不再询问。若运行环境已经为本任务提供独立 worktree，不创建嵌套 worktree。
 6. 明确任务类型：规范/文档、DSH 扩展点调研、RouterBench、插件实现、恢复机制、委派适配或发布。
 7. 先查仓库和 DSH 现状，再问用户。能从代码、文档和已记录决策得到的事实不重复询问。
 8. 将新结论归为已确认规范、Proposed 决策、证据、开放问题或当前进度，并写入权威文件。
@@ -150,11 +158,13 @@ translation-status: current
 
 `.worktrees/` 是仓库内已忽略的临时 worktree 容器。所有路径都使用相对路径和受限包装器，不直接运行裸 `git worktree add/remove` 或宽泛 `git switch`。
 
-从主工作区创建任务 worktree：
+从主工作区创建任务 worktree。如果当前 shell 尚未执行任务开始清单中的可移植变量初始化，先执行初始化：
 
 ```bash
-cd /Users/wanglei/dsh-auto-mode
-sh /Users/wanglei/.codex/bin/codex-worktree add \
+main_worktree="${DSH_AUTO_MODE_ROOT:-$HOME/dsh-auto-mode}"
+codex_tools_dir="${CODEX_TOOLS_DIR:-$HOME/.codex/bin}"
+cd "$main_worktree"
+sh "$codex_tools_dir/codex-worktree" add \
   -b codex/<task-slug> \
   .worktrees/<task-slug>/workspace \
   main
@@ -163,11 +173,12 @@ sh /Users/wanglei/.codex/bin/codex-worktree add \
 后续命令和文件修改都在：
 
 ```text
-/Users/wanglei/dsh-auto-mode/.worktrees/<task-slug>/workspace
+$main_worktree/.worktrees/<task-slug>/workspace
 ```
 
 规则：
 
+- 使用受限包装命令创建所需 `codex/<task-slug>` 分支和 worktree 已获长期授权，不要逐任务请求确认。
 - 一个 worktree 只承载一个任务；分支名与 task slug 对应。
 - 不在主工作区 `main` 直接开发。
 - 不在任务 worktree 中混入其他任务或用户已有改动。
@@ -178,14 +189,14 @@ sh /Users/wanglei/.codex/bin/codex-worktree add \
 需要切换受控分支时使用：
 
 ```bash
-sh /Users/wanglei/.codex/bin/codex-worktree switch <branch>
+sh "$codex_tools_dir/codex-worktree" switch <branch>
 ```
 
 任务 worktree clean 且其提交已经按授权集成后，使用：
 
 ```bash
-cd /Users/wanglei/dsh-auto-mode
-sh /Users/wanglei/.codex/bin/codex-worktree remove \
+cd "$main_worktree"
+sh "$codex_tools_dir/codex-worktree" remove \
   .worktrees/<task-slug>/workspace
 ```
 
@@ -205,30 +216,37 @@ sh /Users/wanglei/.codex/bin/codex-worktree remove \
 3. 修改文档导航时检查所有本地相对链接；修改术语或公共类型提案时检查引用位置是否同步。
 4. 使用受限只读包装器审查 working diff；暂存后再审查 staged diff：
    ```bash
-   sh /Users/wanglei/.codex/bin/codex-git-read diff
-   sh /Users/wanglei/.codex/bin/codex-git-read diff --staged
+   sh "$codex_tools_dir/codex-git-read" diff
+   sh "$codex_tools_dir/codex-git-read" diff --staged
    ```
 5. 只 stage 本任务文件，检查无关改动、临时文件、密钥、token、`.env`、private key 和敏感 prompt 内容。
-6. 只有用户对本次 Git 写入明确授权时才创建原子 commit。Commit message 使用英文 Conventional Commits。提交后确认任务 worktree clean，并记录分支和 commit SHA：
+6. 校验通过后直接创建原子 commit，不再逐任务请求确认。Commit message 使用英文 Conventional Commits。校验失败、暂存范围不明确，或 staged diff 含无关/敏感内容时不得提交。提交后确认任务 worktree clean，并记录分支和 commit SHA：
    ```bash
    git status --short --branch
    git rev-parse HEAD
    ```
-7. 只有用户明确授权本次集成和远端写入时，才在 clean 主工作区再次核对远端 SHA，然后执行 fast-forward 合入和 push。远端已移动或 `--ff-only` 失败时停止，不能改用普通 merge 绕过：
+7. Commit 完成后直接把当前任务分支 push 到 `origin`，不再逐任务请求确认。只能执行普通 fast-forward push，禁止 force-push。远端任务分支已分叉或 push 被拒绝时停止并报告，不得改写历史：
    ```bash
-   cd /Users/wanglei/dsh-auto-mode
+   task_branch="$(git branch --show-current)"
+   git ls-remote origin "refs/heads/$task_branch"
+   git push -u origin HEAD
+   git ls-remote origin "refs/heads/$task_branch"
+   ```
+8. 只有用户明确授权合入和发布 `main` 时，才在 clean 主工作区再次核对远端 SHA，然后执行 fast-forward 合入和 push。远端已移动或 `--ff-only` 失败时停止，不能改用普通 merge 绕过：
+   ```bash
+   cd "$main_worktree"
    git rev-parse main
    git ls-remote origin refs/heads/main
    git merge --ff-only codex/<task-slug>
    git push origin main
    ```
-8. Push 后核对本地 `main` 与远端 `main` SHA 完全一致，并确认任务 commit 是远端 ancestor；未完成远端核验不得声称已发布：
+9. Push `main` 后核对本地 `main` 与远端 `main` SHA 完全一致，并确认任务 commit 是远端 ancestor；未完成远端核验不得声称已发布：
    ```bash
    git rev-parse main
    git ls-remote origin refs/heads/main
    git merge-base --is-ancestor <task-commit-sha> main
    ```
-9. 只有任务 worktree clean、提交已按授权集成且远端核验通过，才移除 worktree。未授权 commit、merge 或 push 时，保留现场并报告准确路径和状态。
+10. 只有任务 worktree clean、提交已按授权集成且远端核验通过，才移除 worktree。尚未授权 merge 时，保留现场并报告准确路径和状态。
 
 ## 何时必须停下来问用户
 
@@ -242,7 +260,7 @@ sh /Users/wanglei/.codex/bin/codex-worktree remove \
 - 放宽父 Agent 权限、abstain 条件、episode 释放条件或恢复安全边界。
 - 自动创建、恢复或删除工作区 checkpoint，或处理非文件外部副作用。
 - 删除/重命名公共文档、事件、配置或用户可见接口。
-- Commit、merge、push、删除分支/worktree 或其他 Git 引用与远端写操作未获得本次明确授权。
+- 未经本次明确授权就合入或 push `main`、删除分支/worktree、修改 remote、amend/改写 commit、rebase、reset、force-push 或以其他方式改写已发布历史。校验通过后的原子 commit，以及把当前任务分支普通 push 到远端，已获得维护者长期授权。
 
 ## 当前硬阻塞
 

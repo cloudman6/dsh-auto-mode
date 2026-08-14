@@ -4,46 +4,53 @@
 
 ## Status
 
-Proposed. This document describes target capability boundaries; it does not claim that DSH already exposes every required extension point.
+Proposed. This document defines target capability boundaries. Verified current DSH seams and required upstream changes are recorded separately in [DSH integration evidence](dsh-integration.md).
 
 ## Architecture principles
 
-1. Normal routing decisions belong to a policy service in the DSH Host, not to a parent agent or Router Agent.
-2. Semantic assessment, policy mapping, and concrete-model resolution are separate layers, preventing unstable model output from becoming a provider/model decision directly.
-3. Selection, recovery, and delegation authority are three control planes. One product may assemble them, but they must not share an unbounded Scheduler API.
-4. Runtime code executes in the Host and decides per Agent/Session; every fact required for recovery and audit belongs to the Session.
-5. In-memory state is only a projection of persisted events and cannot be the sole source of truth.
+1. Normal routing decisions belong to deterministic policy in the DSH Host, not to a parent agent, assessor, or Router Agent.
+2. Task assessment, constraint resolution, policy mapping, concrete-configuration resolution, and request integration are separate layers.
+3. A semantic route is a quality-guarantee tier backed by current Policy Pack evidence, not a synonym for a model name.
+4. Selection, execution-state projection, recovery, and delegation are bounded control planes; they do not share an unbounded Scheduler API.
+5. Persisted Session events are the source of truth. In-memory state is a projection and every automatic decision must reference the exact input snapshot that produced it.
+6. One model step uses one frozen Route Snapshot across provider-dependent prompt/tool assembly and `agent/request`.
+7. Failure to resolve a safe admitted configuration is a first-class stop result, not an implicit fallback.
 
 ## Components
 
 ```mermaid
 flowchart LR
-    U["User constraints"] --> D["Delegation Policy"]
-    P["Parent-agent child task"] --> D
-    D --> A["Task Assessment"]
-    A --> R["Routing Policy"]
-    D --> R
-    C["Route Catalog / Profiles"] --> R
-    R --> X["Route Profile Resolver"]
-    X --> Q["Adaptive Router Consumer"]
+    U["Auto or manual mode\nuser restrictions"] --> C["Constraint Resolver"]
+    P["Parent child-task proposal"] --> D["Delegation Policy"]
+    D --> C
+    E["Session and tool events"] --> X["Execution Context Projector"]
+    X --> A["Task Assessment"]
+    X --> C
+    W["Policy Pack + Deployment Profile"] --> R["Routing Policy"]
+    W --> V["Route Profile Resolver"]
+    A --> R
+    C --> R
+    S["Recovery Supervisor"] --> R
+    R --> V
+    V --> Q["Route Snapshot Coordinator"]
+    Q --> M["Prompt/tool assembly"]
     Q --> L["agent/request → LLM"]
-
-    L --> E["Session / Agent / Tool events"]
-    E --> S["Recovery Signal Providers"]
-    S --> V["Recovery Supervisor"]
-    V --> R
-    V -.when necessary.-> M["Recovery Assessor"]
-    B["RouterBench"] --> R
+    L --> E
+    E --> S
+    B["RouterBench"] --> W
     B --> A
+    B --> R
 ```
 
-### Adaptive Router Consumer
+### Execution Context Projector
 
-Listens to every DSH `agent/request`, gathers routing context for the current Agent, calls Routing Policy, and uses Route Profile Resolver to produce the final LLM call configuration. It owns integration, not policy.
+Folds persisted events into the current objective, confirmed phase, task boundary, active attempts, and evidence watermarks. It is the sole owner of confirmed `ObjectiveState` and `PhaseState`. Models, parent agents, tools, and classifiers may propose a phase transition; only a deterministic transition policy or an explicitly recorded user action confirms it.
+
+Routing Policy consumes confirmed state. A free-form claim such as “implementation is complete” cannot change phase, close an episode, or authorize down-routing by itself.
 
 ### Task Assessment
 
-Converts a task description and bounded context into provider-independent task attributes:
+Converts a bounded execution snapshot into provider-independent attributes:
 
 ```ts
 interface TaskAssessment {
@@ -54,121 +61,211 @@ interface TaskAssessment {
   reversibility: 'easy' | 'costly' | 'irreversible' | 'unknown'
   detectability: 'high' | 'medium' | 'low' | 'unknown'
   confidence: number
+  assessorVersion: string
 }
 ```
 
-The implementation may use deterministic rules, a local classifier, or a fixed auxiliary model. It returns attributes, never a model name.
+The implementation may use deterministic rules or a fixed auxiliary model. It returns attributes, never a model name. Its calibration is evaluated independently from Routing Policy.
+
+### Constraint Resolver and Delegation Policy
+
+Delegation Policy validates parent proposals and emits normalized candidate requirements. Constraint Resolver combines Host security and capability constraints, user restrictions, Host-accepted parent requirements, and active episode floors into `ResolvedRoutingConstraints`.
+
+The result records accepted and rejected constraints, provenance, reason codes, the effective candidate set, and the guarantee-tier floor. Parent-provided `minimumRoute` is not automatically binding merely because it raises the tier.
+
+### Policy Pack and Effective Route Catalog
+
+The maintainer-owned Policy Pack contains taxonomy, absolute baseline gates, candidate admission evidence, evaluator and policy versions, expiry, and revocation. The deployment profile is populated from DSH's active provider/model catalog and exact-route metadata, then adds local capability facts and user restrictions. Reasoning is represented explicitly as an effort selected by the caller, an adapter-materialized default, or an omitted effort that preserves provider-default behavior. Compilation freezes a versioned Effective Route Catalog used by Constraint Resolver, Routing Policy, and Route Profile Resolver.
+
+DSH discovery establishes availability, not Auto admission. The compiler intersects discovered configurations with current Policy Pack admissions, capability requirements, stable identity evidence, and user restrictions. A model may remain selectable in manual mode while being ineligible for Auto.
+
+An arbitrary local mapping, expired record, or unidentified provider alias is not admitted automatically.
 
 ### Routing Policy
 
-Consumes task attributes, hard constraints, user settings, active episodes, the Route Catalog, and RouterBench calibration data, then returns a semantic route. Given the same captured inputs and policy version, the policy mapping must be deterministic.
+Consumes the immutable decision-input snapshot, assessment, resolved constraints, active episode floors, recovery capability, and frozen Effective Route Catalog. Given the same persisted snapshot and policy version, its semantic decision is deterministic.
+
+Routing Policy selects a guarantee tier or abstains. It does not select a raw provider/model string and it does not decide how an unsatisfied resolution failure is presented.
 
 ### Route Profile Resolver
 
-Maps `fast`, `standard`, and `strong` to provider/model/effort combinations available in the current deployment. Public model rankings and community profiles affect profiles and cold-start priors only; they do not replace task policy directly.
+Resolves an admitted guarantee tier to an available provider/model/reasoning-selection candidate. It is a pure function of the frozen Effective Route Catalog and resolved constraints; it never rereads live discovery during one decision. After capability and admission filtering, it orders eligible concrete candidates by predicted end-to-end latency, then total cost, then stable route identity. Missing required identity or comparison data makes the profile invalid rather than allowing discovery order to decide. The resolver version and selected admission identity are persisted. It produces either an effective configuration or an explicit failure such as `constraints-unsatisfiable`, `profile-invalid`, `provider-unavailable`, or `no-safe-route`.
+
+### Route Snapshot Coordinator
+
+Owns DSH lifecycle integration for one model step:
+
+1. At the stable pre-assembly boundary, freeze the Policy Pack and deployment profile, compile the Effective Route Catalog, and capture ordered claimed messages plus the current execution projection.
+2. Persist the compiled catalog as an immutable `EffectiveRouteCatalogSnapshotEvent`.
+3. Persist the raw execution state as an immutable `RoutingContextSnapshotEvent` that references that already-existing catalog snapshot.
+4. Run constraint resolution and any required assessment against that context snapshot, then persist their outputs with backward references to it.
+5. Persist the final `DecisionInputSnapshotEvent`, referencing only the context, constraint, and assessment events that now exist.
+6. Run Routing Policy and Route Profile Resolver against that final decision input and the same frozen catalog.
+7. Persist the semantic decision and resolution result.
+8. Freeze and persist one `RouteSnapshot` containing the concrete identity, reasoning selection, request encoding, and relevant version references.
+9. Make prompt/tool assembly and `agent/request` consume that same snapshot and snapshot identity.
+
+If recovery selects a different route after a request failure, the coordinator starts a new step or uses an upstream seam that repeats provider-dependent assembly. It must not replace only the final request config after an earlier assembly was built for another model.
 
 ### Recovery Supervisor
 
-Folds formal runtime signals and manages attempts, episodes, and recovery actions. It uses no model by default and does not converse with the current Agent in natural language. An optional Recovery Assessor is invoked only when semantic evidence can change an expensive recovery decision.
-
-### Delegation Policy
-
-Normalizes child-task intent and constraints from a parent agent into routing inputs, then enforces authority rules. Parent agents may raise the quality floor or add constraints by default; they may not reduce policy requirements or select an arbitrary raw model.
+Folds formal runtime signals into attempts and episodes. It supplies route floors and declared `RecoveryCapability` to Routing Policy. It uses no model by default. Full `salvage` and `restart` are separate from the minimum recovery capability required to admit mutable work.
 
 ### RouterBench
 
-Uses the same Task Assessment and Routing Policy as online execution for paired route experiments, policy calibration, and regression detection. The Benchmark must not maintain a second “simplified router” that differs from production.
+Contains two related but distinct systems:
+
+- Route Capability Bench measures provider/model/reasoning-selection configurations and produces admission evidence without invoking production policy as the treatment assignment.
+- Policy Scenario Bench runs the same policy core as production against versioned state-machine scenarios and strategy ablations.
+
+Calibration and held-out acceptance data are separate. Benchmark oracle metadata never enters Task Assessment or online policy inputs.
 
 ## Request flow
 
 ```text
-1. An Agent step prepares a model request
-2. Adaptive Router Consumer gathers structured context
-3. Delegation Policy combines user authority, hard constraints, and parent constraints
-4. Task Assessment runs when necessary
-5. Routing Policy selects a semantic route or abstains
-6. Route Profile Resolver resolves provider/model/effort
-7. Record routing/decision
-8. agent/request returns the effective call configuration
-9. DSH records the effective request/header and calls the model
-10. Runtime events flow into Recovery Signal Providers
-11. Recovery Supervisor updates episodes or initiates a recovery action
+1. Session reaches a stable pre-assembly boundary
+2. Execution Context Projector produces objective and confirmed phase state
+3. Route Snapshot Coordinator compiles and freezes the Effective Route Catalog
+4. Persist EffectiveRouteCatalogSnapshot
+5. Capture and persist RoutingContextSnapshot, including ordered claimed-message references and a backward catalog reference
+6. Constraint Resolver produces persisted ResolvedRoutingConstraints against that snapshot
+7. Task Assessment runs when required and persists a backward reference to the same snapshot
+8. Persist DecisionInputSnapshot referencing the already-existing context, constraints, and optional assessment
+9. Routing Policy selects a guarantee tier or abstains
+10. Route Profile Resolver deterministically resolves an admitted configuration or a stop result from the frozen catalog
+11. Persist decision, resolution, evidence references, and versions
+12. Freeze and persist RouteSnapshot
+13. Assemble provider-dependent prompt and tools from RouteSnapshot
+14. agent/request applies the same RouteSnapshot
+15. DSH records request/header and calls the model
+16. Runtime events flow into signal providers and Recovery Supervisor
 ```
 
-Routing happens before every model request, not only when a Session or child agent is created. After creation, an in-process child agent follows the same `agent/request` path. Only providers that must fix a model before creating an external process require an additional Subagent Routing Adapter.
+An in-process child agent follows the same path. An external provider that fixes the model at process creation needs a pre-start adapter that consumes the same semantic inputs and resolver.
 
-## Proposed persisted events
+## Persisted event model
 
-Event names and fields require review against the current DSH Session API. The minimum is:
+Names remain Proposed until the DSH event-registration seam is resolved. The minimum logical records are:
 
 ```ts
-interface RoutingDecisionEvent {
-  turn: number
-  step: number
-  outcome: 'selected' | 'abstained'
-  route: RouteId
-  effectiveConfig: {
-    provider: string
-    model: string
-    reasoningEffort?: string
-  }
-  reasonCode: ReasonCode
-  evidenceRefs: EventRef[]
-  policyVersion: string
-  profileVersion: string
+interface EffectiveRouteCatalogSnapshotEvent {
+  catalogSnapshotId: CatalogSnapshotId
+  policyPackVersion: string
+  deploymentProfileVersion: string
+  compilerVersion: string
+  candidateAdmissionIds: readonly AdmissionId[]
+  digest: string
 }
 
-interface RecoveryEpisodeEvent {
-  episodeId: string
-  attemptId: string
-  action: 'opened' | 'resolved' | 'superseded' | 'abandoned' | 'restarted' | 'user-cleared'
-  minimumRoute: RouteId
-  reasonCode: string
-  evidenceRefs: EventRef[]
+interface RoutingContextSnapshotEvent {
+  contextSnapshotId: ContextSnapshotId
+  routingScope:
+    | { kind: 'session'; sessionId: SessionId }
+    | { kind: 'objective'; objectiveId: ObjectiveId }
+  phaseId?: PhaseId
+  turn: number
+  step: number
+  claimedMessageRefs: readonly EventRef[]
+  activeEpisodeRefs: EventRef[]
+  recoveryCapabilityRef: EventRef
+  effectiveRouteCatalogRef: EventRef
+  evidenceWatermark: number
+}
+
+interface ResolvedRoutingConstraintsEvent {
+  constraintsId: ConstraintsId
+  contextSnapshotRef: EventRef
+  // accepted inputs, rejected inputs, provenance, candidate set, floor, reasons
+}
+
+interface TaskAssessmentEvent {
+  assessmentId: AssessmentId
+  contextSnapshotRef: EventRef
+  assessment: TaskAssessment
+}
+
+interface DecisionInputSnapshotEvent {
+  decisionInputId: DecisionInputId
+  contextSnapshotRef: EventRef
+  constraintsRef: EventRef
+  assessmentRef?: EventRef
+  policyVersion: string
+  resolverVersion: string
+}
+
+interface RoutingDecisionEvent {
+  decisionId: DecisionId
+  decisionInputRef: EventRef
+  outcome: 'selected' | 'abstained'
+  route?: RouteId
+  requestedFallback?: RouteId
+  reasonCode: ReasonCode
+  policyVersion: string
+}
+
+type RouteResolutionEvent =
+  | {
+      decisionId: DecisionId
+      outcome: 'resolved'
+      effectiveConfig: EffectiveCallConfig
+      reasoningSelection: ReasoningSelection
+      admissionIdentity: AdmissionIdentity
+      profileVersion: string
+      resolverVersion: string
+    }
+  | {
+      decisionId: DecisionId
+      outcome: 'failed'
+      failureCode: ResolutionFailure
+      profileVersion: string
+      resolverVersion: string
+    }
+
+interface RouteSnapshotEvent {
+  routeSnapshotId: RouteSnapshotId
+  contextSnapshotRef: EventRef
+  decisionRef: EventRef
+  resolutionRef: EventRef
+  turn: number
+  step: number
+  effectiveConfig: EffectiveCallConfig
+  reasoningSelection: ReasoningSelection
+  requestEncoding:
+    | 'explicit-effort'
+    | 'adapter-default-materialized'
+    | 'provider-default-omitted'
 }
 ```
 
-Record every decision, including a `keep` where the route does not change, so auto coverage, abstention, escalation, and recovery metrics are computable. `keep`, `upgrade`, and `downgrade` are display states derived from adjacent target routes, not policy outputs.
+Objective, phase, attempt, and episode events form explicit state machines with creation, transition, resolution, supersession, abandonment, restart, and user-intervention outcomes. Event references, rather than duplicated mutable fields, connect each decision to its immutable inputs.
 
-## Recovery Supervisor and Session interaction
+All references point backward to already-persisted immutable events; forward references and post-persistence mutation are invalid. `claimedMessageRefs` preserve processing order, and `evidenceWatermark` defines the inclusive event boundary visible to the decision. A route snapshot identity is carried through both assembly and request integration so equality is not inferred merely from matching provider/model strings.
 
-Recovery Supervisor uses machine interfaces:
+Every attempted decision is recorded, including a semantic keep. UI aggregation may collapse repeated keeps without deleting the underlying audit facts.
 
-- Listen to persisted Session events and live `agent/*` and `tools/*` events.
-- Use Signal Providers to normalize heterogeneous tool results into discriminated unions.
-- Fold events into RecoveryState.
-- Append its own log-only events.
-- Provide active route floors to Routing Policy on the next `agent/request`.
+## Recovery Supervisor and model interaction
 
-It does not require the current model to return dedicated natural language or JSON on every turn. Agent todo items, plans, or `report_progress` are weak self-reports and cannot close an episode alone.
+Recovery Supervisor listens to persisted Session events plus live Agent, tool, validation, and mutation events. Signal Providers normalize only sources whose semantics they own; unknown shell or external side effects become `mutation-unknown`, not inferred success.
 
-Only when a recovery action must alter model behavior does the system inject one persisted, reconstructable instruction:
+The current model does not return supervisor JSON on every turn. One persisted, reconstructable instruction is injected only when a recovery action changes model behavior:
 
-- `continue`: tell the upgraded model to review unverified assumptions inherited from the previous route.
-- `salvage`: render and inject a structured Evidence Capsule into a new Session.
-- `restart`: inject only the original task and clean-checkpoint description, excluding previous hypotheses.
+- `continue`: require review of inherited, unverified assumptions.
+- `salvage`: render a provenance-tagged Evidence Capsule into a new execution context.
+- `restart`: inject the original task and clean execution-world description without previous hypotheses.
 
-Any recovery information entering model context must travel through a DSH logged channel that can be reconstructed.
+Facts and hypotheses have separate trust classes in the Evidence Capsule.
 
 ## Optional model assessors
 
-Task Assessor and Recovery Assessor share these boundaries:
+Task and Recovery Assessors:
 
-- Use a fixed configuration that Adaptive Router cannot route again.
-- Make one bounded auxiliary call without tools or autonomous loops.
-- Consume a bounded snapshot and return a validated data structure.
-- Return `unknown` on timeout, failure, or low confidence.
-- Persist output without granting it final authority.
-- Include assessor latency and cost in RouterBench.
+- Use fixed configurations that Auto cannot recursively route.
+- Make one bounded call without tools or autonomous loops.
+- Consume bounded snapshots and return validated structures.
+- Return `unknown` on failure, timeout, or low confidence.
+- Persist outputs as evidence without decision authority.
+- Have separate calibration, selection-risk, latency, and cost reports.
 
-If an assessor asks a weak model whether the same weak model should be escalated, self-supervision bias results. The default assessor should be independent of the current execution model.
+## DSH integration status
 
-## DSH extension points to verify
-
-- Whether `agent/request` lets a plugin fully replace provider/model/reasoningEffort.
-- Where to read stable current turn/step, Session projection, and route capability.
-- How plugins declare, restore, and render persisted events in the UI.
-- Whether child-agent requests can carry persistent semantic RoutingConstraints.
-- Whether an out-of-process provider can accept a semantic route before creation.
-- Whether filesystem, shell, and test-runner capabilities expose enough structured validation and mutation events.
-- How Session forks associate with execution-workspace checkpoints.
+The current source audit confirms per-step `agent/request` configuration replacement and reconstructable `request/header` logging. It also identifies unresolved seams for required plugin Session events, pre-assembly route coordination, persistent child constraints, external-provider creation-time routing, workspace recovery, and Session handoff. The exact evidence and compatibility policy are maintained in [DSH integration evidence](dsh-integration.md).

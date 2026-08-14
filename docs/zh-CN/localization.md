@@ -1,7 +1,7 @@
 <!--
 translation-source: docs/localization.md
 translation-source-blob: 24818e2ff5bffffd3163dca6f696cfd0ca406b3d
-translation-status: <current 或 outdated>
+translation-status: current
 -->
 
 # 文档本地化策略

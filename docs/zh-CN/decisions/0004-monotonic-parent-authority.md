@@ -1,10 +1,10 @@
 <!--
 translation-source: docs/decisions/0004-monotonic-parent-authority.md
-translation-source-blob: 1039f6d1f7eba8f46160f110b014c750efc3a425
+translation-source-blob: c51da0647792df7a4d88a91c452583f025e20bdf
 translation-status: current
 -->
 
-# ADR-004：父 Agent 默认只有单调提高质量要求的权限
+# ADR-004：父 Agent 权限有界并由 Host 解析
 
 [English](../../decisions/0004-monotonic-parent-authority.md)
 
@@ -18,31 +18,33 @@ Proposed
 
 ## 背景
 
-父 Agent 比 Host 更了解子任务意图，但它仍然是模型，未必能正确选择具体模型。如果父 Agent 的 model/effort override 无条件高于 Routing Policy，它可以习惯性使用最强模型或错误降低配置，使 Auto 失效。
+父 Agent 了解 child task 意图，但仍是不可信模型。如果具体 model/effort override 高于策略，父 Agent 可能习惯性选择最强配置或错误降低配置。“父 Agent 要求看起来更强就自动成为硬约束”还有另一种失败模式：系统性过度升级会绕过 Auto 并消耗无界资源。
 
 ## 决策
 
-父 Agent 默认提交语义 RoutingConstraints，可以提高最低 route、要求独立评审或声明能力约束，但不能降低 Host 判定的质量下限，也不能指定任意原始 provider/model/effort。
+父 Agent 提交结构化任务意图和路由约束提议。Host Delegation Policy 验证 provenance、用户授权、能力事实、安全策略和冲突后，产出 `ResolvedRoutingConstraints`。
 
-只有用户在 profile 中显式授权时，父 Agent 才能从 allowlist 中选择语义 route。每次 override 持久记录，但不作为正确标签。
+提高最低保证档位的提议比较保守，但不会自动成为硬约束。有 Host 认可要求支持时接受；证据不足时可以保持现有 floor；不可能或未授权约束必须显式拒绝。父 Agent 默认绝不能降低 Host floor，也不能选择任意 raw provider/model/reasoning selection。
+
+只有用户明确授权时，父 Agent 才可从 allowlist 做语义 override。Raw provider/model 绕过仍禁止。持久化提议、解析结果和理由；这些都不是正确性标签。
 
 ## 备选方案
 
 ### 父 Agent 完全控制具体模型
 
-拒绝。形成静默绕过入口并与部署配置强耦合。
+否决。这会建立静默策略绕过，并把 Agent 与 deployment 配置耦合。
 
-### 父 Agent 完全没有输入权
+### 父 Agent 的每次加强请求都成为硬约束
 
-拒绝。会丢失子任务风险、独立评审和能力要求等重要意图。
+否决。它防止路由过弱，但会导致系统性过度升级并绕过策略证据。
 
-### 父 Agent 声明的风险视为事实
+### 父 Agent 不提供任何输入
 
-拒绝。模型可能漏报或误解风险；Host 仍需独立评估和执行硬约束。
+否决。这会丢失风险、独立评审要求和必需能力等任务意图。
 
 ## 后果
 
-- 需要持久、结构化的 RoutingConstraints。
-- Delegation Policy 与 Routing Policy 职责分离。
-- 进程内 child 使用统一 `agent/request`；不需要单独 Scheduler。
-- 外部 provider 若必须创建前选模型，需要调用相同 Routing Policy 的适配器。
+- 系统需要持久化 proposed 与 resolved RoutingConstraints。
+- Delegation Policy 与 Routing Policy 仍是独立职责。
+- 指标区分升级提议、接受要求、拒绝提议和用户授权 override。
+- 只有外部 provider 创建契约能执行 resolved constraints 时才支持该 provider。

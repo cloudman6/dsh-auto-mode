@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/recovery.md
-translation-source-blob: 9688337b4ec8c7991ce724786bc9ae5e12d0f21b
+translation-source-blob: 385d926913e15f965c35e1d0cff1f87af819bc34
 translation-status: current
 -->
 
@@ -12,6 +12,11 @@ translation-status: current
 
 Recovery Supervisor 解决“选错后怎么限制损失并恢复”。它不负责初始 route，也不决定父 Agent 权限。
 
+恢复包含两个不能混为一谈的范围：
+
+- 路由安全：声明当前执行世界是只读、可归属、已隔离、可恢复还是未知。Routing Policy 在为可变任务准入弱 route 前必须消费该输入。
+- 完整恢复产品：选择并执行 `continue`、`salvage` 或 `restart`。其价值相对静态或 turn 内路由独立评估。
+
 核心组件：
 
 - Recovery Signal Providers：把 DSH/工具事件标准化为形式化信号。
@@ -20,9 +25,31 @@ Recovery Supervisor 解决“选错后怎么限制损失并恢复”。它不负
 - Checkpoint Provider：关联 Session 稳定边界与隔离工作区状态。
 - Recovery Assessor：可选语义传感器，不拥有决策权。
 
+## Recovery Capability
+
+```ts
+interface RecoveryCapability {
+  workspace:
+    | 'read-only'
+    | 'attributable-files'
+    | 'isolated-checkpoint'
+    | 'unknown'
+  externalSideEffects:
+    | 'none'
+    | 'transactional'
+    | 'idempotent'
+    | 'irreversible'
+    | 'unknown'
+  checkpointRef?: WorkspaceCheckpointRef
+  providerVersion: string
+}
+```
+
+该记录描述执行世界能够证明什么，不描述 Recovery Supervisor 希望恢复什么。未知、不可逆或不可归属的高影响 mutation 会抬高 route floor 或阻止 Auto 执行。工作区 checkpoint 绝不表示数据库、消息、部署或远程 API 副作用可恢复。
+
 ## Attempt
 
-Attempt 是一次从已知 Session 边界和工作区 checkpoint 开始的执行尝试。每次允许弱 route 修改工作区前，必须知道是否存在足够的恢复能力；没有隔离 checkpoint 时，对高风险可变更任务采取更保守路由。
+Attempt 是一次从已知 Session 边界和已声明 Recovery Capability 开始的执行尝试。只有执行只读，或准入风险 envelope 允许无需回滚的可归属修改时，工作区 checkpoint 才可以省略。允许弱 route 修改状态前，Policy 必须知道恢复能力是否充分。
 
 ```ts
 interface Attempt {
@@ -73,9 +100,14 @@ type RecoverySignal =
       phase: TaskPhase
       source: 'agent' | 'classifier' | 'tool'
     }
+  | {
+      kind: 'mutation-unknown'
+      source: 'shell' | 'external' | 'concurrent-agent'
+      evidenceRef: EventRef
+    }
 ```
 
-Agent 自我报告是弱信号，不能单独证明完成。测试结果、退出码、文件修改等应尽量由所属能力提供结构化事实，而不是由 Recovery Supervisor 解析任意自然语言终端输出。
+Agent 自我报告是弱信号，不能单独证明完成。测试结果、退出码、文件修改等应尽量由所属能力提供结构化事实，而不是由 Recovery Supervisor 解析任意自然语言终端输出。未知副作用保持未知，不能转换成通过信号。
 
 ## Episode
 
@@ -93,7 +125,7 @@ interface RoutingEpisode {
 }
 ```
 
-Episode Controller 在稳定事件边界执行状态转换。模型、父 Agent 和分类器可以提出 phase 变化或完成声明，但没有 episode 所有权。
+Episode Controller 在稳定事件边界执行状态转换。模型、父 Agent 和分类器可以提出 phase 变化或完成声明，但没有 episode 所有权。Execution Context Projector 拥有已确认 phase 和 objective 状态；phase 变化不会自动释放 episode。
 
 ### 示例释放条件
 
@@ -152,7 +184,12 @@ interface EvidenceCapsule {
   commandsRun: CommandRecord[]
   validationResults: ValidationResult[]
   diffSummary: DiffSummary
-  observations: Observation[]
+  observations: Array<{
+    value: Observation
+    sourceEvent: EventRef
+    producer: string
+    trust: 'mechanical-fact' | 'structured-observation'
+  }>
   hypotheses: Array<{
     statement: string
     status: 'unverified' | 'rejected' | 'supported'
@@ -160,7 +197,7 @@ interface EvidenceCapsule {
 }
 ```
 
-不能只依赖弱模型自由文本总结，因为总结可能复制错误假设。
+不能只依赖弱模型自由文本总结，因为总结可能复制错误假设。Hypothesis 永不表示为事实；每个 Capsule 条目都携带 provenance 和 trust class。
 
 ### Restart
 
@@ -179,7 +216,19 @@ interface EvidenceCapsule {
 
 这两个维度必须分别决策。自动恢复不能通过裸 `git checkout`、`git reset --hard` 等命令实现，因为它们无法证明修改所有权，可能覆盖用户或其他 Agent 的工作。
 
-Checkpoint Provider 的候选机制包括隔离 worktree、写时复制执行世界或文件事务层；具体方案仍是开放问题。
+Checkpoint Provider 的候选机制包括隔离 worktree、写时复制执行世界或文件事务层；具体方案仍是开放问题。自动恢复声明只覆盖所选 provider 明确声明且通过 conformance test 的副作用。
+
+## 用户干预与恢复失败
+
+机器恢复不能消除有界人工逃生路径。UI 必须显示 active episode、触发证据、已声明执行世界能力、当前工作区影响和可用动作：
+
+- 保持当前安全档并继续。
+- 提供明确验证证据供策略评估。
+- 保留现有证据和工作区并放弃本次 attempt。
+- 导出证据记录。
+- 退出 Auto 并手动接管。
+
+`user-cleared` 记录显式用户决策，不证明问题已解决，也不是训练标签。checkpoint 恢复或 Session handoff 失败时，保留失败证据，停止进一步自动 mutation，并要求显式恢复或接管。
 
 ## 模型辅助评估
 

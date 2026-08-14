@@ -1,4 +1,4 @@
-# ADR-004: Parent-agent authority increases quality monotonically by default
+# ADR-004: Parent-agent authority is bounded and Host-resolved
 
 [简体中文](../zh-CN/decisions/0004-monotonic-parent-authority.md)
 
@@ -12,31 +12,33 @@ Proposed
 
 ## Context
 
-A parent agent knows more about child-task intent than the Host, but it remains a model and may select a concrete model incorrectly. If parent model/effort overrides always outrank Routing Policy, the parent may habitually choose the strongest model or incorrectly lower the configuration, defeating Auto.
+A parent Agent knows child-task intent but remains an untrusted model. If concrete model/effort overrides outrank policy, the parent can habitually choose the strongest configuration or incorrectly lower it. A rule that every stronger-looking parent request is automatically binding has another failure mode: systematic over-escalation can bypass Auto and consume unbounded resources.
 
 ## Decision
 
-A parent agent submits semantic RoutingConstraints by default. It may raise the minimum route, require independent review, or declare capability constraints, but it may not lower the Host quality floor or select an arbitrary raw provider/model/effort.
+A parent Agent submits structured task intent and routing-constraint proposals. Host Delegation Policy validates provenance, user authorization, capability facts, security policy, and conflicts before producing `ResolvedRoutingConstraints`.
 
-Only when a user explicitly grants authority in a profile may the parent choose a semantic route from an allowlist. Persist every override, but do not treat it as a correct label.
+A proposal to raise the minimum guarantee tier is conservative but not automatically binding. The Host accepts it when backed by a recognized requirement, may keep its existing floor when evidence is insufficient, and rejects impossible or unauthorized constraints explicitly. A parent may never lower the Host floor or select an arbitrary raw provider/model/reasoning selection by default.
+
+Only explicit user authorization may permit a parent semantic override from an allowlist. Raw provider/model bypass remains prohibited. Persist proposals, resolution results, and reasons; none are correctness labels.
 
 ## Alternatives considered
 
-### Parent agent fully controls the concrete model
+### Parent Agent fully controls the concrete model
 
-Rejected. This creates a silent bypass and tightly couples the agent to deployment configuration.
+Rejected. This creates a silent policy bypass and couples the Agent to deployment configuration.
 
-### Parent agent provides no input
+### Every parent request to strengthen is binding
 
-Rejected. This loses important intent such as child-task risk, independent-review requirements, and required capabilities.
+Rejected. It prevents under-routing but enables systematic over-escalation and bypasses policy evidence.
 
-### Treat parent-declared risk as fact
+### Parent Agent provides no input
 
-Rejected. A model may omit or misunderstand risk; the Host still performs independent assessment and enforces hard constraints.
+Rejected. This loses task intent such as risk, independent-review requirements, and required capabilities.
 
 ## Consequences
 
-- The system needs persistent, structured RoutingConstraints.
+- The system needs persistent proposed and resolved RoutingConstraints.
 - Delegation Policy and Routing Policy remain separate responsibilities.
-- In-process children use the unified `agent/request`; no separate Scheduler is needed.
-- If an external provider needs a model before creation, an adapter calls the same Routing Policy.
+- Metrics distinguish escalation proposals, accepted requirements, rejected proposals, and user-authorized overrides.
+- External providers are supported only when their creation contract can enforce the resolved constraints.

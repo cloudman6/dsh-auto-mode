@@ -8,38 +8,51 @@
 
 ## Current stage
 
-Specification review. The repository has a product and architecture design baseline, but the user has not accepted `docs/spec.md`. Four product and architecture ADRs remain `Proposed`; ADR-005, which defines the repository's documentation language, is `Accepted`. The current gate prohibits implementation planning, task breakdown, dependency selection, and coding.
+Specification review after multi-view revision. The repository has a revised product, evidence, architecture, DSH-integration, and recovery design, but the user has not accepted `docs/spec.md` or the six Proposed product/architecture ADRs. ADR-005, which defines documentation language, remains Accepted. Implementation planning, dependency selection, and coding remain gated.
 
 ## Completed
 
-- Established the Git repository and `main` baseline.
-- Established product specification, system architecture, routing policy, recovery/episode, delegation authority, RouterBench, roadmap, open questions, and glossary documents.
-- Recorded Host-owned Routing Policy, quality-constrained optimization, the formal recovery protocol, and monotonic parent-agent authority as Proposed ADRs.
-- Defined the primary user, real-active-user metric, and the objective order of strong quality baseline, latency, then cost.
-- Established English canonical documentation, complete Simplified Chinese translations, English public Git metadata, and source-blob translation tracking through Accepted ADR-005.
+- Established the Git repository and English-canonical, Simplified-Chinese-maintained documentation workflow.
+- Completed an architecture, evaluation, adversarial, user-experience, feasibility, and meta-review; recorded its informational outcome in `docs/reviews/2026-08-14-multi-view-design-review.md`.
+- Revised normal UX to exactly Auto or manual provider/model/reasoning selection; calibration belongs to Policy Pack maintainers.
+- Replaced relative-only quality claims with an absolute baseline gate, candidate non-inferiority, severe-failure bounds, evidence isolation, admission expiry, and revocation.
+- Split RouterBench into Route Capability Bench and Policy Scenario Bench, with strategy ablations for Static, Within-turn, and Full Auto.
+- Added Route Snapshot timing, explicit route-resolution failures, formal persisted state, provenance-aware recovery signals, and Recovery Capability gates.
+- Audited DeepSeek Harness commit `47f943859bef60e4160492346772ded9b24f765a` and documented usable seams and blocking gaps in `docs/dsh-integration.md`.
+- Verified DSH's provider/model discovery and optional exact-route reasoning metadata seams, recorded the maintainer fork as the preview runtime carrier, and added a fork-based Static Auto Preview as Phase 0C.
+- Closed the fresh-context review's causal-ordering, reasoning-default, deterministic-resolution, preview-identity, preview-carrier, and planning-gate contradictions without changing ADR states.
+- Revised ADR-001 through ADR-004 and added Proposed ADR-006 and ADR-007 without changing any Proposed decision to Accepted.
 
 ## Current review entry points
 
-1. Review the assumptions, scope, success criteria, and work boundaries in `docs/spec.md`.
-2. Review the four Proposed product and architecture ADRs in `docs/decisions/`; change their state only after explicit user confirmation.
-3. Select the next questions in `docs/open-questions.md` that require research or experiments.
+1. Review the revised normative documents in the order listed by `docs/README.md`.
+2. Review six Proposed ADRs in `docs/decisions/`; change state only after explicit user confirmation.
+3. Treat the historical multi-view report as review evidence, not as empirical validation.
 
-## Gates before implementation planning
+## Gates before Phase 0C preview planning
 
-- Explicitly accept the product specification.
-- Resolve the ADR states for Routing Policy ownership, quality objectives, recovery interaction, and parent-agent authority.
-- Verify current DSH extension points and separate plugin-local implementation from required upstream changes.
-- Define initial RouterBench task categories, model/effort profiles, and quality-evaluation protocol.
-- Define route-admission evidence for tasks without mechanical verification.
-- Decide whether Recovery Assessor and workspace checkpoints belong in the first implementation scope.
+- Explicitly accept the revised product specification.
+- Resolve the six Proposed ADR states.
+- Freeze the product-neutral A1 pre-assembly and A2 required-event contracts, including their failing and passing contract tests.
+- Preregister the initial Policy Pack taxonomy, baseline/candidate deployments, statistics, evaluator governance, and isolated datasets.
+- Close A3p for the initial baseline and candidate with reproducible provider/model/reasoning-selection identity evidence.
+- Close A5p by verifying one concrete preview carrier for the Auto/manual choice and persisted explanations.
+- Keep Phase 0C routing scope fixed to one decision per Session; do not introduce an unresolved objective-boundary heuristic.
+
+## Gates before Phase B and production-release planning
+
+- Decide the production release carrier: external plugin, upstream DSH capability, or split architecture. Phase 0C's fork preview does not settle that release decision.
+- Generalize A3p and A5p into supported official-compatible A3 identity and A5 client-extension contracts.
+- Define consent, minimization, retention, and deletion policy for real-use evidence.
+- Decide which Recovery Capability providers and side-effect classes, if any, enter the production implementation plan.
 
 ## Current blockers
 
-There is no code or toolchain fault. The unresolved blocker is the design gate; detailed questions are maintained in `docs/open-questions.md`.
+The design gate remains open. In addition, the audited DSH revision lacks two contracts required for the proposed external plugin: runtime registration of required normative Session events, and a pre-assembly decision input that carries the current step's claimed messages. These are the Phase 0 critical path for Session Static Auto, not optional later refinements. Full recovery and external child model/reasoning-selection control also lack general contracts, but their roadmap phases can remain out of the first product behavior.
 
 ## Next action
 
-Complete specification and ADR review. After approval, use planning-and-task-breakdown to produce an implementation plan and verifiable tasks; do not begin coding directly from the roadmap.
+Review the revised specification and ADRs, then freeze the product-neutral A1 pre-assembly and A2 required-event contracts described in `docs/roadmap.md`. In parallel, close A3p for the initial route identities and A5p for the concrete preview carrier. Phase 0C planning may begin when that preview-specific gate set passes. The production release carrier remains a separate Phase B/release decision.
 
 ## Status maintenance rules
 

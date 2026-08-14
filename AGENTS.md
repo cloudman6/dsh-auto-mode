@@ -6,17 +6,17 @@
 
 ## Project in one sentence
 
-DSH Auto Mode gives individual power users of coding agents an adaptive Auto mode for DeepSeek Harness. It selects models and reasoning effort from task context, execution evidence, and user constraints; preserves a configured `strong` quality baseline; optimizes latency before cost; and limits damage when routing is wrong.
+DSH Auto Mode gives individual power users of coding agents an adaptive Auto mode for DeepSeek Harness. It selects models and reasoning effort from task context, execution evidence, and user constraints; admits a configured baseline only after an absolute quality gate; optimizes latency before cost among admitted routes; and limits damage when routing is wrong.
 
 ## Project snapshot
 
 | Item | Current state |
 |---|---|
 | Stage | Specification review; implementation planning, task breakdown, and coding have not started |
-| Existing work | Product specification, architecture, routing, recovery, delegation, RouterBench, roadmap, open questions, 4 Proposed ADRs, and 1 Accepted documentation-language ADR |
+| Existing work | Product specification, architecture, routing, recovery, delegation, RouterBench, DSH integration evidence, roadmap, open questions, 6 Proposed ADRs, and 1 Accepted documentation-language ADR |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
-| Optimization order | Fixed strong quality baseline → end-to-end latency → total cost |
+| Optimization order | Absolute baseline quality gate + candidate non-inferiority → end-to-end latency → total cost |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
 | Next-stage gate | User review of the specification and Proposed ADRs; planning starts only after approval |
@@ -40,6 +40,8 @@ Load topic documents only when relevant; do not load the entire repository indis
 - Attempts, episodes, continue, salvage, and restart: `docs/recovery.md`.
 - Parent- and child-agent authority: `docs/delegation.md`.
 - Task suites, quality gates, and evaluation: `docs/routerbench.md`.
+- Verified DSH extension points and upstream gaps: `docs/dsh-integration.md`.
+- Historical multi-view review evidence: `docs/reviews/2026-08-14-multi-view-design-review.md`.
 - Terms: `docs/glossary.md`.
 - Documentation language and translation synchronization: `docs/localization.md`.
 - Rationale for a high-cost decision: the corresponding file in `docs/decisions/`.
@@ -67,16 +69,18 @@ English canonical documents and Chinese translations are governed by `docs/local
 
 ## Product invariants
 
-1. Quality comes first: each task category uses its configured `strong` route as the baseline; optimize end-to-end latency before total cost.
+1. Quality comes first: a route is eligible only after its baseline passes an absolute quality gate and the candidate satisfies a predeclared non-inferiority bound; optimize end-to-end latency before total cost.
 2. Do not treat user choices, parent-agent overrides, or model self-reports as correct routing labels.
 3. Host Routing Policy owns normal routing decisions; models may provide task intent or optional semantic assessment only.
-4. High-risk, out-of-distribution, or weak-evidence tasks must `abstain` and use the safe fallback.
-5. Every automatic decision must be explainable, auditable, and recoverable; the effective provider/model/effort and rationale must be reconstructable from persisted facts.
-6. Within one unresolved episode, the route floor may only stay fixed or rise. The same turn may be re-routed downward after a trusted phase boundary.
-7. Parent agents may raise the quality floor or add semantic constraints by default; they may not bypass Routing Policy with an arbitrary provider/model.
+4. High-risk, out-of-distribution, or weak-evidence tasks must `abstain`; if no currently admitted safe configuration exists, return `no-safe-route` and do not call a model.
+5. Every automatic decision must be explainable and auditable; the effective provider/model/reasoning selection, request encoding, and rationale must be reconstructable from persisted facts. Recovery may be claimed only for explicitly declared and tested effect classes.
+6. Within one unresolved episode, the route floor may only stay fixed or rise. Down-routing after a phase change is an evidence-gated capability, not an unconditional product promise.
+7. Parent-agent constraints are proposals. Only Host-recognized requirements or explicitly user-authorized overrides become binding; a parent may not silently raise, lower, or bypass Routing Policy with an arbitrary provider/model.
 8. Recovery Supervisor operates on formal events and does not require a self-reporting prompt protocol on every turn.
 9. Never implement workspace recovery with raw Git rollback. Session checkpoints and workspace checkpoints have separate semantics and owners.
-10. RouterBench and online execution use the same policy implementation. End-to-end metrics include assessor, switching, retry, and recovery costs.
+10. Route capability evaluation and production-policy scenario evaluation are separate datasets and runners; where policy is exercised, RouterBench and online execution use the same policy core. End-to-end metrics include assessor, switching, retry, and recovery costs.
+11. Ordinary users choose only between `Auto` and manual provider/model/reasoning selection. Maintainer-owned versioned Policy Packs carry defaults, calibration, expiry, and revocation; advanced overrides are optional.
+12. A route for one model step must be frozen before provider-dependent prompt and tool assembly, then applied unchanged at `agent/request`.
 
 ## Authoritative document map
 
@@ -89,6 +93,7 @@ English canonical documents and Chinese translations are governed by `docs/local
 | Attempts, episodes, recovery actions, and checkpoints | `docs/recovery.md` |
 | Child-agent delegation constraints and authority | `docs/delegation.md` |
 | Benchmark tasks, metrics, evaluation, and route admission | `docs/routerbench.md` |
+| Verified DSH extension points, blockers, and upstream seams | `docs/dsh-integration.md` |
 | Phase dependencies, phase acceptance, explicit non-goals | `docs/roadmap.md` |
 | Unresolved questions | `docs/open-questions.md` |
 | Documentation language and synchronization | `docs/localization.md` |
@@ -122,10 +127,13 @@ Every canonical English document has a corresponding Chinese locale file. Follow
 Before substantive work:
 
 1. Read this file and the required new-session documents, then load relevant topic documents.
-2. Treat `/Users/wanglei/dsh-auto-mode` as the main worktree. Confirm status and branch:
+2. Initialize portable local paths, then treat `$main_worktree` as the main worktree. `DSH_AUTO_MODE_ROOT` and `CODEX_TOOLS_DIR` are optional overrides for non-default installations:
    ```bash
+   main_worktree="${DSH_AUTO_MODE_ROOT:-$HOME/dsh-auto-mode}"
+   codex_tools_dir="${CODEX_TOOLS_DIR:-$HOME/.codex/bin}"
+   cd "$main_worktree"
    git status --short --branch
-   sh /Users/wanglei/.codex/bin/codex-git-read branch-current
+   sh "$codex_tools_dir/codex-git-read" branch-current
    ```
 3. Before modifying files, the main worktree must be clean `main`. If it is not, stop and report; never carry existing changes into a new task.
 4. Compare local and remote `main` read-only. If the remote is unreachable, SHAs differ, or the default branch is unexpected, stop and request synchronization authorization:
@@ -134,7 +142,7 @@ Before substantive work:
    git ls-remote --symref origin HEAD
    git ls-remote origin refs/heads/main
    ```
-5. Every file-changing task starts from verified `main` in an independent `codex/<task-slug>` branch and worktree. If the environment already provides a task worktree, do not create a nested worktree.
+5. Every file-changing task starts from verified `main` in an independent `codex/<task-slug>` branch and worktree. Creation through the restricted `codex-worktree add` wrapper is standing-authorized by the maintainer; execute it without asking again. If the environment already provides a task worktree, do not create a nested worktree.
 6. Classify the task: specification/documentation, DSH extension-point research, RouterBench, plugin implementation, recovery, delegation adaptation, or release.
 7. Inspect the repository and DSH before asking the user. Do not ask for facts already available in code, documents, or recorded decisions.
 8. Classify every new conclusion as confirmed specification, Proposed decision, evidence, open question, or current status, and update its authoritative file.
@@ -144,11 +152,13 @@ Before substantive work:
 
 `.worktrees/` is the ignored in-repository container for task worktrees. Use relative paths and the restricted wrapper; do not call raw `git worktree add/remove` or broad `git switch` commands.
 
-Create a task worktree from the main worktree:
+Create a task worktree from the main worktree. If the current shell has not initialized the portable variables from the task-start checklist, initialize them first:
 
 ```bash
-cd /Users/wanglei/dsh-auto-mode
-sh /Users/wanglei/.codex/bin/codex-worktree add \
+main_worktree="${DSH_AUTO_MODE_ROOT:-$HOME/dsh-auto-mode}"
+codex_tools_dir="${CODEX_TOOLS_DIR:-$HOME/.codex/bin}"
+cd "$main_worktree"
+sh "$codex_tools_dir/codex-worktree" add \
   -b codex/<task-slug> \
   .worktrees/<task-slug>/workspace \
   main
@@ -157,11 +167,12 @@ sh /Users/wanglei/.codex/bin/codex-worktree add \
 Run subsequent commands and edits in:
 
 ```text
-/Users/wanglei/dsh-auto-mode/.worktrees/<task-slug>/workspace
+$main_worktree/.worktrees/<task-slug>/workspace
 ```
 
 Rules:
 
+- Creating the required `codex/<task-slug>` branch and worktree with the restricted wrapper is pre-authorized; do not request per-task confirmation.
 - One worktree carries exactly one task; the branch name matches the task slug.
 - Do not develop directly on `main` in the main worktree.
 - Do not mix another task or pre-existing user changes into the task worktree.
@@ -172,14 +183,14 @@ Rules:
 Use the controlled wrapper when a branch switch is required:
 
 ```bash
-sh /Users/wanglei/.codex/bin/codex-worktree switch <branch>
+sh "$codex_tools_dir/codex-worktree" switch <branch>
 ```
 
 After the task worktree is clean and its commit has been integrated with authorization:
 
 ```bash
-cd /Users/wanglei/dsh-auto-mode
-sh /Users/wanglei/.codex/bin/codex-worktree remove \
+cd "$main_worktree"
+sh "$codex_tools_dir/codex-worktree" remove \
   .worktrees/<task-slug>/workspace
 ```
 
@@ -199,30 +210,37 @@ After every change:
 3. When navigation changes, validate every local relative link. When terminology or public-type proposals change, inspect every reference.
 4. Review the working diff with the restricted reader, and review the staged diff after staging:
    ```bash
-   sh /Users/wanglei/.codex/bin/codex-git-read diff
-   sh /Users/wanglei/.codex/bin/codex-git-read diff --staged
+   sh "$codex_tools_dir/codex-git-read" diff
+   sh "$codex_tools_dir/codex-git-read" diff --staged
    ```
 5. Stage only task files. Check for unrelated changes, temporary files, secrets, tokens, `.env`, private keys, and sensitive prompt content.
-6. Create an atomic commit only with explicit authorization for this task. Commit messages use English Conventional Commits. Confirm a clean task worktree and record its branch and commit SHA:
+6. After validation succeeds, create an atomic commit without requesting per-task confirmation. Commit messages use English Conventional Commits. Do not commit when validation fails, the staged scope is ambiguous, or the staged diff contains unrelated or sensitive material. Confirm a clean task worktree and record its branch and commit SHA:
    ```bash
    git status --short --branch
    git rev-parse HEAD
    ```
-7. Merge and write remotely only with explicit authorization. In the clean main worktree, re-check the remote SHA, use fast-forward only, and stop if the remote moved or `--ff-only` fails:
+7. Push the current task branch to `origin` after committing, without requesting per-task confirmation. Use a normal fast-forward push, never force-push. If the remote task branch has diverged or the push is rejected, stop and report instead of rewriting history:
    ```bash
-   cd /Users/wanglei/dsh-auto-mode
+   task_branch="$(git branch --show-current)"
+   git ls-remote origin "refs/heads/$task_branch"
+   git push -u origin HEAD
+   git ls-remote origin "refs/heads/$task_branch"
+   ```
+8. Merge into `main` and push `main` only with explicit authorization. In the clean main worktree, re-check the remote SHA, use fast-forward only, and stop if the remote moved or `--ff-only` fails:
+   ```bash
+   cd "$main_worktree"
    git rev-parse main
    git ls-remote origin refs/heads/main
    git merge --ff-only codex/<task-slug>
    git push origin main
    ```
-8. After push, verify local and remote `main` SHAs match and the task commit is an ancestor. Do not claim publication before remote verification:
+9. After pushing `main`, verify local and remote `main` SHAs match and the task commit is an ancestor. Do not claim publication before remote verification:
    ```bash
    git rev-parse main
    git ls-remote origin refs/heads/main
    git merge-base --is-ancestor <task-commit-sha> main
    ```
-9. Remove the worktree only after it is clean, the commit has been integrated with authorization, and remote verification succeeds. Without commit, merge, or push authorization, preserve the worktree and report its exact path and state.
+10. Remove the worktree only after it is clean, the commit has been integrated with authorization, and remote verification succeeds. Without merge authorization, preserve the worktree and report its exact path and state.
 
 ## When to stop and ask
 
@@ -236,7 +254,7 @@ Do not decide these items autonomously:
 - Relax parent-agent authority, abstention criteria, episode release criteria, or recovery safety boundaries.
 - Automatically create, restore, or delete a workspace checkpoint, or handle non-file external side effects.
 - Delete or rename a public document, event, configuration, or user-facing interface.
-- Commit, merge, push, delete a branch/worktree, or otherwise modify Git refs or remotes without explicit authorization for the current task.
+- Merge into or push `main`, delete a branch/worktree, change remotes, amend or rewrite commits, rebase, reset, force-push, or otherwise rewrite published history without explicit authorization for the current task. A validated atomic commit and a normal push of the current task branch are standing-authorized by the maintainer.
 
 ## Current hard blocker
 

@@ -4,41 +4,118 @@
 
 ## Principle
 
-The roadmap expresses dependency order; it does not justify omitting the complete architecture. Every phase must produce verifiable evidence, and later phases may not change the quality baseline under the rationale of “build it first.”
+The roadmap retains the complete architecture but gates each control plane on causal evidence. AI implementation capacity is not the limiting factor; unsupported quality claims, unsafe DSH seams, and control-plane complexity are. A phase advances only when its evidence contract passes.
 
-## Phase A: RouterBench and Route Profiles
+## Phase 0: Critical-path DSH enablement and evidence contract
 
-Build a minimal task suite spanning different verification levels. Define the strong baseline, quality tolerance, unacceptable outcomes, latency, and cost statistics. Produce versioned Route Profiles instead of writing routing rules from model rankings by hand.
+This is the highest-priority phase. Session Static Auto cannot be implemented correctly against the audited official DSH revision until two blocking Host contracts exist:
 
-Acceptance: paired reports can compare multiple model/effort combinations and identify task categories that cannot down-route safely.
+1. A scoped pre-assembly step-preparation seam carrying claimed messages and stable turn/step identity, able to freeze one context for both provider-dependent assembly and `agent/request`, and able to stop before a model call.
+2. Runtime registration and compatibility handling for required plugin Session events, including schema/version validation, namespace conflict detection, cold-load registration order, missing-plugin diagnostics, and fail-closed incompatibility.
 
-## Phase B: Static Adaptive Router
+Freeze the normal product interaction as exactly two choices: Auto, or manual provider/model/reasoning selection. Define Policy Pack ownership, the absolute baseline gate, candidate non-inferiority protocol, `no-safe-route`, and the four RouterBench strategy arms.
 
-Implement Host Routing Policy, Task Assessment, Route Profile Resolver, the `agent/request` consumer, abstention, and decision logging. First solve “Which route should this request use?” without user-choice labels.
+### Phase 0A: Freeze the upstream contracts
 
-Acceptance: online decisions and RouterBench use the same policy; users can inspect the route, effective configuration, and reason.
+- Write narrow, product-neutral DSH design notes or issues for the two blocking contracts. DSH Core must not learn Auto Mode route tiers or Task Assessment semantics.
+- Specify lifecycle timing, cancellation, scoping, immutability, persistence, cold recovery, and failure behavior before implementation.
+- Add DSH contract tests that fail on the audited revision and prove the intended behavior on a fork.
+- Build one vertical plugin probe proving that the current message drives a decision before assembly, the same snapshot reaches `agent/request`, `no-safe-route` prevents a call, and required events survive cold reload.
 
-## Phase C: Within-turn adaptation and Continue
+### Phase 0B: Upstream or pin a declared fork
 
-Add formal Recovery Signals, Episode Controller, route floors, escalation, and down-routing after trusted phase boundaries. Implement same-Session continue without claiming code rollback.
+- Submit the pre-assembly and event-registration work as separate minimal PRs after the contract probe passes.
+- If upstream review is pending or rejects the API shape, continue validation only on an exact pinned DSH fork and state that official DSH is unsupported.
+- Do not treat an `agent/request`-only prototype or ignorable Session events as a product-compatible fallback.
 
-Acceptance: repeated failure escalates; unresolved episodes do not down-route because a model self-reports completion; execution can down-route within the same turn after a complex phase ends.
+### Phase 0C: Fork-based Static Auto Preview
 
-## Phase D: Isolated Attempts and full recovery
+This is the earliest user-usable Auto mode. It is a dogfood preview on the declared DSH fork, not an official-DSH compatibility release. It may begin only after:
 
-Design Checkpoint Provider, associate Session boundaries with workspace state, and implement salvage/restart with Evidence Capsule.
+1. The specification and applicable Proposed ADRs are accepted.
+2. A1 and A2 pass their DSH contract tests on the fork and the combined vertical probe passes.
+3. A minimal Phase A evidence slice admits one baseline and one candidate, and A3p binds both admissions to reproducible provider/model/reasoning-selection deployment identities. Unknown identity or drift revokes the route before Auto serves a request.
+4. A5p verifies one concrete preview carrier that performs the one-operation Auto/manual choice and retrieves the persisted effective configuration and explanation.
+5. The preview routing scope is frozen as one decision per Session. Objective-scoped recomputation is deferred until Host-owned objective boundaries have a separate accepted contract.
 
-Acceptance: recovery does not overwrite user changes or other-agent changes that existed before the attempt; fault injection proves harmful side effects cannot escape.
+Each preview build pins the fork remote and exact post-seam commit, the initial route-identity evidence, and the preview carrier version.
 
-## Phase E: Child-agent constraints
+The preview delivers:
 
-Implement Delegation Policy, persistent RoutingConstraints, in-process child routing, and an external-provider adapter. Parent agents may only raise the route floor by default.
+- One user operation to choose Auto, while the existing manual provider/model/reasoning-selection path remains available.
+- Session Static Auto for narrowly admitted task slices, with one decision made when the Session enters Auto and reused for that Session. Starting another task that needs a new automatic decision requires a new Session in Phase 0C.
+- Conservative automatic candidate discovery from DSH's advisory active provider/model catalog. Explicit efforts require matching exact-route metadata; adapter-default and provider-default omission are separate reasoning selections with their own admission identities. The candidate count is not hard-coded: the preview selects only from the intersection of discovered configurations, stable identity evidence, user and capability constraints, and current preview admissions.
+- At least one admitted baseline and one admitted candidate for one initial task slice. This is an evidence minimum for demonstrating selection, not a two-configuration product limit.
+- Deterministic Task Assessment, plus a fixed non-recursively-routed assessor only where the A4 audit establishes a bounded and auditable preview path.
+- Persisted causal decision input, effective provider/model/reasoning selection and request encoding, reason codes, concise explanations, and explicit `no-safe-route` behavior.
 
-Acceptance: parent agents cannot bypass hard constraints; constraints remain auditable after cold recovery; independent-review diversity requirements are verifiable.
+The preview does not claim within-turn switching, recovery, child-agent routing, community Policy Packs, online learning, or official DSH compatibility. It may expand to additional discovered configurations and task slices only when each has current preview admission evidence.
 
-## Phase F: Calibration from real use
+Acceptance:
 
-With explicit consent, privacy protection, and revocability, collect objective runtime facts and update RouterBench task distributions and policy thresholds. Real active users are the product metric; telemetry volume itself is not success.
+- A user can select Auto once and complete supported tasks end to end on the pinned fork.
+- The verified preview carrier keeps manual provider/model/reasoning selection available and can retrieve the persisted explanation for the actual request.
+- DSH catalog changes refresh the deployment profile without hand-maintaining a duplicate model list.
+- Tests prove that an available but unadmitted configuration is never selected automatically.
+- Tests prove that unknown or changed deployment identity revokes a preview route; if no admitted baseline remains, the call stops with `no-safe-route`.
+- Tests cover explicit effort, adapter-default materialization, and provider-default omission without collapsing their identities.
+- Repeated steps in one Auto Session reuse the same Session Static decision; no undocumented objective-boundary heuristic triggers recomputation.
+- The persisted route snapshot and explanation reconstruct the configuration actually sent.
+- Missing or incompatible A1/A2 contracts fail before Auto serves a request.
+
+### Parallel foundation audits
+
+Before Phase B, generalize the preview-specific A3p identity evidence into A3's declared official-compatible identity contract, and generalize A5p into A5's supported client extension contract. Also close the extensible purpose/audit classification for fixed Task Assessor calls. Each must be classified as already supported, plugin-local, provider-specific, or requiring another upstream seam. Passing a fork-pinned preview path does not by itself establish an official-compatible contract.
+
+Acceptance:
+
+- The DSH compatibility document is pinned to source and identifies the exact supported official version or fork.
+- Both blocking contracts have executable DSH and plugin contract tests.
+- The vertical probe proves assembly/request snapshot identity and cold recovery of required plugin state.
+- Unsupported or incompatible seams fail before Auto serves a request.
+- Every other Static Auto dependency has a verified owner and no unresolved assumption is presented as existing DSH functionality.
+
+Phase A evidence work may proceed in parallel where it does not depend on runtime seams. Phase 0C may begin when its narrower entry gates pass, but it does not close Phase 0. Phase B cannot begin as an official-compatible product implementation until the full Phase 0 exit gates pass.
+
+## Phase A: Route Capability Bench and Policy Packs
+
+Build the capability taxonomy, isolated calibration/validation/held-out datasets, evaluator protocol, deployment profiles, and admission lifecycle. Establish at least one admitted baseline before admitting any weaker configuration.
+
+Acceptance: paired reports identify task slices that meet absolute and non-inferiority gates; aliases, missing fingerprints, expired evidence, and baseline failure revoke admission.
+
+## Phase B: Official-compatible Session Static Auto
+
+Promote and generalize the Phase 0C implementation onto the declared supported DSH contract. Complete Task Assessment, Constraint Resolver, Routing Policy, Effective Route Catalog, Route Snapshot Coordinator, explicit resolution failures, decision persistence, and transparent explanation across the admitted Phase A scope. Preserve one decision per Session unless a separate Host-owned objective-boundary contract has been accepted and passed its contract tests; do not yet claim within-turn adaptation.
+
+Acceptance: online execution and RouterBench use the same policy; route-dependent prompt/tool assembly and the provider call consume one frozen snapshot; Auto never silently falls back to an unadmitted route.
+
+## Phase C: Policy Scenario Bench and within-turn evidence gate
+
+Build deterministic scenario simulation and real DSH adapter contract tests. Compare Session Static Auto against confirmed-phase Within-turn Auto, including cache loss, switching overhead, phase uncertainty, and large-turn tail work.
+
+Acceptance: within-turn routing enters product scope only if its incremental end-to-end benefit is material and quality gates still pass. Otherwise Session Static Auto remains the product behavior while the full architecture stays documented.
+
+## Phase D: Routing safety and Continue
+
+Add formal Recovery Signals, persisted episodes, route floors, recovery capability declarations, failed-recovery handling, and same-Session Continue. This phase limits routing loss; it does not claim generic workspace rollback.
+
+Acceptance: repeated failure escalates; untrusted self-report cannot release an episode; unknown mutation or external side effects block unsafe down-routing and recovery claims.
+
+## Phase E: Isolated execution and full recovery
+
+Add Checkpoint Provider, isolated attempts, Evidence Capsule, salvage, and restart only for side-effect classes with declared and tested recovery support.
+
+Acceptance: fault injection proves that supported harmful effects cannot escape; unsupported effects produce an explicit stop or user-intervention state rather than a false rollback claim.
+
+## Phase F: Child-agent constraints
+
+Implement persistent semantic RoutingConstraints and Host conflict resolution for in-process children. External providers are supported only where their creation and switching contracts expose the required route controls.
+
+Acceptance: parent proposals cannot bypass Host constraints; acceptance and rejection are auditable; cold recovery preserves the effective child constraints.
+
+## Phase G: Real-use calibration
+
+With explicit consent, data minimization, retention controls, and revocability, collect objective runtime evidence and update task distributions, admission thresholds, and Policy Packs. Real active users and successful Auto task retention are product outcomes; telemetry volume is not.
 
 ## Directions not started
 
@@ -46,4 +123,4 @@ With explicit consent, privacy protection, and revocability, collect objective r
 - Organization-level budget, approval, and quota platform.
 - Automatic training of a Router model.
 - Plugin marketplace or general model-ranking service.
-- Automatic workspace rollback without attribution and recovery capability.
+- Automatic rollback for undeclared or unsupported side effects.

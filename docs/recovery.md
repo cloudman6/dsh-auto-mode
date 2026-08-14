@@ -6,6 +6,11 @@
 
 Recovery Supervisor answers “How does the system limit damage and recover after a wrong selection?” It does not choose the initial route or define parent-agent authority.
 
+Recovery has two scopes that must not be conflated:
+
+- Routing safety: declare whether the current execution world is read-only, attributable, isolated, recoverable, or unknown. Routing Policy requires this input before admitting weaker routes for mutable work.
+- Full recovery product: choose and execute `continue`, `salvage`, or `restart`. Its value is evaluated independently from static or within-turn routing.
+
 Core components:
 
 - Recovery Signal Providers: normalize DSH and tool events into formal signals.
@@ -14,9 +19,31 @@ Core components:
 - Checkpoint Provider: associates stable Session boundaries with isolated workspace state.
 - Recovery Assessor: optional semantic sensor without decision authority.
 
+## Recovery Capability
+
+```ts
+interface RecoveryCapability {
+  workspace:
+    | 'read-only'
+    | 'attributable-files'
+    | 'isolated-checkpoint'
+    | 'unknown'
+  externalSideEffects:
+    | 'none'
+    | 'transactional'
+    | 'idempotent'
+    | 'irreversible'
+    | 'unknown'
+  checkpointRef?: WorkspaceCheckpointRef
+  providerVersion: string
+}
+```
+
+This record describes what the execution world can prove, not what Recovery Supervisor hopes to restore. Unknown, irreversible, or unattributable high-impact mutations raise the route floor or prevent Auto execution. A workspace checkpoint never implies that database, message, deployment, or remote API side effects are recoverable.
+
 ## Attempt
 
-An Attempt is one execution try starting from a known Session boundary and workspace checkpoint. Before allowing a weak route to modify a workspace, the system must know whether sufficient recovery exists. Without an isolated checkpoint, routing is more conservative for high-risk mutable tasks.
+An Attempt is one execution try starting from a known Session boundary and a declared Recovery Capability. A workspace checkpoint is optional only when the execution is read-only or the admitted risk envelope permits attributable mutations without rollback. Before allowing a weak route to mutate state, Policy must know whether recovery is sufficient.
 
 ```ts
 interface Attempt {
@@ -67,9 +94,14 @@ type RecoverySignal =
       phase: TaskPhase
       source: 'agent' | 'classifier' | 'tool'
     }
+  | {
+      kind: 'mutation-unknown'
+      source: 'shell' | 'external' | 'concurrent-agent'
+      evidenceRef: EventRef
+    }
 ```
 
-Agent self-report is weak evidence and cannot prove completion alone. Tests, exit codes, and file mutations should be emitted as structured facts by the owning capability when possible, rather than inferred by Recovery Supervisor from arbitrary terminal text.
+Agent self-report is weak evidence and cannot prove completion alone. Tests, exit codes, and file mutations should be emitted as structured facts by the owning capability when possible, rather than inferred by Recovery Supervisor from arbitrary terminal text. Unknown effects remain unknown and cannot be converted into a passing signal.
 
 ## Episode
 
@@ -87,7 +119,7 @@ interface RoutingEpisode {
 }
 ```
 
-Episode Controller performs state transitions at stable event boundaries. Models, parent agents, and classifiers may propose phase changes or completion, but none owns the episode.
+Episode Controller performs state transitions at stable event boundaries. Models, parent agents, and classifiers may propose phase changes or completion, but none owns the episode. Execution Context Projector owns confirmed phase and objective state; a phase transition does not release an episode automatically.
 
 ### Example release conditions
 
@@ -146,7 +178,12 @@ interface EvidenceCapsule {
   commandsRun: CommandRecord[]
   validationResults: ValidationResult[]
   diffSummary: DiffSummary
-  observations: Observation[]
+  observations: Array<{
+    value: Observation
+    sourceEvent: EventRef
+    producer: string
+    trust: 'mechanical-fact' | 'structured-observation'
+  }>
   hypotheses: Array<{
     statement: string
     status: 'unverified' | 'rejected' | 'supported'
@@ -154,7 +191,7 @@ interface EvidenceCapsule {
 }
 ```
 
-Do not rely solely on a weak model's free-form summary; it may replicate incorrect assumptions.
+Do not rely solely on a weak model's free-form summary; it may replicate incorrect assumptions. Hypotheses are never represented as facts, and every capsule entry carries provenance and a trust class.
 
 ### Restart
 
@@ -173,7 +210,19 @@ Workspace state:  keep mutations / restore checkpoint
 
 These dimensions require separate decisions. Automatic recovery cannot use raw `git checkout`, `git reset --hard`, or similar commands: they cannot prove mutation ownership and may overwrite user or other-agent work.
 
-Candidate Checkpoint Provider mechanisms include isolated worktrees, copy-on-write execution worlds, or a file-transaction layer. The concrete mechanism remains an open question.
+Candidate Checkpoint Provider mechanisms include isolated worktrees, copy-on-write execution worlds, or a file-transaction layer. The concrete mechanism remains an open question. Automatic claims cover only side effects declared by the selected provider and verified by conformance tests.
+
+## User intervention and failed recovery
+
+Machine recovery does not remove the need for a bounded user escape path. The UI must expose the active episode, trigger evidence, declared execution-world capability, current workspace impact, and available actions:
+
+- Keep the current safe tier and continue.
+- Provide explicit validation evidence for policy evaluation.
+- Abandon the attempt while preserving the current evidence and workspace.
+- Export the evidence record.
+- Exit Auto and take over manually.
+
+`user-cleared` records an explicit user decision; it does not prove resolution and is not a training label. A failed checkpoint restore or Session handoff preserves the failure evidence, stops further automatic mutation, and requires explicit recovery or takeover.
 
 ## Model-assisted assessment
 

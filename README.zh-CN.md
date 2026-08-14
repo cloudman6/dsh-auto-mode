@@ -1,6 +1,6 @@
 <!--
 translation-source: README.md
-translation-source-blob: c940580d5b04433e1d4d10153ec24b3b64fc726b
+translation-source-blob: 4b27b6bcd99dd3615733dca27d7e469564e4ffb1
 translation-status: current
 -->
 
@@ -8,19 +8,19 @@ translation-status: current
 
 [English](README.md)
 
-DSH Auto Mode 是面向个人重度 Agent 用户的 DeepSeek Harness 自适应路由插件。它根据任务、执行证据和用户约束自动选择模型与 reasoning effort，在维持固定高配置质量基线的前提下，优先降低延迟，其次降低成本。
+DSH Auto Mode 是面向个人重度 Agent 用户的 DeepSeek Harness 自适应路由插件。普通交互只有一个选择：使用 Auto，或者手动选择 provider/model/reasoning selection，包括受支持的默认行为。Auto 只从有证据准入的配置中选择。其优化顺序严格固定：基线先通过绝对质量门槛，候选维持非劣性，然后降低延迟，最后降低成本。
 
 项目目前处于规范评审阶段，尚未开始实现。当前文档记录已经形成的方案、仍需验证的假设和待决问题；评审通过后再进入实施计划与任务拆分。
 
 ## 产品边界
 
-DSH Auto Mode 不只是一次性的模型选择器。完整方向包括：
+DSH Auto Mode 从证据治理的模型选择开始。完整但由证据门控的方向包括：
 
 - Adaptive Router：在每次模型请求前选择语义 route，并解释原因。
 - Routing Policy：使用可测试的策略决定 `fast`、`standard`、`strong` 或 `abstain`。
-- Recovery Supervisor：检测停滞并执行升级、继续、salvage 或 restart。
+- Recovery Supervisor：检测停滞，只在已声明恢复支持允许时执行升级、continue、salvage 或 restart。
 - Delegation Policy：约束父 Agent 对子 Agent 的路由控制权。
-- RouterBench：用专门任务集校准路由策略和模型档案。
+- RouterBench：使用相互隔离的任务与场景集，分别验证具体配置资格和策略行为。
 
 真正的任务调度——并发上限、优先级、排队、抢占和跨子 Agent 预算分配——不属于当前范围，也不应与模型路由混称为 Scheduler。
 
@@ -33,11 +33,13 @@ DSH Auto Mode 不只是一次性的模型选择器。完整方向包括：
 - [恢复与 Episode](docs/zh-CN/recovery.md)
 - [子 Agent 委派权限](docs/zh-CN/delegation.md)
 - [RouterBench](docs/zh-CN/routerbench.md)
+- [DSH 集成与兼容性](docs/zh-CN/dsh-integration.md)
 - [产品路线图](docs/zh-CN/roadmap.md)
 - [开放问题](docs/zh-CN/open-questions.md)
 - [术语表](docs/zh-CN/glossary.md)
 - [架构决策记录](docs/zh-CN/decisions/README.md)
 - [文档本地化策略](docs/zh-CN/localization.md)
+- [2026-08-14 多视角设计评审](docs/zh-CN/reviews/2026-08-14-multi-view-design-review.md)
 - [参与贡献](CONTRIBUTING.zh-CN.md)
 
 ## 当前命令

@@ -4,22 +4,22 @@
 
 ## Core principle
 
-A parent agent expresses what a child task needs; Routing Policy decides which route provides it. A parent agent is itself a model and does not become the final controller of the model catalog by default.
+A parent agent expresses what a child task needs; the Host decides which requirements are accepted and Routing Policy decides which route provides them. A parent agent is itself a model and does not become the final controller of the model catalog by default. A request for a higher tier is not automatically correct merely because it is conservative.
 
 ## Authority precedence
 
 ```text
-Explicit user route lock
-→ Host/security hard constraints
-→ Parent-agent quality floor and semantic requirements
+Host security and provider capability constraints
+→ Explicit user Auto/manual choice or semantic route lock
+→ Host-accepted parent-agent requirements
 → Routing Policy
-→ Abstention fallback
+→ Route resolution: admitted baseline or no-safe-route
 ```
 
 A parent agent may by default:
 
 - Describe a child task and its acceptance criteria.
-- Raise the minimum route.
+- Propose a minimum guarantee tier with a semantic reason.
 - Declare constraints such as high risk, read-only execution, independent review, or a latency deadline.
 - Request model-family or provider diversity without naming a concrete model.
 - Restrict tools and execution capabilities available to the child agent.
@@ -27,7 +27,7 @@ A parent agent may by default:
 A parent agent may not by default:
 
 - Lower the minimum quality selected by Routing Policy.
-- Provide an arbitrary provider/model/effort string.
+- Provide an arbitrary provider/model/reasoning-selection tuple.
 - Disable Host security policy.
 - Treat its own risk claim as fact or a training label.
 - Bypass Auto silently.
@@ -55,22 +55,26 @@ interface DelegatedTask {
 }
 ```
 
-These fields are parent-agent proposals. Delegation Policy may raise risk, reject conflicting requirements, or override a latency request because of user budget constraints.
+These fields are parent-agent proposals. Delegation Policy validates them and Constraint Resolver emits `ResolvedRoutingConstraints` containing accepted and rejected requirements, provenance, reasons, the effective candidate set, and the computed floor. It may raise independently assessed risk, reject conflicting requirements, or reject an infeasible latency request.
 
-## Monotonic authority
+## Bounded monotonic authority
 
-Normal parent-agent control is monotonic: it may require stronger execution but cannot unilaterally require weaker execution.
+Accepted parent-agent control is monotonic with respect to quality: it may narrow the candidate set or raise the effective floor but cannot lower Host requirements. The parent does not unilaterally decide that its proposal is accepted.
 
 ```text
-Parent minimumRoute=strong
+Parent proposes minimumRoute=strong with high-risk review requirement
+AND Host accepts the requirement
 → policy selects at least strong
 
 Parent minimumRoute=fast
 and policy determines that the task requires strong
 → strong remains effective
+
+Parent proposes minimumRoute=strong without an accepted requirement
+→ proposal is recorded but does not bypass policy
 ```
 
-A user may explicitly grant exact override authority, still restricted to a semantic-route allowlist:
+A user may explicitly grant semantic-route override authority, still restricted to an allowlist and Host security/capability constraints:
 
 ```yaml
 delegationPolicy:
@@ -81,18 +85,19 @@ delegationPolicy:
       - strong
 ```
 
-Do not expose raw provider/model identifiers to the parent agent. This avoids configuration coupling and an unbounded escape hatch. Persist each override source and reason, but do not treat it as a correct label.
+Do not expose raw provider/model identifiers to the parent agent. This avoids configuration coupling and an unbounded escape hatch. Persist each proposal, acceptance or rejection, override source, and reason, but do not treat any of them as a correct label. Report parent escalation-request and acceptance rates so systematic over-escalation is visible.
 
 ## Why a Subagent Scheduler is unnecessary
 
-After an in-process child agent is created, it remains a normal DSH Agent; every model request passes through the unified `agent/request` seam. Adaptive Router therefore serves main and child agents through the same path.
+After an in-process child agent is created, it remains a normal DSH Agent. Adaptive Router serves main and child Agents through the same pre-assembly Route Snapshot and `agent/request` application path.
 
 ```text
 Parent submits child task and constraints
 → create child Session
-→ child's first agent/request
-→ Delegation Policy + Routing Policy
-→ child route
+→ pre-assembly child decision boundary
+→ Delegation Policy + Routing Policy + resolver
+→ frozen child Route Snapshot
+→ assembly + child's first agent/request
 ```
 
 Only an external provider that must choose a model before creating a process or remote Session needs a `SubagentRoutingAdapter`. The adapter calls the same Routing Policy and does not create a second router.

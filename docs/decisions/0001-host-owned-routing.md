@@ -12,21 +12,23 @@ Proposed
 
 ## Context
 
-Auto Mode must decide which provider, model, and reasoning effort to use for every request. Candidate owners include the user, current Agent, parent agent, independent Router Agent, and Host plugin.
+Auto Mode must decide which admitted provider/model/reasoning-effort configuration serves each request. Candidate authorities include the user, current Agent, parent agent, a Router Agent, and deterministic Host policy.
 
 Users and parent agents lack a reliable counterfactual. A Router Agent creates the recursive question “Which model should the Router use?” and adds Session, tool, authority, latency, and failure surfaces.
 
 ## Decision
 
-Routing Policy in the DSH Host makes normal decisions. Parent agents submit task intent and semantic constraints only; optional assessment models return task attributes only; Route Profile Resolver maps a semantic route to concrete provider/model/effort.
+Deterministic Routing Policy in the DSH Host owns normal decisions. Parent agents submit task intent and untrusted semantic proposals; optional assessment models return task attributes only; a resolver applies Host-recognized constraints and maps a semantic guarantee tier to an admitted concrete configuration.
 
-Users retain the highest explicit control. The actual Routing Policy decision and effective call configuration are persisted in the served Agent's Session.
+Users retain the highest explicit control through Auto/manual selection and authorized semantic overrides. The Decision Input Snapshot, policy result, resolution result, and effective Route Snapshot are persisted in the served Agent's Session.
+
+The policy decision must be frozen before provider-dependent prompt/tool assembly and reused for the matching provider request. DSH carrier and extension work is specified separately in [DSH integration and compatibility](../dsh-integration.md).
 
 ## Alternatives considered
 
-### Current or parent agent selects directly
+### Current or parent Agent selects directly
 
-Rejected. This reduces Auto to one model guessing another model and encourages habitual selection of the strongest configuration.
+Rejected. This reduces Auto to one model guessing another model and encourages habitual strongest-configuration selection.
 
 ### Full Router Agent
 
@@ -34,11 +36,11 @@ Rejected. It needs its own model, Session, and tool policy, introducing recursio
 
 ### Classifier returns a model name directly
 
-Rejected. Output is unstable and difficult to test, and it couples provider configuration to semantic classification.
+Rejected. The output is unstable and hard to test, and it couples provider deployment to semantic classification.
 
 ## Consequences
 
-- Routing policy can be unit-tested and replayed in RouterBench independently.
-- Assessment-model failure can produce an explicit abstention.
-- The system needs persisted route-decision events and a DSH `agent/request` consumer.
-- One resolver must combine authority from users, parent agents, assessors, and policy.
+- Routing Policy can be unit-tested and replayed independently.
+- Assessment-model failure can produce explicit abstention without transferring authority.
+- Host ownership is an authority boundary, not a conclusion that every component must ship in DSH core; external plugin, upstream core, or split carrier remains open.
+- The system needs a pre-assembly Route Snapshot and required persistent events. Current DSH gaps are blocking integration contracts, not details to hide behind `agent/request`.

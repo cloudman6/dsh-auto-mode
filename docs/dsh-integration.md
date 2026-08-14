@@ -1,0 +1,137 @@
+# DSH integration and compatibility
+
+[简体中文](zh-CN/dsh-integration.md)
+
+## Audit scope
+
+This document records a source audit of DeepSeek Harness commit [`47f943859bef60e4160492346772ded9b24f765a`](https://github.com/deepseek-ai/deepseek-harness/tree/47f943859bef60e4160492346772ded9b24f765a), performed on 2026-08-14. It is evidence about that revision, not a compatibility promise for later DSH versions.
+
+The plugin must pin an exact tested DSH version or commit and run an extension-contract suite before declaring compatibility.
+
+## Current fork preview runtime carrier
+
+The current preview runtime carrier is the maintainer fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness), whose `master` branch was verified at the audited commit on 2026-08-14. That commit still lacks A1 and A2; it is the baseline on which the fork implementations will be built, not yet a compatible Auto Mode runtime.
+
+Every preview build must identify the exact fork remote and post-seam commit. That identifies the Host build, not the remote model deployment: every admitted preview route also needs provider-specific deployment identity evidence. A local checkout path is never part of the public compatibility contract, and successful fork validation must not be presented as official DSH support.
+
+The fork is the preview runtime carrier, not automatically the user-interface carrier. Phase 0C must separately name and verify the concrete fork UI, client plugin, or command/config surface that provides the one-operation Auto/manual choice and retrieves the persisted explanation.
+
+## Verified usable seams
+
+### Per-step request configuration
+
+The scoped `agent/request` waterfall can replace the complete `LlmCallConfig` for each step, including provider, model, and adapter-owned reasoning effort. The loop resolves the proposed configuration, records its effective value in `request/header`, and then sends the frozen request. See the [event contract](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/agent/src/runtime-types.ts#L232-L245) and [request construction](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/agent-loop/src/agent.ts#L407-L482).
+
+This seam is sufficient to apply an already-frozen route. It is not, by itself, sufficient to decide the route for the current step because prompt/tool assembly has already happened.
+
+### Coupled model selection across assembly and request
+
+DSH exports `installModelSelection()`, which captures one mutable selection during `system-prompt/assemble` and applies that same selection during `agent/request`. This prevents a concurrent switch from splitting provider-dependent prompt assembly from the request. See [`model-selection.ts`](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/agent/src/model-selection.ts#L1-L78).
+
+Auto Mode should reuse or generalize this snapshot mechanism rather than create a second competing ownership path.
+
+### Provider, model, and effort discovery
+
+DSH already exposes provider-neutral runtime discovery: `listProviders()` enumerates active adapter routes, `listModels(provider)` returns each adapter's advisory model catalog, `resolveModelInfo(provider, model)` returns exact-route metadata and may expose adapter-owned reasoning efforts, and `llm/adapters-updated` tells consumers to refresh after topology changes. See [`LlmRuntime`](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/index.ts#L415-L421), [catalog and exact-model resolution](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/index.ts#L575-L624), the [topology event](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/types.ts#L12-L24), and [optional reasoning metadata](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/types.ts#L252-L280).
+
+Auto Mode should populate its deployment profile from these seams and refresh it on topology changes. DSH explicitly defines catalog membership as advisory, so discovery proves only current availability metadata; it does not prove deployment identity, quality, completeness, or admission. Phase 0C deliberately restricts Auto to discovered exact provider/model routes, but this is a conservative preview discovery policy rather than proof that the advisory catalog contains every valid route.
+
+Reasoning metadata is optional. An explicit effort is eligible only when exact-route metadata lists that effort. If the adapter exposes `defaultEffort`, omitting a caller effort produces an adapter-materialized default whose exact effort is recorded. If no adapter default is materialized, omission preserves provider-default behavior. These three request semantics are distinct admission identities; Auto must never invent an effort merely because metadata is absent. A provider-default route is eligible only when its omission behavior was evaluated and its identity evidence satisfies the same drift policy as every other admitted route. Manual mode may still expose unadmitted or explicitly entered configurations under normal DSH validation.
+
+### In-process child execution
+
+In-process children are created as ordinary DSH Agents and therefore enter the same Agent loop. `SubagentStartRequest.agentOptions` can carry concrete Agent options, but the request has no semantic routing-constraint contract. See [`SubagentStartRequest`](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/subagent/subagent/src/types.ts#L100-L154) and the [in-process driver](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/subagent/subagent-in-process-driver/src/index.ts#L99-L143).
+
+The existing delegation helpers persist sandbox and approval policy, proving that child-local durable policy is a supported pattern. They do not persist Auto Mode's risk, minimum guarantee, diversity, or latency constraints.
+
+## Verified blocking or incomplete seams
+
+### Current-step decision input arrives after assembly
+
+The loop claims pending messages, assembles the system prompt, and only then invokes `agent/pre-step`; `agent/request` occurs still later. See [`preStep()`](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/agent-loop/src/agent.ts#L225-L245).
+
+`installModelSelection()` guarantees snapshot consistency only if `selection.current` was decided before assembly. An Auto policy that needs the newly claimed user message cannot obtain that message from the current `system-prompt/assemble` contract. Updating the selection in `agent/pre-step` is too late for the same step.
+
+Required resolution: add or expose a pre-assembly route-decision seam carrying the claimed messages and step identity, or restructure pre-step preparation so one frozen Route Snapshot exists before provider-dependent assembly. Until then, first-step semantic Auto cannot claim prompt/request consistency.
+
+### Required plugin Session events cannot be registered reliably at runtime
+
+The persistence reader checks a generated repository-local set of known event types. Its own generator states that downstream plugin events are outside the set and that a registration surface is deferred. Unknown required events cause cold-load refusal unless marked ignorable. See the [generated vocabulary](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/known-event-types.ts#L1-L19) and [persistence contract test](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/session/session-persistence/tests/coordinator-contract.ts#L1360-L1384).
+
+Auto Mode's decision, episode, constraint, and recovery events reconstruct normative state and therefore cannot be marked ignorable. A DSH runtime event-registration and compatibility contract is required before an external plugin can safely persist them.
+
+### Child routing constraints are not a first-class durable contract
+
+`agentOptions` permits a caller to pass concrete options, but it does not express or validate semantic intent such as risk, minimum guarantee tier, independent review, deadline, or model-family diversity. Auto Mode needs a Host-resolved persistent constraint contract; raw `agentOptions` is not a substitute.
+
+External Codex and Claude Code providers also do not expose request-level model/effort selection through this subagent seam. Their documented behavior delegates model choice to native product configuration: [Codex provider](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/subagent/subagent-codex/README.md#L28-L30) and [Claude Code provider](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/subagent/subagent-claude-code/README.md#L63-L65).
+
+### General recovery capability is not established
+
+The audited seams do not establish a general contract for workspace checkpoint/restore, mutation attribution, external-side-effect rollback, or same-Session model handoff. These are required capabilities, not properties Auto Mode may infer from filesystem or tool access.
+
+Implementation planning must identify explicit upstream or composed providers for each declared `RecoveryCapability`; otherwise salvage/restart and mutable-work down-routing remain unavailable.
+
+## Upstream dependency tracks and priority
+
+The two verified Static Auto blockers are the immediate critical path. Other needs must be audited now but introduced only at the product phase that consumes them.
+
+| Track | Capability | Required for | Audited status | Expected owner |
+|---|---|---|---|---|
+| A1 | Pre-assembly step context shared with `agent/request` | Session Static Auto | Verified missing | DSH upstream |
+| A2 | Required plugin Session-event registration and compatibility | Session Static Auto | Verified missing | DSH upstream |
+| A3p | Stable identity evidence for every selected preview route | Phase 0C admission | Focused provider-specific audit required | Plugin plus selected provider adapters |
+| A3 | General stable resolved deployment identity/fingerprint contract | Evidence-backed official-compatible release | Focused audit required | Provider adapter or DSH upstream |
+| A4 | Extensible purpose and audit classification for fixed auxiliary calls | Task Assessor operations | Focused audit required | Plugin if open; otherwise DSH upstream |
+| A5p | One verified preview carrier for Auto/manual and persisted explanations | Phase 0C usability | Focused carrier audit required | Fork UI, client plugin, or explicit command/config surface |
+| A5 | General Auto/manual and explanation UI extension contract | Official-compatible user-facing release | Focused audit required | Client plugin or DSH upstream |
+| B1 | Persistent typed child-creation metadata for semantic constraints | In-process child routing | Verified incomplete | Generic DSH seam plus plugin schema |
+| B2 | External subagent creation-time model/effort capabilities | External child routing | Verified absent in audited providers | Provider adapters; shared capability declaration if needed |
+| C1 | Structured validation, mutation, provenance, and trust signals | Routing safety and recovery | Incomplete across tools | Capability adapters and possibly DSH upstream |
+| C2 | Provider-neutral `RecoveryCapability` declaration | Mutable down-routing and recovery | Verified absent as a general contract | Execution-world/sandbox seam |
+| C3 | Atomic workspace checkpoint and Session/attempt lineage | Salvage/restart | Verified absent as a general contract | DSH upstream and checkpoint providers |
+| C4 | Controlled Session handoff with constrained evidence | Salvage/restart | Partial Session primitives; sufficiency unverified | DSH upstream or stable extension capability |
+
+### Track A contribution sequence
+
+1. Freeze product-neutral contracts for A1 and A2 in narrow DSH design notes or issues.
+2. Add failing core contract tests against the audited revision.
+3. Implement the seams on an exact DSH fork.
+4. Close A3p for the initial baseline and candidate, and revoke either route when its stable identity cannot be reproduced.
+5. Close A5p with a real preview carrier probe covering the Auto/manual choice, persisted selection, actual configuration, and explanation retrieval.
+6. Add a vertical Auto Mode probe proving pre-assembly decision input, assembly/request snapshot identity, pre-call rejection, required-event persistence, cold recovery, and the A3p/A5p preview path.
+7. Submit A1 and A2 as separate upstream PRs.
+8. Pin the plugin to the first compatible official DSH revision after merge. While upstream is unavailable, identify the exact fork and do not claim official compatibility.
+
+A1 must be product-neutral: it carries claimed messages, stable step identity, cancellation, and immutable per-step context, but knows nothing about routes. A2 must fail with a precise missing-plugin or incompatible-event diagnostic rather than silently skipping normative state.
+
+An `agent/request`-only prototype, ignorable plugin events, an identity-unbound admission, or a configuration-only UI with no explanation path may be used as diagnostic experiments, but none satisfies the Static Auto preview contract.
+
+### Later-track ownership boundary
+
+DSH should provide lifecycle, persistence, capability, and execution-world contracts. Auto Mode retains Task Assessment schemas and models, Policy Packs, route semantics, Routing Policy, admission evidence, episode policy, and RouterBench. This boundary keeps upstream extensions reusable and prevents DSH Core from embedding one routing product's taxonomy.
+
+## Compatibility policy
+
+An Auto Mode release must declare:
+
+- Exact tested DSH version/commit range.
+- Required event-registration and pre-assembly contracts.
+- Contract-test version and results.
+- Stable identity semantics for every admitted provider/model/reasoning selection.
+- The verified Auto/manual and explanation carrier for the declared release surface.
+- Supported in-process and external child providers.
+- Supported recovery-effect classes.
+- Fail-closed behavior for every missing or incompatible seam.
+
+Plugin activation fails before serving Auto when a required normative event cannot round-trip through cold persistence, when route assembly and request cannot share one snapshot, or when the configured Policy Pack requires an unavailable capability.
+
+## Upstream contribution candidates
+
+1. Runtime registration and compatibility metadata for required Session event types.
+2. A scoped pre-assembly step-decision seam carrying claimed messages and stable turn/step identity.
+3. A durable semantic child-routing constraint capability with Host conflict resolution.
+4. Provider-neutral recovery-capability and execution-world checkpoint interfaces.
+5. Contract fixtures proving snapshot, persistence, cold-recovery, and child-constraint behavior.
+
+Whether these land in DSH core or a stable extension package remains open. Host ownership of policy is an authority decision, not a decision that all implementation must live in core.

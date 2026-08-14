@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 468bad9ad984563cad9b220d25d20d1f935fbb2f
+translation-source-blob: a18ae10431bb66f92e7f05d443aee5be6ec1f4c9
 translation-status: current
 -->
 
@@ -10,46 +10,53 @@ translation-status: current
 
 ## 状态
 
-Proposed。本文描述目标能力边界，不代表 DSH 当前已经提供全部扩展点。
+Proposed。本文件定义目标能力边界。当前已验证的 DSH seam 和所需上游修改单独记录在 [DSH 接入证据](dsh-integration.md)。
 
 ## 架构原则
 
-1. 常规路由决策属于 DSH Host 中的策略服务，不属于父 Agent 或 Router Agent。
-2. 语义评估、策略映射和具体模型解析分层，避免把不稳定模型输出直接变成 provider/model。
-3. 选择、恢复和委派授权是三个控制面；它们可以由一个产品装配，但不能共享一个无边界的 Scheduler API。
-4. 运行时代码在 Host 中，按具体 Agent/Session 决策；所有影响恢复和审计的事实属于 Session。
-5. 内存状态只能是持久事件的投影，不能成为唯一事实源。
+1. 常规路由决策属于 DSH Host 中的确定性策略，不属于父 Agent、assessor 或 Router Agent。
+2. 任务评估、约束解析、策略映射、具体配置解析和请求接入是独立层。
+3. 语义 route 是由当前 Policy Pack 证据支持的质量保证档，不是模型名称的同义词。
+4. 选择、执行状态投影、恢复和委派是有界控制面，不共享无限制 Scheduler API。
+5. 持久 Session 事件是真实来源；内存状态只是投影，每个自动决策都必须引用产生它的精确输入快照。
+6. 同一个模型 step 在依赖 provider 的 prompt/tool 组装和 `agent/request` 中使用同一个冻结 Route Snapshot。
+7. 无法解析安全已准入配置是一等停止结果，不是隐式 fallback。
 
 ## 组件
 
 ```mermaid
 flowchart LR
-    U["用户约束"] --> D["Delegation Policy"]
-    P["父 Agent 子任务"] --> D
-    D --> A["Task Assessment"]
-    A --> R["Routing Policy"]
-    D --> R
-    C["Route Catalog / Profiles"] --> R
-    R --> X["Route Profile Resolver"]
-    X --> Q["Adaptive Router Consumer"]
+    U["Auto 或手动模式\n用户限制"] --> C["Constraint Resolver"]
+    P["父 Agent 子任务提议"] --> D["Delegation Policy"]
+    D --> C
+    E["Session 与工具事件"] --> X["Execution Context Projector"]
+    X --> A["Task Assessment"]
+    X --> C
+    W["Policy Pack + Deployment Profile"] --> R["Routing Policy"]
+    W --> V["Route Profile Resolver"]
+    A --> R
+    C --> R
+    S["Recovery Supervisor"] --> R
+    R --> V
+    V --> Q["Route Snapshot Coordinator"]
+    Q --> M["Prompt/tool 组装"]
     Q --> L["agent/request → LLM"]
-
-    L --> E["Session / Agent / Tool events"]
-    E --> S["Recovery Signal Providers"]
-    S --> V["Recovery Supervisor"]
-    V --> R
-    V -.必要时.-> M["Recovery Assessor"]
-    B["RouterBench"] --> R
+    L --> E
+    E --> S
+    B["RouterBench"] --> W
     B --> A
+    B --> R
 ```
 
-### Adaptive Router Consumer
+### Execution Context Projector
 
-监听每次 DSH `agent/request`，收集当前 Agent 的路由上下文，调用 Routing Policy，并用 Route Profile Resolver 产生最终 LLM call config。它负责接入，不拥有策略。
+将持久事件折叠为当前 objective、已确认 phase、任务边界、active attempt 和证据 watermark。它是已确认 `ObjectiveState` 和 `PhaseState` 的唯一所有者。模型、父 Agent、工具和分类器可以提议 phase 变化；只有确定性转移策略或显式记录的用户动作能够确认。
+
+Routing Policy 只消费已确认状态。诸如“实现已完成”的自由文本声明不能单独改变 phase、关闭 episode 或授权降级。
 
 ### Task Assessment
 
-将任务描述和有限上下文转成 provider 无关的任务属性：
+将有界执行快照转换为与 provider 无关的属性：
 
 ```ts
 interface TaskAssessment {
@@ -60,121 +67,211 @@ interface TaskAssessment {
   reversibility: 'easy' | 'costly' | 'irreversible' | 'unknown'
   detectability: 'high' | 'medium' | 'low' | 'unknown'
   confidence: number
+  assessorVersion: string
 }
 ```
 
-实现可以是确定性规则、本地分类器或固定配置的辅助模型。它只提供属性，不返回模型名称。
+实现可以使用确定性规则或固定辅助模型。它返回属性，绝不返回模型名。其校准与 Routing Policy 分开评估。
+
+### Constraint Resolver 与 Delegation Policy
+
+Delegation Policy 验证父 Agent 提议并输出规范化候选要求。Constraint Resolver 将 Host 安全和能力约束、用户限制、Host 接受的父 Agent 要求及 active episode floor 合并为 `ResolvedRoutingConstraints`。
+
+结果记录接受和拒绝的约束、来源、reason code、生效候选集和保证档 floor。父 Agent 提供的 `minimumRoute` 不会仅因它提高档位就自动成为硬约束。
+
+### Policy Pack 与 Effective Route Catalog
+
+维护者负责的 Policy Pack 包含 taxonomy、baseline 绝对门槛、candidate 准入证据、evaluator/policy 版本、过期和撤销。部署 Profile 从 DSH active provider/model catalog 和精确 route 元数据填充，再加入本地能力事实与用户限制。Reasoning 显式表示为调用方指定的 effort、adapter 实体化的默认值，或保留 provider-default 行为的 effort 省略。编译过程冻结一份带版本的 Effective Route Catalog，供 Constraint Resolver、Routing Policy 与 Route Profile Resolver 共同使用。
+
+DSH discovery 只能证明可用性，不能授予 Auto 准入。Compiler 对已发现配置、当前 Policy Pack 准入、capability 要求、稳定 identity 证据和用户限制取交集。一个模型可以继续在手动模式中可选，同时没有资格被 Auto 选择。
+
+任意本地映射、过期记录或无法识别的 provider alias 都不会自动准入。
 
 ### Routing Policy
 
-接收任务属性、硬约束、用户设置、活动 episode、Route Catalog 和 RouterBench 校准数据，输出语义 route。给定同一组已捕获输入和策略版本，策略映射必须确定。
+消费不可变决策输入快照、assessment、已解析约束、active episode floor、恢复能力和冻结的 Effective Route Catalog。在持久快照和 policy 版本相同时，语义决策必须确定。
+
+Routing Policy 选择保证档或 abstain。它不选择原始 provider/model 字符串，也不决定如何展示无法满足的解析失败。
 
 ### Route Profile Resolver
 
-把 `fast`、`standard`、`strong` 映射为当前部署可用的 provider/model/effort。模型榜单和社区档案只影响 profile 与冷启动先验，不直接替代任务策略。
+将已准入保证档解析为可用 provider/model/reasoning-selection candidate。它是冻结 Effective Route Catalog 与已解析约束的纯函数；一次决策中绝不重新读取 live discovery。完成 capability 与 admission 过滤后，它按预测端到端延迟、总成本和稳定 route identity 依次排序具体候选。缺少必需 identity 或比较数据时判定 `profile-invalid`，不能让 discovery 顺序决定结果。Resolver 版本和选中的 admission identity 都要持久化。输出是生效配置，或 `constraints-unsatisfiable`、`profile-invalid`、`provider-unavailable`、`no-safe-route` 等明确失败。
+
+### Route Snapshot Coordinator
+
+拥有一个模型 step 的 DSH 生命周期接入：
+
+1. 在稳定的 pre-assembly 边界冻结 Policy Pack 与 deployment profile，编译 Effective Route Catalog，并捕获按序排列的 claimed message 和当前执行投影。
+2. 把编译后的 catalog 持久化为不可变 `EffectiveRouteCatalogSnapshotEvent`。
+3. 把原始执行状态持久化为不可变 `RoutingContextSnapshotEvent`，并引用已经存在的 catalog snapshot。
+4. 针对该 context snapshot 运行约束解析和必要 assessment，再将输出以向后引用的形式持久化。
+5. 持久化最终 `DecisionInputSnapshotEvent`，只引用此时已经存在的 context、constraint 和 assessment 事件。
+6. 让 Routing Policy 与 Route Profile Resolver 针对最终决策输入和同一冻结 catalog 运行。
+7. 持久化语义决策与解析结果。
+8. 冻结并持久化一份 `RouteSnapshot`，包含具体 identity、reasoning selection、request encoding 和相关版本引用。
+9. 让 prompt/tool 组装和 `agent/request` 消费同一快照及其 snapshot identity。
+
+若请求失败后恢复策略选择不同 route，Coordinator 必须开始新 step，或使用能重新执行 provider 相关组装的上游 seam。不能只替换最终请求配置，却保留为另一个模型组装的上下文。
 
 ### Recovery Supervisor
 
-折叠形式化运行信号，管理 attempt、episode 和恢复动作。它默认不使用模型，也不与当前 Agent 进行自然语言对话。可选 Recovery Assessor 只在语义证据确实会改变高成本恢复决策时调用。
-
-### Delegation Policy
-
-把父 Agent 提供的子任务意图和约束规范化为路由输入，并执行权限规则。父 Agent 默认只能提高质量下限或增加约束，不能降低策略要求或指定任意原始模型。
+将正式运行信号折叠为 attempt 和 episode，并向 Routing Policy 提供 route floor 和已声明 `RecoveryCapability`。默认不使用模型。完整 `salvage/restart` 与可变工作准入所需的最低恢复能力相互独立。
 
 ### RouterBench
 
-使用与在线运行相同的 Task Assessment 与 Routing Policy，进行 route 配对实验、策略校准和回归检测。Benchmark 不能维护一套与生产不同的“简化路由器”。
+包含两个相关但独立的系统：
+
+- Route Capability Bench 在不让生产策略分配 treatment 的情况下测量 provider/model/reasoning-selection 配置并产生准入证据。
+- Policy Scenario Bench 在版本化状态机场景和策略消融上运行与生产相同的 policy core。
+
+calibration 数据和 held-out 验收数据分离。Benchmark oracle 元数据绝不进入 Task Assessment 或在线策略输入。
 
 ## 请求流程
 
 ```text
-1. 一个 Agent step 准备发起模型请求
-2. Adaptive Router Consumer 收集结构化上下文
-3. Delegation Policy 合并用户授权、硬约束和父 Agent 约束
-4. 必要时执行 Task Assessment
-5. Routing Policy 选择语义 route 或 abstain
-6. Route Profile Resolver 解析 provider/model/effort
-7. 记录 routing/decision
-8. agent/request 返回最终 call config
-9. DSH 记录实际 request/header 并调用模型
-10. 运行事件进入 Recovery Signal Providers
-11. Recovery Supervisor 更新 episode 或发起恢复动作
+1. Session 到达稳定的组装前边界
+2. Execution Context Projector 产生 objective 和已确认 phase 状态
+3. Route Snapshot Coordinator 编译并冻结 Effective Route Catalog
+4. 持久化 EffectiveRouteCatalogSnapshot
+5. 捕获并持久化 RoutingContextSnapshot，包括 ordered claimed-message reference 和向后的 catalog 引用
+6. Constraint Resolver 针对该快照产生持久化 ResolvedRoutingConstraints
+7. 必要时运行 Task Assessment，并持久化对同一快照的向后引用
+8. 持久化 DecisionInputSnapshot，引用已经存在的 context、constraints 和可选 assessment
+9. Routing Policy 选择保证档或 abstain
+10. Route Profile Resolver 从冻结 catalog 确定性地解析已准入配置或停止结果
+11. 持久化决策、解析、证据引用和版本
+12. 冻结并持久化 RouteSnapshot
+13. 按 RouteSnapshot 组装依赖 provider 的 prompt 和工具
+14. agent/request 应用同一 RouteSnapshot
+15. DSH 记录 request/header 并调用模型
+16. 运行事件进入 Signal Provider 与 Recovery Supervisor
 ```
 
-路由发生在每个模型请求前，不只发生在 Session 或子 Agent 创建时。进程内子 Agent 创建后走相同的 `agent/request` 路径；只有必须在外部进程创建前固定模型的 provider 需要额外的 Subagent Routing Adapter。
+进程内子 Agent 走同一路径。必须在进程创建时固定模型的外部 provider，需要消费同一语义输入和 Resolver 的 pre-start adapter。
 
-## 持久事件提案
+## 持久事件模型
 
-事件名称和字段需要与 DSH 当前 Session API 对照后评审。最低需要：
+在 DSH 事件注册 seam 解决前，事件名保持 Proposed。最低逻辑记录为：
 
 ```ts
-interface RoutingDecisionEvent {
-  turn: number
-  step: number
-  outcome: 'selected' | 'abstained'
-  route: RouteId
-  effectiveConfig: {
-    provider: string
-    model: string
-    reasoningEffort?: string
-  }
-  reasonCode: ReasonCode
-  evidenceRefs: EventRef[]
-  policyVersion: string
-  profileVersion: string
+interface EffectiveRouteCatalogSnapshotEvent {
+  catalogSnapshotId: CatalogSnapshotId
+  policyPackVersion: string
+  deploymentProfileVersion: string
+  compilerVersion: string
+  candidateAdmissionIds: readonly AdmissionId[]
+  digest: string
 }
 
-interface RecoveryEpisodeEvent {
-  episodeId: string
-  attemptId: string
-  action: 'opened' | 'resolved' | 'superseded' | 'abandoned' | 'restarted' | 'user-cleared'
-  minimumRoute: RouteId
-  reasonCode: string
-  evidenceRefs: EventRef[]
+interface RoutingContextSnapshotEvent {
+  contextSnapshotId: ContextSnapshotId
+  routingScope:
+    | { kind: 'session'; sessionId: SessionId }
+    | { kind: 'objective'; objectiveId: ObjectiveId }
+  phaseId?: PhaseId
+  turn: number
+  step: number
+  claimedMessageRefs: readonly EventRef[]
+  activeEpisodeRefs: EventRef[]
+  recoveryCapabilityRef: EventRef
+  effectiveRouteCatalogRef: EventRef
+  evidenceWatermark: number
+}
+
+interface ResolvedRoutingConstraintsEvent {
+  constraintsId: ConstraintsId
+  contextSnapshotRef: EventRef
+  // accepted inputs、rejected inputs、provenance、candidate set、floor、reasons
+}
+
+interface TaskAssessmentEvent {
+  assessmentId: AssessmentId
+  contextSnapshotRef: EventRef
+  assessment: TaskAssessment
+}
+
+interface DecisionInputSnapshotEvent {
+  decisionInputId: DecisionInputId
+  contextSnapshotRef: EventRef
+  constraintsRef: EventRef
+  assessmentRef?: EventRef
+  policyVersion: string
+  resolverVersion: string
+}
+
+interface RoutingDecisionEvent {
+  decisionId: DecisionId
+  decisionInputRef: EventRef
+  outcome: 'selected' | 'abstained'
+  route?: RouteId
+  requestedFallback?: RouteId
+  reasonCode: ReasonCode
+  policyVersion: string
+}
+
+type RouteResolutionEvent =
+  | {
+      decisionId: DecisionId
+      outcome: 'resolved'
+      effectiveConfig: EffectiveCallConfig
+      reasoningSelection: ReasoningSelection
+      admissionIdentity: AdmissionIdentity
+      profileVersion: string
+      resolverVersion: string
+    }
+  | {
+      decisionId: DecisionId
+      outcome: 'failed'
+      failureCode: ResolutionFailure
+      profileVersion: string
+      resolverVersion: string
+    }
+
+interface RouteSnapshotEvent {
+  routeSnapshotId: RouteSnapshotId
+  contextSnapshotRef: EventRef
+  decisionRef: EventRef
+  resolutionRef: EventRef
+  turn: number
+  step: number
+  effectiveConfig: EffectiveCallConfig
+  reasoningSelection: ReasoningSelection
+  requestEncoding:
+    | 'explicit-effort'
+    | 'adapter-default-materialized'
+    | 'provider-default-omitted'
 }
 ```
 
-必须记录每次决策，包括 route 未变化的 `keep` 情况，才能计算 auto coverage、abstention、升级和恢复指标。`keep`、`upgrade`、`downgrade` 是对相邻目标 route 的派生显示状态，不是策略输出。
+Objective、phase、attempt 和 episode 事件构成显式状态机，包含创建、转移、解决、取代、放弃、重启和用户干预结果。事件引用将每次决策连接到不可变输入，避免复制可变字段。
 
-## Recovery Supervisor 与 Session 的交互
+所有引用都必须指向已经持久化的不可变事件；禁止 forward reference 和持久化后的 mutation。`claimedMessageRefs` 保留处理顺序，`evidenceWatermark` 定义本次决策可见的包含式事件边界。Route snapshot identity 必须贯穿组装与 request 接入，不能只因 provider/model 字符串相同就推断它们使用了同一快照。
 
-Recovery Supervisor 通过机器接口交互：
+每次尝试的决策都要记录，包括语义 keep。UI 可以聚合连续 keep，但不能删除底层审计事实。
 
-- 监听持久 Session 事件、实时 `agent/*` 和 `tools/*` 事件。
-- 使用 Signal Provider 把不同工具结果转成判别联合。
-- 折叠事件得到 RecoveryState。
-- 追加自己的 log-only 事件。
-- 在下次 `agent/request` 向 Routing Policy 提供活动 route floor。
+## Recovery Supervisor 与模型交互
 
-它不要求当前模型每个 turn 返回专用自然语言或 JSON。Agent 的 todo、plan 或 `report_progress` 只能成为弱自我报告，不能单独结束 episode。
+Recovery Supervisor 监听持久 Session 事件及 live Agent、工具、验证和 mutation 事件。Signal Provider 只规范化自身拥有语义的来源；未知 shell 或外部副作用标为 `mutation-unknown`，不能推断成功。
 
-当恢复动作确实需要改变模型行为时，才使用一次性、可持久化注入：
+当前模型无需在每个 turn 返回 supervisor JSON。只有恢复动作改变模型行为时，才注入一次可持久重建的指令：
 
-- `continue`：提醒升级后的模型复核未经验证的旧假设。
-- `salvage`：向新 Session 注入结构化 Evidence Capsule 的渲染。
-- `restart`：只注入原任务和干净 checkpoint，不注入旧假设。
+- `continue`：要求检查继承的未验证假设。
+- `salvage`：将带 provenance 的 Evidence Capsule 渲染到新执行上下文。
+- `restart`：注入原始任务和干净执行世界描述，不带之前假设。
 
-任何进入模型上下文的恢复信息都必须通过 DSH 可重建的 logged channel。
+Evidence Capsule 中的事实与假设使用不同 trust class。
 
-## 可选模型评估器
+## 可选模型 Assessor
 
-Task Assessor 和 Recovery Assessor 遵循相同边界：
+Task Assessor 与 Recovery Assessor：
 
-- 使用固定配置，不接受 Adaptive Router 再次路由。
-- 是一次性、无工具、无自主循环的辅助调用。
-- 接收有界快照，按受校验的数据结构返回。
-- 超时、失败或低置信度时返回 `unknown`。
-- 输出被记录，但不拥有最终决策权。
-- RouterBench 计入其延迟和成本。
+- 使用 Auto 不能递归路由的固定配置。
+- 只进行一次有界调用，不使用工具或自主循环。
+- 消费有界快照并返回通过校验的结构。
+- 失败、超时或低置信度时返回 `unknown`。
+- 将输出作为证据持久化，但不给予决策权。
+- 分别报告校准、选择性风险、延迟和成本。
 
-如果一个评估器调用弱模型再判断弱模型是否应该被升级，就会形成自我监督偏差；默认评估器应与当前执行模型解耦。
+## DSH 接入状态
 
-## 需要 DSH 核对的扩展点
-
-- `agent/request` 是否能在插件外完整替换 provider/model/reasoningEffort。
-- 何处读取稳定的当前 turn/step、Session 投影和 route capability。
-- 插件持久事件的声明、恢复和 UI 渲染方式。
-- 子 Agent 请求是否能携带持久的语义 RoutingConstraints。
-- 进程外 provider 能否在创建前接受语义 route。
-- 文件系统、shell、test runner 是否提供足够结构化的验证和修改事件。
-- Session fork 与执行工作区 checkpoint 如何关联。
+当前源码审计确认了逐 step `agent/request` 配置替换和可重建 `request/header` 日志，同时识别出 required 插件 Session 事件、组装前 route 协调、持久子 Agent 约束、外部 provider 创建时路由、工作区恢复和 Session handoff 等未解决 seam。准确证据和兼容策略在 [DSH 接入证据](dsh-integration.md)维护。

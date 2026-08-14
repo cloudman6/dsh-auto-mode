@@ -4,149 +4,196 @@
 
 ## Purpose
 
-RouterBench is the quality-evidence foundation of Auto Mode, not an auxiliary demo. It answers:
+RouterBench is the evidence foundation of Auto Mode. It must answer two different questions without using one dataset or runner to answer both:
 
-- On which task categories can a model and effort preserve the strong quality baseline?
-- On which tasks does the router have enough evidence to choose a weaker route automatically?
-- Do escalation, down-routing, and recovery improve end-to-end outcomes?
-- Do classifier, switching, and retry overhead eliminate model savings?
+1. Route Capability Bench: which provider/model/reasoning-selection configurations meet absolute and relative quality gates for a task category?
+2. Policy Scenario Bench: does production policy select, escalate, down-route, abstain, and recover correctly, and does each added control plane improve end-to-end outcomes?
 
-Online routing and Benchmark execution must use the same Task Assessment, Routing Policy, Route Profile, and versioned configuration.
+Where policy is exercised, Benchmark and online execution use the same policy core and schemas. Benchmark treatment assignment, oracle metadata, and evaluators remain outside production policy inputs.
 
-## Experimental unit
+## Evidence layers and data isolation
 
-A Benchmark case contains at least:
+Every Benchmark release separates:
+
+- Calibration data used to choose thresholds or fit assessment rules.
+- Validation data used during Policy Pack construction.
+- A held-out acceptance set opened only after taxonomy, assessor, policy, profile, and evaluator versions are frozen.
+- Time-shifted and out-of-distribution sets used for drift and abstention tests.
+
+Splits are grouped by fixture, repository, source, task family, and near-duplicate cluster. A case separates execution-visible input from evaluator-only oracle metadata:
 
 ```ts
-interface RouterBenchCase {
+interface CapabilityCase {
   id: string
   version: number
-  taskKind: TaskKind
-  prompt: string
-  fixture: FixtureRef
-  risk: RiskLevel
-  verifiability: Verifiability
-  evaluators: EvaluatorSpec[]
-  expectedEvidence?: EvidenceRequirement[]
-  allowedSideEffects: SideEffectPolicy
+  executionInput: {
+    prompt: string
+    fixture: FixtureRef
+  }
+  oracleMetadata: {
+    taskKind: TaskKind
+    risk: RiskLevel
+    verifiability: Verifiability
+    evaluators: EvaluatorSpec[]
+    expectedEvidence: EvidenceRequirement[]
+    allowedSideEffects: SideEffectPolicy
+  }
 }
 ```
 
-Run the same case against a candidate route and the strong baseline as a pair. Randomize execution order, record model snapshots and profile versions, and repeat runs to measure model variance.
+Task Assessment and Routing Policy never receive `oracleMetadata`.
+
+## Route Capability Bench
+
+Run the same case against a candidate configuration and the configured baseline as a randomized pair. Repeat independent runs to estimate model and environment variance. Record:
+
+- Exact deployment profile, reasoning-selection encoding, and known model/provider fingerprint.
+- Fixture hash and environment summary.
+- Evaluator, rubric, judge, and taxonomy versions.
+- Execution-order seed and repetition identity.
+- Raw outcomes, structured evidence, latency, tokens, and cost.
+
+The baseline itself must pass an absolute gate. A candidate cannot be admitted merely because it matches a failing baseline.
+
+## Policy Scenario Bench
+
+Policy behavior needs an explicit event scenario rather than an opaque fixture:
+
+```ts
+interface ScenarioCase {
+  id: string
+  version: number
+  initialSession: SessionFixtureRef
+  initialExecutionWorld: ExecutionWorldFixtureRef
+  actors: ScenarioActor[]
+  eventSchedule: ScheduledEvent[]
+  faultSchedule: ScheduledFault[]
+  checkpoints: CheckpointFixture[]
+  routingConstraints: RoutingConstraintFixture[]
+  expectedTrace: TraceInvariant[]
+  sideEffectOracle: SideEffectOracle
+}
+```
+
+Scenarios cover confirmed phase transitions, multiple episodes, restart lineage, cold recovery, provider loss, event-persistence failure, concurrent mutation, child constraints, and Session handoff. Deterministic state-machine simulation and real DSH adapter contract tests are separate test layers.
 
 ## Initial task categories
 
-### Mechanically verifiable coding
+The taxonomy is hierarchical. Task kind, risk, verifiability, reversibility, and detectability are separate dimensions; admission on a broad category cannot hide a failing high-risk slice.
 
-- Local API parameter validation.
-- Multi-file refactoring and type updates.
-- Test-failure diagnosis.
-- Concurrency, lifecycle, and resource-release defects.
-- Security boundaries and authority checks.
+Initial content spans:
 
-### Partially verifiable work
-
-- Source-backed document summaries.
-- Code review and risk inventories.
-- Public API documentation synchronization.
-- Migration-plan comparison.
-
-### No single objective answer
-
-- Architecture options and trade-offs.
-- Research synthesis.
-- Technical writing and argumentation.
-- Long-term evolution recommendations.
-
-### Routing and recovery scenarios
-
-- Initial route selection.
-- Continue after a weak model stalls.
-- Salvage/restart after harmful mutations.
-- Transition within one turn from complex implementation to low-risk tail work.
-- High-risk child-agent constraints and model diversity.
+- Mechanically verifiable coding: validation, refactoring, diagnosis, concurrency, resource lifecycle, and authority boundaries.
+- Partially verifiable work: source-backed summaries, code review, API documentation, and migration comparison.
+- Open-ended work: architecture trade-offs, research synthesis, technical argument, and evolution recommendations.
+- Routing scenarios: initial selection, abstention, provider loss, and no-safe-route.
+- Recovery scenarios: continue, attributable mutation, checkpoint failure, salvage/restart, and unknown external side effects.
+- Delegation scenarios: accepted/rejected parent constraints, systematic over-escalation, persistent child constraints, and diversity requests.
 
 ## Quality evaluation
 
-### Mechanical verification
+### Mechanical work
 
-Prefer real tests, type checks, static analysis, builds, and deterministic invariants. Passing tests is necessary evidence but does not prove requirement completeness automatically; cases must detect omissions and speculative workarounds.
+Use real tests, type checks, static analysis, builds, hidden requirements, mutation oracles, and deterministic invariants. Passing visible tests is necessary evidence, not proof of requirement completeness.
 
-### Open-ended tasks
+### Open-ended work
 
-When no standard answer exists, do not invent one canonical response. Combine:
+Use complementary evidence:
 
-- A prewritten checklist of critical omissions and error modes.
+- Absolute rubrics and prewritten critical-omission checklists.
+- Hidden fact graphs or source-grounded evidence requirements.
 - Citation correctness, source fidelity, and coverage.
-- Blind pairwise comparison between candidate and strong outputs.
-- Multiple independent evaluators, reporting disagreement instead of only an average.
-- Human or domain-expert sampling for high-risk tasks.
+- Blind randomized pairwise comparison.
+- Diverse, versioned evaluators with family and known training-relation metadata.
+- Mandatory human or domain-expert blind review for high-risk cases, evaluator disagreement, or baseline failure.
 
-An LLM judge is not truth. Version the judge, measure position and same-family model bias, and retain the rationale behind each judgment.
+Call evaluators diverse, not statistically independent. Version judges, measure position and same-family bias, retain rationales, and report disagreement rather than averaging it away.
+
+## Statistical admission protocol
+
+Each Policy Pack preregisters:
+
+- `epsilon`: one-sided non-inferiority margin.
+- `delta`: upper bound for unacceptable-result probability.
+- Confidence level, power, minimum effect, and interval method.
+- Repetition count and variance model across case, model run, repository, and evaluator.
+- Multiple-comparison correction across candidate × category decisions.
+- Minimum sample sizes derived from the rare severe-failure target.
+
+For binary unacceptable outcomes, use a justified exact or conservative upper confidence bound. Observing zero failures does not establish zero risk; at 95% confidence the rough `3/n` rule shows why small samples cannot support a strict `delta`.
+
+Admission requires all of:
+
+```text
+baseline passes its absolute quality and unacceptable-result gates
+AND candidate non-inferiority interval satisfies epsilon
+AND candidate unacceptable-result upper bound satisfies delta
+AND preregistered power and sample size are met
+AND no unexplained severe failure cluster exists
+AND the task slice is represented in held-out acceptance data
+```
+
+## Strategy ablations
+
+Use the same cases, budgets, and randomized order to compare at least:
+
+1. Always Baseline: the admitted baseline configuration for the whole task.
+2. Session Static Auto: one admitted route per Session/task objective.
+3. Within-turn Auto: confirmed-phase routing without full recovery.
+4. Full Auto: within-turn routing plus the recovery control plane under test.
+
+Report incremental differences between adjacent arms. Recovery benefits observed equally under Always Baseline are generic execution-supervision benefits, not routing benefits.
+
+Within-turn routing and full salvage/restart are admitted to product scope only when their incremental end-to-end improvement is material and all quality and safety gates continue to pass.
 
 ## Core metrics
 
-### Quality
+### Quality and coverage
 
-- `quality_gap_to_strong`: candidate-route quality gap relative to strong.
-- `unacceptable_result_rate`: fraction of unacceptable outcomes.
-- `under_routing_loss`: severe loss caused by selecting a route that is too weak.
-- Quantiles and worst-category performance, not only means.
+- Absolute baseline pass rate.
+- `quality_gap_to_baseline` with interval.
+- `unacceptable_result_rate` upper bound.
+- `under_routing_loss`, severe clusters, quantiles, and worst slices.
+- `auto_coverage`, abstention, no-safe-route, and out-of-distribution rates.
 
-### Coverage
+### Performance and product value
 
-- `auto_coverage`: fraction of tasks optimized automatically without abstention.
-- `abstention_rate`: fraction using fallback because evidence is insufficient.
-- `out_of_distribution_rate`: fraction that cannot map to a calibrated task category.
+- Latency to first valid result and total completion latency.
+- Input, output, assessor, replay, retry, and recovery tokens.
+- Model-call and Benchmark amortized cost.
+- Prompt-cache loss and switching overhead.
+- Strategy-arm incremental value.
 
-### Performance
+### Recovery and delegation
 
-- End-to-end latency to the first valid result.
-- Total task-completion latency.
-- Input, output, and auxiliary-model tokens.
-- Model-call cost.
-- Cache loss and history-replay overhead from switching.
+- Escalation precision/recall and selective risk.
+- Episode duration distribution, unresolved survival, and release correctness.
+- Continue/salvage/restart incremental success and cost.
+- Harmful-mutation escape rate for declared supported effects.
+- Parent escalation-request, acceptance, rejection, and override rates.
 
-### Recovery
+## Admission lifecycle and revocation
 
-- Escalation precision and recall.
-- Mean episode duration in steps and unresolved-episode rate.
-- Success rate and additional cost of continue, salvage, and restart.
-- Harmful-mutation escape rate: weak-model side effects that remain after recovery.
+A Route Admission records configuration identity, supported capabilities, task slice, evidence version, sample size, statistics, data date, expiry, invalidation conditions, and revocation status.
 
-## Admission rules
+Admission is revoked or suspended when:
 
-Decide route admission independently for every task category. A proposed rule is:
+- The provider/model fingerprint changes or becomes unknown.
+- A configured alias may point to an unverified deployment.
+- A periodic paired canary crosses a drift threshold.
+- The Policy Pack expires.
+- A new severe failure cluster appears.
+- Required capabilities or evaluator assumptions change.
 
-```text
-Confidence interval of candidate quality gap satisfies epsilon
-AND upper bound of unacceptable-result rate satisfies delta
-AND sample size reaches the minimum
-AND no unexplained high-severity failure cluster exists
-```
-
-Passing on average cannot hide a systematic failure in one high-risk subcategory. Security, concurrency, irreversible external operations, and similar categories use stricter thresholds or a fixed strong route.
-
-## Model profiles
-
-Public model-capability rankings may be a cold-start prior, but they are not routing truth. A Route Profile records:
-
-- Provider, model, effort, and capabilities.
-- Hard constraints such as context window and vision/tool support.
-- RouterBench version and sample size.
-- Quality, latency, cost, and confidence intervals.
-- Data date and invalidation conditions.
-
-Model updates, provider aliases, and server-side behavior changes may invalidate historical profiles. Runtime canaries and version fingerprints remain future design questions.
+Revocation immediately removes the configuration from weaker automatic tiers. If no admitted baseline remains, Auto returns `no-safe-route`.
 
 ## Labels not used
 
-These signals do not prove that a route is correct:
+These facts do not prove route correctness:
 
-- A user manually chose a model.
-- A user accepted or rejected a switching suggestion.
-- A parent agent selected a route.
-- A model claimed the task was simple or resolved.
-- One output was not redone by the user.
+- User or parent selected a model or route.
+- User accepted or rejected a switch.
+- Model claimed the task was simple, complete, or resolved.
+- One result was not redone.
 
-Usable facts include reproducible validation, explicit user correction, eventual task completion, recovery actions and side effects, and deliberately designed paired evaluation.
+Usable evidence includes deliberately designed paired evaluation, reproducible validation, explicit correction tied to objective evidence, confirmed task completion criteria, and attributable recovery side effects.
