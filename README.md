@@ -18,6 +18,7 @@ DSH Auto Mode 不只是一次性的模型选择器。完整方向包括：
 
 ## 文档
 
+- [项目状态](PROJECT_STATUS.md)
 - [产品规范](docs/spec.md)
 - [系统架构](docs/architecture.md)
 - [路由策略](docs/routing-policy.md)
