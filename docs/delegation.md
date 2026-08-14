@@ -1,36 +1,38 @@
-# 子 Agent 委派与路由权限
+# Child-agent delegation and routing authority
 
-## 核心原则
+[简体中文](zh-CN/delegation.md)
 
-父 Agent 表达“子任务需要什么”，Routing Policy 决定“使用什么 route 实现”。父 Agent 本身是模型，默认不能成为模型目录的最终控制者。
+## Core principle
 
-## 权限优先级
+A parent agent expresses what a child task needs; Routing Policy decides which route provides it. A parent agent is itself a model and does not become the final controller of the model catalog by default.
+
+## Authority precedence
 
 ```text
-用户显式 route lock
-→ Host/安全硬约束
-→ 父 Agent 提出的质量下限和语义要求
+Explicit user route lock
+→ Host/security hard constraints
+→ Parent-agent quality floor and semantic requirements
 → Routing Policy
-→ abstain fallback
+→ Abstention fallback
 ```
 
-父 Agent 默认可以：
+A parent agent may by default:
 
-- 描述子任务和验收要求。
-- 提高最低 route。
-- 声明高风险、只读、独立评审、延迟期限等约束。
-- 要求模型家族或 provider 多样性，但不指定具体型号。
-- 限制子 Agent 可用工具和执行能力。
+- Describe a child task and its acceptance criteria.
+- Raise the minimum route.
+- Declare constraints such as high risk, read-only execution, independent review, or a latency deadline.
+- Request model-family or provider diversity without naming a concrete model.
+- Restrict tools and execution capabilities available to the child agent.
 
-父 Agent 默认不可以：
+A parent agent may not by default:
 
-- 降低 Routing Policy 判定的最低质量。
-- 指定任意 provider/model/effort 字符串。
-- 关闭 Host 安全策略。
-- 将自己的风险声明视为事实或训练标签。
-- 静默绕过 Auto。
+- Lower the minimum quality selected by Routing Policy.
+- Provide an arbitrary provider/model/effort string.
+- Disable Host security policy.
+- Treat its own risk claim as fact or a training label.
+- Bypass Auto silently.
 
-## 约束提案
+## Proposed constraints
 
 ```ts
 interface RoutingConstraints {
@@ -53,22 +55,22 @@ interface DelegatedTask {
 }
 ```
 
-这些字段是父 Agent 提案。Delegation Policy 可以提高风险、拒绝冲突要求或因用户预算覆盖延迟要求。
+These fields are parent-agent proposals. Delegation Policy may raise risk, reject conflicting requirements, or override a latency request because of user budget constraints.
 
-## 单调权限
+## Monotonic authority
 
-父 Agent 的正常控制应是单调的：可以要求更强，不能单方面要求更弱。
+Normal parent-agent control is monotonic: it may require stronger execution but cannot unilaterally require weaker execution.
 
 ```text
-父 Agent minimumRoute=strong
-→ 策略至少选择 strong
+Parent minimumRoute=strong
+→ policy selects at least strong
 
-父 Agent minimumRoute=fast
-且策略判断任务需要 strong
-→ strong 保持有效
+Parent minimumRoute=fast
+and policy determines that the task requires strong
+→ strong remains effective
 ```
 
-用户可以显式授予精确 override 权限，但仍应限制在语义 route allowlist：
+A user may explicitly grant exact override authority, still restricted to a semantic-route allowlist:
 
 ```yaml
 delegationPolicy:
@@ -79,37 +81,37 @@ delegationPolicy:
       - strong
 ```
 
-不向父 Agent 暴露原始 provider/model，避免配置耦合和无约束逃生口。每次 override 记录来源和原因，但不视为正确标签。
+Do not expose raw provider/model identifiers to the parent agent. This avoids configuration coupling and an unbounded escape hatch. Persist each override source and reason, but do not treat it as a correct label.
 
-## 为什么不需要 Subagent Scheduler
+## Why a Subagent Scheduler is unnecessary
 
-进程内子 Agent 创建后仍是普通 DSH Agent，其每次模型请求都会经过统一 `agent/request`。Adaptive Router 因此天然同时服务主 Agent 与子 Agent。
+After an in-process child agent is created, it remains a normal DSH Agent; every model request passes through the unified `agent/request` seam. Adaptive Router therefore serves main and child agents through the same path.
 
 ```text
-父 Agent提交子任务与约束
-→ 创建 child Session
-→ child 的第一次 agent/request
+Parent submits child task and constraints
+→ create child Session
+→ child's first agent/request
 → Delegation Policy + Routing Policy
 → child route
 ```
 
-只有外部 provider 必须在创建进程或远端 Session 前确定模型时，才增加 `SubagentRoutingAdapter`。它调用同一个 Routing Policy，不建立第二套路由器。
+Only an external provider that must choose a model before creating a process or remote Session needs a `SubagentRoutingAdapter`. The adapter calls the same Routing Policy and does not create a second router.
 
-Scheduler 一词保留给真正的任务调度：并发上限、队列、优先级、抢占、资源预算和生命周期 admission。当前项目不实现这些能力。
+The term Scheduler is reserved for actual task scheduling: concurrency limits, queues, priorities, preemption, resource budgets, and lifecycle admission. This project does not implement those capabilities.
 
-## 持久性
+## Persistence
 
-RoutingConstraints 必须与 child Session 或其持久描述关联，以支持：
+RoutingConstraints must be associated with the child Session or its persistent descriptor so that the system can:
 
-- 冷恢复后保持相同质量下限。
-- 审计父 Agent 提交了什么、策略接受了什么。
-- 区分用户授权与模型生成的约束。
-- RouterBench 重放真实委派场景。
+- Preserve the same quality floor after cold recovery.
+- Audit what the parent proposed and what policy accepted.
+- Distinguish user authority from model-generated constraints.
+- Replay real delegation scenarios in RouterBench.
 
-如果 DSH 当前 Subagent 请求只支持具体 AgentOptions，而没有语义约束扩展点，需要提出最窄的上游能力 seam，不能把约束偷偷编码进 prompt。
+If the current DSH Subagent request supports only concrete AgentOptions and has no semantic-constraint extension point, propose the narrowest upstream capability seam. Do not hide constraints in a prompt.
 
-## 独立评审
+## Independent review
 
-`independentReview` 不能只解释为“再调用一次同一个模型”。Delegation Policy 和 Route Catalog 需要定义可验证的多样性属性，例如 provider、model family、训练谱系或工具环境差异。
+`independentReview` cannot mean only “call the same model again.” Delegation Policy and Route Catalog need verifiable diversity attributes such as provider, model family, training lineage, or tool-environment difference.
 
-多样性约束只能降低候选 route 集合，不能证明两个模型统计独立。产品文案不得夸大为真正独立性。
+A diversity constraint only narrows the candidate route set; it does not prove that two models are statistically independent. Product language must not overstate actual independence.

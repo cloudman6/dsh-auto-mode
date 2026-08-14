@@ -1,19 +1,21 @@
 # RouterBench
 
-## 目的
+[简体中文](zh-CN/routerbench.md)
 
-RouterBench 是 Auto Mode 的质量证据基础，不是附属演示。它回答：
+## Purpose
 
-- 某个模型与 effort 在哪类任务上能维持 strong 质量基线？
-- 路由器在哪些任务上有足够证据自动选择较弱 route？
-- 升级、降级和恢复是否真的改善端到端结果？
-- 分类器、切换和重试的开销是否抵消模型节省？
+RouterBench is the quality-evidence foundation of Auto Mode, not an auxiliary demo. It answers:
 
-在线路由和 Benchmark 必须使用同一 Task Assessment、Routing Policy、Route Profile 和版本化配置。
+- On which task categories can a model and effort preserve the strong quality baseline?
+- On which tasks does the router have enough evidence to choose a weaker route automatically?
+- Do escalation, down-routing, and recovery improve end-to-end outcomes?
+- Do classifier, switching, and retry overhead eliminate model savings?
 
-## 实验单位
+Online routing and Benchmark execution must use the same Task Assessment, Routing Policy, Route Profile, and versioned configuration.
 
-一个 Benchmark case 至少包括：
+## Experimental unit
+
+A Benchmark case contains at least:
 
 ```ts
 interface RouterBenchCase {
@@ -30,121 +32,121 @@ interface RouterBenchCase {
 }
 ```
 
-同一 case 对候选 route 和 strong 基线进行配对运行。需要随机化执行顺序、记录模型快照和 profile 版本，并使用多次重复处理模型方差。
+Run the same case against a candidate route and the strong baseline as a pair. Randomize execution order, record model snapshots and profile versions, and repeat runs to measure model variance.
 
-## 初始任务类别
+## Initial task categories
 
-### 可机械验证编码
+### Mechanically verifiable coding
 
-- 局部 API 参数校验。
-- 多文件重构与类型更新。
-- 测试失败诊断。
-- 并发、生命周期和资源释放问题。
-- 安全边界与权限检查。
+- Local API parameter validation.
+- Multi-file refactoring and type updates.
+- Test-failure diagnosis.
+- Concurrency, lifecycle, and resource-release defects.
+- Security boundaries and authority checks.
 
-### 部分可验证工作
+### Partially verifiable work
 
-- 有来源的文档总结。
-- 代码评审和风险清单。
-- 公共 API 文档同步。
-- 迁移方案比较。
+- Source-backed document summaries.
+- Code review and risk inventories.
+- Public API documentation synchronization.
+- Migration-plan comparison.
 
-### 无单一客观答案
+### No single objective answer
 
-- 架构方案与权衡。
-- 研究综合。
-- 技术写作与论证。
-- 长期演进建议。
+- Architecture options and trade-offs.
+- Research synthesis.
+- Technical writing and argumentation.
+- Long-term evolution recommendations.
 
-### 路由与恢复场景
+### Routing and recovery scenarios
 
-- 首次 route 选择。
-- 弱模型停滞后 continue。
-- 错误修改后的 salvage/restart。
-- 同一 turn 从复杂实现进入低风险尾部工作。
-- 子 Agent 高风险约束和模型多样性。
+- Initial route selection.
+- Continue after a weak model stalls.
+- Salvage/restart after harmful mutations.
+- Transition within one turn from complex implementation to low-risk tail work.
+- High-risk child-agent constraints and model diversity.
 
-## 质量评价
+## Quality evaluation
 
-### 机械验证
+### Mechanical verification
 
-优先使用真实测试、类型检查、静态分析、构建和确定性不变量。测试通过是必要证据，但不能自动证明需求完整；case 需要覆盖遗漏和投机性 workaround。
+Prefer real tests, type checks, static analysis, builds, and deterministic invariants. Passing tests is necessary evidence but does not prove requirement completeness automatically; cases must detect omissions and speculative workarounds.
 
-### 开放任务
+### Open-ended tasks
 
-没有标准答案时，不伪造单一正确文本。组合使用：
+When no standard answer exists, do not invent one canonical response. Combine:
 
-- 预先编写的关键遗漏项和错误模式清单。
-- 引用正确性、来源忠实度和覆盖率。
-- 候选与 strong 输出的盲化成对比较。
-- 多个独立 evaluator，报告分歧而不是只取平均。
-- 对高风险任务保留人工或领域专家抽检。
+- A prewritten checklist of critical omissions and error modes.
+- Citation correctness, source fidelity, and coverage.
+- Blind pairwise comparison between candidate and strong outputs.
+- Multiple independent evaluators, reporting disagreement instead of only an average.
+- Human or domain-expert sampling for high-risk tasks.
 
-LLM judge 不是真理。必须版本化 judge、测量位置偏差和同源模型偏差，并保留原始判定依据。
+An LLM judge is not truth. Version the judge, measure position and same-family model bias, and retain the rationale behind each judgment.
 
-## 核心指标
+## Core metrics
 
-### 质量
+### Quality
 
-- `quality_gap_to_strong`：候选 route 相对 strong 的质量差。
-- `unacceptable_result_rate`：不可接受结果比例。
-- `under_routing_loss`：因选择过弱造成的严重损失。
-- 分位数和最坏类别表现，而不只报告平均值。
+- `quality_gap_to_strong`: candidate-route quality gap relative to strong.
+- `unacceptable_result_rate`: fraction of unacceptable outcomes.
+- `under_routing_loss`: severe loss caused by selecting a route that is too weak.
+- Quantiles and worst-category performance, not only means.
 
-### 覆盖
+### Coverage
 
-- `auto_coverage`：无需 abstain 即自动优化的任务比例。
-- `abstention_rate`：证据不足而使用 fallback 的比例。
-- `out_of_distribution_rate`：无法映射到已校准任务类别的比例。
+- `auto_coverage`: fraction of tasks optimized automatically without abstention.
+- `abstention_rate`: fraction using fallback because evidence is insufficient.
+- `out_of_distribution_rate`: fraction that cannot map to a calibrated task category.
 
-### 性能
+### Performance
 
-- 端到端首个有效结果延迟。
-- 完成任务总延迟。
-- 输入/输出/辅助模型 token。
-- 模型调用成本。
-- 切换导致的缓存和历史重读开销。
+- End-to-end latency to the first valid result.
+- Total task-completion latency.
+- Input, output, and auxiliary-model tokens.
+- Model-call cost.
+- Cache loss and history-replay overhead from switching.
 
-### 恢复
+### Recovery
 
-- escalation precision/recall。
-- episode 平均持续 step 与未解决率。
-- continue、salvage、restart 的成功率和额外成本。
-- 错误修改逃逸率，即恢复后仍残留的弱模型副作用。
+- Escalation precision and recall.
+- Mean episode duration in steps and unresolved-episode rate.
+- Success rate and additional cost of continue, salvage, and restart.
+- Harmful-mutation escape rate: weak-model side effects that remain after recovery.
 
-## 准入规则
+## Admission rules
 
-每个任务类别单独决定 route 准入。建议形式：
+Decide route admission independently for every task category. A proposed rule is:
 
 ```text
-候选 route 的质量差置信区间满足 epsilon
-AND 不可接受结果率上界满足 delta
-AND 样本量达到最低要求
-AND 没有未解释的高严重度失败簇
+Confidence interval of candidate quality gap satisfies epsilon
+AND upper bound of unacceptable-result rate satisfies delta
+AND sample size reaches the minimum
+AND no unexplained high-severity failure cluster exists
 ```
 
-平均通过不能覆盖某个高风险子类的系统性失败。安全、并发、不可逆外部操作等类别应使用更严格阈值或固定 strong。
+Passing on average cannot hide a systematic failure in one high-risk subcategory. Security, concurrency, irreversible external operations, and similar categories use stricter thresholds or a fixed strong route.
 
-## 模型档案
+## Model profiles
 
-公开模型能力榜单可以作为 cold-start prior，但不能直接成为产品路由真值。Route Profile 需要记录：
+Public model-capability rankings may be a cold-start prior, but they are not routing truth. A Route Profile records:
 
-- provider、model、effort 和能力。
-- 上下文窗口、视觉/工具支持等硬约束。
-- RouterBench 版本和样本量。
-- 质量、延迟、成本及置信区间。
-- 数据日期和失效条件。
+- Provider, model, effort, and capabilities.
+- Hard constraints such as context window and vision/tool support.
+- RouterBench version and sample size.
+- Quality, latency, cost, and confidence intervals.
+- Data date and invalidation conditions.
 
-模型更新、provider 别名和服务端行为变化都可能使历史档案失效。运行 canary 与版本指纹是后续设计问题。
+Model updates, provider aliases, and server-side behavior changes may invalidate historical profiles. Runtime canaries and version fingerprints remain future design questions.
 
-## 不使用的标签
+## Labels not used
 
-以下信号不表示 route 正确：
+These signals do not prove that a route is correct:
 
-- 用户手工选择了某个模型。
-- 用户接受或拒绝了一次切换建议。
-- 父 Agent 指定了某个 route。
-- 模型自称任务简单或已经解决。
-- 单次输出没有被用户重做。
+- A user manually chose a model.
+- A user accepted or rejected a switching suggestion.
+- A parent agent selected a route.
+- A model claimed the task was simple or resolved.
+- One output was not redone by the user.
 
-可用事实包括可复现验证结果、明确用户纠正、任务最终是否完成、恢复动作与副作用，以及经过设计的成对评估。
+Usable facts include reproducible validation, explicit user correction, eventual task completion, recovery actions and side effects, and deliberately designed paired evaluation.

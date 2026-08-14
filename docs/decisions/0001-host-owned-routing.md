@@ -1,42 +1,44 @@
-# ADR-001：Host 策略拥有常规路由决策权
+# ADR-001: Host policy owns normal routing decisions
 
-## 状态
+[简体中文](../zh-CN/decisions/0001-host-owned-routing.md)
+
+## Status
 
 Proposed
 
-## 日期
+## Date
 
 2026-08-14
 
-## 背景
+## Context
 
-Auto Mode 必须决定每次请求使用哪个 provider、model 和 reasoning effort。候选所有者包括用户、当前 Agent、父 Agent、独立 Router Agent 和 Host 插件。
+Auto Mode must decide which provider, model, and reasoning effort to use for every request. Candidate owners include the user, current Agent, parent agent, independent Router Agent, and Host plugin.
 
-用户与父 Agent 都缺少可靠反事实；Router Agent 又产生“Router 自己使用哪个模型”的递归问题，并增加 Session、工具、权限、延迟和失败面。
+Users and parent agents lack a reliable counterfactual. A Router Agent creates the recursive question “Which model should the Router use?” and adds Session, tool, authority, latency, and failure surfaces.
 
-## 决策
+## Decision
 
-常规决策由 DSH Host 中的 Routing Policy 完成。父 Agent只提交任务意图和语义约束；可选评估模型只输出任务属性；Route Profile Resolver 才把语义 route 映射到具体 provider/model/effort。
+Routing Policy in the DSH Host makes normal decisions. Parent agents submit task intent and semantic constraints only; optional assessment models return task attributes only; Route Profile Resolver maps a semantic route to concrete provider/model/effort.
 
-用户保留最高显式控制权。Routing Policy 的实际决策和最终调用配置进入被服务 Agent 的 Session。
+Users retain the highest explicit control. The actual Routing Policy decision and effective call configuration are persisted in the served Agent's Session.
 
-## 备选方案
+## Alternatives considered
 
-### 当前或父 Agent 直接选择
+### Current or parent agent selects directly
 
-拒绝。它把 Auto 退化成让一个模型猜另一个模型，并可能习惯性选择最强配置。
+Rejected. This reduces Auto to one model guessing another model and encourages habitual selection of the strongest configuration.
 
-### 完整 Router Agent
+### Full Router Agent
 
-拒绝。它需要自己的模型、Session 和工具策略，形成递归和额外攻击面。
+Rejected. It needs its own model, Session, and tool policy, introducing recursion and another attack surface.
 
-### 分类模型直接返回模型名称
+### Classifier returns a model name directly
 
-拒绝。输出不稳定、难以测试，并把 provider 配置耦合进语义分类。
+Rejected. Output is unstable and difficult to test, and it couples provider configuration to semantic classification.
 
-## 后果
+## Consequences
 
-- 路由策略可以独立进行单元测试和 RouterBench 回放。
-- 评估模型失败时可以明确 abstain。
-- 需要设计持久的 route 决策事件和 DSH `agent/request` consumer。
-- 用户、父 Agent、评估器和策略的权限必须通过一个 resolver 统一计算。
+- Routing policy can be unit-tested and replayed in RouterBench independently.
+- Assessment-model failure can produce an explicit abstention.
+- The system needs persisted route-decision events and a DSH `agent/request` consumer.
+- One resolver must combine authority from users, parent agents, assessors, and policy.

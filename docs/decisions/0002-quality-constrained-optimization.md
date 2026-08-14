@@ -1,40 +1,42 @@
-# ADR-002：质量约束下先优化延迟，再优化成本
+# ADR-002: Optimize latency, then cost, under a quality constraint
 
-## 状态
+[简体中文](../zh-CN/decisions/0002-quality-constrained-optimization.md)
+
+## Status
 
 Proposed
 
-## 日期
+## Date
 
 2026-08-14
 
-## 背景
+## Context
 
-用户难以判断任务需要的模型和 effort，通常为保险长期选择高配置。简单追求最低成本会扩大 under-routing 风险，而平均质量分可能掩盖少量严重失败。
+Users struggle to estimate the model and effort a task requires, so they often keep a high configuration to be safe. Minimizing cost alone increases under-routing risk, while average quality may hide a small number of severe failures.
 
-## 决策
+## Decision
 
-每个任务类别使用配置的 `strong` route 作为质量基线。候选 route 只有在质量差不超过 `epsilon`、不可接受结果概率不超过 `delta` 且没有未解释严重失败簇时才获得自动覆盖资格。
+Each task category uses its configured `strong` route as the quality baseline. A candidate route becomes eligible for automatic coverage only when its quality gap is no greater than `epsilon`, its unacceptable-result probability is no greater than `delta`, and it has no unexplained severe failure cluster.
 
-在质量约束内，先优化完整端到端延迟，再优化总成本。证据不足时 `abstain` 并执行 strong fallback。
+Within the quality constraint, optimize full end-to-end latency before total cost. When evidence is insufficient, `abstain` and execute the strong fallback.
 
-## 备选方案
+## Alternatives considered
 
-### 始终选择最便宜 route
+### Always select the cheapest route
 
-拒绝。错误遗漏的损失与模型价格不在同一量级。
+Rejected. Loss from a missed critical issue is not comparable to the model price.
 
-### 用户历史选择作为个性化标签
+### Use historical user choices as personalization labels
 
-拒绝。用户没有 A/B 对照，选择通常只是风险偏好或猜测。
+Rejected. Users have no A/B counterfactual; a choice generally expresses risk preference or a guess.
 
-### 一律使用 strong
+### Always use strong
 
-拒绝。质量风险最低，但没有解决用户的延迟和成本问题，也无法形成有效 Auto 产品。
+Rejected. It minimizes quality risk but does not solve latency or cost, and it cannot produce a useful Auto product.
 
-## 后果
+## Consequences
 
-- RouterBench 是产品基础设施，不是发布后的附加评测。
-- 必须报告 auto coverage、abstention 和 under-routing loss。
-- 开放任务需要清单、来源评价和盲化配对等多种证据。
-- 分类器、切换、重试和恢复开销必须计入延迟与成本。
+- RouterBench is product infrastructure, not an evaluation added after release.
+- Metrics must report auto coverage, abstention, and under-routing loss.
+- Open-ended tasks need multiple forms of evidence such as checklists, source evaluation, and blind pairing.
+- Classifier, switching, retry, and recovery overhead enter latency and cost.

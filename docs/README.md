@@ -1,18 +1,22 @@
-# 设计文档索引
+# Design document index
 
-当前进度、阻塞和下一步见仓库根目录的 [`PROJECT_STATUS.md`](../PROJECT_STATUS.md)。
+[简体中文](zh-CN/README.md)
 
-## 评审顺序
+Current progress, blockers, and the next action are maintained in the repository-root [`PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
-1. [产品规范](spec.md)：确认用户、目标、成功标准、边界和假设。
-2. [系统架构](architecture.md)：确认能力拆分、所有权和 DSH 接入点。
-3. [路由策略](routing-policy.md)：确认 route 语义、降级准入与切换规则。
-4. [恢复与 Episode](recovery.md)：确认停滞检测、episode、checkpoint 和恢复动作。
-5. [子 Agent 委派权限](delegation.md)：确认用户、父 Agent 和策略的权限优先级。
-6. [RouterBench](routerbench.md)：确认质量基线、任务集与评估方法。
-7. [产品路线图](roadmap.md)：确认实施顺序，不在此阶段拆成代码任务。
-8. [开放问题](open-questions.md)：选择下一轮讨论和验证重点。
+## Review order
 
-## 文档状态
+1. [Product specification](spec.md): confirm users, objectives, success criteria, boundaries, and assumptions.
+2. [System architecture](architecture.md): confirm capability boundaries, ownership, and DSH integration points.
+3. [Routing policy](routing-policy.md): confirm route semantics, down-routing admission, and switching rules.
+4. [Recovery and episodes](recovery.md): confirm stall detection, episodes, checkpoints, and recovery actions.
+5. [Child-agent delegation authority](delegation.md): confirm authority precedence among users, parent agents, and policy.
+6. [RouterBench](routerbench.md): confirm the quality baseline, task suite, and evaluation method.
+7. [Product roadmap](roadmap.md): confirm implementation order without converting phases into coding tasks at this stage.
+8. [Open questions](open-questions.md): choose the next discussion and validation focus.
 
-除非文件明确写为 Accepted，所有内容都是待评审设计。ADR 使用 `Proposed`、`Accepted`、`Superseded`、`Deprecated` 表示生命周期。
+The [documentation localization policy](localization.md) defines the English source of truth and Simplified Chinese synchronization workflow.
+
+## Document state
+
+Unless a file explicitly says `Accepted`, all content is design pending review. ADRs use `Proposed`, `Accepted`, `Superseded`, and `Deprecated` for their lifecycle.

@@ -1,42 +1,44 @@
-# ADR-003：Recovery Supervisor 使用形式化事件协议
+# ADR-003: Recovery Supervisor uses a formal event protocol
 
-## 状态
+[简体中文](../zh-CN/decisions/0003-formal-recovery-protocol.md)
+
+## Status
 
 Proposed
 
-## 日期
+## Date
 
 2026-08-14
 
-## 背景
+## Context
 
-Recovery Supervisor 需要判断停滞、episode 是否解决以及采取何种恢复动作。一种做法是每个 turn 向当前模型注入 prompt，要求它报告阶段和进度；这会增加 token、耦合产品行为，并允许被监督模型通过自我报告解除限制。
+Recovery Supervisor must detect stalled execution, decide whether an episode is resolved, and select a recovery action. One approach injects a prompt on every turn and asks the current model to report its phase and progress. That adds tokens, couples product behavior to prompts, and allows the supervised model to release restrictions through self-report.
 
-## 决策
+## Decision
 
-Recovery Supervisor 核心不依赖模型。它通过 Session、Agent、Tool 和 capability 事件接收形式化 RecoverySignal，持久化 episode 状态，并向 Routing Policy 提供 route floor。
+Recovery Supervisor core does not depend on a model. It receives formal RecoverySignals through Session, Agent, Tool, and capability events, persists episode state, and provides route floors to Routing Policy.
 
-Agent 的 phase/完成声明只是弱证据。可选 Recovery Assessor 使用固定配置、一次性、无工具调用，返回受校验结构；最终状态转换仍由确定性 Recovery Policy 完成。
+Agent phase and completion claims are weak evidence. An optional Recovery Assessor uses a fixed configuration, makes one call without tools, and returns a validated structure; deterministic Recovery Policy still owns the final state transition.
 
-仅当 continue、salvage 或 restart 需要改变模型行为时，进行一次性且可持久化的 prompt 注入。
+One persisted prompt injection occurs only when continue, salvage, or restart must change model behavior.
 
-## 备选方案
+## Alternatives considered
 
-### 每 turn 注入进度协议
+### Inject a progress protocol every turn
 
-拒绝。它污染上下文、增加延迟，并把监控建立在模型自我报告上。
+Rejected. It pollutes context, adds latency, and bases supervision on model self-report.
 
-### Supervisor 解析所有自然语言输出
+### Supervisor parses all natural-language output
 
-拒绝。脆弱、不可版本化，且不同工具输出语义属于各自能力。
+Rejected. It is brittle and unversioned, and tool-output semantics belong to the corresponding capability.
 
-### 模型评估器直接关闭 episode
+### Model assessor closes an episode directly
 
-拒绝。评估器没有最终授权，低置信度或错误判断必须安全失败。
+Rejected. The assessor has no final authority; low-confidence or wrong judgments must fail safely.
 
-## 后果
+## Consequences
 
-- 需要 Recovery Signal Provider seam 和持久事件。
-- 测试、shell、文件系统等能力应提供结构化事实或专用适配器。
-- UI 从结构化事件渲染解释，不依赖 prompt 文本。
-- 语义判断仍可能使用辅助模型，但其延迟、成本和不确定性可单独测量。
+- The system needs a Recovery Signal Provider seam and persisted events.
+- Test, shell, filesystem, and other capabilities should expose structured facts or dedicated adapters.
+- UI explanation renders from structured events rather than prompt text.
+- Semantic judgment may still use an auxiliary model, but its latency, cost, and uncertainty are measured separately.

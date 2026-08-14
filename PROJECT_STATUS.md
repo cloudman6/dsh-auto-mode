@@ -1,45 +1,48 @@
-# 项目状态
+# Project status
 
-## 最后更新
+[简体中文](PROJECT_STATUS.zh-CN.md)
+
+## Last updated
 
 2026-08-14
 
-## 当前阶段
+## Current stage
 
-规范评审。仓库已经形成产品与架构设计基线，但用户尚未确认 `docs/spec.md`，4 项 ADR 仍为 `Proposed`。根据项目 gate，当前不能进入实施计划、任务拆分、依赖选择或编码。
+Specification review. The repository has a product and architecture design baseline, but the user has not accepted `docs/spec.md`. Four product and architecture ADRs remain `Proposed`; ADR-005, which defines the repository's documentation language, is `Accepted`. The current gate prohibits implementation planning, task breakdown, dependency selection, and coding.
 
-## 已完成
+## Completed
 
-- 建立 Git 仓库与 `main` 基线。
-- 建立产品规范、系统架构、路由策略、恢复/episode、委派权限、RouterBench、路线图、开放问题和术语文档。
-- 将 Host-owned Routing Policy、质量约束优化、形式化恢复协议和父 Agent 单调权限记录为 Proposed ADR。
-- 明确首要用户、真实活跃用户指标，以及 strong 质量基线下先延迟后成本的目标顺序。
+- Established the Git repository and `main` baseline.
+- Established product specification, system architecture, routing policy, recovery/episode, delegation authority, RouterBench, roadmap, open questions, and glossary documents.
+- Recorded Host-owned Routing Policy, quality-constrained optimization, the formal recovery protocol, and monotonic parent-agent authority as Proposed ADRs.
+- Defined the primary user, real-active-user metric, and the objective order of strong quality baseline, latency, then cost.
+- Established English canonical documentation, complete Simplified Chinese translations, English public Git metadata, and source-blob translation tracking through Accepted ADR-005.
 
-## 当前评审入口
+## Current review entry points
 
-1. 评审 `docs/spec.md` 的假设、功能范围、成功标准和工作边界。
-2. 评审 `docs/decisions/` 中的 4 项 Proposed ADR；只有用户明确确认后才转为 Accepted。
-3. 选择 `docs/open-questions.md` 中下一批需要调查或实验的问题。
+1. Review the assumptions, scope, success criteria, and work boundaries in `docs/spec.md`.
+2. Review the four Proposed product and architecture ADRs in `docs/decisions/`; change their state only after explicit user confirmation.
+3. Select the next questions in `docs/open-questions.md` that require research or experiments.
 
-## 进入实施计划前的 gate
+## Gates before implementation planning
 
-- 产品规范得到明确确认。
-- Routing Policy、质量目标、恢复交互和父 Agent 权限的 ADR 状态得到处理。
-- 完成 DSH 现有扩展点核对，区分插件内实现与需要上游修改的部分。
-- 确定 RouterBench 初始任务类别、模型/effort profile 和质量评价协议。
-- 确定无机械验证任务的 route 准入证据。
-- 明确 Recovery Assessor 和工作区 checkpoint 是否进入首轮实施范围。
+- Explicitly accept the product specification.
+- Resolve the ADR states for Routing Policy ownership, quality objectives, recovery interaction, and parent-agent authority.
+- Verify current DSH extension points and separate plugin-local implementation from required upstream changes.
+- Define initial RouterBench task categories, model/effort profiles, and quality-evaluation protocol.
+- Define route-admission evidence for tasks without mechanical verification.
+- Decide whether Recovery Assessor and workspace checkpoints belong in the first implementation scope.
 
-## 当前阻塞
+## Current blockers
 
-没有代码或工具链故障。当前阻塞是设计 gate 未关闭，详细未决问题见 `docs/open-questions.md`。
+There is no code or toolchain fault. The unresolved blocker is the design gate; detailed questions are maintained in `docs/open-questions.md`.
 
-## 下一步
+## Next action
 
-先完成规范与 ADR 评审。评审通过后再使用 planning-and-task-breakdown 产出实施计划和可验证任务，不从路线图直接开始编码。
+Complete specification and ADR review. After approval, use planning-and-task-breakdown to produce an implementation plan and verifiable tasks; do not begin coding directly from the roadmap.
 
-## 状态维护规则
+## Status maintenance rules
 
-- 完成重要成果、出现新阻塞、关闭 gate 或改变下一步时更新本文件。
-- 本文件只记录当前状态，不复制长期产品规范、完整架构或开放问题清单。
-- 历史决策进入 ADR；长期范围和成功标准进入 `docs/spec.md`；未决问题进入 `docs/open-questions.md`。
+- Update this file when a significant result completes, a blocker appears, a gate closes, or the next action changes.
+- This file records current status only; it does not duplicate long-lived product requirements, full architecture, or the open-question inventory.
+- Historical decisions belong in ADRs, long-lived scope and success criteria in `docs/spec.md`, and unresolved questions in `docs/open-questions.md`.

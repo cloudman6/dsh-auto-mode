@@ -1,65 +1,67 @@
-# 术语表
+# Glossary
+
+[简体中文](zh-CN/glossary.md)
 
 ## Route
 
-策略层的语义质量/能力档位，如 `fast`、`standard`、`strong`。它不是具体模型名称。
+A semantic quality/capability tier at the policy layer, such as `fast`, `standard`, or `strong`. It is not a concrete model name.
 
 ## Route Profile
 
-把语义 route 映射为 provider/model/reasoning effort，并携带能力、Benchmark 和版本信息的配置。
+Configuration that maps a semantic route to provider/model/reasoning effort and carries capability, Benchmark, and version information.
 
 ## Abstain
 
-策略没有足够证据安全选择较弱 route。实际执行安全 fallback，默认是 `strong`，但统计上与主动选择 strong 分开。
+Policy lacks sufficient evidence to select a weaker route safely. Execution uses the safe fallback, `strong` by default, while metrics distinguish abstention from an intentional strong selection.
 
 ## Task Assessment
 
-任务类型、风险、范围、可验证性、可逆性和置信度等 provider 无关属性。评估器不直接选择模型。
+Provider-independent attributes such as task category, risk, scope, verifiability, reversibility, and confidence. An assessor does not select a model directly.
 
 ## Routing Policy
 
-根据任务属性、约束、活动 episode 和 Benchmark 校准数据选择语义 route 的 Host 策略。
+Host policy that selects a semantic route from task attributes, constraints, active episodes, and Benchmark calibration data.
 
 ## Adaptive Router Consumer
 
-把 Routing Policy 接入 DSH 每次 `agent/request` 的插件消费者。
+Plugin consumer that connects Routing Policy to every DSH `agent/request`.
 
 ## Phase
 
-当前工作的语义阶段，如研究、实现、调试、验证或文档。
+The semantic stage of current work, such as research, implementation, debugging, validation, or documentation.
 
 ## Episode
 
-由一个未解决问题触发的临时 route floor。没有固定长度，只能由相应 release policy 的证据关闭。
+A temporary route floor triggered by an unresolved problem. It has no fixed length and closes only with evidence required by its release policy.
 
 ## Attempt
 
-从一个 Session 稳定边界和可选工作区 checkpoint 开始的一次执行尝试。
+One execution try starting from a stable Session boundary and optional workspace checkpoint.
 
 ## Continue
 
-保留当前 Session 和工作区，升级 route 后继续。
+Keep the current Session and workspace, escalate the route, and continue.
 
 ## Salvage
 
-恢复工作区，创建干净执行上下文，并携带经过约束的 Evidence Capsule。
+Restore the workspace, create a clean execution context, and carry a constrained Evidence Capsule.
 
 ## Restart
 
-回到 attempt 前的 Session 与工作区状态，不携带旧模型假设，由强 route 重新执行。
+Return to the pre-attempt Session and workspace state without old model hypotheses, then re-execute with a strong route.
 
 ## Recovery Supervisor
 
-消费形式化运行信号、管理 episode 和选择恢复动作的 Host 能力。核心路径不依赖模型。
+Host capability that consumes formal runtime signals, manages episodes, and selects recovery actions. Its core path does not depend on a model.
 
 ## Delegation Policy
 
-验证父 Agent 子任务约束和权限，并计算子 Agent 路由质量下限的 Host 能力。
+Host capability that validates parent-agent child-task constraints and authority, then computes the child-agent routing quality floor.
 
 ## RouterBench
 
-为路由策略提供质量、延迟、成本、覆盖和恢复证据的版本化任务集与 runner。
+A versioned task suite and runner providing quality, latency, cost, coverage, and recovery evidence to routing policy.
 
 ## Shadow Mode
 
-只给出建议并要求用户决定是否切换的模式。本项目不把它作为产品阶段；用户缺少反事实，选择不能证明路由正确。相关解释能力保留为 Auto 的决策透明度。
+A mode that only recommends a switch and asks the user to decide. This project does not treat it as a product phase: the user lacks a counterfactual, so the decision cannot prove routing correctness. Its explanation capability remains part of Auto's decision transparency.

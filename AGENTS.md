@@ -1,143 +1,150 @@
-# DSH Auto Mode - Agent 上下文
+# DSH Auto Mode — Agent context
 
-> AI Agent 新会话从这里开始。先读本文件，再按“新会话必读”加载当前任务所需文档。
+[简体中文](AGENTS.zh-CN.md)
 
-## 一句话项目定位
+> Start every new agent session here. Read this file first, then load only the documents required by the current task.
 
-为个人重度 Agent 用户提供 DeepSeek Harness 自适应 Auto 模式：在维持固定 `strong` route 质量基线的前提下，根据任务、运行证据和用户约束自动选择模型与 reasoning effort，优先降低延迟，其次降低成本，并在误路由后限制损失和恢复。
+## Project in one sentence
 
-## 项目快照
+DSH Auto Mode gives individual power users of coding agents an adaptive Auto mode for DeepSeek Harness. It selects models and reasoning effort from task context, execution evidence, and user constraints; preserves a configured `strong` quality baseline; optimizes latency before cost; and limits damage when routing is wrong.
 
-| 项目 | 当前状态 |
+## Project snapshot
+
+| Item | Current state |
 |---|---|
-| 项目阶段 | 规范评审；尚未进入实施计划、任务拆分或编码 |
-| 已有成果 | 产品规范、架构、路由、恢复、委派、RouterBench、路线图、开放问题和 4 项 Proposed ADR |
-| 首要用户 | 个人重度 Agent 用户 |
-| 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
-| 优化顺序 | 固定 strong 质量基线 → 端到端延迟 → 总成本 |
-| 核心规范 | `docs/spec.md` |
-| 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 用户评审规范与 Proposed ADR；通过后才进入实施计划 |
+| Stage | Specification review; implementation planning, task breakdown, and coding have not started |
+| Existing work | Product specification, architecture, routing, recovery, delegation, RouterBench, roadmap, open questions, 4 Proposed ADRs, and 1 Accepted documentation-language ADR |
+| Primary user | Individual power users of coding agents |
+| Primary success metric | Real active users who continue using Auto |
+| Optimization order | Fixed strong quality baseline → end-to-end latency → total cost |
+| Canonical specification | `docs/spec.md` |
+| Current progress | `PROJECT_STATUS.md` |
+| Next-stage gate | User review of the specification and Proposed ADRs; planning starts only after approval |
 
-本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
+This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
-## 新会话必读
+## Required reading for a new session
 
-按顺序读取：
+Read in this order:
 
-1. `PROJECT_STATUS.md`：当前进度、阻塞、下一步和最近状态变化。
-2. `docs/spec.md`：产品范围、假设、成功标准和工作边界。
-3. `docs/architecture.md`：能力拆分、所有权、数据流和 DSH 接入点。
-4. `docs/roadmap.md`：依赖顺序、阶段验收和明确不做事项。
-5. `docs/open-questions.md`：尚未关闭的问题。
-6. `docs/decisions/README.md`：ADR 状态和决策索引。
+1. `PROJECT_STATUS.md`: progress, blockers, next action, and recent status changes.
+2. `docs/spec.md`: product scope, assumptions, success criteria, and boundaries.
+3. `docs/architecture.md`: capability boundaries, ownership, data flow, and DSH integration points.
+4. `docs/roadmap.md`: dependency order, phase acceptance criteria, and explicit non-goals.
+5. `docs/open-questions.md`: unresolved questions.
+6. `docs/decisions/README.md`: ADR states and decision index.
 
-按任务深入，不要无差别加载全部文档：
+Load topic documents only when relevant; do not load the entire repository indiscriminately:
 
-- 路由选择、降级、abstain、turn 内切换：`docs/routing-policy.md`。
-- attempt、episode、continue/salvage/restart：`docs/recovery.md`。
-- 父 Agent 与子 Agent 权限：`docs/delegation.md`。
-- 任务集、质量门槛和评估：`docs/routerbench.md`。
-- 术语定义：`docs/glossary.md`。
-- 某项高代价决策的依据：对应 `docs/decisions/*.md`。
+- Route selection, down-routing, abstention, and within-turn switching: `docs/routing-policy.md`.
+- Attempts, episodes, continue, salvage, and restart: `docs/recovery.md`.
+- Parent- and child-agent authority: `docs/delegation.md`.
+- Task suites, quality gates, and evaluation: `docs/routerbench.md`.
+- Terms: `docs/glossary.md`.
+- Documentation language and translation synchronization: `docs/localization.md`.
+- Rationale for a high-cost decision: the corresponding file in `docs/decisions/`.
 
-## 当前阶段约束
+## Current-stage constraints
 
-本项目处于规范评审阶段。在用户确认规范之前：
+The project is in specification review. Until the user accepts the specification:
 
-- 可以修订、审查和补充设计文档。
-- 不创建产品代码、依赖、构建配置、CI 或发布流程。
-- 不把 `Proposed` ADR 当成已经接受的实现约束。
-- 不把路线图阶段直接拆成实施任务；规范评审是进入 planning 的 gate。
+- Design documents may be revised, reviewed, and extended.
+- Do not create product code, dependencies, build configuration, CI, or release workflows.
+- Do not treat a `Proposed` ADR as an accepted implementation constraint.
+- Do not convert roadmap phases directly into implementation tasks; specification review is the gate to planning.
 
-## 语言规范
+## Language rules
 
-| 场景 | 语言 |
+| Context | Language |
 |---|---|
-| 与用户讨论 | 中文 |
-| 项目设计文档 | 中文 |
-| TypeScript 标识符、事件名、配置键 | 英文 |
-| commit message | 英文标题；正文可用中英文 |
-| 公共英文文档 | 另行设计同步策略后再创建 |
+| Discussion with the current maintainer | Chinese |
+| Canonical public documents at default paths | English |
+| Simplified Chinese translations | Root `*.zh-CN.md` files and `docs/zh-CN/` |
+| Public Git metadata | English commit messages, branch names, issue/PR titles, and normative PR descriptions |
+| Code identifiers, events, schemas, configuration keys, and comments | English |
 
-## 产品关键不变量
+English canonical documents and Chinese translations are governed by `docs/localization.md` and ADR-005. Do not create bilingual commit messages or two normative sources. When the languages conflict, fix the Chinese translation to match English.
 
-1. 质量基线优先：每个任务类别以配置的 `strong` route 为基线，先优化端到端延迟，再优化总成本。
-2. 不把用户选择、父 Agent override 或模型自我报告当作正确路由标签。
-3. Host Routing Policy 拥有常规路由决策权；模型只提供任务意图或可选语义评估。
-4. 高风险、分布外或证据不足的任务必须 `abstain`，执行安全 fallback。
-5. 自动决策必须可解释、可审计、可恢复；实际 provider/model/effort 和原因必须可持久重建。
-6. 同一未解决 episode 内 route floor 只能保持或升级；可信阶段边界后允许在同一 turn 内重新路由和降级。
-7. 父 Agent 默认只能提高质量下限或增加语义约束，不能绕过 Routing Policy 指定任意 provider/model。
-8. Recovery Supervisor 核心通过形式化事件工作，不建立每 turn 注入 prompt 的自我报告协议。
-9. 不用裸 Git 回滚实现工作区恢复；Session checkpoint 与工作区 checkpoint 分别拥有明确语义和所有权。
-10. RouterBench 与在线运行使用同一策略实现；辅助评估器、切换、重试和恢复成本进入端到端指标。
+## Product invariants
 
-## 文档权威位置
+1. Quality comes first: each task category uses its configured `strong` route as the baseline; optimize end-to-end latency before total cost.
+2. Do not treat user choices, parent-agent overrides, or model self-reports as correct routing labels.
+3. Host Routing Policy owns normal routing decisions; models may provide task intent or optional semantic assessment only.
+4. High-risk, out-of-distribution, or weak-evidence tasks must `abstain` and use the safe fallback.
+5. Every automatic decision must be explainable, auditable, and recoverable; the effective provider/model/effort and rationale must be reconstructable from persisted facts.
+6. Within one unresolved episode, the route floor may only stay fixed or rise. The same turn may be re-routed downward after a trusted phase boundary.
+7. Parent agents may raise the quality floor or add semantic constraints by default; they may not bypass Routing Policy with an arbitrary provider/model.
+8. Recovery Supervisor operates on formal events and does not require a self-reporting prompt protocol on every turn.
+9. Never implement workspace recovery with raw Git rollback. Session checkpoints and workspace checkpoints have separate semantics and owners.
+10. RouterBench and online execution use the same policy implementation. End-to-end metrics include assessor, switching, retry, and recovery costs.
 
-| 信息类型 | 权威文件 |
+## Authoritative document map
+
+| Information | Authority |
 |---|---|
-| 当前进度、阻塞、下一步、最近完成 | `PROJECT_STATUS.md` |
-| 产品目标、范围、假设、成功标准、边界 | `docs/spec.md` |
-| 系统组件、所有权、数据流、公共能力边界 | `docs/architecture.md` |
-| 路由语义、优先级、降级与切换策略 | `docs/routing-policy.md` |
-| attempt、episode、恢复动作和 checkpoint | `docs/recovery.md` |
-| 子 Agent 委派约束和权限 | `docs/delegation.md` |
-| Benchmark 任务、指标、评价和 route 准入 | `docs/routerbench.md` |
-| 阶段依赖、阶段验收、明确不做 | `docs/roadmap.md` |
-| 未决问题 | `docs/open-questions.md` |
-| 高代价、需要保留替代方案和后果的决策 | `docs/decisions/*.md` |
-| 导航和项目入口 | `README.md`、`docs/README.md` |
-| Agent 常驻规则、起手和完成纪律 | `AGENTS.md` |
+| Current progress, blockers, next action, recent completion | `PROJECT_STATUS.md` |
+| Product goals, scope, assumptions, success criteria, boundaries | `docs/spec.md` |
+| Components, ownership, data flow, public capability boundaries | `docs/architecture.md` |
+| Route semantics, precedence, down-routing, and switching | `docs/routing-policy.md` |
+| Attempts, episodes, recovery actions, and checkpoints | `docs/recovery.md` |
+| Child-agent delegation constraints and authority | `docs/delegation.md` |
+| Benchmark tasks, metrics, evaluation, and route admission | `docs/routerbench.md` |
+| Phase dependencies, phase acceptance, explicit non-goals | `docs/roadmap.md` |
+| Unresolved questions | `docs/open-questions.md` |
+| Documentation language and synchronization | `docs/localization.md` |
+| High-cost decisions whose alternatives and consequences must survive | `docs/decisions/*.md` |
+| Navigation and project entry points | `README.md`, `docs/README.md` |
+| Agent-wide rules, task start, and completion discipline | `AGENTS.md` |
 
-## 文档维护纪律
+## Documentation maintenance discipline
 
-做任何方案调整时，先分类再落文件：
+Classify a design change before editing:
 
-1. 已确认的产品目标、范围或验收标准：更新 `docs/spec.md`。
-2. 尚待评审的高代价决策：新建或修改 `Proposed` ADR。
-3. 用户接受的 ADR：只在用户明确确认后改为 `Accepted`。
-4. 架构、所有权、数据流或公共能力变化：更新 `docs/architecture.md`，必要时同步 ADR。
-5. 路由、恢复、委派或 Benchmark 的领域行为变化：更新对应专题文档。
-6. 实施阶段、阶段验收或不做事项变化：更新 `docs/roadmap.md`。
-7. 未决问题新增、关闭或改变：更新 `docs/open-questions.md`。
-8. 当前进度、阻塞或下一步变化：更新 `PROJECT_STATUS.md`。
-9. 导航发生变化：同步 `README.md` 或 `docs/README.md`。
+1. Confirmed product goal, scope, or acceptance criterion: update `docs/spec.md`.
+2. High-cost decision awaiting review: create or update a `Proposed` ADR.
+3. User-approved ADR: change it to `Accepted` only after explicit confirmation.
+4. Component, ownership, data-flow, or public-boundary change: update `docs/architecture.md` and any relevant ADR.
+5. Routing, recovery, delegation, or Benchmark behavior: update the corresponding topic document.
+6. Implementation phase, phase acceptance, or explicit non-goal: update `docs/roadmap.md`.
+7. New, closed, or changed unresolved question: update `docs/open-questions.md`.
+8. Progress, blocker, or next-action change: update `PROJECT_STATUS.md`.
+9. Navigation change: update `README.md` or `docs/README.md`.
+10. Language or translation-workflow change: update `docs/localization.md` and ADR-005 or its successor.
 
-不要把聊天过程、探索顺序或推理记录直接塞进主文档。主文档只保留当前可执行结论、完整约束、依据、状态和未决问题。
+Do not paste chat chronology, exploration order, or hidden reasoning into canonical documents. Main documents retain current actionable conclusions, complete constraints, evidence, status, and open questions.
 
-一个设计事实只保留一个权威位置。其他文档通过链接引用，不复制整段定义。旧 ADR 不删除；决策变化时新建 ADR 并标记 supersede 关系。
+Keep each design fact in one authoritative location. Other documents link to it rather than duplicating definitions. Never delete old ADRs; when a decision changes, create a new ADR and record the supersession relationship.
 
-每个 Markdown 文件以恰好一个换行结束。
+Every canonical English document has a corresponding Chinese locale file. Follow `docs/localization.md`: update both in the same maintainer-authored change, or explicitly mark the locale file `outdated`. Every Markdown file ends with exactly one newline.
 
-## 任务起手 checklist
+## Task-start checklist
 
-开始任何实质工作前，按顺序完成：
+Before substantive work:
 
-1. 读取本文件和“新会话必读”，再按当前任务加载相关专题文档。
-2. 将 `/Users/wanglei/dsh-auto-mode` 视为主工作区；先确认 Git 状态和当前分支：
+1. Read this file and the required new-session documents, then load relevant topic documents.
+2. Treat `/Users/wanglei/dsh-auto-mode` as the main worktree. Confirm status and branch:
    ```bash
    git status --short --branch
    sh /Users/wanglei/.codex/bin/codex-git-read branch-current
    ```
-3. 修改文件前，主工作区必须是 clean `main`。若不是，停止并报告；不得把已有改动带入新任务。
-4. 只读核对远端 `main` 与本地 `main`。远端不可达、SHA 不一致或默认分支异常时停止并请求同步授权，不从未知基线继续：
+3. Before modifying files, the main worktree must be clean `main`. If it is not, stop and report; never carry existing changes into a new task.
+4. Compare local and remote `main` read-only. If the remote is unreachable, SHAs differ, or the default branch is unexpected, stop and request synchronization authorization:
    ```bash
    git rev-parse main
    git ls-remote --symref origin HEAD
    git ls-remote origin refs/heads/main
    ```
-5. 每个修改文件的任务都从 clean、已核对的 `main` 创建独立 `codex/<task-slug>` 分支和 worktree。若运行环境已经为本任务提供独立 worktree，不创建嵌套 worktree。
-6. 明确任务类型：规范/文档、DSH 扩展点调研、RouterBench、插件实现、恢复机制、委派适配或发布。
-7. 先查仓库和 DSH 现状，再问用户。能从代码、文档和已记录决策得到的事实不重复询问。
-8. 将新结论归为已确认规范、Proposed 决策、证据、开放问题或当前进度，并写入权威文件。
-9. 开工前检查是否触碰产品关键不变量或“何时必须停下来问用户”。
+5. Every file-changing task starts from verified `main` in an independent `codex/<task-slug>` branch and worktree. If the environment already provides a task worktree, do not create a nested worktree.
+6. Classify the task: specification/documentation, DSH extension-point research, RouterBench, plugin implementation, recovery, delegation adaptation, or release.
+7. Inspect the repository and DSH before asking the user. Do not ask for facts already available in code, documents, or recorded decisions.
+8. Classify every new conclusion as confirmed specification, Proposed decision, evidence, open question, or current status, and update its authoritative file.
+9. Check whether the work affects a product invariant or any item under “When to stop and ask.”
 
-## Worktree 使用方法
+## Worktree workflow
 
-`.worktrees/` 是仓库内已忽略的临时 worktree 容器。所有路径都使用相对路径和受限包装器，不直接运行裸 `git worktree add/remove` 或宽泛 `git switch`。
+`.worktrees/` is the ignored in-repository container for task worktrees. Use relative paths and the restricted wrapper; do not call raw `git worktree add/remove` or broad `git switch` commands.
 
-从主工作区创建任务 worktree：
+Create a task worktree from the main worktree:
 
 ```bash
 cd /Users/wanglei/dsh-auto-mode
@@ -147,28 +154,28 @@ sh /Users/wanglei/.codex/bin/codex-worktree add \
   main
 ```
 
-后续命令和文件修改都在：
+Run subsequent commands and edits in:
 
 ```text
 /Users/wanglei/dsh-auto-mode/.worktrees/<task-slug>/workspace
 ```
 
-规则：
+Rules:
 
-- 一个 worktree 只承载一个任务；分支名与 task slug 对应。
-- 不在主工作区 `main` 直接开发。
-- 不在任务 worktree 中混入其他任务或用户已有改动。
-- 不创建嵌套 worktree。
-- 不用 worktree 目录存放未纳入 Git 的长期交付物。
-- worktree dirty 时不得移除；不得使用强制删除绕过检查。
+- One worktree carries exactly one task; the branch name matches the task slug.
+- Do not develop directly on `main` in the main worktree.
+- Do not mix another task or pre-existing user changes into the task worktree.
+- Do not create nested worktrees.
+- Do not store long-lived, untracked deliverables in a worktree directory.
+- Never remove a dirty worktree or bypass checks with force.
 
-需要切换受控分支时使用：
+Use the controlled wrapper when a branch switch is required:
 
 ```bash
 sh /Users/wanglei/.codex/bin/codex-worktree switch <branch>
 ```
 
-任务 worktree clean 且其提交已经按授权集成后，使用：
+After the task worktree is clean and its commit has been integrated with authorization:
 
 ```bash
 cd /Users/wanglei/dsh-auto-mode
@@ -176,32 +183,32 @@ sh /Users/wanglei/.codex/bin/codex-worktree remove \
   .worktrees/<task-slug>/workspace
 ```
 
-删除本地任务分支、prune 或任何强制操作都需要单独授权。绝不 force-push `main`。
+Deleting local task branches, pruning, or forcing any operation requires separate authorization. Never force-push `main`.
 
-## 任务完成 checklist
+## Task-completion checklist
 
-完成任何改动后，按顺序检查：
+After every change:
 
-1. 按“文档维护纪律”判断需要同步的权威文件；即使无需同步，也明确判断。
-2. 运行与改动表面匹配的验证。当前规范阶段至少执行：
+1. Use the documentation maintenance discipline to determine which authoritative files need synchronization; explicitly make the determination even if none do.
+2. Run validation proportional to the change. During specification review, the minimum is:
    ```bash
    git diff --check
    git diff --cached --check
    rg -n '^(<<<<<<<|=======|>>>>>>>)' .
    ```
-3. 修改文档导航时检查所有本地相对链接；修改术语或公共类型提案时检查引用位置是否同步。
-4. 使用受限只读包装器审查 working diff；暂存后再审查 staged diff：
+3. When navigation changes, validate every local relative link. When terminology or public-type proposals change, inspect every reference.
+4. Review the working diff with the restricted reader, and review the staged diff after staging:
    ```bash
    sh /Users/wanglei/.codex/bin/codex-git-read diff
    sh /Users/wanglei/.codex/bin/codex-git-read diff --staged
    ```
-5. 只 stage 本任务文件，检查无关改动、临时文件、密钥、token、`.env`、private key 和敏感 prompt 内容。
-6. 只有用户对本次 Git 写入明确授权时才创建原子 commit。提交后确认任务 worktree clean，并记录分支和 commit SHA：
+5. Stage only task files. Check for unrelated changes, temporary files, secrets, tokens, `.env`, private keys, and sensitive prompt content.
+6. Create an atomic commit only with explicit authorization for this task. Commit messages use English Conventional Commits. Confirm a clean task worktree and record its branch and commit SHA:
    ```bash
    git status --short --branch
    git rev-parse HEAD
    ```
-7. 只有用户明确授权本次集成和远端写入时，才在 clean 主工作区再次核对远端 SHA，然后执行 fast-forward 合入和 push。远端已移动或 `--ff-only` 失败时停止，不能改用普通 merge 绕过：
+7. Merge and write remotely only with explicit authorization. In the clean main worktree, re-check the remote SHA, use fast-forward only, and stop if the remote moved or `--ff-only` fails:
    ```bash
    cd /Users/wanglei/dsh-auto-mode
    git rev-parse main
@@ -209,36 +216,36 @@ sh /Users/wanglei/.codex/bin/codex-worktree remove \
    git merge --ff-only codex/<task-slug>
    git push origin main
    ```
-8. Push 后核对本地 `main` 与远端 `main` SHA 完全一致，并确认任务 commit 是远端 ancestor；未完成远端核验不得声称已发布：
+8. After push, verify local and remote `main` SHAs match and the task commit is an ancestor. Do not claim publication before remote verification:
    ```bash
    git rev-parse main
    git ls-remote origin refs/heads/main
    git merge-base --is-ancestor <task-commit-sha> main
    ```
-9. 只有任务 worktree clean、提交已按授权集成且远端核验通过，才移除 worktree。未授权 commit、merge 或 push 时，保留现场并报告准确路径和状态。
+9. Remove the worktree only after it is clean, the commit has been integrated with authorization, and remote verification succeeds. Without commit, merge, or push authorization, preserve the worktree and report its exact path and state.
 
-## 何时必须停下来问用户
+## When to stop and ask
 
-以下事项不能自行决定：
+Do not decide these items autonomously:
 
-- 改变质量基线、优化目标顺序、首要用户或首要成功指标。
-- 将 `Proposed` ADR 改为 `Accepted`，或推翻已接受 ADR。
-- 从规范评审进入实施计划、任务拆分或编码。
-- 引入新的外部依赖、远程服务、遥测上传、账户体系或发布流程。
-- 修改 DSH 核心扩展点、Session 持久格式或上游公共 API。
-- 放宽父 Agent 权限、abstain 条件、episode 释放条件或恢复安全边界。
-- 自动创建、恢复或删除工作区 checkpoint，或处理非文件外部副作用。
-- 删除/重命名公共文档、事件、配置或用户可见接口。
-- Commit、merge、push、删除分支/worktree 或其他 Git 引用与远端写操作未获得本次明确授权。
+- Change the quality baseline, optimization order, primary user, or primary success metric.
+- Change a `Proposed` ADR to `Accepted`, or reverse an accepted ADR.
+- Move from specification review into implementation planning, task breakdown, or coding.
+- Add an external dependency, remote service, telemetry upload, account system, or release workflow.
+- Change a DSH core extension point, Session persistence format, or upstream public API.
+- Relax parent-agent authority, abstention criteria, episode release criteria, or recovery safety boundaries.
+- Automatically create, restore, or delete a workspace checkpoint, or handle non-file external side effects.
+- Delete or rename a public document, event, configuration, or user-facing interface.
+- Commit, merge, push, delete a branch/worktree, or otherwise modify Git refs or remotes without explicit authorization for the current task.
 
-## 当前硬阻塞
+## Current hard blocker
 
-当前没有实现层面的故障阻塞；进入实施前的设计 gate 和未决问题由 `PROJECT_STATUS.md` 与 `docs/open-questions.md` 维护。不要在这里复制完整清单。
+There is no implementation-level fault blocker. The pre-implementation design gates and unresolved questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
-## 安全边界
+## Security boundaries
 
-- 不提交密钥、token、`.env`、private key、账号信息或敏感 prompt 内容。
-- 不用裸 Git 回滚实现产品工作区恢复。
-- 不允许父 Agent 默认绕过 Routing Policy 指定任意 provider/model。
-- 任何进入模型上下文的恢复指令都必须通过可持久化通道记录。
-- 不把临时生成物写入项目根目录；使用任务独立的 `$TMPDIR` 子目录。
+- Never commit secrets, tokens, `.env`, private keys, account data, or sensitive prompt content.
+- Never use raw Git rollback to implement product workspace recovery.
+- Do not allow a parent agent to bypass Routing Policy with an arbitrary provider/model by default.
+- Any recovery instruction injected into model context must be persisted through a reconstructable channel.
+- Do not write temporary artifacts into the project root; use an independent `$TMPDIR` subdirectory for each task.

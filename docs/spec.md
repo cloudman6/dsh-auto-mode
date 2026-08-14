@@ -1,102 +1,106 @@
-# 规范：DSH Auto Mode
+# Specification: DSH Auto Mode
 
-## 状态
+[简体中文](zh-CN/spec.md)
 
-Proposed，等待用户评审。
+## Status
 
-## 假设
+Proposed, awaiting user review.
 
-当前规范基于以下假设；任何一项被否定都需要先修改规范，再进入实施：
+## Assumptions
 
-1. 首要用户是个人重度 Agent 用户，而不是企业统一治理团队。
-2. 首要成功指标是真实活跃用户，而不是插件下载量、GitHub stars 或模型调用量。
-3. 产品首先作为 DeepSeek Harness 插件实现，但公共策略与 Benchmark 数据结构应避免绑定单一模型提供方。
-4. 实现语言预计为 TypeScript/ESM，并遵循 DSH/Cordis 的插件与能力 seam，但技术栈尚未最终接受。
-5. 用户愿意为更可靠的 Auto 模式投入模型调用和 Benchmark 资源；优化目标不是绝对最低成本。
-6. 当前阶段只交付设计基线，不交付运行代码、依赖或 CI。
+This specification is based on the following assumptions. If any assumption is rejected, update the specification before implementation:
 
-## 目标
+1. The primary user is an individual power user of coding agents, not a centralized enterprise-governance team.
+2. The primary success metric is real active users, not plugin downloads, GitHub stars, or model-call volume.
+3. The product starts as a DeepSeek Harness plugin, but public policy and Benchmark data structures should not bind to one model provider.
+4. The expected implementation language is TypeScript/ESM, following DSH/Cordis plugin and capability seams, but the technology stack is not yet accepted.
+5. Users are willing to spend model calls and Benchmark resources for a more reliable Auto mode; absolute minimum cost is not the objective.
+6. The current stage delivers a design baseline only, not runtime code, dependencies, or CI.
 
-让用户不再手工猜测当前任务应该使用哪个模型和 reasoning effort。系统根据任务属性、可用模型能力、RouterBench 先验、当前 Session 证据、运行时失败和用户约束，自动选择合适的 route，并在误判后限制损失和恢复。
+## Objective
 
-产品承诺的优化顺序是：
+Users should no longer guess which model and reasoning effort a task requires. The system selects an appropriate route from task properties, available model capabilities, RouterBench priors, current Session evidence, runtime failures, and user constraints; when the selection is wrong, it limits damage and recovers.
 
-1. 维持固定 `strong` route 的质量基线。
-2. 在质量约束内优先降低端到端延迟。
-3. 延迟目标满足后再降低模型成本和 token 消耗。
+The product promises this optimization order:
 
-## 用户问题
+1. Preserve the quality baseline of a fixed `strong` route.
+2. Within that quality constraint, reduce end-to-end latency first.
+3. Reduce model cost and token consumption only after the latency objective is satisfied.
 
-个人重度 Agent 用户面对的核心问题不是缺少模型选择器，而是缺少可信选择依据：
+## User problem
 
-- 用户难以判断任务复杂度与正确 effort，手工选择经常接近随机。
-- 为保险起见长期使用高配置，造成不必要延迟和成本。
-- 用户没有 A/B 对照，无法判断一次选择是否正确，因此手工选择不应成为监督标签。
-- 普通 Auto 模式只选择第一次调用，无法解释为什么切换，也无法在选择错误后恢复。
-- 父 Agent 若可随意指定子 Agent 模型，会绕过统一策略并形成新的错误来源。
+The core problem for individual power users is not the absence of a model selector; it is the absence of trustworthy selection evidence:
 
-## 用户体验
+- Users struggle to estimate task complexity and the correct effort, so manual selection is often close to random.
+- To be safe, users keep a high configuration for most work, adding avoidable latency and cost.
+- Users have no A/B counterfactual for a single choice, so their manual choice must not become a supervised label.
+- Ordinary Auto modes select only the first call, cannot explain switches, and cannot recover after a wrong selection.
+- If a parent agent can select an arbitrary child-agent model, it bypasses unified policy and creates another source of error.
 
-默认交互只有一个 `Auto` 模式。用户可以查看但不需要确认每次决策：
+## User experience
+
+The default interaction exposes one `Auto` mode. Users may inspect decisions but do not have to approve every decision:
 
 ```text
-已选择 standard
-原因：局部代码修改，有明确测试；该任务类别在 RouterBench 中满足 strong 质量基线。
+Selected standard
+Reason: bounded code change with explicit tests; this task category meets
+the strong quality baseline in RouterBench.
 
-已升级至 strong
-原因：同一验证失败重复出现，进入故障诊断 episode。
+Escalated to strong
+Reason: the same validation failure recurred, opening a diagnosis episode.
 
-已降至 standard
-原因：原失败已解决并验证，进入文档同步阶段；预计剩余工作足以覆盖切换成本。
+Down-routed to standard
+Reason: the original failure is resolved and verified; execution entered
+the documentation phase, and expected remaining work exceeds switching cost.
 ```
 
-不提供要求用户猜测“是否应该切换”的 Shadow Mode。透明度用于解释与审计，不把用户接受或拒绝一次建议当作正确标签。
+The product does not provide a Shadow Mode that asks users to guess whether to switch. Transparency exists for explanation and audit; accepting or rejecting a suggestion is not treated as a correctness label.
 
-## 功能范围
+## Functional scope
 
-### 必须具备
+### Required
 
-- 语义 route：`fast`、`standard`、`strong` 和 `abstain`。
-- 用户可配置的 route profile，将语义 route 映射到 provider/model/effort。
-- Host 中运行的 Routing Policy；父 Agent 和分类模型不拥有常规最终决策权。
-- 每个模型请求前的路由接入，支持 turn 内跨阶段重新路由。
-- `abstain` 的安全 fallback，默认回到固定高配置。
-- 决策、理由、策略版本、实际模型与 effort 的持久记录。
-- RouterBench：以配对实验评估质量、延迟、成本、覆盖率和恢复表现。
-- 运行时升级和 episode 状态，避免在未解决问题中反复降级。
-- 子 Agent 约束语义与权限规则。
+- Semantic routes: `fast`, `standard`, `strong`, and `abstain`.
+- User-configurable route profiles that map semantic routes to provider/model/effort.
+- Routing Policy running in the Host; neither parent agents nor classifier models own normal final decisions.
+- A routing seam before every model request, supporting re-routing across phases within one turn.
+- A safe fallback for `abstain`, defaulting to a fixed high configuration.
+- Persistent records of decisions, reasons, policy versions, actual models, and effort.
+- RouterBench: paired experiments for quality, latency, cost, coverage, and recovery behavior.
+- Runtime escalation and episode state, preventing repeated down-routing while a problem remains unresolved.
+- Child-agent constraint semantics and authority rules.
 
-### 完整方向
+### Full direction
 
-- `continue`、`salvage` 和 `restart` 三类恢复动作。
-- Session checkpoint 与隔离工作区 checkpoint 的关联。
-- 可选的 Task Assessor 与 Recovery Assessor。
-- 进程外 Codex、Claude Code 等子 Agent provider 的创建前路由适配。
-- 基于真实运行事实的匿名遥测和策略校准，前提是用户明确同意。
+- Three recovery actions: `continue`, `salvage`, and `restart`.
+- Association between Session checkpoints and isolated workspace checkpoints.
+- Optional Task Assessor and Recovery Assessor.
+- Creation-time routing adapters for out-of-process child-agent providers such as Codex and Claude Code.
+- Anonymous telemetry and policy calibration from objective runtime facts, only with explicit user consent.
 
-### 不属于当前范围
+### Outside the current scope
 
-- 通用任务队列、并发调度、优先级、抢占和组织预算治理。
-- 训练新的基础模型。
-- 根据一次用户手工选择自动学习“正确模型”。
-- 让 Router Agent 使用完整 Session、工具和自主循环决定路由。
-- 无隔离机制时使用裸 Git 命令自动撤销用户工作区。
+- A general task queue, concurrency scheduler, priorities, preemption, or organization-level budget governance.
+- Training a new foundation model.
+- Learning a “correct model” from one user manual selection.
+- A Router Agent with a full Session, tools, and autonomous loop.
+- Automatic reversal of user workspace changes through raw Git commands without isolation.
 
-## 预期技术栈
+## Expected technology stack
 
-在规范接受前只作为提案：
+These choices remain proposals until the specification is accepted:
 
-- TypeScript，严格类型，ESM。
-- Cordis 插件与 DSH Service Definition / Provider / Consumer 结构。
-- Vitest 或 DSH 当前测试基础设施。
-- JSON Schema 或等价的运行时边界校验，用于模型评估和持久事件。
-- RouterBench runner 与可版本化任务数据集。
+- TypeScript with strict types and ESM.
+- Cordis plugins and DSH Service Definition / Provider / Consumer structures.
+- Vitest or the current DSH test infrastructure.
+- JSON Schema or equivalent runtime boundary validation for model assessments and persisted events.
+- A RouterBench runner and versioned task dataset.
 
-不在规范评审前选择额外运行时依赖。
+Do not choose additional runtime dependencies before specification review completes.
 
-## 当前命令
+## Current commands
 
-仓库尚无实现工具链，可执行检查只有：
+The repository has no implementation toolchain. Available checks are limited to:
 
 ```bash
 git status --short --branch
@@ -105,24 +109,27 @@ rg -n '^(<<<<<<<|=======|>>>>>>>)' .
 find docs -type f -name '*.md' -print | sort
 ```
 
-实施计划接受后，必须在此处补全安装、构建、测试、lint、typecheck 和 Benchmark 命令，不能依赖未记录的隐式流程。
+After an implementation plan is accepted, add installation, build, test, lint, typecheck, and Benchmark commands here. Do not rely on undocumented implicit workflows.
 
-## 项目结构
+## Project structure
 
-当前结构：
+Current structure:
 
 ```text
-docs/                 设计规范和评审材料
-docs/decisions/       架构决策记录
-README.md             项目入口
-AGENTS.md             Agent 工作规则
+docs/                 Canonical English design and review material
+docs/decisions/       Canonical architecture decision records
+docs/zh-CN/           Simplified Chinese translations
+README.md             Canonical project entry point
+README.zh-CN.md       Simplified Chinese project entry point
+CONTRIBUTING.md       Canonical contribution rules
+AGENTS.md             Canonical agent work rules
 ```
 
-预期实施结构需在技术计划中评审，当前不创建空 `src/` 或 `tests/` 目录。
+The implementation structure must be reviewed in the technical plan. Do not create empty `src/` or `tests/` directories now.
 
-## 代码风格提案
+## Proposed code style
 
-公共类型使用显式判别联合，语义 route 与具体模型分离：
+Public types use explicit discriminated unions, keeping semantic routes separate from concrete models:
 
 ```ts
 type RouteDecision =
@@ -140,79 +147,79 @@ type RouteDecision =
     }
 ```
 
-策略输出目标 route；`keep`、`upgrade` 和 `downgrade` 由前后决策比较得到，不混入决策类型。对外 API 必须记录输入、输出、失败、时序与持久性要求。
+Policy returns a target route. `keep`, `upgrade`, and `downgrade` are derived by comparing adjacent decisions; they are not embedded in the decision type. Public APIs must define inputs, outputs, failures, timing, and persistence requirements.
 
-## 测试策略
+## Test strategy
 
-- 单元测试：route 约束解析、策略优先级、episode 状态机、恢复动作选择。
-- 属性/状态机测试：确保硬约束不能被模型建议或父 Agent override 绕过。
-- 集成测试：通过真实 DSH `agent/request`、Session 事件和子 Agent 生命周期验证装配。
-- 快照测试：验证用户可见决策解释和恢复转录。
-- RouterBench：同一任务在候选 route 与 `strong` 基线上的配对运行。
-- 故障注入：模型超时、低置信度评估器、错误 route、重复测试失败、checkpoint 不可用。
-- 安全测试：工作区已有未提交修改、并发 Agent 修改、恶意/错误父 Agent 约束。
+- Unit tests: route-constraint parsing, policy precedence, episode state machine, and recovery-action selection.
+- Property/state-machine tests: hard constraints cannot be bypassed by a model suggestion or parent-agent override.
+- Integration tests: real DSH `agent/request`, Session events, and child-agent lifecycle assembly.
+- Snapshot tests: user-visible decision explanations and recovery transcripts.
+- RouterBench: paired runs of each task against a candidate route and the `strong` baseline.
+- Fault injection: model timeout, low-confidence assessor, wrong route, repeated test failure, and unavailable checkpoint.
+- Security tests: pre-existing uncommitted workspace changes, concurrent agent modifications, and malicious or incorrect parent-agent constraints.
 
-任何用户可见路由行为都需要关键路径的无密钥测试；需要真实模型的评测必须单独标记并可复现。
+Every user-visible routing behavior needs secret-free critical-path tests. Evaluations that require real models must be separately marked and reproducible.
 
-## 工作边界
+## Work boundaries
 
-### 始终执行
+### Always
 
-- 先更新规范或 ADR，再实现改变公共行为的代码。
-- 记录每次 route 决策、实际生效配置和理由。
-- 对低置信度、分布外和高风险不可验证任务执行 `abstain`。
-- 将模型评估视为证据，不视为最终授权。
-- 用同一策略实现同时服务在线路由和 RouterBench。
+- Update the specification or ADR before implementing a change in public behavior.
+- Record every route decision, effective configuration, and reason.
+- `abstain` for low-confidence, out-of-distribution, and high-risk non-verifiable tasks.
+- Treat model assessment as evidence, not final authority.
+- Use the same policy implementation for online routing and RouterBench.
 
-### 需要先确认
+### Confirm first
 
-- 改动 DSH 核心扩展点或 Session 格式。
-- 新增第三方依赖、遥测上传、远程服务或账户体系。
-- 修改质量基线、优化目标顺序或父 Agent 权限模型。
-- 自动创建、恢复或删除工作区 checkpoint。
-- 发布 npm 包、GitHub Release 或默认开启 Auto。
+- Change a DSH core extension point or Session format.
+- Add a third-party dependency, telemetry upload, remote service, or account system.
+- Change the quality baseline, optimization order, or parent-agent authority model.
+- Automatically create, restore, or delete a workspace checkpoint.
+- Publish an npm package or GitHub Release, or enable Auto by default.
 
-### 永不执行
+### Never
 
-- 提交密钥或记录 prompt 中的敏感值。
-- 把用户模型选择、父 Agent override 或一次自我报告当作正确标签。
-- 让 episode 因时间、token 或 step 数量到期而自动降级。
-- 在没有所有权证明的情况下回滚文件或外部副作用。
-- 静默切换模型而不记录最终配置和原因。
+- Commit secrets or record sensitive prompt values.
+- Treat a user model choice, parent-agent override, or one model self-report as a correct label.
+- Release an episode route floor because time, token, or step count expired.
+- Roll back files or external side effects without proof of ownership.
+- Switch models silently without recording the final configuration and reason.
 
-## 成功标准
+## Success criteria
 
-### 产品成功
+### Product success
 
-- 首要指标：持续使用 Auto 的真实活跃用户。
-- 用户可以理解任意一次路由或恢复动作为什么发生。
-- 用户无需持续手工选择模型和 effort，也不需要为路由器提供伪监督标签。
+- Primary metric: real active users who continue using Auto.
+- Users can understand why any routing or recovery action occurred.
+- Users do not need to keep selecting a model and effort or provide pseudo-supervision to the router.
 
-### 路由质量
+### Routing quality
 
-- 每个任务类别都以配置的 `strong` route 为基线。
-- 只有候选 route 在 RouterBench 上满足配置的质量容差 `epsilon` 和不可接受结果上限 `delta` 时，才允许自动覆盖该任务类别。
-- 分布外、证据不足或高影响不可验证任务执行 `abstain`。
-- 报告 auto coverage、abstention rate 和 under-routing loss，不用平均分掩盖严重失败。
+- Every task category uses its configured `strong` route as a baseline.
+- A candidate route may automatically cover a task category only when RouterBench shows a quality gap within configured tolerance `epsilon` and an unacceptable-result bound within `delta`.
+- Out-of-distribution, weak-evidence, or high-impact non-verifiable tasks `abstain`.
+- Report auto coverage, abstention rate, and under-routing loss; do not hide severe failures in an average score.
 
-### 性能
+### Performance
 
-- 指标包含完整端到端延迟，包括分类器、切换、缓存失效、恢复和重试成本。
-- 在质量约束成立后，先比较延迟，再比较成本。
-- 单步节省不足以覆盖模型切换成本时不降级。
+- Metrics include full end-to-end latency, including classifier, switching, cache loss, recovery, and retry cost.
+- Compare latency before cost after the quality constraint is satisfied.
+- Do not down-route when savings from the remaining step are smaller than model-switching cost.
 
-### 恢复
+### Recovery
 
-- 同一未解决 episode 内 route 下限只能保持或升级。
-- 有可信阶段边界后可以在同一 turn 内重新路由并降级。
-- `salvage` 和 `restart` 不得覆盖用户或其他 Agent 的既有修改。
+- Within one unresolved episode, the route floor may only stay fixed or rise.
+- The same turn may be re-routed downward after a trusted phase boundary.
+- `salvage` and `restart` must not overwrite pre-existing user or other-agent changes.
 
-## 开放问题
+## Open questions
 
-权威清单见[开放问题](open-questions.md)。在以下问题关闭前不进入完整实现：
+The authoritative list is in [Open questions](open-questions.md). Do not begin full implementation before closing:
 
-- RouterBench 初始任务类别和质量评价协议。
-- route profile 的默认模型档案来源与更新责任。
-- DSH 是否已经提供足够的持久路由约束与子 Agent 语义约束扩展点。
-- 可安全恢复的执行世界与 checkpoint provider。
-- Task/Recovery Assessor 的固定配置、调用门槛和隐私边界。
+- Initial RouterBench task categories and quality-evaluation protocol.
+- Sources and update ownership for default model profiles.
+- Whether DSH already exposes sufficient extension points for persistent routing constraints and semantic child-agent constraints.
+- A recoverable execution world and checkpoint provider.
+- Fixed configuration, invocation threshold, and privacy boundary for Task and Recovery Assessors.

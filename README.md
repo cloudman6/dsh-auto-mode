@@ -1,51 +1,55 @@
 # DSH Auto Mode
 
-DSH Auto Mode 是面向个人重度 Agent 用户的 DeepSeek Harness 自适应路由插件。它根据任务、执行证据和用户约束自动选择模型与 reasoning effort，在维持固定高配置质量基线的前提下，优先降低延迟，其次降低成本。
+[简体中文](README.zh-CN.md)
 
-项目目前处于规范评审阶段，尚未开始实现。当前文档记录已经形成的方案、仍需验证的假设和待决问题；评审通过后再进入实施计划与任务拆分。
+DSH Auto Mode is an adaptive routing plugin for DeepSeek Harness, designed for individual power users of coding agents. It selects a model and reasoning effort from task context, execution evidence, and user constraints. Its optimization order is strict: preserve the configured high-capability quality baseline, reduce latency, and only then reduce cost.
 
-## 产品边界
+The project is currently in specification review and has no product implementation yet. The documents in this repository capture the current design, unverified assumptions, and open questions. Implementation planning starts only after the specification and proposed architecture decisions are reviewed.
 
-DSH Auto Mode 不只是一次性的模型选择器。完整方向包括：
+## Product boundary
 
-- Adaptive Router：在每次模型请求前选择语义 route，并解释原因。
-- Routing Policy：使用可测试的策略决定 `fast`、`standard`、`strong` 或 `abstain`。
-- Recovery Supervisor：检测停滞并执行升级、继续、salvage 或 restart。
-- Delegation Policy：约束父 Agent 对子 Agent 的路由控制权。
-- RouterBench：用专门任务集校准路由策略和模型档案。
+DSH Auto Mode is more than a one-time model selector. Its full direction includes:
 
-真正的任务调度——并发上限、优先级、排队、抢占和跨子 Agent 预算分配——不属于当前范围，也不应与模型路由混称为 Scheduler。
+- Adaptive Router: selects a semantic route before every model request and explains the decision.
+- Routing Policy: uses a testable policy to select `fast`, `standard`, `strong`, or `abstain`.
+- Recovery Supervisor: detects stalled execution and performs escalation, continue, salvage, or restart.
+- Delegation Policy: constrains how a parent agent can influence child-agent routing.
+- RouterBench: calibrates routing policy and route profiles with a dedicated task suite.
 
-## 文档
+Actual task scheduling—concurrency limits, priorities, queues, preemption, and budget allocation across child agents—is outside the current scope and should not be conflated with model routing under the name “scheduler.”
 
-- [项目状态](PROJECT_STATUS.md)
-- [产品规范](docs/spec.md)
-- [系统架构](docs/architecture.md)
-- [路由策略](docs/routing-policy.md)
-- [恢复与 Episode](docs/recovery.md)
-- [子 Agent 委派权限](docs/delegation.md)
+## Documentation
+
+- [Project status](PROJECT_STATUS.md)
+- [Product specification](docs/spec.md)
+- [System architecture](docs/architecture.md)
+- [Routing policy](docs/routing-policy.md)
+- [Recovery and episodes](docs/recovery.md)
+- [Child-agent delegation authority](docs/delegation.md)
 - [RouterBench](docs/routerbench.md)
-- [产品路线图](docs/roadmap.md)
-- [开放问题](docs/open-questions.md)
-- [术语表](docs/glossary.md)
-- [架构决策记录](docs/decisions/README.md)
+- [Product roadmap](docs/roadmap.md)
+- [Open questions](docs/open-questions.md)
+- [Glossary](docs/glossary.md)
+- [Architecture decision records](docs/decisions/README.md)
+- [Documentation localization policy](docs/localization.md)
+- [Contributing](CONTRIBUTING.md)
 
-## 当前命令
+## Current commands
 
-当前仓库只有规范文档，没有可构建产品。
+This repository currently contains specification documents only; there is no buildable product.
 
 ```bash
-# 检查工作区
+# Inspect the worktree
 git status --short --branch
 
-# 检查空白错误和冲突标记
+# Check whitespace errors and merge-conflict markers
 git diff --check
 rg -n '^(<<<<<<<|=======|>>>>>>>)' .
 
-# 列出设计文档
+# List design documents
 find docs -type f -name '*.md' -print | sort
 ```
 
-## 参与方式
+## Contributing
 
-先评审 `docs/spec.md` 的假设、成功标准和范围，再评审架构与 ADR。规范未确认前不创建实现代码、依赖或 CI。
+Start by reviewing the assumptions, success criteria, and scope in [`docs/spec.md`](docs/spec.md), then review the architecture and ADRs. Do not add implementation code, dependencies, or CI until the specification is accepted. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for language and contribution rules.

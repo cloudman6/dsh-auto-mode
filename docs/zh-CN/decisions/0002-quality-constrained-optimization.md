@@ -1,0 +1,48 @@
+<!--
+translation-source: docs/decisions/0002-quality-constrained-optimization.md
+translation-source-blob: 9f852e9ded66e2ddea49ed44768e1a08d226125f
+translation-status: current
+-->
+
+# ADR-002：质量约束下先优化延迟，再优化成本
+
+[English](../../decisions/0002-quality-constrained-optimization.md)
+
+## 状态
+
+Proposed
+
+## 日期
+
+2026-08-14
+
+## 背景
+
+用户难以判断任务需要的模型和 effort，通常为保险长期选择高配置。简单追求最低成本会扩大 under-routing 风险，而平均质量分可能掩盖少量严重失败。
+
+## 决策
+
+每个任务类别使用配置的 `strong` route 作为质量基线。候选 route 只有在质量差不超过 `epsilon`、不可接受结果概率不超过 `delta` 且没有未解释严重失败簇时才获得自动覆盖资格。
+
+在质量约束内，先优化完整端到端延迟，再优化总成本。证据不足时 `abstain` 并执行 strong fallback。
+
+## 备选方案
+
+### 始终选择最便宜 route
+
+拒绝。错误遗漏的损失与模型价格不在同一量级。
+
+### 用户历史选择作为个性化标签
+
+拒绝。用户没有 A/B 对照，选择通常只是风险偏好或猜测。
+
+### 一律使用 strong
+
+拒绝。质量风险最低，但没有解决用户的延迟和成本问题，也无法形成有效 Auto 产品。
+
+## 后果
+
+- RouterBench 是产品基础设施，不是发布后的附加评测。
+- 必须报告 auto coverage、abstention 和 under-routing loss。
+- 开放任务需要清单、来源评价和盲化配对等多种证据。
+- 分类器、切换、重试和恢复开销必须计入延迟与成本。

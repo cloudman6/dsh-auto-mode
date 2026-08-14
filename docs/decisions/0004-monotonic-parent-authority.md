@@ -1,40 +1,42 @@
-# ADR-004：父 Agent 默认只有单调提高质量要求的权限
+# ADR-004: Parent-agent authority increases quality monotonically by default
 
-## 状态
+[简体中文](../zh-CN/decisions/0004-monotonic-parent-authority.md)
+
+## Status
 
 Proposed
 
-## 日期
+## Date
 
 2026-08-14
 
-## 背景
+## Context
 
-父 Agent 比 Host 更了解子任务意图，但它仍然是模型，未必能正确选择具体模型。如果父 Agent 的 model/effort override 无条件高于 Routing Policy，它可以习惯性使用最强模型或错误降低配置，使 Auto 失效。
+A parent agent knows more about child-task intent than the Host, but it remains a model and may select a concrete model incorrectly. If parent model/effort overrides always outrank Routing Policy, the parent may habitually choose the strongest model or incorrectly lower the configuration, defeating Auto.
 
-## 决策
+## Decision
 
-父 Agent 默认提交语义 RoutingConstraints，可以提高最低 route、要求独立评审或声明能力约束，但不能降低 Host 判定的质量下限，也不能指定任意原始 provider/model/effort。
+A parent agent submits semantic RoutingConstraints by default. It may raise the minimum route, require independent review, or declare capability constraints, but it may not lower the Host quality floor or select an arbitrary raw provider/model/effort.
 
-只有用户在 profile 中显式授权时，父 Agent 才能从 allowlist 中选择语义 route。每次 override 持久记录，但不作为正确标签。
+Only when a user explicitly grants authority in a profile may the parent choose a semantic route from an allowlist. Persist every override, but do not treat it as a correct label.
 
-## 备选方案
+## Alternatives considered
 
-### 父 Agent 完全控制具体模型
+### Parent agent fully controls the concrete model
 
-拒绝。形成静默绕过入口并与部署配置强耦合。
+Rejected. This creates a silent bypass and tightly couples the agent to deployment configuration.
 
-### 父 Agent 完全没有输入权
+### Parent agent provides no input
 
-拒绝。会丢失子任务风险、独立评审和能力要求等重要意图。
+Rejected. This loses important intent such as child-task risk, independent-review requirements, and required capabilities.
 
-### 父 Agent 声明的风险视为事实
+### Treat parent-declared risk as fact
 
-拒绝。模型可能漏报或误解风险；Host 仍需独立评估和执行硬约束。
+Rejected. A model may omit or misunderstand risk; the Host still performs independent assessment and enforces hard constraints.
 
-## 后果
+## Consequences
 
-- 需要持久、结构化的 RoutingConstraints。
-- Delegation Policy 与 Routing Policy 职责分离。
-- 进程内 child 使用统一 `agent/request`；不需要单独 Scheduler。
-- 外部 provider 若必须创建前选模型，需要调用相同 Routing Policy 的适配器。
+- The system needs persistent, structured RoutingConstraints.
+- Delegation Policy and Routing Policy remain separate responsibilities.
+- In-process children use the unified `agent/request`; no separate Scheduler is needed.
+- If an external provider needs a model before creation, an adapter calls the same Routing Policy.
