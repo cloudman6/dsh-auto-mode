@@ -28,6 +28,7 @@ Actual task scheduling—concurrency limits, priorities, queues, preemption, and
 - [Child-agent delegation authority](docs/delegation.md)
 - [RouterBench](docs/routerbench.md)
 - [DSH integration and compatibility](docs/dsh-integration.md)
+- [Upstream A1/A2 Host-contract Discussion draft](docs/upstream/2026-08-15-host-contracts-discussion.md)
 - [Product roadmap](docs/roadmap.md)
 - [Open questions](docs/open-questions.md)
 - [Glossary](docs/glossary.md)

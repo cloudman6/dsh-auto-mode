@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/README.md
-translation-source-blob: 472943dbd421e6b807fae0f0a9e36c2d8dbcc665
+translation-source-blob: 56c4198b4b075a357d5fdb41eccedf41378c8e46
 translation-status: current
 -->
 
@@ -28,6 +28,10 @@ translation-status: current
 ## 历史评审证据
 
 - [2026-08-14 多视角设计评审](reviews/2026-08-14-multi-view-design-review.md)：产生本轮修订的评审结论、冲突裁决与元评审限制信息记录。
+
+## 上游反馈草案
+
+- [A1/A2 产品无关 Host 契约](upstream/2026-08-15-host-contracts-discussion.md)：尚未发布的 GitHub Discussions Ideas 提案，包含固定 fork 证据与维护者问题。
 
 ## 文档状态
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: README.md
-translation-source-blob: 3bf9c399a60607c952e52d755f4c735b661c2893
+translation-source-blob: 054d8f46c73f5457eca474a02894acc77b63c3fa
 translation-status: current
 -->
 
@@ -34,6 +34,7 @@ DSH Auto Mode 从证据治理的模型选择开始。完整但由证据门控的
 - [子 Agent 委派权限](docs/zh-CN/delegation.md)
 - [RouterBench](docs/zh-CN/routerbench.md)
 - [DSH 集成与兼容性](docs/zh-CN/dsh-integration.md)
+- [上游 A1/A2 Host 契约 Discussion 草案](docs/zh-CN/upstream/2026-08-15-host-contracts-discussion.md)
 - [产品路线图](docs/zh-CN/roadmap.md)
 - [开放问题](docs/zh-CN/open-questions.md)
 - [术语表](docs/zh-CN/glossary.md)

@@ -23,6 +23,10 @@ The [architecture decision records](decisions/README.md) contain the accepted de
 
 - [2026-08-14 multi-view design review](reviews/2026-08-14-multi-view-design-review.md): informational record of findings, conflict arbitration, and meta-review limits that produced the current revision.
 
+## Upstream feedback drafts
+
+- [A1/A2 product-neutral Host contracts](upstream/2026-08-15-host-contracts-discussion.md): unpublished GitHub Discussions Ideas proposal with pinned fork evidence and maintainer questions.
+
 ## Document state
 
 The specification and ADR-001 through ADR-007 are Accepted. Documents may still mark individual future interfaces or event names as Proposed. ADRs use `Proposed`, `Accepted`, `Superseded`, and `Deprecated` for their lifecycle.
