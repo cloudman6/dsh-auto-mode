@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 2869a80089d623c4ef5531e3c648eb8f43a83be3
+translation-source-blob: 56f403e36073c0717fcbf47b9b78073a739279e1
 translation-status: current
 -->
 
@@ -61,6 +61,10 @@ translation-status: current
 - 阶段 0C preview 固定到明确 fork，并保持每 Session 一次路由决策。
 - 对应路线图证据 gate 通过前，不得宣称兼容官方 DSH、route 已准入或 preview 已可用。
 
+## 有边界阶段的 Code Review gate
+
+一个有边界的实施阶段只有一项验收结果，并且可独立测试、可独立回退。聚焦验证通过后、提交前，必须调用[项目 Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md)。出现 `BLOCKED` verdict、任何 P0-P2 finding、缺失强制证据或范围含糊时不得提交；修复后重新执行一次 fresh review。修改路由权限、DSH 扩展点、持久 Session 数据、恢复、安全、deployment identity 或父子 Agent 权限时，只要环境支持，还必须执行该 Skill 要求的 fresh-context 独立评审。
+
 ## 语言规范
 
 | 场景 | 语言 |
@@ -106,6 +110,7 @@ translation-status: current
 | 高代价、需要保留替代方案和后果的决策 | `docs/decisions/*.md` |
 | 导航和项目入口 | `README.md`、`docs/README.md` |
 | Agent 常驻规则、起手和完成纪律 | `AGENTS.md` |
+| 有边界阶段 Code Review 流程与 verdict | `.agents/skills/dsh-auto-mode-code-review/SKILL.md` |
 
 ## 文档维护纪律
 

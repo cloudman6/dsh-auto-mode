@@ -1,6 +1,6 @@
 <!--
 translation-source: README.md
-translation-source-blob: 054d8f46c73f5457eca474a02894acc77b63c3fa
+translation-source-blob: d6ac21ba511d4a2e855bf497ac949a46823d6e66
 translation-status: current
 -->
 
@@ -43,6 +43,7 @@ DSH Auto Mode 从证据治理的模型选择开始。完整但由证据门控的
 - [2026-08-14 多视角设计评审](docs/zh-CN/reviews/2026-08-14-multi-view-design-review.md)
 - [已完成的 A1/A2 实施计划与证据](tasks/plan.zh-CN.md)
 - [A1/A2 任务记录](tasks/todo.zh-CN.md)
+- [有边界阶段 Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md)
 - [参与贡献](CONTRIBUTING.zh-CN.md)
 
 ## 当前命令

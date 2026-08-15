@@ -55,6 +55,10 @@ The maintainer accepted the specification and ADR-001 through ADR-007 on 2026-08
 - Keep the Phase 0C preview fork-pinned and limited to one routing decision per Session.
 - Do not claim official DSH compatibility, route admission, or a usable preview until the corresponding roadmap evidence gates pass.
 
+## Bounded-stage code review gate
+
+A bounded implementation stage has one acceptance outcome and is independently testable and revertible. After its focused verification passes and before committing, invoke [the project Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md). A `BLOCKED` verdict, any P0-P2 finding, missing mandatory evidence, or ambiguous scope prevents commit; fix the stage and run a fresh review. Changes to routing authority, DSH extension points, durable Session data, recovery, security, deployment identity, or parent/child authority also require the skill's fresh-context independent review when that facility is available.
+
 ## Language rules
 
 | Context | Language |
@@ -100,6 +104,7 @@ English canonical documents and Chinese translations are governed by `docs/local
 | High-cost decisions whose alternatives and consequences must survive | `docs/decisions/*.md` |
 | Navigation and project entry points | `README.md`, `docs/README.md` |
 | Agent-wide rules, task start, and completion discipline | `AGENTS.md` |
+| Bounded-stage code review procedure and verdict | `.agents/skills/dsh-auto-mode-code-review/SKILL.md` |
 
 ## Documentation maintenance discipline
 

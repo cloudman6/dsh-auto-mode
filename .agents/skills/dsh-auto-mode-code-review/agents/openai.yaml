@@ -1,0 +1,4 @@
+interface:
+  display_name: "DSH Auto Mode Code Review"
+  short_description: "Review bounded changes against DSH and project contracts"
+  default_prompt: "Use $dsh-auto-mode-code-review to review the current bounded change before it is committed."

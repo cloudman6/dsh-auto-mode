@@ -1,6 +1,6 @@
 <!--
 translation-source: CONTRIBUTING.md
-translation-source-blob: f94337b9a48a19adfc99e674ca97e4c037f9eb51
+translation-source-blob: 00feadec25ada7996ff2255fe45247722c3536d7
 translation-status: current
 -->
 
@@ -40,6 +40,10 @@ docs(routing): clarify episode-level route transitions
 Allows down-routing only after the active route floor has been
 released by evidence defined in the episode release policy.
 ```
+
+## Code Review gate
+
+把实施拆成有边界的阶段；每个阶段只有一项可独立测试、可独立回退的验收结果。聚焦验证通过后、commit 前，调用 [`$dsh-auto-mode-code-review`](.agents/skills/dsh-auto-mode-code-review/SKILL.md)。解决全部 P0-P2 finding，并重新评审直至返回 `PASS`；机械 gate 全绿不能替代语义评审。
 
 ## 文档修改
 

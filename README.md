@@ -37,6 +37,7 @@ Actual task scheduling—concurrency limits, priorities, queues, preemption, and
 - [2026-08-14 multi-view design review](docs/reviews/2026-08-14-multi-view-design-review.md)
 - [Completed A1/A2 implementation plan and evidence](tasks/plan.md)
 - [A1/A2 task record](tasks/todo.md)
+- [Bounded-stage Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## Current commands

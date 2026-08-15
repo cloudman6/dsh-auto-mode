@@ -35,6 +35,10 @@ Allows down-routing only after the active route floor has been
 released by evidence defined in the episode release policy.
 ```
 
+## Code review gate
+
+Split implementation into bounded stages with one independently testable and revertible acceptance outcome. After focused verification and before commit, invoke [`$dsh-auto-mode-code-review`](.agents/skills/dsh-auto-mode-code-review/SKILL.md). Resolve every P0-P2 finding and rerun the review until it returns `PASS`; do not treat a green mechanical gate as semantic review.
+
 ## Documentation changes
 
 1. Update the canonical English document at its default path.
