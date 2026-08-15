@@ -231,21 +231,29 @@ After every change:
    git push -u origin HEAD
    git ls-remote origin "refs/heads/$task_branch"
    ```
-8. Merge into `main` and push `main` only with explicit authorization. In the clean main worktree, re-check the remote SHA, use fast-forward only, and stop if the remote moved or `--ff-only` fails:
+8. After the task branch is pushed and its worktree is clean, merge it into `main` and push `main` without requesting per-task confirmation. In the clean main worktree, require local `main` to equal remote `main`, use fast-forward only, and stop if the remote is unreachable, either SHA changes during integration, or `--ff-only` fails. Never substitute a merge commit, rebase, reset, force-push, or history rewrite:
    ```bash
+   task_branch="$(git branch --show-current)"
+   task_commit="$(git rev-parse HEAD)"
+   test "$(git ls-remote origin "refs/heads/$task_branch" | awk '{print $1}')" = "$task_commit"
    cd "$main_worktree"
-   git rev-parse main
-   git ls-remote origin refs/heads/main
-   git merge --ff-only codex/<task-slug>
+   test "$(git branch --show-current)" = main
+   local_main="$(git rev-parse main)"
+   remote_main="$(git ls-remote origin refs/heads/main | awk '{print $1}')"
+   test -n "$remote_main" && test "$local_main" = "$remote_main"
+   test "$(git rev-parse main)" = "$local_main"
+   git merge --ff-only "$task_branch"
+   test "$(git rev-parse main)" = "$task_commit"
+   test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$remote_main"
    git push origin main
    ```
 9. After pushing `main`, verify local and remote `main` SHAs match and the task commit is an ancestor. Do not claim publication before remote verification:
    ```bash
    git rev-parse main
    git ls-remote origin refs/heads/main
-   git merge-base --is-ancestor <task-commit-sha> main
+   git merge-base --is-ancestor "$task_commit" main
    ```
-10. Remove the worktree only after it is clean, the commit has been integrated with authorization, and remote verification succeeds. Without merge authorization, preserve the worktree and report its exact path and state.
+10. Worktree removal remains a separate destructive action. Preserve the completed worktree and report its exact path unless the user explicitly authorizes removal; never remove a dirty worktree.
 
 ## When to stop and ask
 
@@ -258,7 +266,7 @@ Do not decide these items autonomously:
 - Relax parent-agent authority, abstention criteria, episode release criteria, or recovery safety boundaries.
 - Automatically create, restore, or delete a workspace checkpoint, or handle non-file external side effects.
 - Delete or rename a public document, event, configuration, or user-facing interface.
-- Merge into or push `main`, delete a branch/worktree, change remotes, amend or rewrite commits, rebase, reset, force-push, or otherwise rewrite published history without explicit authorization for the current task. A validated atomic commit and a normal push of the current task branch are standing-authorized by the maintainer.
+- Delete a branch/worktree, change remotes, amend or rewrite commits, rebase, reset, force-push, create a non-fast-forward merge, or otherwise rewrite published history without explicit authorization for the current task. A validated atomic commit, normal task-branch push, and guarded fast-forward merge and push to `main` are standing-authorized by the maintainer.
 
 ## Current hard blocker
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 56f403e36073c0717fcbf47b9b78073a739279e1
+translation-source-blob: 09d74c9252951955c6b2ec1cc67272c635bea56e
 translation-status: current
 -->
 
@@ -237,21 +237,29 @@ sh "$codex_tools_dir/codex-worktree" remove \
    git push -u origin HEAD
    git ls-remote origin "refs/heads/$task_branch"
    ```
-8. 只有用户明确授权合入和发布 `main` 时，才在 clean 主工作区再次核对远端 SHA，然后执行 fast-forward 合入和 push。远端已移动或 `--ff-only` 失败时停止，不能改用普通 merge 绕过：
+8. 任务分支 push 且任务 worktree clean 后，直接合入并 push `main`，不再逐任务请求确认。在 clean 主工作区中，必须确认本地 `main` 与远端 `main` 完全一致，并且只允许 fast-forward。远端不可达、合入期间任一 SHA 变化或 `--ff-only` 失败时停止；不得改用 merge commit、rebase、reset、force-push 或任何历史改写绕过：
    ```bash
+   task_branch="$(git branch --show-current)"
+   task_commit="$(git rev-parse HEAD)"
+   test "$(git ls-remote origin "refs/heads/$task_branch" | awk '{print $1}')" = "$task_commit"
    cd "$main_worktree"
-   git rev-parse main
-   git ls-remote origin refs/heads/main
-   git merge --ff-only codex/<task-slug>
+   test "$(git branch --show-current)" = main
+   local_main="$(git rev-parse main)"
+   remote_main="$(git ls-remote origin refs/heads/main | awk '{print $1}')"
+   test -n "$remote_main" && test "$local_main" = "$remote_main"
+   test "$(git rev-parse main)" = "$local_main"
+   git merge --ff-only "$task_branch"
+   test "$(git rev-parse main)" = "$task_commit"
+   test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$remote_main"
    git push origin main
    ```
 9. Push `main` 后核对本地 `main` 与远端 `main` SHA 完全一致，并确认任务 commit 是远端 ancestor；未完成远端核验不得声称已发布：
    ```bash
    git rev-parse main
    git ls-remote origin refs/heads/main
-   git merge-base --is-ancestor <task-commit-sha> main
+   git merge-base --is-ancestor "$task_commit" main
    ```
-10. 只有任务 worktree clean、提交已按授权集成且远端核验通过，才移除 worktree。尚未授权 merge 时，保留现场并报告准确路径和状态。
+10. 删除 worktree 仍是独立的破坏性操作。除非用户明确授权删除，否则保留已完成的 worktree 并报告准确路径；绝不删除 dirty worktree。
 
 ## 何时必须停下来问用户
 
@@ -264,7 +272,7 @@ sh "$codex_tools_dir/codex-worktree" remove \
 - 放宽父 Agent 权限、abstain 条件、episode 释放条件或恢复安全边界。
 - 自动创建、恢复或删除工作区 checkpoint，或处理非文件外部副作用。
 - 删除/重命名公共文档、事件、配置或用户可见接口。
-- 未经本次明确授权就合入或 push `main`、删除分支/worktree、修改 remote、amend/改写 commit、rebase、reset、force-push 或以其他方式改写已发布历史。校验通过后的原子 commit，以及把当前任务分支普通 push 到远端，已获得维护者长期授权。
+- 未经本次明确授权就删除分支/worktree、修改 remote、amend/改写 commit、rebase、reset、force-push、创建非 fast-forward merge，或以其他方式改写已发布历史。校验通过后的原子 commit、普通任务分支 push，以及带保护的 fast-forward 合入并 push `main`，已获得维护者长期授权。
 
 ## 当前硬阻塞
 
