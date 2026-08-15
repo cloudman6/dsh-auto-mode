@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0001-host-owned-routing.md
-translation-source-blob: 79f3e9b6e497e8d9898280ec341ea6711a8583ac
+translation-source-blob: 24282a52b21fa4a0b916487ca1bc0bbbb6751a8e
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-Proposed
+Accepted
 
 ## 日期
 

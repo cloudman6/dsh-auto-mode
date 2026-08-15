@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0006-evidence-governed-route-admission.md
-translation-source-blob: 628804302850d1444ecce83bc20a749ceb556482
+translation-source-blob: ac15847493ce5c8deba2103501baf2f0bed53ff7
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-Proposed
+Accepted
 
 ## 日期
 

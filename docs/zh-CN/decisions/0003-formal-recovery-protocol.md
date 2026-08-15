@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0003-formal-recovery-protocol.md
-translation-source-blob: dd5ea53a062f97487e825428acdce13861c741e5
+translation-source-blob: 0e721a7d4f1354344e68ba8f2b0ee9ec98587f3e
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-Proposed
+Accepted
 
 ## 日期
 

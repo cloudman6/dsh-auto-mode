@@ -2,7 +2,7 @@
 
 [简体中文](CONTRIBUTING.zh-CN.md)
 
-DSH Auto Mode is currently in specification review. Contributions should improve or validate the design baseline; product code, dependencies, build configuration, CI, and release automation are not yet in scope.
+DSH Auto Mode is in Phase 0 critical-path execution under an accepted specification and ADR set. Check `PROJECT_STATUS.md` for the current evidence gates and next action. Product code, dependencies, build configuration, CI, or release automation may be added only when the corresponding roadmap gate and implementation decision are explicitly open.
 
 ## Language
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0007-recovery-capability-gates-recovery-claims.md
-translation-source-blob: 94ae73e4f60b9f9a3d4d77a09825e22e2bb3ec61
+translation-source-blob: d52c0c65fe21be07b21011d3dc0d7fbe406ac4d8
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-Proposed
+Accepted
 
 ## 日期
 

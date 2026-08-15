@@ -1,6 +1,6 @@
 <!--
 translation-source: README.md
-translation-source-blob: 4b27b6bcd99dd3615733dca27d7e469564e4ffb1
+translation-source-blob: 3bf9c399a60607c952e52d755f4c735b661c2893
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 DSH Auto Mode 是面向个人重度 Agent 用户的 DeepSeek Harness 自适应路由插件。普通交互只有一个选择：使用 Auto，或者手动选择 provider/model/reasoning selection，包括受支持的默认行为。Auto 只从有证据准入的配置中选择。其优化顺序严格固定：基线先通过绝对质量门槛，候选维持非劣性，然后降低延迟，最后降低成本。
 
-项目目前处于规范评审阶段，尚未开始实现。当前文档记录已经形成的方案、仍需验证的假设和待决问题；评审通过后再进入实施计划与任务拆分。
+规范和当前全部 ADR 已被接受。产品无关的 A1 pre-assembly step preparation 与 A2 Session 事件运行时注册已在明确声明的 DSH fork 上实现并固定版本。其余阶段 0C 准入、deployment identity 与载体 gate 通过前，还不存在可供用户使用的 Auto Mode preview。
 
 ## 产品边界
 
@@ -40,11 +40,13 @@ DSH Auto Mode 从证据治理的模型选择开始。完整但由证据门控的
 - [架构决策记录](docs/zh-CN/decisions/README.md)
 - [文档本地化策略](docs/zh-CN/localization.md)
 - [2026-08-14 多视角设计评审](docs/zh-CN/reviews/2026-08-14-multi-view-design-review.md)
+- [已完成的 A1/A2 实施计划与证据](tasks/plan.zh-CN.md)
+- [A1/A2 任务记录](tasks/todo.zh-CN.md)
 - [参与贡献](CONTRIBUTING.zh-CN.md)
 
 ## 当前命令
 
-当前仓库只有规范文档，没有可构建产品。
+当前仓库包含已接受规范与实施计划；产品代码尚未进入本仓库。
 
 ```bash
 # 检查工作区
@@ -60,4 +62,4 @@ find docs -type f -name '*.md' -print | sort
 
 ## 参与方式
 
-先评审 `docs/zh-CN/spec.md` 的假设、成功标准和范围，再评审架构与 ADR。规范未确认前不创建实现代码、依赖或 CI。语言与贡献规则见 [`CONTRIBUTING.zh-CN.md`](CONTRIBUTING.zh-CN.md)。
+先阅读 `docs/zh-CN/spec.md` 中已接受的假设、成功标准和范围，再阅读架构、ADR、路线图 gate 与当前任务计划。语言与贡献规则见 [`CONTRIBUTING.zh-CN.md`](CONTRIBUTING.zh-CN.md)。

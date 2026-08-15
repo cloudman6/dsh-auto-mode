@@ -4,7 +4,7 @@
 
 ## Status
 
-Proposed, awaiting user review.
+Accepted by the maintainer on 2026-08-15.
 
 ## Assumptions
 
@@ -15,7 +15,7 @@ This specification is based on the following assumptions. If any assumption is r
 3. The product targets DeepSeek Harness and should remain installable through its plugin ecosystem, but the audited DSH gaps may require narrow upstream core or extension-package changes; the final carrier is not yet accepted.
 4. The expected implementation language is TypeScript/ESM, following DSH/Cordis plugin and capability seams, but the technology stack is not yet accepted.
 5. Users are willing to spend model calls and project-maintained Benchmark resources for a more reliable Auto mode; they are not expected to maintain calibration thresholds or route evidence themselves.
-6. The current stage delivers a design baseline only, not runtime code, dependencies, or CI.
+6. Phase 0 may implement product-neutral DSH Host contracts and evidence probes, but it does not claim a usable Auto Mode preview until every Phase 0C gate passes.
 
 ## Objective
 
@@ -93,7 +93,7 @@ The product does not provide a Shadow Mode that asks users to guess whether to s
 
 ## Expected technology stack
 
-These choices remain proposals until the specification is accepted:
+These technology choices remain proposals until an implementation decision explicitly accepts them:
 
 - TypeScript with strict types and ESM.
 - Cordis plugins and DSH Service Definition / Provider / Consumer structures.
@@ -101,7 +101,7 @@ These choices remain proposals until the specification is accepted:
 - JSON Schema or equivalent runtime boundary validation for model assessments and persisted events.
 - A RouterBench runner and versioned task dataset.
 
-Do not choose additional runtime dependencies before specification review completes.
+Do not choose additional runtime dependencies without an accepted implementation decision.
 
 ## Current commands
 

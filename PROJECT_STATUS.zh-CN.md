@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: c35962bebac046df987bb7b01a85f6fdfea52e01
+translation-source-blob: 4f6bf2fd2ac87f12b206f7d63d88704abf9017e3
 translation-status: current
 -->
 
@@ -10,11 +10,11 @@ translation-status: current
 
 ## 最后更新
 
-2026-08-14
+2026-08-15
 
 ## 当前阶段
 
-多视角修订后的规范评审。仓库已形成修订后的产品、证据、架构、DSH 集成和恢复设计，但用户尚未接受 `docs/spec.md` 或 6 项 Proposed 产品/架构 ADR。定义文档语言的 ADR-005 仍为 Accepted。实施计划、依赖选择和编码继续受 gate 限制。
+阶段 0 关键路径执行。维护者已于 2026-08-15 接受 `docs/spec.md` 与 ADR-001 至 ADR-007。产品无关的 A1 pre-assembly step preparation 与 A2 Session 事件运行时注册已在明确声明的 DSH fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243` 上实现并通过测试。阶段 0C 本身仍受阶段 A 最小准入切片、A3p deployment identity 与 A5p 载体核验约束。
 
 ## 已完成
 
@@ -27,19 +27,18 @@ translation-status: current
 - 审计 DeepSeek Harness commit `47f943859bef60e4160492346772ded9b24f765a`，在 `docs/zh-CN/dsh-integration.md` 中记录可用 seam 与阻塞缺口。
 - 核实 DSH provider/model discovery 与可选的精确 route reasoning 元数据 seam，记录维护者 fork 作为 preview 运行时载体，并把基于 fork 的 Static Auto Preview 加入阶段 0C。
 - 关闭 fresh-context 评审指出的因果顺序、reasoning default、确定性解析、preview identity、preview 载体和 planning gate 矛盾，同时不改变 ADR 状态。
-- 修订 ADR-001 至 ADR-004，新增 Proposed ADR-006 和 ADR-007，没有把任何 Proposed 决策改成 Accepted。
+- 根据维护者明确授权，接受修订后的规范及 ADR-001 至 ADR-007。
+- 在维护者 DSH fork 上实现 A1/A2，通过组合 JSONL 冷加载探针、402 项相关测试、typecheck、lint 与全部 28 项 DSH 文档 gate，并推送精确 fork commit。
 
-## 当前评审入口
+## 当前实施入口
 
-1. 按 `docs/zh-CN/README.md` 列出的顺序评审修订后规范文档。
-2. 评审 `docs/zh-CN/decisions/` 中 6 项 Proposed ADR；只有用户明确确认后才改变状态。
-3. 把历史多视角报告视为评审证据，不把它当成经验验证。
+1. 为初始 baseline 与 candidate route identity 关闭 A3p。
+2. 产出阶段 A 最小准入切片，并针对一个具体 preview 载体关闭 A5p。
+3. 把 fork 固定在 `801ded7f60a0dfab07b9690cb9d98fce6234d243`；上游接受前不得宣称兼容官方 DSH。
 
 ## 进入阶段 0C preview planning 前的 gate
 
-- 明确接受修订后的产品规范。
-- 处理 6 项 Proposed ADR 状态。
-- 冻结产品无关的 A1 pre-assembly 与 A2 required-event 契约，包括先失败、后通过的 contract test。
+- 保持已实现的产品无关 A1 pre-assembly 与 A2 required-event 契约固定在明确 fork 上并持续通过测试。
 - 预注册初始 Policy Pack taxonomy、基线/候选 deployment、统计方法、evaluator 治理和隔离数据集。
 - 为初始 baseline 与 candidate 关闭 A3p，提供可复现的 provider/model/reasoning-selection identity 证据。
 - 关闭 A5p，验证一个具体 preview 载体能够提供 Auto/manual 选择与持久解释。
@@ -54,11 +53,11 @@ translation-status: current
 
 ## 当前阻塞
 
-设计 gate 仍未关闭。此外，被审计 DSH 版本缺少 proposed 外部插件需要的两个契约：规范 Session 事件的运行时注册，以及携带当前 step 已领取消息的 pre-assembly 决策输入。它们是 Session Static Auto 的阶段 0 关键路径，不是可以推迟的后期优化。完整恢复和外部 child model/reasoning-selection 控制同样缺乏通用契约，但对应 roadmap phase 可以不进入首个产品行为。
+规范 gate 已关闭。A1/A2 已不再阻塞 fork preview：它们已经在维护者 fork 上实现并通过测试，但尚未进入官方 DSH，因此仍是上游兼容依赖。A3p identity 证据、阶段 A 最小准入切片和 A5p 载体核验是剩余的阶段 0C 阻塞。完整恢复和外部 child model/reasoning-selection 控制继续推迟到后续路线图阶段。
 
 ## 下一步
 
-评审修订后的规范与 ADR，然后冻结 `docs/zh-CN/roadmap.md` 中产品无关的 A1 pre-assembly 与 A2 required-event 契约。同时，为初始 route identity 关闭 A3p，并为具体 preview 载体关闭 A5p。该组 preview 专用 gate 通过后，才能开始阶段 0C planning。生产 release 载体仍是阶段 B/release 的独立决策。
+关闭初始 route identity 的 A3p，产出阶段 A 最小准入证据，并为具体 preview 载体关闭 A5p。在准备拆分上游评审期间，持续针对固定 fork commit 验证 A1/A2。生产 release 载体仍是阶段 B/release 的独立决策。
 
 ## 状态维护规则
 

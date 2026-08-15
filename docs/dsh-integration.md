@@ -10,11 +10,19 @@ The plugin must pin an exact tested DSH version or commit and run an extension-c
 
 ## Current fork preview runtime carrier
 
-The current preview runtime carrier is the maintainer fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness), whose `master` branch was verified at the audited commit on 2026-08-14. That commit still lacks A1 and A2; it is the baseline on which the fork implementations will be built, not yet a compatible Auto Mode runtime.
+The current preview runtime carrier is the maintainer fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness). Its `master` branch was verified at the audited baseline on 2026-08-14. Product-neutral A1 and A2 contracts were subsequently implemented from that baseline and pushed on branch `codex/auto-mode-host-contracts` at exact commit [`801ded7f60a0dfab07b9690cb9d98fce6234d243`](https://github.com/cloudman6/deepseek-harness/commit/801ded7f60a0dfab07b9690cb9d98fce6234d243).
 
 Every preview build must identify the exact fork remote and post-seam commit. That identifies the Host build, not the remote model deployment: every admitted preview route also needs provider-specific deployment identity evidence. A local checkout path is never part of the public compatibility contract, and successful fork validation must not be presented as official DSH support.
 
 The fork is the preview runtime carrier, not automatically the user-interface carrier. Phase 0C must separately name and verify the concrete fork UI, client plugin, or command/config surface that provides the one-operation Auto/manual choice and retrieves the persisted explanation.
+
+### Fork contract evidence
+
+The pinned fork commit adds an agent-scoped `agent/prepare-step` waterfall after inbox claim and before prompt assembly, while preserving the existing post-assembly `agent/pre-step`. It also adds effect-scoped required-event namespace registration in `SessionStore`, immutable namespace/version envelope identity, append-time validation, and exact-registration validation before cold Session reconstruction.
+
+The combined JSONL probe changes the selected model during `agent/prepare-step`, verifies that prompt assembly and `agent/request` use that same model, persists a required plugin decision event, rejects cold load without its registration, and reloads successfully after the exact registration is restored. Verification passed on 2026-08-15 with 402 relevant tests, `pnpm typecheck`, `pnpm lint`, and all 28 `pnpm doc-sync` gates.
+
+This evidence closes A1/A2 for the pinned fork preview only. It is not official DSH compatibility and does not close route deployment identity, admission evidence, or the user-facing preview carrier.
 
 ## Verified usable seams
 
@@ -44,7 +52,7 @@ In-process children are created as ordinary DSH Agents and therefore enter the s
 
 The existing delegation helpers persist sandbox and approval policy, proving that child-local durable policy is a supported pattern. They do not persist Auto Mode's risk, minimum guarantee, diversity, or latency constraints.
 
-## Verified blocking or incomplete seams
+## Baseline gaps resolved on the pinned fork
 
 ### Current-step decision input arrives after assembly
 
@@ -52,13 +60,15 @@ The loop claims pending messages, assembles the system prompt, and only then inv
 
 `installModelSelection()` guarantees snapshot consistency only if `selection.current` was decided before assembly. An Auto policy that needs the newly claimed user message cannot obtain that message from the current `system-prompt/assemble` contract. Updating the selection in `agent/pre-step` is too late for the same step.
 
-Required resolution: add or expose a pre-assembly route-decision seam carrying the claimed messages and step identity, or restructure pre-step preparation so one frozen Route Snapshot exists before provider-dependent assembly. Until then, first-step semantic Auto cannot claim prompt/request consistency.
+Fork resolution: `agent/prepare-step` now receives the frozen claimed messages, stable turn/step identity, and cancellation signal before assembly. Rejection prevents assembly and model dispatch; `installModelSelection()` snapshots a preparation-time selection for both assembly and `agent/request`. Official DSH still lacks this contract.
 
 ### Required plugin Session events cannot be registered reliably at runtime
 
 The persistence reader checks a generated repository-local set of known event types. Its own generator states that downstream plugin events are outside the set and that a registration surface is deferred. Unknown required events cause cold-load refusal unless marked ignorable. See the [generated vocabulary](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/known-event-types.ts#L1-L19) and [persistence contract test](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/session/session-persistence/tests/coordinator-contract.ts#L1360-L1384).
 
-Auto Mode's decision, episode, constraint, and recovery events reconstruct normative state and therefore cannot be marked ignorable. A DSH runtime event-registration and compatibility contract is required before an external plugin can safely persist them.
+Fork resolution: `SessionStore.registerEventNamespace()` now binds a namespace, owner, exact positive schema version, and complete payload-schema map. Required plugin events are validated and tagged before append; cold readers require the exact live registration and fail before reconstruction on missing, malformed, incompatible, undeclared, or invalid events. Official DSH still lacks this contract.
+
+## Verified blocking or incomplete seams
 
 ### Child routing constraints are not a first-class durable contract
 
@@ -78,8 +88,8 @@ The two verified Static Auto blockers are the immediate critical path. Other nee
 
 | Track | Capability | Required for | Audited status | Expected owner |
 |---|---|---|---|---|
-| A1 | Pre-assembly step context shared with `agent/request` | Session Static Auto | Verified missing | DSH upstream |
-| A2 | Required plugin Session-event registration and compatibility | Session Static Auto | Verified missing | DSH upstream |
+| A1 | Pre-assembly step context shared with `agent/request` | Session Static Auto | Implemented and tested on pinned fork; absent upstream | DSH upstream |
+| A2 | Required plugin Session-event registration and compatibility | Session Static Auto | Implemented and tested on pinned fork; absent upstream | DSH upstream |
 | A3p | Stable identity evidence for every selected preview route | Phase 0C admission | Focused provider-specific audit required | Plugin plus selected provider adapters |
 | A3 | General stable resolved deployment identity/fingerprint contract | Evidence-backed official-compatible release | Focused audit required | Provider adapter or DSH upstream |
 | A4 | Extensible purpose and audit classification for fixed auxiliary calls | Task Assessor operations | Focused audit required | Plugin if open; otherwise DSH upstream |
@@ -94,9 +104,9 @@ The two verified Static Auto blockers are the immediate critical path. Other nee
 
 ### Track A contribution sequence
 
-1. Freeze product-neutral contracts for A1 and A2 in narrow DSH design notes or issues.
-2. Add failing core contract tests against the audited revision.
-3. Implement the seams on an exact DSH fork.
+1. **Completed:** freeze product-neutral contracts for A1 and A2 in narrow DSH design notes.
+2. **Completed:** add core contract tests for the absent baseline behavior.
+3. **Completed:** implement and verify the seams at fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`.
 4. Close A3p for the initial baseline and candidate, and revoke either route when its stable identity cannot be reproduced.
 5. Close A5p with a real preview carrier probe covering the Auto/manual choice, persisted selection, actual configuration, and explanation retrieval.
 6. Add a vertical Auto Mode probe proving pre-assembly decision input, assembly/request snapshot identity, pre-call rejection, required-event persistence, cold recovery, and the A3p/A5p preview path.

@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 9be46d4f471ecf141f30dd1c33bab86dd660c9ca
+translation-source-blob: 2869a80089d623c4ef5531e3c648eb8f43a83be3
 translation-status: current
 -->
 
@@ -18,14 +18,14 @@ translation-status: current
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 规范评审；尚未进入实施计划、任务拆分或编码 |
-| 已有成果 | 产品规范、架构、路由、恢复、委派、RouterBench、DSH 接入证据、路线图、开放问题、6 项 Proposed ADR 和 1 项 Accepted 文档语言 ADR |
+| 项目阶段 | 阶段 0 关键路径执行；A1/A2 已在维护者 DSH fork 上实现并固定版本 |
+| 已有成果 | 已接受的产品规范、架构、路由、恢复、委派、RouterBench、DSH 接入证据、路线图、开放问题和 7 项 Accepted ADR |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | baseline 绝对质量门槛 + candidate 非劣性 → 端到端延迟 → 总成本 |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 用户评审规范与 Proposed ADR；通过后才进入实施计划 |
+| 下一阶段入口 | 阶段 A 最小准入证据、preview 专用 A3p identity 证据与 A5p 载体核验 |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
@@ -54,12 +54,12 @@ translation-status: current
 
 ## 当前阶段约束
 
-本项目处于规范评审阶段。在用户确认规范之前：
+维护者已于 2026-08-15 接受规范及 ADR-001 至 ADR-007。阶段 0 关键路径可以在以下约束下实施：
 
-- 可以修订、审查和补充设计文档。
-- 不创建产品代码、依赖、构建配置、CI 或发布流程。
-- 不把 `Proposed` ADR 当成已经接受的实现约束。
-- 不把路线图阶段直接拆成实施任务；规范评审是进入 planning 的 gate。
+- 已接受的规范和 ADR 是约束，除非后续明确接受替代决策。
+- 已实现的 A1/A2 契约必须保持产品无关并固定到已验证 fork commit；DSH Core 不得理解 Auto Mode route 档位、Task Assessment 或 Policy Pack 语义。
+- 阶段 0C preview 固定到明确 fork，并保持每 Session 一次路由决策。
+- 对应路线图证据 gate 通过前，不得宣称兼容官方 DSH、route 已准入或 preview 已可用。
 
 ## 语言规范
 
@@ -207,7 +207,7 @@ sh "$codex_tools_dir/codex-worktree" remove \
 完成任何改动后，按顺序检查：
 
 1. 按“文档维护纪律”判断需要同步的权威文件；即使无需同步，也明确判断。
-2. 运行与改动表面匹配的验证。当前规范阶段至少执行：
+2. 运行与改动表面匹配的验证。纯文档改动至少执行：
    ```bash
    git diff --check
    git diff --cached --check
@@ -254,7 +254,6 @@ sh "$codex_tools_dir/codex-worktree" remove \
 
 - 改变质量基线、优化目标顺序、首要用户或首要成功指标。
 - 将 `Proposed` ADR 改为 `Accepted`，或推翻已接受 ADR。
-- 从规范评审进入实施计划、任务拆分或编码。
 - 引入新的外部依赖、远程服务、遥测上传、账户体系或发布流程。
 - 修改 DSH 核心扩展点、Session 持久格式或上游公共 API。
 - 放宽父 Agent 权限、abstain 条件、episode 释放条件或恢复安全边界。
@@ -264,7 +263,7 @@ sh "$codex_tools_dir/codex-worktree" remove \
 
 ## 当前硬阻塞
 
-当前没有实现层面的故障阻塞；进入实施前的设计 gate 和未决问题由 `PROJECT_STATUS.md` 与 `docs/open-questions.md` 维护。不要在这里复制完整清单。
+当前没有实现层面的故障阻塞；剩余证据 gate 与未决问题由 `PROJECT_STATUS.md` 与 `docs/open-questions.md` 维护。不要在这里复制完整清单。
 
 ## 安全边界
 

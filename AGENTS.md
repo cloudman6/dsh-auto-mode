@@ -12,14 +12,14 @@ DSH Auto Mode gives individual power users of coding agents an adaptive Auto mod
 
 | Item | Current state |
 |---|---|
-| Stage | Specification review; implementation planning, task breakdown, and coding have not started |
-| Existing work | Product specification, architecture, routing, recovery, delegation, RouterBench, DSH integration evidence, roadmap, open questions, 6 Proposed ADRs, and 1 Accepted documentation-language ADR |
+| Stage | Phase 0 critical-path execution; A1/A2 are implemented and pinned on the maintainer DSH fork |
+| Existing work | Accepted product specification, architecture, routing, recovery, delegation, RouterBench, DSH integration evidence, roadmap, open questions, and 7 Accepted ADRs |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Absolute baseline quality gate + candidate non-inferiority → end-to-end latency → total cost |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | User review of the specification and Proposed ADRs; planning starts only after approval |
+| Next-stage gate | Minimal Phase A admission evidence, preview-specific A3p identity evidence, and A5p carrier verification |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
@@ -48,12 +48,12 @@ Load topic documents only when relevant; do not load the entire repository indis
 
 ## Current-stage constraints
 
-The project is in specification review. Until the user accepts the specification:
+The maintainer accepted the specification and ADR-001 through ADR-007 on 2026-08-15. Phase 0 critical-path implementation may proceed under these constraints:
 
-- Design documents may be revised, reviewed, and extended.
-- Do not create product code, dependencies, build configuration, CI, or release workflows.
-- Do not treat a `Proposed` ADR as an accepted implementation constraint.
-- Do not convert roadmap phases directly into implementation tasks; specification review is the gate to planning.
+- Treat the accepted specification and ADRs as binding until a superseding decision is explicitly accepted.
+- Keep the implemented A1 and A2 contracts product-neutral and pinned to the verified fork commit; DSH Core must not learn Auto Mode route tiers, Task Assessment, or Policy Pack semantics.
+- Keep the Phase 0C preview fork-pinned and limited to one routing decision per Session.
+- Do not claim official DSH compatibility, route admission, or a usable preview until the corresponding roadmap evidence gates pass.
 
 ## Language rules
 
@@ -201,7 +201,7 @@ Deleting local task branches, pruning, or forcing any operation requires separat
 After every change:
 
 1. Use the documentation maintenance discipline to determine which authoritative files need synchronization; explicitly make the determination even if none do.
-2. Run validation proportional to the change. During specification review, the minimum is:
+2. Run validation proportional to the change. For a documentation-only change, the minimum is:
    ```bash
    git diff --check
    git diff --cached --check
@@ -248,7 +248,6 @@ Do not decide these items autonomously:
 
 - Change the quality baseline, optimization order, primary user, or primary success metric.
 - Change a `Proposed` ADR to `Accepted`, or reverse an accepted ADR.
-- Move from specification review into implementation planning, task breakdown, or coding.
 - Add an external dependency, remote service, telemetry upload, account system, or release workflow.
 - Change a DSH core extension point, Session persistence format, or upstream public API.
 - Relax parent-agent authority, abstention criteria, episode release criteria, or recovery safety boundaries.
@@ -258,7 +257,7 @@ Do not decide these items autonomously:
 
 ## Current hard blocker
 
-There is no implementation-level fault blocker. The pre-implementation design gates and unresolved questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
+There is no implementation-level fault blocker. The remaining evidence gates and unresolved questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
 ## Security boundaries
 

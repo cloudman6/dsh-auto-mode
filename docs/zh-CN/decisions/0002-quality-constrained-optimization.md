@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0002-quality-constrained-optimization.md
-translation-source-blob: 639d45a7ac6139ed5846e1716fb6649f430cf498
+translation-source-blob: 05879e492670c9d07ea5d41055d3ce02905bc276
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-Proposed
+Accepted
 
 ## 日期
 

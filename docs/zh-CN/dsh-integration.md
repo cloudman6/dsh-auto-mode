@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 3ffb5eb27aae8be2dc1d4a3e5422a54d9ffaba51
+translation-source-blob: 674e7ca101d5b8cb81cb1a68dcb0f7fdd4c919d8
 translation-status: current
 -->
 
@@ -16,11 +16,19 @@ translation-status: current
 
 ## 当前 fork preview 运行时载体
 
-当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的 commit。该 commit 仍缺少 A1/A2；它是后续 fork seam 实现的基线，还不是与 Auto Mode 兼容的运行时。
+当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，并推送到分支 `codex/auto-mode-host-contracts` 的精确 commit [`801ded7f60a0dfab07b9690cb9d98fce6234d243`](https://github.com/cloudman6/deepseek-harness/commit/801ded7f60a0dfab07b9690cb9d98fce6234d243)。
 
 每个 preview build 必须记录精确 fork remote 和包含 seam 实现的 commit。它只能标识 Host build，不能标识远程模型 deployment；每条已准入 preview route 还必须具有 provider 专用的 deployment identity 证据。公共兼容契约绝不包含本地 checkout 路径；fork 验证成功也不能表述成官方 DSH 支持。
 
 该 fork 是 preview 运行时载体，不会自动成为用户界面载体。阶段 0C 还必须单独指定并验证具体的 fork UI、client plugin 或 command/config surface，用来提供一次操作完成的 Auto/manual 选择并读取持久解释。
+
+### Fork 契约证据
+
+固定 fork commit 在 inbox claim 后、prompt assembly 前增加 agent-scoped `agent/prepare-step` waterfall，同时保留现有 assembly 后的 `agent/pre-step`。它还在 `SessionStore` 中增加 effect-scoped required-event namespace 注册、不可变 namespace/version envelope identity、append-time 校验，以及 Session 冷重建前的精确 registration 校验。
+
+组合 JSONL 探针在 `agent/prepare-step` 中修改所选模型，验证 prompt assembly 与 `agent/request` 使用同一模型，持久化必需插件决策事件，在 registration 缺失时拒绝冷加载，并在恢复精确 registration 后成功加载。2026-08-15 的验证通过 402 项相关测试、`pnpm typecheck`、`pnpm lint` 与 `pnpm doc-sync` 全部 28 项 gate。
+
+该证据只关闭固定 fork preview 的 A1/A2。它不代表兼容官方 DSH，也不关闭 route deployment identity、准入证据或面向用户的 preview 载体。
 
 ## 已核实可用的 seam
 
@@ -50,7 +58,7 @@ Reasoning 元数据是可选的。显式 effort 只有在精确 route 元数据�
 
 现有委派 helper 会持久化 sandbox 与 approval policy，证明 child 本地持久策略是受支持模式。它们不会持久化 Auto Mode 的风险、最低保证、多样性或延迟约束。
 
-## 已核实的阻塞或不完整 seam
+## 已在固定 fork 上解决的基线缺口
 
 ### 当前 step 的决策输入晚于组装
 
@@ -58,13 +66,15 @@ loop 先领取待处理消息并组装 system prompt，然后才调用 `agent/pr
 
 只有在组装前已经决定 `selection.current` 时，`installModelSelection()` 才能保证 snapshot 一致。Auto 策略如果需要新领取的用户消息，无法从当前 `system-prompt/assemble` 契约获得该消息。在 `agent/pre-step` 更新选择，对同一 step 来说已经太晚。
 
-必须增加或暴露一个携带已领取消息和 step identity 的 pre-assembly route-decision seam，或者重构 pre-step 准备流程，使依赖 provider 的组装前已经存在一份冻结 Route Snapshot。在此之前，首 step 语义 Auto 不能声称 prompt/request 一致。
+Fork 解决方案：`agent/prepare-step` 现在会在 assembly 前接收冻结的已领取消息、稳定 turn/step identity 与取消信号。拒绝会阻止 assembly 与模型 dispatch；`installModelSelection()` 会把 preparation 阶段的选择同时 snapshot 给 assembly 与 `agent/request`。官方 DSH 仍缺少该契约。
 
 ### 必需插件 Session 事件无法在运行时可靠注册
 
 持久化读取器检查由仓库生成的本地已知事件集合。生成器明确说明，下游插件事件不在集合中，而且注册接口尚未提供。未知必需事件在冷加载时会被拒绝，除非标为 ignorable。参见[生成事件表](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/known-event-types.ts#L1-L19)和[持久化契约测试](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/session/session-persistence/tests/coordinator-contract.ts#L1360-L1384)。
 
-Auto Mode 的决策、episode、约束和恢复事件用于重建规范状态，因此不能标为 ignorable。外部插件要安全持久化这些事件，DSH 必须先提供运行时事件注册与兼容契约。
+Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 namespace、owner、精确正整数 schema version 与完整 payload-schema map。必需插件事件会在 append 前校验并带上 identity；冷读取要求精确 live registration，遇到缺失、畸形、不兼容、未声明或无效事件时会在重建前失败。官方 DSH 仍缺少该契约。
+
+## 已核实的阻塞或不完整 seam
 
 ### Child 路由约束不是一级持久契约
 
@@ -84,8 +94,8 @@ Auto Mode 的决策、episode、约束和恢复事件用于重建规范状态，
 
 | Track | Capability | 所需阶段 | 审计状态 | 预期所有者 |
 |---|---|---|---|---|
-| A1 | 与 `agent/request` 共享的 pre-assembly step context | Session Static Auto | 已核实缺失 | DSH 上游 |
-| A2 | 必需插件 Session 事件注册与兼容处理 | Session Static Auto | 已核实缺失 | DSH 上游 |
+| A1 | 与 `agent/request` 共享的 pre-assembly step context | Session Static Auto | 已在固定 fork 实现并通过测试；上游缺失 | DSH 上游 |
+| A2 | 必需插件 Session 事件注册与兼容处理 | Session Static Auto | 已在固定 fork 实现并通过测试；上游缺失 | DSH 上游 |
 | A3p | 每条选中 preview route 的稳定 identity 证据 | 阶段 0C 准入 | 需要 provider 专用专项审计 | 插件加选定 provider adapter |
 | A3 | 通用稳定 resolved deployment identity/fingerprint 契约 | 有证据保证且兼容官方版本的发布 | 需要专项审计 | Provider adapter 或 DSH 上游 |
 | A4 | 固定辅助调用的可扩展 purpose 与审计分类 | Task Assessor 运行 | 需要专项审计 | 接口开放时由插件实现，否则 DSH 上游 |
@@ -100,9 +110,9 @@ Auto Mode 的决策、episode、约束和恢复事件用于重建规范状态，
 
 ### Track A 贡献顺序
 
-1. 在范围窄的 DSH 设计说明或 issue 中冻结 A1、A2 的产品无关契约。
-2. 为被审计版本增加会失败的 core contract test。
-3. 在精确 DSH fork 上实现 seam。
+1. **已完成：**在范围窄的 DSH 设计说明中冻结 A1、A2 的产品无关契约。
+2. **已完成：**为基线缺失行为增加 core contract test。
+3. **已完成：**在 fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243` 实现并验证 seam。
 4. 为初始 baseline 与 candidate 关闭 A3p；无法复现稳定 identity 时撤销对应 route。
 5. 使用真实 preview 载体关闭 A5p，探针覆盖 Auto/manual 选择、持久化选择、实际配置与解释读取。
 6. 增加 Auto Mode 纵向探针，证明 pre-assembly 决策输入、assembly/request snapshot identity、调用前拒绝、必需事件持久化、冷恢复和 A3p/A5p preview 路径。

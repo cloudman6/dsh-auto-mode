@@ -67,7 +67,7 @@ Missing metadata means the translation is unverified, not current.
 
 ## Validation
 
-Until documentation tooling is introduced after specification review, each documentation task must verify:
+Until automated documentation tooling is introduced, each documentation task must verify:
 
 1. Every canonical Markdown document has a corresponding Chinese locale file that points to an existing canonical source.
 2. Every `current` translation records the actual `git hash-object` value of that source; every `outdated` file records its last reviewed source blob or `none`.

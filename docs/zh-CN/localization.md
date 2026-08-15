@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/localization.md
-translation-source-blob: 24818e2ff5bffffd3163dca6f696cfd0ca406b3d
+translation-source-blob: 5b2bb6cdda850c25f00670f20b3fcd31e9b0d341
 translation-status: current
 -->
 
@@ -73,7 +73,7 @@ git hash-object docs/example.md
 
 ## 验证
 
-在规范评审完成并引入文档工具前，每项文档任务必须验证：
+在引入自动化文档工具前，每项文档任务必须验证：
 
 1. 每个英文权威 Markdown 文档都有对应的中文 locale 文件，并且指向存在的英文权威源。
 2. 每个标记为 `current` 的翻译都记录源文件实际的 `git hash-object` 值；每个 `outdated` 文件记录最后完成复核的源 blob 或 `none`。

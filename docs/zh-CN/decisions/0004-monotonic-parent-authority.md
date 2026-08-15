@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0004-monotonic-parent-authority.md
-translation-source-blob: c51da0647792df7a4d88a91c452583f025e20bdf
+translation-source-blob: 7f73dfe12173d859f60be6fd44499c297b29f180
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-Proposed
+Accepted
 
 ## 日期
 

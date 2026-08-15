@@ -1,6 +1,6 @@
 <!--
 translation-source: CONTRIBUTING.md
-translation-source-blob: 4e8564f7d71bdc1f06192e2b0f2bd13ea73b810b
+translation-source-blob: f94337b9a48a19adfc99e674ca97e4c037f9eb51
 translation-status: current
 -->
 
@@ -8,7 +8,7 @@ translation-status: current
 
 [English](CONTRIBUTING.md)
 
-DSH Auto Mode 当前处于规范评审阶段。贡献应当改进或验证设计基线；产品代码、依赖、构建配置、CI 和发布自动化尚不在范围内。
+DSH Auto Mode 已在受 Accepted 规范与 ADR 约束的阶段 0 关键路径执行中。当前证据 gate 与下一步以 `PROJECT_STATUS.zh-CN.md` 为准。只有对应路线图 gate 与实施决策已经明确开放时，才能增加产品代码、依赖、构建配置、CI 或发布自动化。
 
 ## 语言
 

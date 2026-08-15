@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/spec.md
-translation-source-blob: 545716051ed6b918e938148ca91001a2eb215349
+translation-source-blob: 4d78652679343859597db3c03168b135a985f4a4
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-Proposed，等待用户评审。
+维护者已于 2026-08-15 接受。
 
 ## 假设
 
@@ -21,7 +21,7 @@ Proposed，等待用户评审。
 3. 产品面向 DeepSeek Harness，并应保持可通过其插件生态安装；但已审计的 DSH 缺口可能需要范围收敛的上游 core 或 extension-package 修改，最终产品载体尚未接受。
 4. 实现语言预计为 TypeScript/ESM，并遵循 DSH/Cordis 的插件与能力 seam，但技术栈尚未最终接受。
 5. 用户愿意为更可靠的 Auto 模式投入模型调用和由项目维护的 Benchmark 资源；用户不负责维护校准阈值或 route 证据。
-6. 当前阶段只交付设计基线，不交付运行代码、依赖或 CI。
+6. 阶段 0 可以实现产品无关的 DSH Host 契约与证据探针，但只有全部阶段 0C gate 通过后才能宣称存在可用的 Auto Mode preview。
 
 ## 目标
 
@@ -98,7 +98,7 @@ Proposed，等待用户评审。
 
 ## 预期技术栈
 
-在规范接受前只作为提案：
+在实施决策明确接受前，以下技术选型仍是提案：
 
 - TypeScript，严格类型，ESM。
 - Cordis 插件与 DSH Service Definition / Provider / Consumer 结构。
@@ -106,7 +106,7 @@ Proposed，等待用户评审。
 - JSON Schema 或等价的运行时边界校验，用于模型评估和持久事件。
 - RouterBench runner 与可版本化任务数据集。
 
-不在规范评审前选择额外运行时依赖。
+没有 Accepted 实施决策时，不选择额外运行时依赖。
 
 ## 当前命令
 

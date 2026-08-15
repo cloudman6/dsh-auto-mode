@@ -4,11 +4,11 @@
 
 ## Last updated
 
-2026-08-14
+2026-08-15
 
 ## Current stage
 
-Specification review after multi-view revision. The repository has a revised product, evidence, architecture, DSH-integration, and recovery design, but the user has not accepted `docs/spec.md` or the six Proposed product/architecture ADRs. ADR-005, which defines documentation language, remains Accepted. Implementation planning, dependency selection, and coding remain gated.
+Phase 0 critical-path execution. The maintainer accepted `docs/spec.md` and ADR-001 through ADR-007 on 2026-08-15. Product-neutral A1 pre-assembly step preparation and A2 runtime Session-event registration are implemented and tested on the declared DSH fork at commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`. Phase 0C itself remains gated by the minimal Phase A admission slice, A3p deployment identity, and A5p carrier verification.
 
 ## Completed
 
@@ -21,19 +21,18 @@ Specification review after multi-view revision. The repository has a revised pro
 - Audited DeepSeek Harness commit `47f943859bef60e4160492346772ded9b24f765a` and documented usable seams and blocking gaps in `docs/dsh-integration.md`.
 - Verified DSH's provider/model discovery and optional exact-route reasoning metadata seams, recorded the maintainer fork as the preview runtime carrier, and added a fork-based Static Auto Preview as Phase 0C.
 - Closed the fresh-context review's causal-ordering, reasoning-default, deterministic-resolution, preview-identity, preview-carrier, and planning-gate contradictions without changing ADR states.
-- Revised ADR-001 through ADR-004 and added Proposed ADR-006 and ADR-007 without changing any Proposed decision to Accepted.
+- Accepted the revised specification and ADR-001 through ADR-007 on explicit maintainer authorization.
+- Implemented A1 and A2 on the maintainer DSH fork, passed their combined JSONL cold-reload probe, 402 relevant tests, typecheck, lint, and all 28 DSH documentation gates, and pushed the exact fork commit.
 
-## Current review entry points
+## Current implementation entry points
 
-1. Review the revised normative documents in the order listed by `docs/README.md`.
-2. Review six Proposed ADRs in `docs/decisions/`; change state only after explicit user confirmation.
-3. Treat the historical multi-view report as review evidence, not as empirical validation.
+1. Close A3p for the initial baseline and candidate route identities.
+2. Produce the minimal Phase A admission slice and close A5p against one concrete preview carrier.
+3. Keep the fork pinned to `801ded7f60a0dfab07b9690cb9d98fce6234d243`; do not claim official DSH compatibility before upstream acceptance.
 
 ## Gates before Phase 0C preview planning
 
-- Explicitly accept the revised product specification.
-- Resolve the six Proposed ADR states.
-- Freeze the product-neutral A1 pre-assembly and A2 required-event contracts, including their failing and passing contract tests.
+- Keep the implemented product-neutral A1 pre-assembly and A2 required-event contracts pinned and green on the declared fork.
 - Preregister the initial Policy Pack taxonomy, baseline/candidate deployments, statistics, evaluator governance, and isolated datasets.
 - Close A3p for the initial baseline and candidate with reproducible provider/model/reasoning-selection identity evidence.
 - Close A5p by verifying one concrete preview carrier for the Auto/manual choice and persisted explanations.
@@ -48,11 +47,11 @@ Specification review after multi-view revision. The repository has a revised pro
 
 ## Current blockers
 
-The design gate remains open. In addition, the audited DSH revision lacks two contracts required for the proposed external plugin: runtime registration of required normative Session events, and a pre-assembly decision input that carries the current step's claimed messages. These are the Phase 0 critical path for Session Static Auto, not optional later refinements. Full recovery and external child model/reasoning-selection control also lack general contracts, but their roadmap phases can remain out of the first product behavior.
+The specification gate is closed. A1 and A2 are no longer fork-preview blockers: they are implemented and tested on the maintainer fork, but are not present in official DSH and therefore remain an upstream compatibility dependency. A3p identity evidence, the minimal Phase A admission slice, and A5p carrier verification are the remaining Phase 0C blockers. Full recovery and external child model/reasoning-selection control remain deferred to later roadmap phases.
 
 ## Next action
 
-Review the revised specification and ADRs, then freeze the product-neutral A1 pre-assembly and A2 required-event contracts described in `docs/roadmap.md`. In parallel, close A3p for the initial route identities and A5p for the concrete preview carrier. Phase 0C planning may begin when that preview-specific gate set passes. The production release carrier remains a separate Phase B/release decision.
+Close A3p for the initial route identities, produce the minimal Phase A admission evidence, and close A5p for the concrete preview carrier. Keep A1/A2 verified against their pinned fork commit while preparing them for separate upstream review. The production release carrier remains a separate Phase B/release decision.
 
 ## Status maintenance rules
 

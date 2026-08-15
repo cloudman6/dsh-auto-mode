@@ -4,7 +4,7 @@
 
 DSH Auto Mode is an adaptive routing plugin for DeepSeek Harness, designed for individual power users of coding agents. The normal interaction is one choice: use Auto, or manually select a provider/model/reasoning selection, including supported default behavior. Auto selects only from evidence-admitted configurations. Its optimization order is strict: pass the configured baseline's absolute quality gate, preserve candidate non-inferiority, reduce latency, and only then reduce cost.
 
-The project is currently in specification review and has no product implementation yet. The documents in this repository capture the current design, unverified assumptions, and open questions. Implementation planning starts only after the specification and proposed architecture decisions are reviewed.
+The specification and all current ADRs are accepted. Product-neutral A1 pre-assembly step preparation and A2 runtime Session-event registration are implemented and pinned on the declared DSH fork. No user-usable Auto Mode preview exists until the remaining Phase 0C admission, deployment-identity, and carrier gates pass.
 
 ## Product boundary
 
@@ -34,11 +34,13 @@ Actual task scheduling—concurrency limits, priorities, queues, preemption, and
 - [Architecture decision records](docs/decisions/README.md)
 - [Documentation localization policy](docs/localization.md)
 - [2026-08-14 multi-view design review](docs/reviews/2026-08-14-multi-view-design-review.md)
+- [Completed A1/A2 implementation plan and evidence](tasks/plan.md)
+- [A1/A2 task record](tasks/todo.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## Current commands
 
-This repository currently contains specification documents only; there is no buildable product.
+This repository currently contains the accepted specification and implementation plans; product code has not yet landed here.
 
 ```bash
 # Inspect the worktree
@@ -54,4 +56,4 @@ find docs -type f -name '*.md' -print | sort
 
 ## Contributing
 
-Start by reviewing the assumptions, success criteria, and scope in [`docs/spec.md`](docs/spec.md), then review the architecture and ADRs. Do not add implementation code, dependencies, or CI until the specification is accepted. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for language and contribution rules.
+Start with the accepted assumptions, success criteria, and scope in [`docs/spec.md`](docs/spec.md), then review the architecture, ADRs, roadmap gates, and current task plan. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for language and contribution rules.
