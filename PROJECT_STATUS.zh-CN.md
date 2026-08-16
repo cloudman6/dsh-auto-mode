@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: 1670530f0c91296f88e25b451b3715e5fbf1dc68
+translation-source-blob: b64f96c2a9da768c29db5af484f825ff07700054
 translation-status: current
 -->
 
@@ -14,7 +14,7 @@ translation-status: current
 
 ## 当前阶段
 
-阶段 0 关键路径执行。维护者已于 2026-08-15 接受 `docs/spec.md` 与 ADR-001 至 ADR-007。产品无关的 A1 pre-assembly step preparation 与 A2 Session 事件运行时注册已在明确声明的 DSH fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243` 上实现并通过测试。阶段 0C 本身仍受阶段 A 最小准入切片、A3p deployment identity 与 A5p 载体核验约束。
+阶段 0P 规划与关键路径执行。维护者已于 2026-08-16 接受 ADR-008，允许在 RouterBench admission 前运行仅限维护者、明确未准入且由 Artificial Analysis 提供先验的 dogfood 路径。产品无关的 A1 pre-assembly step preparation 与 A2 Session 事件运行时注册继续固定在 DSH fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243` 并通过测试。阶段 0C 仍独立受阶段 A 最小准入切片、A3p deployment identity 与 A5p 载体核验约束。
 
 ## 已完成
 
@@ -31,12 +31,25 @@ translation-status: current
 - 在维护者 DSH fork 上实现 A1/A2，通过组合 JSONL 冷加载探针、402 项相关测试、typecheck、lint 与全部 28 项 DSH 文档 gate，并推送精确 fork commit。
 - 增加仓库内 Code Review Skill，在每个有边界的实施阶段按已接受的 Auto Mode 不变量与固定版本的 DSH 官方工程契约执行 gate。
 - 将双语的产品无关 A1/A2 Host 契约提案发布为 DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)，并附可复现 fork 证据与明确的维护者问题。
+- 接受 ADR-008 并增加阶段 0P，允许由外部先验驱动、明显标为未准入的维护者 dogfood，同时不削弱阶段 0C 的 admission 要求。
 
 ## 当前实施入口
 
-1. 为初始 baseline 与 candidate route identity 关闭 A3p。
-2. 产出阶段 A 最小准入切片，并针对一个具体 preview 载体关闭 A5p。
-3. 把 fork 固定在 `801ded7f60a0dfab07b9690cb9d98fce6234d243`；上游接受前不得宣称兼容官方 DSH。
+1. 盘点精确 DSH 与 Artificial Analysis 配置，为首组 Experimental Auto route 关闭 A3p。
+2. 冻结外部证据 snapshot schema、精确匹配规则、启发式策略与数据权利边界。
+3. 实现每 Session 一次决策的阶段 0P 路径，并针对一个具体载体关闭 A5p。
+4. 把 fork 固定在 `801ded7f60a0dfab07b9690cb9d98fce6234d243`；不得宣称 route admission 或官方 DSH 兼容。
+
+## 进入阶段 0P dogfood 前的 gate
+
+- A1/A2 在固定 fork 上持续通过。
+- 每个可选配置都有精确 A3p provider/model/reasoning-selection identity 和一项精确外部证据匹配。
+- Artificial Analysis 数据通过本地提供、带版本且有 attribution，不进入仓库；任何 API credential 都必须留在浏览器 client 与仓库之外，并通过进程环境或 secret store 提供。
+- 实验策略、持久状态和解释保留 `experimental-unadmitted` 状态，且不能编译为普通 admission。
+- 持久化证明一个 Session decision 加每次 attempted Experimental Auto model call 的全新 fail-closed authorization，包括 cold load 后和 live identity/capability drift；手动模式绕过 Auto listener。
+- Host 声明的 Recovery Capability 与通过另行决策接受、符合 ADR-007 的 possible-loss bound 共同约束所有可变 Auto 调用；关闭前，阶段 0P dogfood 仅限只读。
+- A5p 证明一次操作的 Auto/manual 控制与解释读取。
+- Keyless 真实 composition 通过；所需 secret 可用时，自跳过的 with-key real-provider smoke 通过。缺少 key 记录为 evidence skipped，不算 pass。
 
 ## 进入阶段 0C preview planning 前的 gate
 
@@ -55,11 +68,11 @@ translation-status: current
 
 ## 当前阻塞
 
-规范 gate 已关闭。A1/A2 已不再阻塞 fork preview：它们已经在维护者 fork 上实现并通过测试，但尚未进入官方 DSH，因此仍是上游兼容依赖。A3p identity 证据、阶段 A 最小准入切片和 A5p 载体核验是剩余的阶段 0C 阻塞。完整恢复和外部 child model/reasoning-selection 控制继续推迟到后续路线图阶段。
+阶段 0P 决策 gate 已关闭。剩余实施阻塞是精确初始 route set 与 A3p 映射、外部证据 snapshot 和启发式策略契约、任何可变范围所需的 ADR-007 合规 possible-loss bound 与 Recovery Capability 证据，以及一个已验证 A5p 载体。Recovery gate 关闭前，阶段 0P dogfood 仅限只读。A1/A2 已在维护者 fork 上实现，但仍是上游兼容依赖。阶段 A 最小准入切片有意从阶段 0P 推迟，继续作为阶段 0C 阻塞。完整恢复和外部 child model/reasoning-selection 控制继续推迟。
 
 ## 下一步
 
-关闭初始 route identity 的 A3p，产出阶段 A 最小准入证据，并为具体 preview 载体关闭 A5p。持续针对固定 fork commit 验证 A1/A2，同时跟进 Discussion #2281；若维护者邀请贡献，再准备拆分后的上游改动。生产 release 载体仍是阶段 B/release 的独立决策。
+执行已接受的阶段 0P 实施计划：先冻结精确 DSH/Artificial Analysis route 清单与 A3p 证据矩阵，再建立外部先验 schema、不可变实验 resolution contract 与确定性 policy。启用可变任务前，单独提出 ADR-007 loss bound 和 Recovery Capability 证据；Host/A5p 集成期间可以先使用只读 fixture。持续针对固定 fork 验证 A1/A2，并异步跟进 Discussion #2281。RouterBench admission 仍是阶段 0C 的下一道 gate，而不是阶段 0P 前置条件。
 
 ## 状态维护规则
 

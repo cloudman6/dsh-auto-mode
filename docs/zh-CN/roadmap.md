@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: 287627233c244e1c1ac22514215ba99954c2019a
+translation-source-blob: 08ac1fd2bcac8936f3fa6445bc223d8c3b36fc91
 translation-status: current
 -->
 
@@ -33,6 +33,34 @@ translation-status: current
 - Contract probe 通过后，把 pre-assembly 与事件注册拆成两个最小 PR。
 - 若上游仍在评审或拒绝当前 API 形状，只在精确固定的 DSH fork 上继续验证，并明确声明不支持官方 DSH。
 - 不把仅使用 `agent/request` 的原型或 ignorable Session 事件当成产品兼容 fallback。
+
+### 阶段 0P：AA-seeded Experimental Auto
+
+这是最早主动执行路由的 dogfood build，用来在 RouterBench admission 就绪前验证产品闭环。它仅限维护者、必须显式启用、固定在 fork 上，并明显标记 `experimental-unadmitted`；它不是阶段 0C preview，也不作质量、非劣性、官方兼容或公开支持主张。
+
+只有满足 [ADR-008](decisions/0008-external-prior-experimental-auto.md)，阶段 0P 才能在没有阶段 A 最小准入切片的情况下推进：
+
+1. A1 与 A2 在明确 fork 上持续通过。
+2. A3p 把每个可选 DSH provider/model/reasoning selection 绑定到一项精确外部证据配置；分数不得在显式 effort、adapter-default 实体化与 provider-default omission 之间转移。
+3. 通过本地方式提供带版本且有 attribution 的 Artificial Analysis snapshot；仓库不得内置数据、抓取网页或把 API key 暴露给客户端。
+4. 确定性 Task Assessment 选择 index family，确定性 Host policy 选择语义实验档位；外部数据源不得选择最终 route。
+5. 高风险、未知或低置信度 task assessment 只能从有效冻结 catalog 中选择最强精确匹配实验配置。无法匹配、identity 漂移、证据无效或缺失必需 Host contract 时，必须以 `no-experimental-route` 退出 Auto 且不调用模型。
+6. A5p 验证一个具体载体，提供一次操作的 Auto/manual 控制和持久化实验解释。
+7. 路由保持为每 Session 一次冻结决策。
+8. Host 声明的 `RecoveryCapability` 是必需 policy input。在 possible loss 落入另行决策接受且符合 ADR-007 的 risk bound 内、并且每个 effect class 都有充分 attribution 与 recovery support 前，包括 `strong` 在内的任何实验档都不得执行可变工作。任何不可逆外部副作用或超出该 bound 的 mutation 都会终止当前 Auto attempt。用户介入可以切换到 Manual 或等待新的 execution-world 声明；单纯确认不能授权被阻止的 Experimental Auto dispatch。
+
+验收：
+
+- 维护者可以显式启用 Experimental Auto，在固定 fork 上端到端完成任务，查看实际 provider/model/reasoning selection，并切回 Manual 模式。
+- 冷加载能够重建同一决策、外部证据 snapshot identity、生效 request encoding 与 `experimental-unadmitted` 解释。
+- 精确 identity 不匹配、不支持的 effort、过期或畸形证据以及 A1/A2 缺失，始终在请求前失败。只有 task-assessment fallback 可以选择最强精确匹配，且此时冻结 catalog、精确 identity 与必需 Host contract 必须仍然有效。
+- 负向测试证明：所有不可逆外部副作用、超出已接受 loss bound 的 mutation，以及 attribution 或 recovery support 不充分的情况，都会在调用前终止 Experimental Auto。Loss bound 被接受前，包括 `strong` 在内的任何实验档都不得执行可变工作；确认动作不能到达 provider dispatch。
+- Repeated-step 与 cold-load 测试证明一个 Session decision 被复用，而每次 attempted Experimental Auto call 都产生新的 authorization；identity、Host contract、evidence freshness、provider 或 Recovery Capability 漂移会拒绝调用且不重新路由。切换手动会绕过 Auto listener，并保留现有 manual request path，不消费 claimed turn。
+- 测试证明 Artificial Analysis 记录本身不会成为普通 admission，也不能进入阶段 0C Effective Route Catalog。
+- 仓库不包含 Artificial Analysis credential 或再分发的榜单数据集。
+- 自跳过、带 credential 的 real-entry smoke 通过 DSH 加载生产插件，在 key 存在时调用选定 provider，并验证外部 response 与持久化 `request/header` 的 provider/model/reasoning selection 一致。缺少 key 是明确 skip，不算 pass。
+
+Dogfood 结果可以帮助设计 RouterBench taxonomy 与 fixture，但不能被当作 held-out 证据，也不能直接提升为 Policy Pack admission。
 
 ### 阶段 0C：基于 fork 的 Static Auto Preview
 

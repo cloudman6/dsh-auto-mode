@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 09d74c9252951955c6b2ec1cc67272c635bea56e
+translation-source-blob: e356aef008f41e8ad7ba6f7201953c2f9fddcbaa
 translation-status: current
 -->
 
@@ -12,20 +12,20 @@ translation-status: current
 
 ## 一句话项目定位
 
-为个人重度 Agent 用户提供 DeepSeek Harness 自适应 Auto 模式：baseline 通过绝对质量门槛后，才根据任务、运行证据和用户约束从已准入 route 中自动选择模型与 reasoning effort；优先降低延迟，其次降低成本，并在误路由后限制损失。
+为个人重度 Agent 用户提供 DeepSeek Harness 自适应 Auto 模式：阶段 0P 先使用明显未准入的外部先验验证闭环；admitted Auto 在 baseline 通过绝对质量门槛后，根据任务、运行证据和用户约束从已准入 route 中选择模型与 reasoning effort，优先降低延迟，其次降低成本，并在误路由后限制损失。
 
 ## 项目快照
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 阶段 0 关键路径执行；A1/A2 已在维护者 DSH fork 上实现并固定版本 |
-| 已有成果 | 已接受的产品规范、架构、路由、恢复、委派、RouterBench、DSH 接入证据、路线图、开放问题和 7 项 Accepted ADR |
+| 项目阶段 | 阶段 0P 规划与关键路径执行；A1/A2 已在维护者 DSH fork 上实现并固定版本 |
+| 已有成果 | 已接受的产品规范、架构、路由、恢复、委派、RouterBench、DSH 接入证据、路线图、开放问题和 8 项 Accepted ADR |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | baseline 绝对质量门槛 + candidate 非劣性 → 端到端延迟 → 总成本 |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 阶段 A 最小准入证据、preview 专用 A3p identity 证据与 A5p 载体核验 |
+| 下一阶段入口 | 精确 AA/DSH route 清单、阶段 0P A3p identity 证据、实验策略契约与 A5p 载体核验 |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
@@ -54,10 +54,12 @@ translation-status: current
 
 ## 当前阶段约束
 
-维护者已于 2026-08-15 接受规范及 ADR-001 至 ADR-007。阶段 0 关键路径可以在以下约束下实施：
+维护者已于 2026-08-15 接受规范及 ADR-001 至 ADR-007，并于 2026-08-16 接受 ADR-008。阶段 0P 可以在以下约束下实施：
 
 - 已接受的规范和 ADR 是约束，除非后续明确接受替代决策。
 - 已实现的 A1/A2 契约必须保持产品无关并固定到已验证 fork commit；DSH Core 不得理解 Auto Mode route 档位、Task Assessment 或 Policy Pack 语义。
+- 阶段 0P 必须仅限维护者、显式启用、固定到 fork，并明显标记 `experimental-unadmitted`。外部榜单证据必须与 RouterBench admission 保持结构隔离。
+- 匹配 Artificial Analysis 记录前必须具备精确 provider/model/reasoning-selection identity；不得跨 effort 或默认编码转移测得分数。
 - 阶段 0C preview 固定到明确 fork，并保持每 Session 一次路由决策。
 - 对应路线图证据 gate 通过前，不得宣称兼容官方 DSH、route 已准入或 preview 已可用。
 
@@ -79,10 +81,10 @@ translation-status: current
 
 ## 产品关键不变量
 
-1. 质量优先：baseline 必须先通过绝对质量门槛，candidate 再满足预声明的非劣效界限；之后先优化端到端延迟，再优化总成本。
+1. Admitted Auto 质量优先：baseline 必须先通过绝对质量门槛，candidate 再满足预声明的非劣效界限；之后先优化端到端延迟，再优化总成本。阶段 0P 是类型独立、明确未准入的维护者实验，不作质量主张。
 2. 不把用户选择、父 Agent override 或模型自我报告当作正确路由标签。
 3. Host Routing Policy 拥有常规路由决策权；模型只提供任务意图或可选语义评估。
-4. 高风险、分布外或证据不足的任务必须 `abstain`；若没有当前已准入的安全配置，返回 `no-safe-route`，不得调用模型。
+4. 在 admitted Auto 中，高风险、分布外或证据不足的任务必须 `abstain`；若没有当前已准入的安全配置，返回 `no-safe-route`，不得调用模型。阶段 0P 只能从有效冻结 catalog 使用最强精确外部匹配；证据无效、contract 缺失或 identity 失败时返回 `no-experimental-route`，且两种结果都绝不称为安全。
 5. 自动决策必须可解释、可审计；实际 provider/model/reasoning selection、request encoding 和原因必须可持久重建。只有明确声明且测试过的副作用类别才能宣称可恢复。
 6. 同一未解决 episode 内 route floor 只能保持或升级；阶段变化后的降级是需要证据准入的能力，不是无条件产品承诺。
 7. 父 Agent 约束只是提议。只有 Host 认可的要求或用户明确授权的 override 才成为硬约束；父 Agent 不得静默提高、降低或绕过 Routing Policy 指定任意 provider/model。
@@ -91,6 +93,7 @@ translation-status: current
 10. route 能力评估与生产策略场景评估使用独立数据集和 runner；涉及策略时，RouterBench 与在线运行使用同一 policy core。辅助评估器、切换、重试和恢复成本进入端到端指标。
 11. 普通用户只在 `Auto` 与手动 provider/model/reasoning selection 之间选择。默认值、校准、过期和撤销由维护者负责的版本化 Policy Pack 承担；高级 override 只是可选项。
 12. 一个模型 step 的 route 必须在依赖 provider 的 prompt/tool 组装之前冻结，并在 `agent/request` 原样应用。
+13. 阶段 0P 外部证据不能满足 `RouteAdmission`、编译进阶段 0C Effective Route Catalog，也不能被展示为 RouterBench 证据。
 
 ## 文档权威位置
 

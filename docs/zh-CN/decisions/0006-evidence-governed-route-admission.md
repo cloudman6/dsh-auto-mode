@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0006-evidence-governed-route-admission.md
-translation-source-blob: ac15847493ce5c8deba2103501baf2f0bed53ff7
+translation-source-blob: 6dd0595148bc3479d26b633fa5626b5a8ff99cbd
 translation-status: current
 -->
 
@@ -11,6 +11,8 @@ translation-status: current
 ## 状态
 
 Accepted
+
+阶段 0P 只能按照 [ADR-008](0008-external-prior-experimental-auto.md) 把外部榜单用作明确未准入的实验先验。RouterBench 仍是本项目唯一的准入路径。
 
 ## 日期
 

@@ -35,8 +35,8 @@ Actual task scheduling—concurrency limits, priorities, queues, preemption, and
 - [Architecture decision records](docs/decisions/README.md)
 - [Documentation localization policy](docs/localization.md)
 - [2026-08-14 multi-view design review](docs/reviews/2026-08-14-multi-view-design-review.md)
-- [Completed A1/A2 implementation plan and evidence](tasks/plan.md)
-- [A1/A2 task record](tasks/todo.md)
+- [Current Phase 0P implementation plan](tasks/plan.md)
+- [Current Phase 0P task checklist](tasks/todo.md)
 - [Bounded-stage Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md)
 - [Contributing](CONTRIBUTING.md)
 

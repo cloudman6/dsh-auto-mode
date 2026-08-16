@@ -11,5 +11,6 @@
 | [ADR-005](0005-english-canonical-documentation.md) | Accepted | English is canonical and Simplified Chinese is a maintained translation |
 | [ADR-006](0006-evidence-governed-route-admission.md) | Accepted | Separate evidence-governed route admission from policy scenarios |
 | [ADR-007](0007-recovery-capability-gates-recovery-claims.md) | Accepted | Recovery Capability gates mutable routing and recovery claims |
+| [ADR-008](0008-external-prior-experimental-auto.md) | Accepted | External rankings may seed maintainer-only Experimental Auto before RouterBench admission |
 
 When an ADR is superseded, retain the original file and point its status to the replacement ADR.

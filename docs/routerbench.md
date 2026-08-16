@@ -11,6 +11,8 @@ RouterBench is the evidence foundation of Auto Mode. It must answer two differen
 
 Where policy is exercised, Benchmark and online execution use the same policy core and schemas. Benchmark treatment assignment, oracle metadata, and evaluators remain outside production policy inputs.
 
+Phase 0P deliberately starts before this admission evidence exists. Its Artificial Analysis snapshot is an external prior with `experimental-unadmitted` status, never a substitute Route Capability Bench result. Phase 0P may validate integration, persistence, explanations, and product-loop behavior; it cannot satisfy an absolute gate, non-inferiority bound, or Phase 0C admission. Dogfood cases require provenance and leakage review before reuse in any calibration or evaluation split and are never added retrospectively to a held-out set.
+
 ## Evidence layers and data isolation
 
 Every Benchmark release separates:

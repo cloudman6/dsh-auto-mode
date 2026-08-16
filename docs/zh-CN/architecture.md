@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: a18ae10431bb66f92e7f05d443aee5be6ec1f4c9
+translation-source-blob: 56a0301689e6e4347b60ab9b70d0c7fdea934d92
 translation-status: current
 -->
 
@@ -16,7 +16,7 @@ Proposed。本文件定义目标能力边界。当前已验证的 DSH seam 和�
 
 1. 常规路由决策属于 DSH Host 中的确定性策略，不属于父 Agent、assessor 或 Router Agent。
 2. 任务评估、约束解析、策略映射、具体配置解析和请求接入是独立层。
-3. 语义 route 是由当前 Policy Pack 证据支持的质量保证档，不是模型名称的同义词。
+3. 在 admitted Auto 中，语义 route 是由当前 Policy Pack 证据支持的质量保证档，不是模型名称的同义词。阶段 0P 只把这些标识复用为明显未准入的启发式档位。
 4. 选择、执行状态投影、恢复和委派是有界控制面，不共享无限制 Scheduler API。
 5. 持久 Session 事件是真实来源；内存状态只是投影，每个自动决策都必须引用产生它的精确输入快照。
 6. 同一个模型 step 在依赖 provider 的 prompt/tool 组装和 `agent/request` 中使用同一个冻结 Route Snapshot。
@@ -32,8 +32,12 @@ flowchart LR
     E["Session 与工具事件"] --> X["Execution Context Projector"]
     X --> A["Task Assessment"]
     X --> C
-    W["Policy Pack + Deployment Profile"] --> R["Routing Policy"]
-    W --> V["Route Profile Resolver"]
+    W["Policy Pack + Deployment Profile"] --> G["Effective Route Catalog\n仅 admitted"]
+    O["ExternalRoutePrior + Deployment Profile\n仅阶段 0P"] --> H["Experimental Route Catalog\n仅 unadmitted"]
+    G --> R["Routing Policy"]
+    G --> V["Route Profile Resolver"]
+    H --> R
+    H --> V
     A --> R
     C --> R
     S["Recovery Supervisor"] --> R
@@ -87,35 +91,33 @@ DSH discovery 只能证明可用性，不能授予 Auto 准入。Compiler 对已
 
 任意本地映射、过期记录或无法识别的 provider alias 都不会自动准入。
 
+阶段 0P 从冻结的 `ExternalRoutePriorSnapshot`、DSH discovery、精确 A3p identity 映射、capability 与用户限制编译独立 `ExperimentalRouteCatalog`。每个条目携带 `evidenceStatus: 'experimental-unadmitted'`。实验 catalog 与 admitted catalog 使用可判别类型，未经 RouterBench admission 不得合并或转换。Artificial Analysis 是第一个 prior 来源，但其记录只提供证据字段；它不拥有 Task Assessment 或最终决策权。
+
 ### Routing Policy
 
-消费不可变决策输入快照、assessment、已解析约束、active episode floor、恢复能力和冻结的 Effective Route Catalog。在持久快照和 policy 版本相同时，语义决策必须确定。
+消费不可变决策输入快照、assessment、已解析约束、active episode floor、恢复能力，以及与当前模式对应的冻结 admitted 或 experimental catalog。在持久快照和 policy 版本相同时，语义决策必须确定。
 
-Routing Policy 选择保证档或 abstain。它不选择原始 provider/model 字符串，也不决定如何展示无法满足的解析失败。
+Admitted Routing Policy 选择保证档或 abstain。阶段 0P policy 选择明确实验性的启发式档位，或者退出 Auto。两者都不直接选择原始 provider/model 字符串，外部 prior 也不拥有最终决策权。
 
 ### Route Profile Resolver
 
-将已准入保证档解析为可用 provider/model/reasoning-selection candidate。它是冻结 Effective Route Catalog 与已解析约束的纯函数；一次决策中绝不重新读取 live discovery。完成 capability 与 admission 过滤后，它按预测端到端延迟、总成本和稳定 route identity 依次排序具体候选。缺少必需 identity 或比较数据时判定 `profile-invalid`，不能让 discovery 顺序决定结果。Resolver 版本和选中的 admission identity 都要持久化。输出是生效配置，或 `constraints-unsatisfiable`、`profile-invalid`、`provider-unavailable`、`no-safe-route` 等明确失败。
+把语义档位解析为可用 provider/model/reasoning-selection candidate。在 admitted Auto 中按当前 admission 过滤；在阶段 0P 中按明确实验 evidence status 和精确外部记录 identity 过滤。它是相应冻结 catalog 与已解析约束的纯函数，一次决策中绝不重新读取 live discovery。之后按策略质量边界、预测端到端延迟、总成本和稳定 route identity 排序具体候选。缺少必需 identity 或比较数据时判定 `profile-invalid`，不能让 discovery 顺序决定结果。Resolver 版本和选中的 evidence identity 都要持久化。两种模式共用的结构性失败包括 `constraints-unsatisfiable`、`profile-invalid`、`profile-unavailable` 与 `provider-unavailable`。只有 admitted Auto 可以返回 `no-safe-route`；阶段 0P 在没有精确匹配的实验配置时返回 `no-experimental-route`。实验 reason code 不作任何安全主张。
 
 ### Route Snapshot Coordinator
 
-拥有一个模型 step 的 DSH 生命周期接入：
+拥有两项不能混淆的生命周期操作：
 
-1. 在稳定的 pre-assembly 边界冻结 Policy Pack 与 deployment profile，编译 Effective Route Catalog，并捕获按序排列的 claimed message 和当前执行投影。
-2. 把编译后的 catalog 持久化为不可变 `EffectiveRouteCatalogSnapshotEvent`。
-3. 把原始执行状态持久化为不可变 `RoutingContextSnapshotEvent`，并引用已经存在的 catalog snapshot。
-4. 针对该 context snapshot 运行约束解析和必要 assessment，再将输出以向后引用的形式持久化。
-5. 持久化最终 `DecisionInputSnapshotEvent`，只引用此时已经存在的 context、constraint 和 assessment 事件。
-6. 让 Routing Policy 与 Route Profile Resolver 针对最终决策输入和同一冻结 catalog 运行。
-7. 持久化语义决策与解析结果。
-8. 冻结并持久化一份 `RouteSnapshot`，包含具体 identity、reasoning selection、request encoding 和相关版本引用。
-9. 让 prompt/tool 组装和 `agent/request` 消费同一快照及其 snapshot identity。
+**Session decision，阶段 0P 只执行一次：** 在第一个稳定 pre-assembly 边界持久化 `RoutingAttemptStartedEvent`，再校验 deployment profile、必需 Host contract 与 external prior。失败时追加只含安全元数据的 `RoutingPreparationFailedEvent`，并在 catalog 编译前停止。成功时依次持久化最小化 prior、Experimental Route Catalog、context、constraints、assessment、不可变 decision input、一项语义 decision 和一项 resolution。冷加载重建并复用同一个 Session decision；绝不创建第二个阶段 0P decision。
+
+**Model-call authorization，包括首次在内的每个 Experimental Auto step 都执行：** 先检查 mode。手动模式对 Auto listener 是 no-op，继续走 DSH 现有手动选择与 Host/provider validation；不会创建 denied authorization，也不会 reject 已领取 turn。Experimental Auto 中只重新读取 live authorization facts：必需 Host contract 是否可用、provider availability、当前 deployment/reasoning-selection identity 是否仍匹配冻结 resolution、冻结 policy 下的 external-evidence freshness，以及当前 Host 声明的 `RecoveryCapability` 与 effect class。为该 step 持久化 `ModelCallAuthorizationEvent`。拒绝时在 assembly/provider dispatch 前停止，不改变或替换 Session decision。授权时冻结 step-specific `RouteSnapshot`，引用 Session resolution 与当前 authorization；prompt/tool assembly 与 `agent/request` 使用该精确 snapshot。
+
+因此 repeated Experimental Auto step 复用 policy intent，但绝不复用 authorization。Identity、contract、evidence、provider 或 capability 漂移都 fail closed。手动模式绕过 Auto listener。阶段 0P 不会在 Session 内静默重新路由；新的 Auto decision 需要新 Session，或后续明确准入的生命周期能力。
 
 若请求失败后恢复策略选择不同 route，Coordinator 必须开始新 step，或使用能重新执行 provider 相关组装的上游 seam。不能只替换最终请求配置，却保留为另一个模型组装的上下文。
 
 ### Recovery Supervisor
 
-将正式运行信号折叠为 attempt 和 episode，并向 Routing Policy 提供 route floor 和已声明 `RecoveryCapability`。默认不使用模型。完整 `salvage/restart` 与可变工作准入所需的最低恢复能力相互独立。
+将正式运行信号折叠为 attempt 和 episode，并向 Routing Policy 提供 route floor 和已声明 `RecoveryCapability`。默认不使用模型。完整 `salvage/restart` 与 policy 对可变工作降档前所需的最低恢复能力及已接受 loss bound 相互独立。
 
 ### RouterBench
 
@@ -126,36 +128,102 @@ Routing Policy 选择保证档或 abstain。它不选择原始 provider/model �
 
 calibration 数据和 held-out 验收数据分离。Benchmark oracle 元数据绝不进入 Task Assessment 或在线策略输入。
 
+阶段 0P dogfood trace 可以提示 taxonomy 和 fixture 候选，但不是 route-admission evidence；除非后续 provenance 与防泄漏控制证明可以独立使用，否则不得进入 held-out acceptance 数据。
+
 ## 请求流程
 
 ```text
-1. Session 到达稳定的组装前边界
-2. Execution Context Projector 产生 objective 和已确认 phase 状态
-3. Route Snapshot Coordinator 编译并冻结 Effective Route Catalog
-4. 持久化 EffectiveRouteCatalogSnapshot
-5. 捕获并持久化 RoutingContextSnapshot，包括 ordered claimed-message reference 和向后的 catalog 引用
-6. Constraint Resolver 针对该快照产生持久化 ResolvedRoutingConstraints
-7. 必要时运行 Task Assessment，并持久化对同一快照的向后引用
-8. 持久化 DecisionInputSnapshot，引用已经存在的 context、constraints 和可选 assessment
-9. Routing Policy 选择保证档或 abstain
-10. Route Profile Resolver 从冻结 catalog 确定性地解析已准入配置或停止结果
-11. 持久化决策、解析、证据引用和版本
-12. 冻结并持久化 RouteSnapshot
-13. 按 RouteSnapshot 组装依赖 provider 的 prompt 和工具
-14. agent/request 应用同一 RouteSnapshot
-15. DSH 记录 request/header 并调用模型
-16. 运行事件进入 Signal Provider 与 Recovery Supervisor
+Session decision path — 阶段 0P 只执行一次
+1. 在第一个稳定 pre-assembly 边界持久化 RoutingAttemptStarted
+2. 校验必需 Host contract、deployment profile 与最小化 external prior
+3a. 失败时持久化 RoutingPreparationFailed；不产生 catalog 或调用
+3b. 成功时持久化 ExternalRoutePriorSnapshot
+4. 编译并持久化 ExperimentalRouteCatalogSnapshot，向后引用 prior
+5. 按因果顺序持久化 RoutingContextSnapshot、constraints、assessment 与 DecisionInputSnapshot
+6. Routing Policy 选择 experimental 启发式档或停止结果
+7. Route Profile Resolver 针对冻结 catalog 解析
+8. 持久化唯一 Session decision 及其可判别 resolution
+
+Per-call path — 包括首次与 cold load 后在内的每个 step
+9a. 手动模式 active 时绕过 Auto listener，继续现有手动 Host/provider 路径
+9b. Experimental Auto active 时重新校验 Host contract、provider、精确 deployment/reasoning identity、evidence freshness 与当前 RecoveryCapability/effect class
+10. 仅对 Experimental Auto 持久化 ModelCallAuthorization，引用 Session decision 与当前 facts
+11a. 拒绝时在 assembly/provider dispatch 前停止；不重新决策
+11b. 授权时冻结并持久化 step-specific RouteSnapshot，引用该 authorization
+12. 按 RouteSnapshot 组装依赖 provider 的 prompt 与工具
+13. agent/request 应用同一 RouteSnapshot
+14. DSH 记录 request/header 并调用模型
+15. 运行事件进入 Signal Provider 与 Recovery Supervisor
 ```
 
 进程内子 Agent 走同一路径。必须在进程创建时固定模型的外部 provider，需要消费同一语义输入和 Resolver 的 pre-start adapter。
 
 ## 持久事件模型
 
-在 DSH 事件注册 seam 解决前，事件名保持 Proposed。最低逻辑记录为：
+在 DSH 事件注册 seam 解决前，事件名保持 Proposed。最低逻辑记录如下。`ExternalRoutePriorSnapshotEvent` 只保存与冻结 DSH candidate 清单精确匹配的规范化记录；排除未匹配上游行、原始 API response、credential、request header、用户 prompt 与代码。`rightsPolicyVersion` 标识本地已接受的数据获取/保留规则；attribution 与 content digest 让最小化证据可审计，但不暗示拥有再分发权。Claimed input 使用 A1 不可变 `UserMessage` 已携带的稳定 `MessageId`；它们不是 Session `EventRef`，因为 `user/message` 只有在 preparation 成功后才追加。成功执行必须随后追加同一 message identity；失败或中断 preparation 绝不把原始 message 内容复制进 plugin event。
 
 ```ts
+interface RoutingAttemptStartedEvent {
+  routingAttemptId: RoutingAttemptId
+  routingScope: { kind: 'session'; sessionId: SessionId }
+  mode: 'admitted-auto' | 'experimental-auto'
+  turn: number
+  step: number
+  validatorVersion: string
+}
+
+interface RoutingPreparationFailedEvent {
+  preparationFailureId: PreparationFailureId
+  routingAttemptRef: EventRef
+  failureCode:
+    | 'required-host-contract-missing'
+    | 'deployment-profile-invalid'
+    | 'external-prior-invalid'
+    | 'external-prior-stale'
+    | 'external-prior-malformed'
+  safeEvidenceIdentity?: {
+    source?: 'artificial-analysis'
+    schemaVersion?: string
+    contentDigest?: string
+  }
+  reasonCode: ReasonCode
+  validatorVersion: string
+}
+
+interface RoutingPreparationTerminatedEvent {
+  preparationTerminationId: PreparationTerminationId
+  routingAttemptRef: EventRef
+  cause: 'cancelled' | 'lifecycle-interrupted' | 'cold-load-orphan-recovered'
+  validatorVersion: string
+}
+
+interface ExternalRoutePriorSnapshotEvent {
+  kind: 'external-route-prior'
+  sourceSnapshotId: ExternalEvidenceSnapshotId
+  routingAttemptRef: EventRef
+  schemaVersion: string
+  source: 'artificial-analysis'
+  endpointId: string
+  querySemanticsVersion: string
+  paginationComplete: true
+  upstreamIndexVersion?: string
+  retrievedAt: string
+  attribution: { label: string; sourceUrl: string }
+  rightsPolicyVersion: string
+  contentDigest: string
+  matchedRecords: readonly {
+    externalRecordId: string
+    exactConfigurationKey: string
+    indexValues: Readonly<Record<string, number>>
+    latencyMetrics: Readonly<Record<string, number>>
+    costMetrics: Readonly<Record<string, number>>
+  }[]
+}
+
 interface EffectiveRouteCatalogSnapshotEvent {
+  kind: 'admitted'
   catalogSnapshotId: CatalogSnapshotId
+  routingAttemptRef: EventRef
   policyPackVersion: string
   deploymentProfileVersion: string
   compilerVersion: string
@@ -163,18 +231,34 @@ interface EffectiveRouteCatalogSnapshotEvent {
   digest: string
 }
 
+interface ExperimentalRouteCatalogSnapshotEvent {
+  kind: 'experimental-unadmitted'
+  catalogSnapshotId: CatalogSnapshotId
+  routingAttemptRef: EventRef
+  externalPriorSnapshotRef: EventRef
+  deploymentProfileVersion: string
+  compilerVersion: string
+  candidateExternalRecordIds: readonly string[]
+  digest: string
+}
+
+type RouteCatalogSnapshotEvent =
+  | EffectiveRouteCatalogSnapshotEvent
+  | ExperimentalRouteCatalogSnapshotEvent
+
 interface RoutingContextSnapshotEvent {
   contextSnapshotId: ContextSnapshotId
+  routingAttemptRef: EventRef
   routingScope:
     | { kind: 'session'; sessionId: SessionId }
     | { kind: 'objective'; objectiveId: ObjectiveId }
   phaseId?: PhaseId
   turn: number
   step: number
-  claimedMessageRefs: readonly EventRef[]
+  claimedMessageIds: readonly MessageId[]
   activeEpisodeRefs: EventRef[]
   recoveryCapabilityRef: EventRef
-  effectiveRouteCatalogRef: EventRef
+  routeCatalogSnapshotRef: EventRef
   evidenceWatermark: number
 }
 
@@ -209,10 +293,17 @@ interface RoutingDecisionEvent {
   policyVersion: string
 }
 
+type SharedResolutionFailure =
+  | 'constraints-unsatisfiable'
+  | 'profile-invalid'
+  | 'profile-unavailable'
+  | 'provider-unavailable'
+
 type RouteResolutionEvent =
   | {
-      decisionId: DecisionId
+      decisionRef: EventRef
       outcome: 'resolved'
+      evidenceKind: 'admitted'
       effectiveConfig: EffectiveCallConfig
       reasoningSelection: ReasoningSelection
       admissionIdentity: AdmissionIdentity
@@ -220,11 +311,79 @@ type RouteResolutionEvent =
       resolverVersion: string
     }
   | {
-      decisionId: DecisionId
-      outcome: 'failed'
-      failureCode: ResolutionFailure
+      decisionRef: EventRef
+      outcome: 'resolved'
+      evidenceKind: 'experimental-unadmitted'
+      effectiveConfig: EffectiveCallConfig
+      reasoningSelection: ReasoningSelection
+      experimentalRouteIdentity: ExperimentalRouteIdentity
+      sourceSnapshotId: ExternalEvidenceSnapshotId
+      externalRecordId: string
       profileVersion: string
       resolverVersion: string
+    }
+  | {
+      decisionRef: EventRef
+      outcome: 'failed'
+      evidenceKind: 'admitted'
+      failureCode: SharedResolutionFailure | 'no-safe-route'
+      profileVersion: string
+      resolverVersion: string
+    }
+  | {
+      decisionRef: EventRef
+      outcome: 'failed'
+      evidenceKind: 'experimental-unadmitted'
+      failureCode: SharedResolutionFailure | 'no-experimental-route'
+      profileVersion: string
+      resolverVersion: string
+    }
+
+interface ModelCallAuthorizationFacts {
+  observedMode: 'experimental-auto'
+  requiredHostContractVersions: Readonly<Record<string, string>>
+  observedHostContractVersions: Readonly<Record<string, string>>
+  providerId: string
+  providerAvailable: boolean
+  expectedDeploymentIdentity: DeploymentIdentity
+  observedDeploymentIdentity?: DeploymentIdentity
+  sourceSnapshotId: ExternalEvidenceSnapshotId
+  evidenceFreshnessCheckedAt: string
+  evidenceExpiresAt: string
+  recoveryCapabilityRef?: EventRef
+  effectClasses: readonly EffectClass[]
+  lossBoundPolicyVersion?: string
+}
+
+type ModelCallAuthorizationEvent =
+  | {
+      authorizationId: CallAuthorizationId
+      outcome: 'authorized'
+      decisionRef: EventRef
+      resolutionRef: EventRef
+      turn: number
+      step: number
+      facts: ModelCallAuthorizationFacts
+      validatorVersion: string
+    }
+  | {
+      authorizationId: CallAuthorizationId
+      outcome: 'denied'
+      decisionRef: EventRef
+      resolutionRef: EventRef
+      turn: number
+      step: number
+      failureCode:
+        | 'required-host-contract-missing'
+        | 'provider-unavailable'
+        | 'deployment-identity-drifted'
+        | 'external-evidence-expired'
+        | 'recovery-capability-insufficient'
+        | 'mutable-loss-bound-unsatisfied'
+      routeOutcome: 'no-experimental-route'
+      facts: ModelCallAuthorizationFacts
+      reasonCode: ReasonCode
+      validatorVersion: string
     }
 
 interface RouteSnapshotEvent {
@@ -232,6 +391,7 @@ interface RouteSnapshotEvent {
   contextSnapshotRef: EventRef
   decisionRef: EventRef
   resolutionRef: EventRef
+  authorizationRef: EventRef
   turn: number
   step: number
   effectiveConfig: EffectiveCallConfig
@@ -245,9 +405,9 @@ interface RouteSnapshotEvent {
 
 Objective、phase、attempt 和 episode 事件构成显式状态机，包含创建、转移、解决、取代、放弃、重启和用户干预结果。事件引用将每次决策连接到不可变输入，避免复制可变字段。
 
-所有引用都必须指向已经持久化的不可变事件；禁止 forward reference 和持久化后的 mutation。`claimedMessageRefs` 保留处理顺序，`evidenceWatermark` 定义本次决策可见的包含式事件边界。Route snapshot identity 必须贯穿组装与 request 接入，不能只因 provider/model 字符串相同就推断它们使用了同一快照。
+所有 `EventRef` 都必须指向已经持久化的不可变事件；禁止 forward event reference 和持久化后的 mutation。`claimedMessageIds` 是 A1 提供的稳定非事件 identity，并保留处理顺序；`evidenceWatermark` 定义本次决策可见的包含式事件边界。Route snapshot identity 必须贯穿组装与 request 接入，不能只因 provider/model 字符串相同就推断它们使用了同一快照。
 
-每次尝试的决策都要记录，包括语义 keep。UI 可以聚合连续 keep，但不能删除底层审计事实。
+每个已启动 routing attempt 都记录 preparation failure、termination 或完整 decision chain。进程存活时 cancellation 追加 termination。Cold projection 把没有 terminal event 或完整 decision chain 的 start 视为 interrupted；load 完成后、retry 前，由 controller 追加 `cold-load-orphan-recovered`。不可变 partial artifact 保持 non-authoritative；只有不存在完整 Session decision 时才可开始 retry。阶段 0P 每个 Session 最多记录一项完整 decision，并为每次 attempted Experimental Auto model call 记录一项 authorization outcome。UI 可以聚合连续 authorized 状态，但不能删除底层审计事实。
 
 ## Recovery Supervisor 与模型交互
 

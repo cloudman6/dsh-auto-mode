@@ -10,7 +10,7 @@ Proposed. This document defines target capability boundaries. Verified current D
 
 1. Normal routing decisions belong to deterministic policy in the DSH Host, not to a parent agent, assessor, or Router Agent.
 2. Task assessment, constraint resolution, policy mapping, concrete-configuration resolution, and request integration are separate layers.
-3. A semantic route is a quality-guarantee tier backed by current Policy Pack evidence, not a synonym for a model name.
+3. In admitted Auto, a semantic route is a quality-guarantee tier backed by current Policy Pack evidence, not a synonym for a model name. Phase 0P reuses the identifiers only as visibly unadmitted heuristic tiers.
 4. Selection, execution-state projection, recovery, and delegation are bounded control planes; they do not share an unbounded Scheduler API.
 5. Persisted Session events are the source of truth. In-memory state is a projection and every automatic decision must reference the exact input snapshot that produced it.
 6. One model step uses one frozen Route Snapshot across provider-dependent prompt/tool assembly and `agent/request`.
@@ -26,8 +26,12 @@ flowchart LR
     E["Session and tool events"] --> X["Execution Context Projector"]
     X --> A["Task Assessment"]
     X --> C
-    W["Policy Pack + Deployment Profile"] --> R["Routing Policy"]
-    W --> V["Route Profile Resolver"]
+    W["Policy Pack + Deployment Profile"] --> G["Effective Route Catalog\nadmitted only"]
+    O["ExternalRoutePrior + Deployment Profile\nPhase 0P only"] --> H["Experimental Route Catalog\nunadmitted only"]
+    G --> R["Routing Policy"]
+    G --> V["Route Profile Resolver"]
+    H --> R
+    H --> V
     A --> R
     C --> R
     S["Recovery Supervisor"] --> R
@@ -81,35 +85,33 @@ DSH discovery establishes availability, not Auto admission. The compiler interse
 
 An arbitrary local mapping, expired record, or unidentified provider alias is not admitted automatically.
 
+Phase 0P compiles a separate `ExperimentalRouteCatalog` from a frozen `ExternalRoutePriorSnapshot`, DSH discovery, exact A3p identity mappings, capabilities, and user restrictions. Every entry carries `evidenceStatus: 'experimental-unadmitted'`. The experimental and admitted catalog types are discriminated and cannot be merged or converted without RouterBench admission. Artificial Analysis is the first prior source, but its record supplies evidence fields only; it never owns Task Assessment or the final decision.
+
 ### Routing Policy
 
-Consumes the immutable decision-input snapshot, assessment, resolved constraints, active episode floors, recovery capability, and frozen Effective Route Catalog. Given the same persisted snapshot and policy version, its semantic decision is deterministic.
+Consumes the immutable decision-input snapshot, assessment, resolved constraints, active episode floors, recovery capability, and the corresponding frozen admitted or experimental catalog. Given the same persisted snapshot and policy version, its semantic decision is deterministic.
 
-Routing Policy selects a guarantee tier or abstains. It does not select a raw provider/model string and it does not decide how an unsatisfied resolution failure is presented.
+Admitted Routing Policy selects a guarantee tier or abstains. Phase 0P policy selects an explicitly experimental heuristic tier or exits Auto. Neither form selects a raw provider/model string, and the external prior never owns the final decision.
 
 ### Route Profile Resolver
 
-Resolves an admitted guarantee tier to an available provider/model/reasoning-selection candidate. It is a pure function of the frozen Effective Route Catalog and resolved constraints; it never rereads live discovery during one decision. After capability and admission filtering, it orders eligible concrete candidates by predicted end-to-end latency, then total cost, then stable route identity. Missing required identity or comparison data makes the profile invalid rather than allowing discovery order to decide. The resolver version and selected admission identity are persisted. It produces either an effective configuration or an explicit failure such as `constraints-unsatisfiable`, `profile-invalid`, `provider-unavailable`, or `no-safe-route`.
+Resolves a semantic tier to an available provider/model/reasoning-selection candidate. In admitted Auto it filters by current admission; in Phase 0P it filters by explicit experimental evidence status and exact external-record identity. It is a pure function of the corresponding frozen catalog and resolved constraints and never rereads live discovery during one decision. It then orders eligible concrete candidates by the policy's quality boundary, predicted end-to-end latency, total cost, and stable route identity. Missing required identity or comparison data makes the profile invalid rather than allowing discovery order to decide. The resolver version and selected evidence identity are persisted. Shared structural failures include `constraints-unsatisfiable`, `profile-invalid`, `profile-unavailable`, and `provider-unavailable`. Only admitted Auto may return `no-safe-route`; Phase 0P returns `no-experimental-route` when no exactly matched experimental configuration exists. The experimental reason code makes no safety claim.
 
 ### Route Snapshot Coordinator
 
-Owns DSH lifecycle integration for one model step:
+Owns two different lifecycle operations that must not be conflated:
 
-1. At the stable pre-assembly boundary, freeze the Policy Pack and deployment profile, compile the Effective Route Catalog, and capture ordered claimed messages plus the current execution projection.
-2. Persist the compiled catalog as an immutable `EffectiveRouteCatalogSnapshotEvent`.
-3. Persist the raw execution state as an immutable `RoutingContextSnapshotEvent` that references that already-existing catalog snapshot.
-4. Run constraint resolution and any required assessment against that context snapshot, then persist their outputs with backward references to it.
-5. Persist the final `DecisionInputSnapshotEvent`, referencing only the context, constraint, and assessment events that now exist.
-6. Run Routing Policy and Route Profile Resolver against that final decision input and the same frozen catalog.
-7. Persist the semantic decision and resolution result.
-8. Freeze and persist one `RouteSnapshot` containing the concrete identity, reasoning selection, request encoding, and relevant version references.
-9. Make prompt/tool assembly and `agent/request` consume that same snapshot and snapshot identity.
+**Session decision, once in Phase 0P:** At the first stable pre-assembly boundary, persist `RoutingAttemptStartedEvent`; validate the deployment profile, required Host contracts, and external prior. A failure appends `RoutingPreparationFailedEvent` with safe metadata and stops before catalog compilation. Success persists the minimized prior, Experimental Route Catalog, context, constraints, assessment, immutable decision input, one semantic decision, and one resolution. Cold load reconstructs and reuses that same Session decision; it never creates a second Phase 0P decision.
+
+**Model-call authorization, every Experimental Auto step including the first:** Check mode first. Manual is a no-op for the Auto listener and continues through DSH's existing manual selection plus Host/provider validation; it does not create a denied authorization or reject the claimed turn. In Experimental Auto, re-read live authorization facts: required Host-contract availability, provider availability, current deployment and reasoning-selection identity against the frozen resolution, external-evidence freshness under the frozen policy, and current Host-declared `RecoveryCapability` plus effect classes. Persist a `ModelCallAuthorizationEvent` for the step. A denial stops before assembly and provider dispatch without changing or replacing the Session decision. An authorization allows the coordinator to freeze a step-specific `RouteSnapshot` that references the Session resolution and current authorization; prompt/tool assembly and `agent/request` consume that exact snapshot.
+
+Repeated Experimental Auto steps therefore reuse policy intent but never reuse authorization. Identity, contract, evidence, provider, or capability drift fails closed. Manual mode bypasses the Auto listener. Phase 0P does not silently re-route within the Session; a new Auto decision requires a new Session or later explicitly admitted lifecycle capability.
 
 If recovery selects a different route after a request failure, the coordinator starts a new step or uses an upstream seam that repeats provider-dependent assembly. It must not replace only the final request config after an earlier assembly was built for another model.
 
 ### Recovery Supervisor
 
-Folds formal runtime signals into attempts and episodes. It supplies route floors and declared `RecoveryCapability` to Routing Policy. It uses no model by default. Full `salvage` and `restart` are separate from the minimum recovery capability required to admit mutable work.
+Folds formal runtime signals into attempts and episodes. It supplies route floors and declared `RecoveryCapability` to Routing Policy. It uses no model by default. Full `salvage` and `restart` are separate from the minimum recovery capability and accepted loss bound required before policy may down-route mutable work.
 
 ### RouterBench
 
@@ -120,36 +122,102 @@ Contains two related but distinct systems:
 
 Calibration and held-out acceptance data are separate. Benchmark oracle metadata never enters Task Assessment or online policy inputs.
 
+Phase 0P dogfood traces may suggest taxonomy and fixture candidates, but they are not route-admission evidence and are excluded from held-out acceptance data unless later provenance and leakage controls establish a valid independent use.
+
 ## Request flow
 
 ```text
-1. Session reaches a stable pre-assembly boundary
-2. Execution Context Projector produces objective and confirmed phase state
-3. Route Snapshot Coordinator compiles and freezes the Effective Route Catalog
-4. Persist EffectiveRouteCatalogSnapshot
-5. Capture and persist RoutingContextSnapshot, including ordered claimed-message references and a backward catalog reference
-6. Constraint Resolver produces persisted ResolvedRoutingConstraints against that snapshot
-7. Task Assessment runs when required and persists a backward reference to the same snapshot
-8. Persist DecisionInputSnapshot referencing the already-existing context, constraints, and optional assessment
-9. Routing Policy selects a guarantee tier or abstains
-10. Route Profile Resolver deterministically resolves an admitted configuration or a stop result from the frozen catalog
-11. Persist decision, resolution, evidence references, and versions
-12. Freeze and persist RouteSnapshot
-13. Assemble provider-dependent prompt and tools from RouteSnapshot
-14. agent/request applies the same RouteSnapshot
-15. DSH records request/header and calls the model
-16. Runtime events flow into signal providers and Recovery Supervisor
+Session decision path — once in Phase 0P
+1. Persist RoutingAttemptStarted at the first stable pre-assembly boundary
+2. Validate required Host contracts, deployment profile, and minimized external prior
+3a. On failure, persist RoutingPreparationFailed and stop without a catalog or call
+3b. On success, persist ExternalRoutePriorSnapshot
+4. Compile and persist ExperimentalRouteCatalogSnapshot with a backward prior reference
+5. Persist RoutingContextSnapshot, constraints, assessment, and DecisionInputSnapshot in causal order
+6. Routing Policy selects an experimental heuristic tier or stop outcome
+7. Route Profile Resolver resolves against the frozen catalog
+8. Persist the single Session decision and its discriminated resolution
+
+Per-call path — every step, including the first and after cold load
+9a. If Manual is active, bypass the Auto listener and continue through the existing manual Host/provider path
+9b. If Experimental Auto is active, revalidate Host contracts, provider, exact deployment/reasoning identity, evidence freshness, and current RecoveryCapability/effect classes
+10. Persist ModelCallAuthorization with the Session decision reference and current facts only for Experimental Auto
+11a. On denial, stop before assembly and provider dispatch; do not re-decide
+11b. On authorization, freeze and persist a step-specific RouteSnapshot referencing the authorization
+12. Assemble provider-dependent prompt and tools from RouteSnapshot
+13. agent/request applies the same RouteSnapshot
+14. DSH records request/header and calls the model
+15. Runtime events flow into signal providers and Recovery Supervisor
 ```
 
 An in-process child agent follows the same path. An external provider that fixes the model at process creation needs a pre-start adapter that consumes the same semantic inputs and resolver.
 
 ## Persisted event model
 
-Names remain Proposed until the DSH event-registration seam is resolved. The minimum logical records are:
+Names remain Proposed until the DSH event-registration seam is resolved. The minimum logical records are shown below. `ExternalRoutePriorSnapshotEvent` stores only normalized records that exactly match the frozen DSH candidate inventory; it excludes unmatched upstream rows, raw API responses, credentials, request headers, user prompts, and code. `rightsPolicyVersion` identifies the locally accepted acquisition and retention rule, while attribution and content digest make the minimized evidence auditable without implying redistribution rights. Claimed inputs use the stable `MessageId` already carried by A1's immutable `UserMessage`; they are not Session `EventRef`s because `user/message` is appended only after preparation succeeds. Successful execution must later append the same message identities, while failed or interrupted preparation never duplicates raw message content into plugin events.
 
 ```ts
+interface RoutingAttemptStartedEvent {
+  routingAttemptId: RoutingAttemptId
+  routingScope: { kind: 'session'; sessionId: SessionId }
+  mode: 'admitted-auto' | 'experimental-auto'
+  turn: number
+  step: number
+  validatorVersion: string
+}
+
+interface RoutingPreparationFailedEvent {
+  preparationFailureId: PreparationFailureId
+  routingAttemptRef: EventRef
+  failureCode:
+    | 'required-host-contract-missing'
+    | 'deployment-profile-invalid'
+    | 'external-prior-invalid'
+    | 'external-prior-stale'
+    | 'external-prior-malformed'
+  safeEvidenceIdentity?: {
+    source?: 'artificial-analysis'
+    schemaVersion?: string
+    contentDigest?: string
+  }
+  reasonCode: ReasonCode
+  validatorVersion: string
+}
+
+interface RoutingPreparationTerminatedEvent {
+  preparationTerminationId: PreparationTerminationId
+  routingAttemptRef: EventRef
+  cause: 'cancelled' | 'lifecycle-interrupted' | 'cold-load-orphan-recovered'
+  validatorVersion: string
+}
+
+interface ExternalRoutePriorSnapshotEvent {
+  kind: 'external-route-prior'
+  sourceSnapshotId: ExternalEvidenceSnapshotId
+  routingAttemptRef: EventRef
+  schemaVersion: string
+  source: 'artificial-analysis'
+  endpointId: string
+  querySemanticsVersion: string
+  paginationComplete: true
+  upstreamIndexVersion?: string
+  retrievedAt: string
+  attribution: { label: string; sourceUrl: string }
+  rightsPolicyVersion: string
+  contentDigest: string
+  matchedRecords: readonly {
+    externalRecordId: string
+    exactConfigurationKey: string
+    indexValues: Readonly<Record<string, number>>
+    latencyMetrics: Readonly<Record<string, number>>
+    costMetrics: Readonly<Record<string, number>>
+  }[]
+}
+
 interface EffectiveRouteCatalogSnapshotEvent {
+  kind: 'admitted'
   catalogSnapshotId: CatalogSnapshotId
+  routingAttemptRef: EventRef
   policyPackVersion: string
   deploymentProfileVersion: string
   compilerVersion: string
@@ -157,18 +225,34 @@ interface EffectiveRouteCatalogSnapshotEvent {
   digest: string
 }
 
+interface ExperimentalRouteCatalogSnapshotEvent {
+  kind: 'experimental-unadmitted'
+  catalogSnapshotId: CatalogSnapshotId
+  routingAttemptRef: EventRef
+  externalPriorSnapshotRef: EventRef
+  deploymentProfileVersion: string
+  compilerVersion: string
+  candidateExternalRecordIds: readonly string[]
+  digest: string
+}
+
+type RouteCatalogSnapshotEvent =
+  | EffectiveRouteCatalogSnapshotEvent
+  | ExperimentalRouteCatalogSnapshotEvent
+
 interface RoutingContextSnapshotEvent {
   contextSnapshotId: ContextSnapshotId
+  routingAttemptRef: EventRef
   routingScope:
     | { kind: 'session'; sessionId: SessionId }
     | { kind: 'objective'; objectiveId: ObjectiveId }
   phaseId?: PhaseId
   turn: number
   step: number
-  claimedMessageRefs: readonly EventRef[]
+  claimedMessageIds: readonly MessageId[]
   activeEpisodeRefs: EventRef[]
   recoveryCapabilityRef: EventRef
-  effectiveRouteCatalogRef: EventRef
+  routeCatalogSnapshotRef: EventRef
   evidenceWatermark: number
 }
 
@@ -203,10 +287,17 @@ interface RoutingDecisionEvent {
   policyVersion: string
 }
 
+type SharedResolutionFailure =
+  | 'constraints-unsatisfiable'
+  | 'profile-invalid'
+  | 'profile-unavailable'
+  | 'provider-unavailable'
+
 type RouteResolutionEvent =
   | {
-      decisionId: DecisionId
+      decisionRef: EventRef
       outcome: 'resolved'
+      evidenceKind: 'admitted'
       effectiveConfig: EffectiveCallConfig
       reasoningSelection: ReasoningSelection
       admissionIdentity: AdmissionIdentity
@@ -214,11 +305,79 @@ type RouteResolutionEvent =
       resolverVersion: string
     }
   | {
-      decisionId: DecisionId
-      outcome: 'failed'
-      failureCode: ResolutionFailure
+      decisionRef: EventRef
+      outcome: 'resolved'
+      evidenceKind: 'experimental-unadmitted'
+      effectiveConfig: EffectiveCallConfig
+      reasoningSelection: ReasoningSelection
+      experimentalRouteIdentity: ExperimentalRouteIdentity
+      sourceSnapshotId: ExternalEvidenceSnapshotId
+      externalRecordId: string
       profileVersion: string
       resolverVersion: string
+    }
+  | {
+      decisionRef: EventRef
+      outcome: 'failed'
+      evidenceKind: 'admitted'
+      failureCode: SharedResolutionFailure | 'no-safe-route'
+      profileVersion: string
+      resolverVersion: string
+    }
+  | {
+      decisionRef: EventRef
+      outcome: 'failed'
+      evidenceKind: 'experimental-unadmitted'
+      failureCode: SharedResolutionFailure | 'no-experimental-route'
+      profileVersion: string
+      resolverVersion: string
+    }
+
+interface ModelCallAuthorizationFacts {
+  observedMode: 'experimental-auto'
+  requiredHostContractVersions: Readonly<Record<string, string>>
+  observedHostContractVersions: Readonly<Record<string, string>>
+  providerId: string
+  providerAvailable: boolean
+  expectedDeploymentIdentity: DeploymentIdentity
+  observedDeploymentIdentity?: DeploymentIdentity
+  sourceSnapshotId: ExternalEvidenceSnapshotId
+  evidenceFreshnessCheckedAt: string
+  evidenceExpiresAt: string
+  recoveryCapabilityRef?: EventRef
+  effectClasses: readonly EffectClass[]
+  lossBoundPolicyVersion?: string
+}
+
+type ModelCallAuthorizationEvent =
+  | {
+      authorizationId: CallAuthorizationId
+      outcome: 'authorized'
+      decisionRef: EventRef
+      resolutionRef: EventRef
+      turn: number
+      step: number
+      facts: ModelCallAuthorizationFacts
+      validatorVersion: string
+    }
+  | {
+      authorizationId: CallAuthorizationId
+      outcome: 'denied'
+      decisionRef: EventRef
+      resolutionRef: EventRef
+      turn: number
+      step: number
+      failureCode:
+        | 'required-host-contract-missing'
+        | 'provider-unavailable'
+        | 'deployment-identity-drifted'
+        | 'external-evidence-expired'
+        | 'recovery-capability-insufficient'
+        | 'mutable-loss-bound-unsatisfied'
+      routeOutcome: 'no-experimental-route'
+      facts: ModelCallAuthorizationFacts
+      reasonCode: ReasonCode
+      validatorVersion: string
     }
 
 interface RouteSnapshotEvent {
@@ -226,6 +385,7 @@ interface RouteSnapshotEvent {
   contextSnapshotRef: EventRef
   decisionRef: EventRef
   resolutionRef: EventRef
+  authorizationRef: EventRef
   turn: number
   step: number
   effectiveConfig: EffectiveCallConfig
@@ -239,9 +399,9 @@ interface RouteSnapshotEvent {
 
 Objective, phase, attempt, and episode events form explicit state machines with creation, transition, resolution, supersession, abandonment, restart, and user-intervention outcomes. Event references, rather than duplicated mutable fields, connect each decision to its immutable inputs.
 
-All references point backward to already-persisted immutable events; forward references and post-persistence mutation are invalid. `claimedMessageRefs` preserve processing order, and `evidenceWatermark` defines the inclusive event boundary visible to the decision. A route snapshot identity is carried through both assembly and request integration so equality is not inferred merely from matching provider/model strings.
+All `EventRef` values point backward to already-persisted immutable events; forward event references and post-persistence mutation are invalid. `claimedMessageIds` are stable non-event identities supplied by A1 and preserve processing order; `evidenceWatermark` defines the inclusive event boundary visible to the decision. A route snapshot identity is carried through both assembly and request integration so equality is not inferred merely from matching provider/model strings.
 
-Every attempted decision is recorded, including a semantic keep. UI aggregation may collapse repeated keeps without deleting the underlying audit facts.
+Every started routing attempt records a preparation failure, a termination, or a complete decision chain. Cancellation appends a termination while the process is alive. Cold projection treats a start without a terminal event or complete decision chain as interrupted; after load and before retry, the controller appends `cold-load-orphan-recovered`. Immutable partial artifacts remain non-authoritative, and a retry may start only when no complete Session decision exists. Phase 0P records at most one complete decision per Session and one authorization outcome per attempted Experimental Auto model call. UI aggregation may collapse repeated authorized states without deleting the underlying audit facts.
 
 ## Recovery Supervisor and model interaction
 

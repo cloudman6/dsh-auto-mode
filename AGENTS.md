@@ -6,20 +6,20 @@
 
 ## Project in one sentence
 
-DSH Auto Mode gives individual power users of coding agents an adaptive Auto mode for DeepSeek Harness. It selects models and reasoning effort from task context, execution evidence, and user constraints; admits a configured baseline only after an absolute quality gate; optimizes latency before cost among admitted routes; and limits damage when routing is wrong.
+DSH Auto Mode gives individual power users of coding agents an adaptive Auto mode for DeepSeek Harness. Phase 0P first validates the loop with visibly unadmitted external priors; admitted Auto selects models and reasoning effort from task context, execution evidence, and user constraints, admits a configured baseline only after an absolute quality gate, optimizes latency before cost, and limits damage when routing is wrong.
 
 ## Project snapshot
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 0 critical-path execution; A1/A2 are implemented and pinned on the maintainer DSH fork |
-| Existing work | Accepted product specification, architecture, routing, recovery, delegation, RouterBench, DSH integration evidence, roadmap, open questions, and 7 Accepted ADRs |
+| Stage | Phase 0P planning and critical-path execution; A1/A2 are implemented and pinned on the maintainer DSH fork |
+| Existing work | Accepted product specification, architecture, routing, recovery, delegation, RouterBench, DSH integration evidence, roadmap, open questions, and 8 Accepted ADRs |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Absolute baseline quality gate + candidate non-inferiority → end-to-end latency → total cost |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Minimal Phase A admission evidence, preview-specific A3p identity evidence, and A5p carrier verification |
+| Next-stage gate | Exact AA/DSH route inventory, Phase 0P A3p identity evidence, experimental policy contract, and A5p carrier verification |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
@@ -48,10 +48,12 @@ Load topic documents only when relevant; do not load the entire repository indis
 
 ## Current-stage constraints
 
-The maintainer accepted the specification and ADR-001 through ADR-007 on 2026-08-15. Phase 0 critical-path implementation may proceed under these constraints:
+The maintainer accepted the specification and ADR-001 through ADR-007 on 2026-08-15 and accepted ADR-008 on 2026-08-16. Phase 0P implementation may proceed under these constraints:
 
 - Treat the accepted specification and ADRs as binding until a superseding decision is explicitly accepted.
 - Keep the implemented A1 and A2 contracts product-neutral and pinned to the verified fork commit; DSH Core must not learn Auto Mode route tiers, Task Assessment, or Policy Pack semantics.
+- Keep Phase 0P maintainer-only, explicit opt-in, fork-pinned, and visibly `experimental-unadmitted`. External ranking evidence must remain structurally separate from RouterBench admission.
+- Require exact provider/model/reasoning-selection identity before matching an Artificial Analysis record; never transfer a measured score across effort or default encodings.
 - Keep the Phase 0C preview fork-pinned and limited to one routing decision per Session.
 - Do not claim official DSH compatibility, route admission, or a usable preview until the corresponding roadmap evidence gates pass.
 
@@ -73,10 +75,10 @@ English canonical documents and Chinese translations are governed by `docs/local
 
 ## Product invariants
 
-1. Quality comes first: a route is eligible only after its baseline passes an absolute quality gate and the candidate satisfies a predeclared non-inferiority bound; optimize end-to-end latency before total cost.
+1. Quality comes first in admitted Auto: a route is eligible only after its baseline passes an absolute quality gate and the candidate satisfies a predeclared non-inferiority bound; optimize end-to-end latency before total cost. Phase 0P is a separately typed, explicitly unadmitted maintainer experiment and makes no quality claim.
 2. Do not treat user choices, parent-agent overrides, or model self-reports as correct routing labels.
 3. Host Routing Policy owns normal routing decisions; models may provide task intent or optional semantic assessment only.
-4. High-risk, out-of-distribution, or weak-evidence tasks must `abstain`; if no currently admitted safe configuration exists, return `no-safe-route` and do not call a model.
+4. In admitted Auto, high-risk, out-of-distribution, or weak-evidence tasks must `abstain`; if no currently admitted safe configuration exists, return `no-safe-route` and do not call a model. Phase 0P may use the strongest exact external match only from a valid frozen catalog; invalid evidence, missing contracts, or identity failure returns `no-experimental-route`, and neither result is called safe.
 5. Every automatic decision must be explainable and auditable; the effective provider/model/reasoning selection, request encoding, and rationale must be reconstructable from persisted facts. Recovery may be claimed only for explicitly declared and tested effect classes.
 6. Within one unresolved episode, the route floor may only stay fixed or rise. Down-routing after a phase change is an evidence-gated capability, not an unconditional product promise.
 7. Parent-agent constraints are proposals. Only Host-recognized requirements or explicitly user-authorized overrides become binding; a parent may not silently raise, lower, or bypass Routing Policy with an arbitrary provider/model.
@@ -85,6 +87,7 @@ English canonical documents and Chinese translations are governed by `docs/local
 10. Route capability evaluation and production-policy scenario evaluation are separate datasets and runners; where policy is exercised, RouterBench and online execution use the same policy core. End-to-end metrics include assessor, switching, retry, and recovery costs.
 11. Ordinary users choose only between `Auto` and manual provider/model/reasoning selection. Maintainer-owned versioned Policy Packs carry defaults, calibration, expiry, and revocation; advanced overrides are optional.
 12. A route for one model step must be frozen before provider-dependent prompt and tool assembly, then applied unchanged at `agent/request`.
+13. Phase 0P external evidence cannot satisfy `RouteAdmission`, compile into the Phase 0C Effective Route Catalog, or be presented as RouterBench evidence.
 
 ## Authoritative document map
 

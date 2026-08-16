@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/README.md
-translation-source-blob: 4f069c6ecbbda416d311efec17c02cc53fe41e49
+translation-source-blob: 289c9d473352541c97d0548e50f01fd1f2c8282b
 translation-status: current
 -->
 
@@ -35,4 +35,4 @@ translation-status: current
 
 ## 文档状态
 
-规范与 ADR-001 至 ADR-007 已经 Accepted。文档中的个别未来接口或事件名仍可标记为 Proposed。ADR 使用 `Proposed`、`Accepted`、`Superseded` 和 `Deprecated` 表示生命周期。
+规范与 ADR-001 至 ADR-008 已经 Accepted。文档中的个别未来接口或事件名仍可标记为 Proposed。ADR 使用 `Proposed`、`Accepted`、`Superseded` 和 `Deprecated` 表示生命周期。

@@ -6,6 +6,8 @@
 
 Accepted
 
+Phase 0P is a narrowly scoped experimental execution path defined by [ADR-008](0008-external-prior-experimental-auto.md). It does not amend the admission requirements for Phase 0C or public quality claims.
+
 ## Date
 
 2026-08-14

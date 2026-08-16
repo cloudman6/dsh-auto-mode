@@ -1,12 +1,21 @@
 <!--
 translation-source: docs/open-questions.md
-translation-source-blob: 50a1059b81e516346bec77f5fa4ce6ad334beab1
+translation-source-blob: 1d1fbf572ffe40bffeca10d0a6c66b30fa065188
 translation-status: current
 -->
 
 # 开放问题
 
 [English](../open-questions.md)
+
+## 必须在阶段 0P dogfood 前关闭
+
+1. 哪些精确 DSH provider/model/reasoning selection 对应哪些 Artificial Analysis 配置记录？每项映射由什么 A3p fingerprint 证明？
+2. 初始任务 taxonomy 使用哪些 Artificial Analysis index family 与字段？哪些带版本启发式阈值定义实验 `fast`、`standard` 与 `strong`？
+3. 在不再分发榜单数据的前提下，使用哪个精确 endpoint、prompt/index 语义、pagination 覆盖、本地 snapshot schema、规范化内容 digest、freshness 规则、attribution、API access path 与数据权利边界？
+4. 哪些高风险与低置信度 assessment 强制从有效 catalog 使用最强精确匹配？哪些 mapping、identity、evidence、contract 或 Recovery Capability 失败会在调用前产生 `no-experimental-route`？
+5. 哪个具体 A5p 载体暴露显式 Experimental Auto opt-in、Manual 模式和持久化的 `experimental-unadmitted` 解释？
+6. 哪个符合 ADR-007 的 possible-loss bound（若有）通过另行决策被阶段 0P 接受？在它存在前，Experimental Auto 不执行可变工作；不可逆外部副作用会终止 Auto attempt，介入只能切换到 Manual 或等待新的 execution world。
 
 ## 必须在阶段 0C preview planning 前关闭
 
@@ -16,7 +25,7 @@ translation-status: current
 4. 哪些仓库、fixture 和来源能提供真正隔离的校准、验证、留出和时间外数据？
 5. Task Assessor 是否需要模型；若需要，固定配置、延迟预算、schema、置信阈值和漂移测试是什么？
 6. 持久化决策与证据事件可以暴露哪些字段，才能避免保存敏感 prompt、代码或 provider 私有状态？
-7. 哪个具体 fork UI、client plugin 或 command/config surface 作为 A5p preview 载体；其探针如何证明一次操作完成的 Auto/manual 控制与解释读取？
+7. 阶段 0P 的 A5p 载体能否提升为阶段 0C preview 载体？还需要什么 admission-aware 探针？
 
 ## 必须在阶段 B 与生产 release planning 前关闭
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/spec.md
-translation-source-blob: 4d78652679343859597db3c03168b135a985f4a4
+translation-source-blob: 2b995e50d61e7d807d8470fd7a7a8fd3b76bef8a
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-维护者已于 2026-08-15 接受。
+维护者已于 2026-08-15 接受。阶段 0P 修订已于 2026-08-16 通过 ADR-008 接受。
 
 ## 假设
 
@@ -21,11 +21,11 @@ translation-status: current
 3. 产品面向 DeepSeek Harness，并应保持可通过其插件生态安装；但已审计的 DSH 缺口可能需要范围收敛的上游 core 或 extension-package 修改，最终产品载体尚未接受。
 4. 实现语言预计为 TypeScript/ESM，并遵循 DSH/Cordis 的插件与能力 seam，但技术栈尚未最终接受。
 5. 用户愿意为更可靠的 Auto 模式投入模型调用和由项目维护的 Benchmark 资源；用户不负责维护校准阈值或 route 证据。
-6. 阶段 0 可以实现产品无关的 DSH Host 契约与证据探针，但只有全部阶段 0C gate 通过后才能宣称存在可用的 Auto Mode preview。
+6. 阶段 0P 可以在 RouterBench 就绪前按照 ADR-008 运行仅限维护者、明确未准入的 Experimental Auto 路径，但只有全部阶段 0C gate 通过后，项目才能宣称存在可用或受质量治理的 Auto Mode preview。
 
 ## 目标
 
-让用户不再手工猜测当前任务应该使用哪个模型和 reasoning effort。系统根据任务属性、可用模型能力、RouterBench 先验、当前 Session 证据、运行时失败和用户约束，自动选择合适的 route。误判后限制损失，只执行已声明能力支持的恢复；否则停止或请求介入。
+让用户不再手工猜测当前任务应该使用哪个模型和 reasoning effort。系统根据任务属性、可用模型能力、受治理的 RouterBench 证据、当前 Session 证据、运行时失败和用户约束，自动选择合适的 route。在治理准入证据就绪前，阶段 0P 只能为维护者 dogfood 使用明确标记的外部榜单先验。误判后限制损失，只执行已声明能力支持的恢复；否则停止或请求介入。
 
 产品承诺的优化顺序是：
 
@@ -33,7 +33,7 @@ translation-status: current
 2. 在这些质量约束内优先降低端到端延迟。
 3. 延迟目标满足后再降低模型成本和 token 消耗。
 
-`strong` 表示配置的 baseline 保证档，不表示某个模型在所有任务上都最强。若不存在当前已准入的安全配置，Auto 返回 `no-safe-route` 并停止，不调用未经验证的 fallback。
+在 admitted Auto 中，`strong` 表示配置的 baseline 保证档，不表示某个模型在所有任务上都最强。若不存在当前已准入的安全配置，admitted Auto 返回 `no-safe-route` 并停止，不调用未经验证的 fallback。阶段 0P 使用 ADR-008 定义的独立启发式含义。
 
 ## 用户问题
 
@@ -65,15 +65,18 @@ translation-status: current
 
 不提供要求用户猜测“是否应该切换”的 Shadow Mode。透明度用于解释与审计，不把用户接受或拒绝一次建议当作正确标签。手动选择在该作用域退出 Auto 策略，但仍受 Host 安全与 provider 能力校验。
 
+阶段 0P 沿用一次操作的 Auto/manual 交互，但要求显式启用 Experimental Auto。解释必须始终展示 `experimental-unadmitted`、外部证据 snapshot 版本，以及本项目尚无非劣性证据这一事实。
+
 ## 功能范围
 
 ### 必须具备
 
 - 语义 route：`fast`、`standard`、`strong` 和 `abstain`。
 - 维护者负责的版本化 Policy Pack，加上从 DSH active provider/model catalog 与精确 route 元数据填充的部署 Profile；显式 effort、adapter-default 实体化和 provider-default omission 是不同的 admission identity，任意用户映射在准入前不享有质量保证。
+- 独立的阶段 0P `ExternalRoutePrior` snapshot 与实验 catalog；它不能编译成普通 admission，也不能被阶段 0C 静默复用。
 - Host 中运行的 Routing Policy；父 Agent 和分类模型不拥有常规最终决策权。
 - 在依赖 provider 的 prompt/tool 组装前冻结 route snapshot，并在对应模型请求中原样应用。
-- 对无效 Profile、不可用 provider、不可满足约束和 `no-safe-route` 给出明确解析结果。
+- 对无效 Profile、不可用 provider、不可满足约束、admitted `no-safe-route` 和 experimental `no-experimental-route` 给出明确解析结果。
 - 按因果顺序持久化原始决策 context、constraints、assessment、decision、理由、冻结 catalog 与 Policy Pack 版本、实际模型、reasoning selection 和 request encoding。
 - RouterBench：分别使用 route 能力协议和生产策略场景协议评估质量、延迟、成本、覆盖率和恢复表现。
 - 运行时升级和 episode 状态，避免在未解决问题中反复降级。
@@ -157,15 +160,43 @@ type RouteDecision =
     }
 
 type RouteResolution =
-  | { outcome: 'resolved'; route: RouteId; config: EffectiveCallConfig }
+  | {
+      outcome: 'resolved'
+      route: RouteId
+      config: EffectiveCallConfig
+      evidence: { kind: 'admitted'; admissionIdentity: AdmissionIdentity }
+    }
+  | {
+      outcome: 'resolved'
+      route: RouteId
+      config: EffectiveCallConfig
+      evidence: {
+        kind: 'experimental-unadmitted'
+        experimentalRouteIdentity: ExperimentalRouteIdentity
+        sourceSnapshotId: ExternalEvidenceSnapshotId
+        externalRecordId: string
+      }
+    }
   | {
       outcome: 'failed'
+      evidenceKind: 'admitted'
       failure:
         | 'constraints-unsatisfiable'
         | 'profile-invalid'
         | 'profile-unavailable'
         | 'provider-unavailable'
         | 'no-safe-route'
+      reasonCode: ReasonCode
+    }
+  | {
+      outcome: 'failed'
+      evidenceKind: 'experimental-unadmitted'
+      failure:
+        | 'constraints-unsatisfiable'
+        | 'profile-invalid'
+        | 'profile-unavailable'
+        | 'provider-unavailable'
+        | 'no-experimental-route'
       reasonCode: ReasonCode
     }
 ```
@@ -179,6 +210,8 @@ type RouteResolution =
 - 集成测试：通过真实 DSH `agent/request`、Session 事件、子 Agent 生命周期、显式/default reasoning encoding，以及冻结 catalog 上的确定性具体候选解析验证装配。
 - 快照测试：验证用户可见决策解释和恢复转录。
 - RouterBench：隔离 calibration/validation/held-out 数据、重复配对运行、绝对门槛，以及从 Always Baseline 到路由加恢复的四个策略组。
+- 阶段 0P contract test：外部记录解析、精确 identity 与 effort 匹配、通过持久 preparation failure 拒绝过期或畸形 snapshot、一个 Session decision 加逐调用 fail-closed authorization、确定性启发式策略、可变工作的 Recovery Capability gate、明确实验解释，以及实验外部证据不能变成 admission evidence 的证明。
+- 阶段 0P composition test：keyless 真实 Loader/app JSONL transcript，加上自跳过 with-key real-provider smoke；验证外部 response 与持久 `request/header` 携带选定 provider/model/reasoning selection。缺少 credential 是 skipped evidence，绝不算 smoke 通过。
 - 故障注入：模型超时、低置信度评估器、错误 route、重复测试失败、checkpoint 不可用。
 - 安全测试：工作区已有未提交修改、并发 Agent 修改、恶意/错误父 Agent 约束。
 
@@ -190,7 +223,7 @@ type RouteResolution =
 
 - 先更新规范或 ADR，再实现改变公共行为的代码。
 - 记录每次 route 决策、实际生效配置和理由。
-- 对低置信度、分布外和高风险不可验证任务执行 `abstain`；没有已准入安全 route 时停止。
+- 在 admitted Auto 中，低置信度、分布外和高风险不可验证任务执行 `abstain`；没有已准入安全 route 时停止。阶段 0P 改为遵循 ADR-008 的“最强精确匹配或退出”实验规则，且绝不把该选择描述为安全。
 - 将模型评估视为证据，不视为最终授权。
 - 涉及策略时，在线路由与 Policy Scenario Bench 使用同一策略实现；Route Capability Bench 的实验分组与 oracle 元数据保持在策略之外。
 
@@ -221,6 +254,8 @@ type RouteResolution =
 - 普通用户只进行一次模式选择——Auto 或手动——无需维护校准数据，也不需要为路由器提供伪监督标签。
 
 ### 路由质量
+
+以下标准约束阶段 0C 及后续 admitted Auto。阶段 0P 只作为产品闭环与集成证据评估，不能报告已通过这些标准。
 
 - 每个任务类别的 baseline 必须通过绝对质量门槛后，才能定义保证档。
 - 只有 RouterBench 证明 candidate 满足预声明的 `epsilon` 非劣效界限、`delta` 不可接受结果概率上界、充分统计功效且不存在未解释严重失败簇时，才允许自动覆盖该任务类别。

@@ -1,134 +1,119 @@
-# Implementation plan: Phase 0 A1/A2 Host contracts
+# Implementation plan: Phase 0P AA-seeded Experimental Auto
 
 [简体中文](plan.zh-CN.md)
 
 ## Objective
 
-Implement and prove two product-neutral DeepSeek Harness contracts on the declared fork:
+Deliver a maintainer-only, explicit-opt-in, one-decision-per-Session Experimental Auto path on the pinned DSH fork. Artificial Analysis supplies versioned external priors for exact model-and-effort configurations; deterministic Host policy makes the final decision; every decision remains `experimental-unadmitted`. RouterBench admission is deferred to Phase 0C and is not weakened or simulated by this work.
 
-- A1: an agent-scoped pre-assembly step-preparation waterfall that receives the newly claimed messages and stable turn/step coordinates, can stop the step before assembly or a model call, and lets an existing model-selection snapshot feed both provider-dependent assembly and `agent/request`.
-- A2: effect-scoped runtime registration for required plugin Session-event namespaces, with durable schema-version identity, namespace conflict detection, payload validation, cold-load diagnostics, and fail-closed incompatibility.
+## Architecture decisions
 
-The fork implementation must not contain Auto Mode route tiers, Task Assessment, Policy Pack, provider ranking, or model-selection policy.
-
-## Contract decisions
-
-### A1
-
-Add an additive `agent/prepare-step` waterfall before `system-prompt/assemble`. Its payload contains the scoped Agent, the exact frozen claimed `UserMessage[]`, `turn`, `step`, and `AbortSignal`. Its result is either `enter` or `reject`; it does not rewrite messages. Existing `agent/pre-step` remains after assembly and retains its message-rewrite semantics.
-
-This separation keeps lifecycle policy before provider-dependent assembly without breaking existing pre-step consumers. A route owner can update the existing `installModelSelection()` state during preparation; model selection is then captured by assembly and replayed unchanged at `agent/request`.
-
-### A2
-
-Extend `SessionStore` with an effect-scoped namespace registry. A registration declares:
-
-- a globally unique namespace;
-- a non-empty owner identifier;
-- a positive integer schema version;
-- the complete event-type-to-payload-schema map for that namespace.
-
-Schemas use a structural `parse(unknown): unknown` interface so plugins may supply Zod or another validator without adding a Session-core dependency. Runtime validation ignores transformed return values and persists the original lossless JSON snapshot.
-
-Every required out-of-tree event appended through an attached Session receives immutable envelope metadata identifying its namespace and schema version. Cold readers accept it only when the matching live registration exists, the version matches, the type belongs to that registration, and its payload validates. Missing registration, version drift, unknown registered type, malformed metadata, and schema rejection fail before Session reconstruction. Built-in events continue to use the generated catalog; explicitly ignorable unknown events retain the existing forward-compatibility behavior.
-
-Registration is expected at plugin activation before any cold `load` or `prepare`. Loading before registration fails closed with a diagnostic that names the missing namespace and version; retrying after registration is supported.
+- Use a discriminated `ExperimentalRouteCatalog`; never insert external ranking records into `PolicyPack.admissions`.
+- Keep Artificial Analysis acquisition outside the interactive client. The plugin consumes a validated local snapshot; credentials and raw fetched data never enter the repository.
+- Map only exact provider/model/reasoning-selection identities. Do not infer unmeasured efforts or collapse explicit, adapter-default, and provider-default encodings.
+- Keep Task Assessment and routing deterministic in Phase 0P. The external source provides evidence fields, not a route decision.
+- Freeze one Experimental Auto decision per Session before provider-dependent assembly and persist the external snapshot, assessment, decision, resolution, request encoding, and explanation references.
+- Prioritize the DSH Web model-selection surface for A5p, but accept it only after a focused seam probe proves Auto/manual control and persisted explanation retrieval.
 
 ## Dependency graph
 
 ```text
-Accepted DSH Auto Mode specification and ADRs
+Task 1: exact route inventory and A3p mapping
+       |
+       +--> Task 2: external-prior contract and data boundary
                     |
-        +-----------+-----------+
-        |                       |
- A1 public contract       A2 public contract
-        |                       |
- A1 contract tests        A2 registry/load tests
-        |                       |
- A1 implementation        A2 implementation
-        +-----------+-----------+
-                    |
-          Combined vertical probe
-                    |
-       Fork commit pin and evidence update
+                    +--> Task 3: repository scaffold and domain types
+                              |
+                              +--> Task 4: snapshot loader and exact matcher
+                              |         |
+                              |         +--> Task 5: deterministic assessment and policy
+                              |                    |
+                              +--> Task 6: Session persistence and projection
+                                                   |
+                                                   +--> Task 7: pre-assembly Host integration
+                                                              |
+Task 1 -------------------------------------------------------+
+                                                              |
+                                                              +--> Task 8: A5p client carrier
+                                                                         |
+                                                                         +--> Task 9: vertical dogfood probe
 ```
 
-## Increments
+## Task list
 
-### Increment 1: A1 failing contract tests
+### Foundation
 
-Add focused Agent-loop tests proving event order, immutable claimed input, stable coordinates, scoped delivery, cancellation, and rejection before prompt assembly/model dispatch. Run the tests against the audited revision and record the expected RED result.
+- [ ] Task 1: Freeze the initial exact route inventory and A3p evidence matrix.
+- [ ] Task 2: Freeze the ExternalRoutePrior snapshot, heuristic-policy, freshness, attribution, and data-rights contract.
 
-### Increment 2: A1 implementation
+### Checkpoint: evidence foundation
 
-Add the public decision type and event declaration in `@deepseek-ai/dsh-agent`; dispatch the waterfall immediately after inbox claim and before `system-prompt/assemble`; preserve the existing `agent/pre-step` contract. Make the focused tests GREEN and run the Agent and Agent-loop suites.
+- [ ] Every proposed experimental route has an exact DSH-to-external-record mapping or is explicitly excluded.
+- [ ] The maintainer reviews the heuristic boundaries and explicitly authorizes any Artificial Analysis API access and new runtime/development dependencies before implementation.
+- [ ] The maintainer separately accepts an ADR-007-compliant possible-loss bound and verified Recovery Capability scope before mutable Experimental Auto is enabled; otherwise implementation and dogfood remain read-only.
 
-### Increment 3: A2 failing contract tests
+### Core
 
-Add Session unit tests for registration validation, duplicate namespace/type rejection, append-time payload validation, effect disposal, and envelope metadata. Extend the shared persistence coordinator contract with cold-load tests for missing registration, version mismatch, schema failure, and register-then-retry. Record the expected RED result.
+- [ ] Task 3: Establish the TypeScript/ESM package, test harness, and discriminated admitted-versus-experimental domain types.
+- [ ] Task 4: Implement the offline external-prior snapshot loader and exact route matcher.
+- [ ] Task 5: Implement deterministic Task Assessment and Session Static experimental policy.
 
-### Increment 4: A2 implementation
+### Checkpoint: pure policy
 
-Implement the namespace registry in `SessionStore`, add the optional registered-event envelope metadata, validate attached live appends before log mutation, and replace the persistence coordinator's generated-set-only check with generated built-ins plus live registration resolution. Make focused Session and persistence tests GREEN.
+- [ ] Unit, property, schema, and golden-decision tests pass without DSH or network access.
+- [ ] A fresh project Code Review Skill run returns `PASS` with no P0-P2 findings.
 
-### Increment 5: Combined vertical probe
+### Host and client vertical slices
 
-Mount Agent loop, system prompt, model selection, JSONL persistence, and a synthetic plugin registration. During `agent/prepare-step`, select a different model and append a required plugin decision event. Prove:
+- [ ] Task 6: Persist and cold-reconstruct Phase 0P catalog, assessment, decision, resolution, and explanation events.
+- [ ] Task 7: Integrate one frozen Session decision through `agent/prepare-step`, provider-dependent assembly, and `agent/request`.
+- [ ] Task 8: Implement and verify the A5p Experimental Auto/manual carrier and persisted explanation view.
 
-- the current claimed message drives the decision before assembly;
-- assembly and `agent/request` observe the same selected route;
-- `reject` produces no assembly and no model call;
-- the required plugin event survives flush and cold reload when registered;
-- cold reload fails closed with precise diagnostics when the plugin registration is missing or incompatible.
+### Checkpoint: integrated path
 
-### Increment 6: Verification and evidence
+- [ ] Pinned-fork contract tests prove request/snapshot identity, fail-closed incompatibility, and cold reconstruction.
+- [ ] Web or alternate carrier tests prove one-operation mode selection and actual persisted explanation retrieval.
+- [ ] A fresh project Code Review Skill run returns `PASS` for each bounded integration stage.
 
-Run focused tests after each behavioral change, then DSH typecheck, lint, documentation synchronization checks, and the full relevant test suite. Record the exact fork commit and test evidence in `docs/dsh-integration.md` and `PROJECT_STATUS.md`. Do not mark Phase 0C usable: A3p, the minimal Phase A evidence slice, and A5p remain open.
+### Dogfood
 
-## Verification commands
+- [ ] Task 9: Run the secret-free vertical probe, package the maintainer dogfood build, and publish a local runbook and evidence report.
 
-Use repository-local commands discovered from the DSH root:
+### Checkpoint: Phase 0P ready
 
-```bash
-pnpm exec vitest run \
-  packages/core/agent-loop/tests/interception.spec.ts \
-  packages/core/agent-loop/tests/resume.spec.ts \
-  packages/core/session/tests/session.spec.ts \
-  packages/core/scope/tests/invariant.spec.ts \
-  packages/session/session-persistence/tests/persistence.spec.ts \
-  packages/session/session-persistence-jsonl/tests/jsonl.spec.ts
-pnpm typecheck
-pnpm lint
-pnpm doc-sync
-```
+- [ ] Maintainer can opt into Experimental Auto, run a task end to end, inspect the exact model/effort and source snapshot, cold reload, and return to Manual.
+- [ ] No Artificial Analysis credential or redistributed dataset is tracked, and no output claims RouterBench admission, non-inferiority, official DSH compatibility, or public support.
+- [ ] `PROJECT_STATUS.md` records the exact plugin commit, DSH fork commit, carrier version, verification evidence, and remaining Phase 0C gates.
 
-Generated documentation/catalog commands discovered during implementation must also pass when public events or package contracts change.
+## Verification strategy
 
-## Execution result
+- Pure domain tests run without network or DSH runtime.
+- Snapshot tests use synthetic fixtures with Artificial Analysis-compatible fields, not copied production ranking data, and prove endpoint/pagination metadata plus a canonical content digest identify the exact input.
+- Contract tests prove exact identity and effort matching, freshness failure, malformed data failure, deterministic tie-breaking, and experimental/admitted type separation.
+- Policy tests prove mutable experimental routing requires a separately accepted loss bound plus sufficient Host-declared Recovery Capability for every effect class; irreversible external effects and out-of-bound mutations terminate Auto before a call. User intervention can switch to Manual or wait for new execution-world facts, but cannot authorize the denied Experimental Auto dispatch.
+- DSH integration tests include a real Loader plus app/process composition, a keyless headless Session JSONL transcript, a self-skipping with-key real-provider smoke, and negative controls. They prove one Session decision plus per-call authorization, stable A1 message identities without forward event references, interrupted-preparation recovery, Manual bypass without turn consumption, the same immutable route snapshot reaches assembly and request, required events survive cold reload, and the persisted request/header matches the provider's external response.
+- A5p tests prove displayed state comes from persisted Session facts rather than client-local optimistic state; a Web carrier also requires browser snapshots for positive, reload, Manual, and stopped states.
+- Every bounded implementation task invokes `.agents/skills/dsh-auto-mode-code-review/SKILL.md` after focused verification and before commit.
 
-Completed on 2026-08-15 in the maintainer fork branch `codex/auto-mode-host-contracts` at commit [`801ded7f60a0dfab07b9690cb9d98fce6234d243`](https://github.com/cloudman6/deepseek-harness/commit/801ded7f60a0dfab07b9690cb9d98fce6234d243).
+## Risks and mitigations
 
-- A1 dispatches `agent/prepare-step` after inbox claim and before prompt assembly; contract tests cover ordering, frozen claimed messages, rejection, cancellation, and assembly/request route identity.
-- A2 registers effect-scoped required-event namespaces, validates append and cold-read payloads, persists exact namespace/version identity, and fails closed on missing, malformed, incompatible, or undeclared registrations.
-- The combined JSONL probe selects a route before assembly, persists its required plugin event, rejects an unregistered cold read, and succeeds after the exact registration is restored.
-- Verification passed: 402 tests across the affected Agent-loop, Session, scope, memory-persistence, and JSONL-persistence suites; `pnpm typecheck`; `pnpm lint`; and all 28 `pnpm doc-sync` gates.
+| Risk | Impact | Mitigation |
+|---|---|---|
+| Artificial Analysis access or redistribution rights do not cover the intended public product | High | Keep Phase 0P local and maintainer-only; store no ranking dataset; stop before public distribution until rights are confirmed |
+| DSH route identity cannot prove the leaderboard configuration actually served | High | Exclude the route; never fall back to alias-name matching |
+| A ranking measured at one effort is applied to another | High | Make reasoning-selection encoding part of the exact match key and test all three default/explicit forms |
+| Heuristic score boundaries look like safety guarantees | High | Persist and display `experimental-unadmitted`; use separate catalog types and explicit reason codes |
+| External rankings drift | Medium | Pin source index version and retrieval time, enforce freshness, and require a new snapshot rather than silently reinterpreting old decisions |
+| A5p Web seams cannot retrieve required Session facts | High | Run the carrier seam probe before UI implementation and choose an alternate explicit carrier only if it satisfies the same contract |
+| Phase 0P code contaminates Phase 0C admission policy | High | Prohibit conversions from experimental evidence to `RouteAdmission`; add compile-time and runtime separation tests |
 
-The implementation was committed as one integrated Host-contract change because the public catalogs, shared persistence contracts, and vertical probe jointly describe the compatibility boundary. A1 and A2 should still be proposed as separate upstream changes. This result closes the fork implementation task only; it does not close A3p, Phase A admission, A5p, or official DSH compatibility.
+## Open questions
 
-## Risks and controls
-
-| Risk | Control |
-|---|---|
-| Moving existing `agent/pre-step` breaks consumers | Add a new preparation event; do not reorder or weaken existing pre-step message rewriting |
-| Route changes split prompt assembly and request | Reuse `installModelSelection()` snapshot; vertical test compares assembly and request |
-| Plugin schema changes silently reinterpret old logs | Persist namespace/version identity and validate on every cold read |
-| Plugin unload makes existing logs unreadable | Fail closed with a missing-plugin diagnostic; never mark normative events ignorable |
-| Registration collisions become load-order dependent | Reject duplicate namespaces and built-in event types deterministically |
-| Validator transforms persisted state | Ignore parser output and retain the original validated JSON snapshot |
-| Scope expands into Auto Mode policy | Contract tests and code use only synthetic product-neutral fixtures |
+The implementation must close the Phase 0P section of [open questions](../docs/open-questions.md). The immediate unresolved decisions are the exact initial route set, heuristic score boundaries, snapshot freshness, Artificial Analysis access/data rights, and the concrete A5p carrier.
 
 ## Explicit non-goals
 
-- Implementing Routing Policy, Task Assessment, Policy Packs, A3p, A5p, RouterBench admission, or the Auto/manual UI.
-- Claiming official DSH compatibility before upstream acceptance.
-- Adding within-turn switching, recovery, or child-agent routing.
+- RouterBench admission or quality/non-inferiority claims.
+- Within-turn switching, recovery, child-agent routing, online learning, or telemetry upload.
+- Public package publication, default-on Auto, official DSH compatibility, or Artificial Analysis data redistribution.
+- Inferring model capability for an effort or provider-default encoding that Artificial Analysis did not measure exactly.

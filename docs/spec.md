@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted by the maintainer on 2026-08-15.
+Accepted by the maintainer on 2026-08-15. The Phase 0P amendment was accepted on 2026-08-16 through ADR-008.
 
 ## Assumptions
 
@@ -15,11 +15,11 @@ This specification is based on the following assumptions. If any assumption is r
 3. The product targets DeepSeek Harness and should remain installable through its plugin ecosystem, but the audited DSH gaps may require narrow upstream core or extension-package changes; the final carrier is not yet accepted.
 4. The expected implementation language is TypeScript/ESM, following DSH/Cordis plugin and capability seams, but the technology stack is not yet accepted.
 5. Users are willing to spend model calls and project-maintained Benchmark resources for a more reliable Auto mode; they are not expected to maintain calibration thresholds or route evidence themselves.
-6. Phase 0 may implement product-neutral DSH Host contracts and evidence probes, but it does not claim a usable Auto Mode preview until every Phase 0C gate passes.
+6. Phase 0P may run a maintainer-only, explicitly unadmitted Experimental Auto path under ADR-008 before RouterBench exists, but the project does not claim a usable or quality-governed Auto Mode preview until every Phase 0C gate passes.
 
 ## Objective
 
-Users should no longer guess which model and reasoning effort a task requires. The system selects an appropriate route from task properties, available model capabilities, RouterBench priors, current Session evidence, runtime failures, and user constraints. When selection is wrong, it limits damage, performs only recovery supported by declared capability, and otherwise stops or requests intervention.
+Users should no longer guess which model and reasoning effort a task requires. The system selects an appropriate route from task properties, available model capabilities, governed RouterBench evidence, current Session evidence, runtime failures, and user constraints. Before governed admission exists, Phase 0P may substitute a clearly labelled external ranking prior only for maintainer dogfood. When selection is wrong, the system limits damage, performs only recovery supported by declared capability, and otherwise stops or requests intervention.
 
 The product promises this optimization order:
 
@@ -27,7 +27,7 @@ The product promises this optimization order:
 2. Within those quality constraints, reduce end-to-end latency first.
 3. Reduce model cost and token consumption only after the latency objective is satisfied.
 
-`strong` names the configured baseline guarantee tier; it does not claim that one model is universally strongest. If no currently admitted safe configuration exists, Auto stops with `no-safe-route` instead of calling an unverified fallback.
+In admitted Auto, `strong` names the configured baseline guarantee tier; it does not claim that one model is universally strongest. If no currently admitted safe configuration exists, admitted Auto stops with `no-safe-route` instead of calling an unverified fallback. Phase 0P uses the distinct heuristic meaning defined by ADR-008.
 
 ## User problem
 
@@ -60,15 +60,18 @@ the documentation phase, and expected remaining work exceeds switching cost.
 
 The product does not provide a Shadow Mode that asks users to guess whether to switch. Transparency exists for explanation and audit; accepting or rejecting a suggestion is not treated as a correctness label. Manual selection exits Auto policy for that scope but still passes Host security and provider capability validation.
 
+Phase 0P uses the same one-operation Auto/manual interaction but requires an explicit Experimental Auto opt-in. Its explanation always exposes `experimental-unadmitted`, the external-evidence snapshot version, and the absence of project-specific non-inferiority evidence.
+
 ## Functional scope
 
 ### Required
 
 - Semantic routes: `fast`, `standard`, `strong`, and `abstain`.
 - Maintainer-owned versioned Policy Packs plus deployment profiles populated from DSH's active provider/model catalog and exact-route metadata; explicit effort, adapter-default materialization, and provider-default omission remain distinct admission identities, and arbitrary user mappings have no quality guarantee until admitted.
+- A separate Phase 0P `ExternalRoutePrior` snapshot and experimental catalog that can never be compiled into a normal admission or silently reused by Phase 0C.
 - Routing Policy running in the Host; neither parent agents nor classifier models own normal final decisions.
 - A route snapshot frozen before provider-dependent prompt and tool assembly, then applied unchanged to the corresponding model request.
-- Explicit resolution outcomes for invalid profiles, unavailable providers, unsatisfiable constraints, and `no-safe-route`.
+- Explicit resolution outcomes for invalid profiles, unavailable providers, unsatisfiable constraints, admitted `no-safe-route`, and experimental `no-experimental-route`.
 - Causally ordered persistent records of raw decision context, constraints, assessments, decisions, reasons, frozen catalog and Policy Pack versions, actual models, reasoning selection, and request encoding.
 - RouterBench: separate route-capability and production-policy scenario protocols for quality, latency, cost, coverage, and recovery behavior.
 - Runtime escalation and episode state, preventing repeated down-routing while a problem remains unresolved.
@@ -152,15 +155,43 @@ type RouteDecision =
     }
 
 type RouteResolution =
-  | { outcome: 'resolved'; route: RouteId; config: EffectiveCallConfig }
+  | {
+      outcome: 'resolved'
+      route: RouteId
+      config: EffectiveCallConfig
+      evidence: { kind: 'admitted'; admissionIdentity: AdmissionIdentity }
+    }
+  | {
+      outcome: 'resolved'
+      route: RouteId
+      config: EffectiveCallConfig
+      evidence: {
+        kind: 'experimental-unadmitted'
+        experimentalRouteIdentity: ExperimentalRouteIdentity
+        sourceSnapshotId: ExternalEvidenceSnapshotId
+        externalRecordId: string
+      }
+    }
   | {
       outcome: 'failed'
+      evidenceKind: 'admitted'
       failure:
         | 'constraints-unsatisfiable'
         | 'profile-invalid'
         | 'profile-unavailable'
         | 'provider-unavailable'
         | 'no-safe-route'
+      reasonCode: ReasonCode
+    }
+  | {
+      outcome: 'failed'
+      evidenceKind: 'experimental-unadmitted'
+      failure:
+        | 'constraints-unsatisfiable'
+        | 'profile-invalid'
+        | 'profile-unavailable'
+        | 'provider-unavailable'
+        | 'no-experimental-route'
       reasonCode: ReasonCode
     }
 ```
@@ -174,6 +205,8 @@ Policy returns a target route. `keep`, `upgrade`, and `downgrade` are derived by
 - Integration tests: real DSH `agent/request`, Session events, child-agent lifecycle assembly, explicit/default reasoning encodings, and deterministic concrete-candidate resolution from a frozen catalog.
 - Snapshot tests: user-visible decision explanations and recovery transcripts.
 - RouterBench: isolated calibration/validation/held-out data, paired repeated runs, absolute gates, and four strategy arms covering Always Baseline through routing plus recovery.
+- Phase 0P contract tests: external-record parsing, exact identity and effort matching, stale or malformed snapshot rejection with persisted preparation failure, one Session decision plus per-call fail-closed authorization, deterministic heuristic policy, Recovery Capability gating for mutable work, explicit experimental explanations, and proof that experimental evidence cannot become admission evidence.
+- Phase 0P composition tests: keyless real Loader/app JSONL transcript plus a self-skipping with-key real-provider smoke that verifies the external response and persisted `request/header` carry the selected provider/model/reasoning selection; missing credentials are skipped evidence, never a passing smoke.
 - Fault injection: model timeout, low-confidence assessor, wrong route, repeated test failure, and unavailable checkpoint.
 - Security tests: pre-existing uncommitted workspace changes, concurrent agent modifications, and malicious or incorrect parent-agent constraints.
 
@@ -185,7 +218,7 @@ Every user-visible routing behavior needs secret-free critical-path tests. Evalu
 
 - Update the specification or ADR before implementing a change in public behavior.
 - Record every route decision, effective configuration, and reason.
-- `abstain` for low-confidence, out-of-distribution, and high-risk non-verifiable tasks; stop when no admitted safe route exists.
+- In admitted Auto, `abstain` for low-confidence, out-of-distribution, and high-risk non-verifiable tasks; stop when no admitted safe route exists. Phase 0P instead follows ADR-008's strongest-exact-match-or-exit experimental rule and never describes that choice as safe.
 - Treat model assessment as evidence, not final authority.
 - Where policy is exercised, use the same policy implementation for online routing and Policy Scenario Bench; Route Capability Bench keeps treatment assignment and oracle metadata outside policy.
 
@@ -216,6 +249,8 @@ Every user-visible routing behavior needs secret-free critical-path tests. Evalu
 - Ordinary users perform one mode choice—Auto or manual—and do not maintain calibration data or provide pseudo-supervision to the router.
 
 ### Routing quality
+
+The criteria below govern Phase 0C and later admitted Auto. Phase 0P is evaluated as product-loop and integration evidence only; it must not report these criteria as passed.
 
 - Every task category baseline must pass an absolute quality gate before it can define a guarantee tier.
 - A candidate route may automatically cover a task category only when RouterBench shows a predeclared non-inferiority bound within `epsilon`, an unacceptable-result upper bound within `delta`, sufficient power, and no unresolved severe failure cluster.

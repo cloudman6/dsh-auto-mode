@@ -1,18 +1,216 @@
-# Task list: Phase 0 A1/A2 Host contracts
+# Task list: Phase 0P AA-seeded Experimental Auto
 
 [简体中文](todo.zh-CN.md)
 
-- [x] Accept the revised specification and ADR-001 through ADR-007.
-- [x] Audit the Agent loop, model-selection snapshot, Session event envelope, generated event catalog, and persistence coordinator.
-- [x] Add the product-neutral DSH design notes for A1 and A2.
-- [x] Write and run A1 contract tests against the missing baseline contract.
-- [x] Implement A1 and make focused Agent/Agent-loop tests GREEN.
-- [x] Write and run A2 Session and persistence contract tests against the missing baseline contract.
-- [x] Implement A2 and make focused Session/persistence tests GREEN.
-- [x] Commit and push the integrated A1/A2 change on the fork task branch.
-- [x] Add and pass the combined vertical plugin probe.
-- [x] Run DSH typecheck, lint, generated-document checks, and relevant full tests.
-- [x] Pin the fork commit and update DSH Auto Mode integration evidence and project status.
-- [x] Commit, push, and integrate the documentation/evidence task branch.
+## Task 1: Freeze exact routes and A3p mappings
 
-Phase 0C remains blocked until the minimal Phase A admission slice, A3p deployment identity, and A5p preview carrier are also closed.
+**Description:** Inventory the pinned fork's active provider/model/reasoning selections and map the smallest useful set to exact Artificial Analysis configuration records.
+
+**Acceptance criteria:**
+- [ ] Every included route has an exact provider/model/reasoning-selection key and reproducible fingerprint evidence.
+- [ ] Explicit effort, adapter-default, and provider-default identities are not collapsed.
+- [ ] Unmatched or unverifiable configurations are explicitly excluded.
+
+**Verification:**
+- [ ] Re-run the inventory from the pinned fork and obtain the same normalized identities.
+- [ ] Review the evidence matrix with the project Code Review Skill.
+
+**Dependencies:** None
+
+**Files likely touched:** `docs/dsh-integration.md`, `docs/evidence/phase-0p-route-inventory.md`, Chinese translations
+
+**Estimated scope:** Medium
+
+## Task 2: Freeze the external-prior and data-boundary contract
+
+**Description:** Define the local snapshot schema, Artificial Analysis endpoint and field mapping, prompt/index semantics, pagination coverage, source and policy versions, canonical content digest, freshness, attribution, heuristic score boundaries, access method, and public-data-rights stop condition.
+
+**Acceptance criteria:**
+- [ ] Snapshot and policy schemas have explicit versions and fail-closed validation rules.
+- [ ] Retrieval metadata and a canonical full-content digest identify the exact snapshot even when an upstream index version omits patch revisions or does not version every index family.
+- [ ] The durable `ExternalRoutePriorSnapshotEvent` schema records source/schema/query/rights-policy versions, pagination completeness, attribution, retrieval time, content digest, and only normalized exact-match records; raw responses, unmatched rows, credentials, headers, prompts, and code are excluded.
+- [ ] The initial index-family and `fast`/`standard`/`strong` heuristic rules are deterministic and reviewable.
+- [ ] API credentials, fetched ranking data, attribution, and redistribution boundaries are unambiguous.
+
+**Verification:**
+- [ ] Synthetic valid, stale, incomplete, and malformed examples have expected outcomes.
+- [ ] Maintainer explicitly approves API access and dependency additions before Task 3 or 4 implementation.
+- [ ] Maintainer separately accepts an ADR-007-compliant possible-loss bound and verified Recovery Capability scope before any mutable Phase 0P path is implemented or enabled.
+
+**Dependencies:** Task 1
+
+**Files likely touched:** `docs/routing-policy.md`, `docs/architecture.md`, `docs/decisions/`, Chinese translations
+
+**Estimated scope:** Medium
+
+## Checkpoint: Evidence foundation
+
+- [ ] Tasks 1-2 are complete and reviewed.
+- [ ] No route relies on name-only or inferred-effort matching.
+- [ ] Required external access and dependencies are explicitly authorized.
+- [ ] Mutable scope is either explicitly authorized by the separate recovery/loss-bound decision or excluded as read-only.
+
+## Task 3: Establish the implementation scaffold and domain types
+
+**Description:** Create the accepted TypeScript/ESM package and test harness, with discriminated experimental and admitted evidence/catalog types.
+
+**Acceptance criteria:**
+- [ ] Build, test, lint, and typecheck commands are documented and green.
+- [ ] Type boundaries prevent `experimental-unadmitted` evidence from satisfying `RouteAdmission`.
+- [ ] No network access or production ranking data is required by tests.
+
+**Verification:**
+- [ ] Focused type and unit tests pass.
+- [ ] Project Code Review Skill returns `PASS` before commit.
+
+**Dependencies:** Task 2 and explicit dependency authorization
+
+**Files likely touched:** `package.json`, `tsconfig.json`, `src/domain/`, `tests/domain/`, `docs/spec.md`
+
+**Estimated scope:** Medium
+
+## Task 4: Implement snapshot loading and exact matching
+
+**Description:** Load a locally supplied external-prior snapshot, validate provenance and freshness, and intersect exact external records with DSH route identities.
+
+**Acceptance criteria:**
+- [ ] Invalid, stale, unknown-version, or unmatched inputs fail with stable reason codes.
+- [ ] Exact effort/default encodings and deterministic tie-breaking are covered.
+- [ ] No credential or fetched dataset is persisted in the repository.
+
+**Verification:**
+- [ ] Unit, schema, property, and secret-scan tests pass with synthetic fixtures.
+- [ ] Project Code Review Skill returns `PASS` before commit.
+
+**Dependencies:** Tasks 1 and 3
+
+**Files likely touched:** `src/external-priors/`, `src/catalog/`, `tests/external-priors/`
+
+**Estimated scope:** Medium
+
+## Task 5: Implement deterministic assessment and policy
+
+**Description:** Map bounded task attributes to an Artificial Analysis index family and select an experimental tier using the frozen catalog, Host-declared `RecoveryCapability`, execution-world effect classes, and versioned heuristic policy.
+
+**Acceptance criteria:**
+- [ ] Same input snapshot and policy version always produce the same decision and explanation.
+- [ ] High-risk, unknown, or low-confidence task assessment chooses the strongest exact match from a valid catalog; unmatched or drifted routes and invalid evidence exit with `no-experimental-route` before a call.
+- [ ] No experimental tier, including `strong`, may execute mutable work until an ADR-007-compliant risk bound is accepted in a separate decision; afterward it still requires possible loss inside that bound and sufficient declared attribution and recovery support for every effect class.
+- [ ] Any irreversible external effect, mutation outside the accepted bound, or insufficient attribution/recovery support terminates the current Experimental Auto attempt with `no-experimental-route`, regardless of impact level. User intervention may switch to Manual or wait for new execution-world facts; it cannot authorize the denied dispatch.
+- [ ] Every result carries `experimental-unadmitted` and source-snapshot identity.
+
+**Verification:**
+- [ ] Golden-decision, boundary, permutation, property, and negative Recovery Capability tests cover `fast`, `standard`, and `strong` at every impact level, loss-bound overflow, insufficient attribution/recovery, and irreversible external effects.
+- [ ] Project Code Review Skill returns `PASS` before commit.
+
+**Dependencies:** Task 4
+
+**Files likely touched:** `src/assessment/`, `src/policy/`, `tests/policy/`
+
+**Estimated scope:** Medium
+
+## Checkpoint: Pure policy
+
+- [ ] Tasks 3-5 are complete and all pure tests pass without DSH or network access.
+- [ ] Experimental evidence cannot compile or convert into admitted evidence.
+
+## Task 6: Persist and reconstruct Phase 0P decisions
+
+**Description:** Register and project the required Session events for routing-attempt start, preparation failure or termination, external snapshot, catalog, assessment, Host-declared Recovery Capability reference, the single Session decision and resolution, per-call authorization facts, request encoding, and explanation. In Phase 0P the producer persists the minimized `ExternalRoutePriorSnapshotEvent` before the Experimental Route Catalog that references it.
+
+**Acceptance criteria:**
+- [ ] Event schemas are versioned, validated, backward-referenced, and reconstructable after cold load.
+- [ ] The external-prior event is durably appended before its catalog consumer, and missing/incompatible prior evidence fails before catalog compilation or provider dispatch.
+- [ ] Invalid pre-catalog input appends a safe, backward-referenced `RoutingPreparationFailedEvent`; it stores no raw prior but remains sufficient for cold reconstruction and UI failure rendering.
+- [ ] Cancellation appends `RoutingPreparationTerminatedEvent`; cold projection marks any orphan start or partial chain interrupted, and the controller appends the recovery terminal event after load and before retry. Retry is allowed only when no complete Session decision exists.
+- [ ] Admitted and experimental success/failure events remain discriminated; cold reconstruction never fabricates an `AdmissionIdentity` or collapses `no-experimental-route` into `no-safe-route`.
+- [ ] Phase 0P cold reconstruction yields at most one complete Session decision and preserves every step-specific `ModelCallAuthorizationEvent`.
+- [ ] Claimed inputs persist ordered stable `MessageId` values from A1, not nonexistent pre-append `user/message` EventRefs or duplicated raw content; successful execution later appends the same identities.
+- [ ] Missing or incompatible registrations fail before execution.
+- [ ] Sensitive prompt/code content and API credentials are absent from persisted facts.
+
+**Verification:**
+- [ ] Synthetic persistence and cold-reload contract tests pass on the pinned fork, including cancellation or interruption after every event boundary in the preparation chain.
+- [ ] Project Code Review Skill returns `PASS` before commit.
+
+**Dependencies:** Tasks 3 and 5
+
+**Files likely touched:** `src/session/`, `tests/session/`, DSH probe fixtures
+
+**Estimated scope:** Medium
+
+## Task 7: Integrate the frozen decision with the DSH Host
+
+**Description:** Use A1 to create at most one Phase 0P decision per Session. Manual mode makes the Auto listener return control without rejection or authorization so the existing manual path remains unchanged. Before every Experimental Auto model call, including after cold load, capture current Host-contract, provider, exact deployment/reasoning identity, evidence-freshness, Recovery Capability, and effect-class facts; persist a new authorization and apply the configuration only when it authorizes the call.
+
+**Acceptance criteria:**
+- [ ] Repeated steps and cold load reuse exactly one Session decision but create a fresh authorization and RouteSnapshot for each attempted call.
+- [ ] Snapshot mismatch or drift in identity, Host contracts, evidence freshness, provider, or Recovery Capability denies the current Experimental Auto call before assembly/provider dispatch and never triggers an implicit re-decision.
+- [ ] A denied authorization persists the observed and required contract versions, provider availability, expected and observed deployment identity, evidence check/expiry, Recovery Capability reference, effect classes, and loss-bound version required to reconstruct the decision.
+- [ ] Manual mode bypasses the Auto listener and continues through existing Host/provider validation; switching to Manual neither creates a denied authorization nor rejects or consumes the turn.
+
+**Verification:**
+- [ ] Pinned-fork integration and combined vertical contract tests pass.
+- [ ] A real DSH Loader plus app/process composition test loads the plugin through its production entry point and records a keyless, headless Session JSONL transcript proving the assembled request and persisted route snapshot agree.
+- [ ] Negative composition controls prove missing plugin registration, missing A1/A2, invalid evidence, and insufficient Recovery Capability stop before provider dispatch.
+- [ ] A confirmation/intervention action cannot bypass a denied authorization or directly reach provider dispatch.
+- [ ] A manual-switch control proves the same claimed message reaches the existing manual request path exactly once.
+- [ ] Project Code Review Skill returns `PASS` before commit.
+
+**Dependencies:** Tasks 1, 5, and 6
+
+**Files likely touched:** `src/plugin/`, `src/host/`, `tests/integration/`
+
+**Estimated scope:** Medium
+
+## Task 8: Close A5p with a concrete client carrier
+
+**Description:** Add explicit Experimental Auto/manual control and render the actual persisted selection, source snapshot, and unadmitted explanation in the verified DSH client surface.
+
+**Acceptance criteria:**
+- [ ] One user operation selects Experimental Auto and Manual remains directly available.
+- [ ] Displayed configuration and explanation come from persisted Session facts and survive reload.
+- [ ] The carrier cannot present the route as admitted, safe, or officially supported.
+
+**Verification:**
+- [ ] Client seam probe, component tests, and browser end-to-end checks pass.
+- [ ] If Web is selected, browser snapshots cover Auto, Manual, persisted explanation after reload, preparation failure, and denied per-call `no-experimental-route` states rendered from Session facts.
+- [ ] Project Code Review Skill returns `PASS` before commit.
+
+**Dependencies:** Tasks 6 and 7
+
+**Files likely touched:** verified DSH client-plugin files, `tests/client/`, `docs/dsh-integration.md`
+
+**Estimated scope:** Medium
+
+## Checkpoint: Integrated path
+
+- [ ] Tasks 6-8 pass pinned-fork, cold-load, and client acceptance tests.
+- [ ] Actual request configuration equals the persisted and displayed route snapshot.
+
+## Task 9: Package and prove the dogfood build
+
+**Description:** Run a secret-free end-to-end probe, create the local maintainer installation/runbook, and record exact build evidence without publishing a public release.
+
+**Acceptance criteria:**
+- [ ] A runnable keyless example exercises the real plugin composition and emits an auditable assembled transcript before the credentialed maintainer dogfood run.
+- [ ] A self-skipping with-key smoke uses the real Loader/app entry and selected provider; when the key exists it verifies the external response and persisted `request/header` agree on provider/model/reasoning selection, and when absent it reports an explicit skip rather than pass.
+- [ ] Maintainer completes an Experimental Auto task, inspects the explanation, cold reloads, and switches to Manual.
+- [ ] Build pins plugin, DSH fork, carrier, external snapshot, and policy versions.
+- [ ] Status and evidence state all excluded claims and remaining Phase 0C gates.
+
+**Verification:**
+- [ ] Full focused test suite, typecheck, lint, documentation, secret scan, keyless vertical probe, and available with-key smoke pass.
+- [ ] Final project Code Review Skill returns `PASS` before commit.
+
+**Dependencies:** Tasks 1-8
+
+**Files likely touched:** `docs/runbook/`, `docs/evidence/`, `PROJECT_STATUS.md`, README navigation and translations
+
+**Estimated scope:** Medium
+
+## Checkpoint: Phase 0P ready
+
+- [ ] All task acceptance criteria and reviews pass.
+- [ ] Repository and Git history contain no Artificial Analysis secret or redistributed dataset.
+- [ ] Phase 0C remains blocked on RouterBench admission and its existing release-quality gates.

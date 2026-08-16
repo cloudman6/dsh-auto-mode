@@ -8,7 +8,7 @@
 
 ## Current stage
 
-Phase 0 critical-path execution. The maintainer accepted `docs/spec.md` and ADR-001 through ADR-007 on 2026-08-15. Product-neutral A1 pre-assembly step preparation and A2 runtime Session-event registration are implemented and tested on the declared DSH fork at commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`. Phase 0C itself remains gated by the minimal Phase A admission slice, A3p deployment identity, and A5p carrier verification.
+Phase 0P planning and critical-path execution. The maintainer accepted ADR-008 on 2026-08-16, authorizing a maintainer-only, explicitly unadmitted Artificial Analysis-seeded dogfood path before RouterBench admission. Product-neutral A1 pre-assembly step preparation and A2 runtime Session-event registration remain implemented and tested on the declared DSH fork at commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`. Phase 0C remains separately gated by the minimal Phase A admission slice, A3p deployment identity, and A5p carrier verification.
 
 ## Completed
 
@@ -25,12 +25,25 @@ Phase 0 critical-path execution. The maintainer accepted `docs/spec.md` and ADR-
 - Implemented A1 and A2 on the maintainer DSH fork, passed their combined JSONL cold-reload probe, 402 relevant tests, typecheck, lint, and all 28 DSH documentation gates, and pushed the exact fork commit.
 - Added a repository-local Code Review Skill that gates every bounded implementation stage against accepted Auto Mode invariants and the pinned official DSH engineering contracts.
 - Published the bilingual product-neutral A1/A2 Host-contract proposal as DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281), with reproducible fork evidence and explicit maintainer questions.
+- Accepted ADR-008 and introduced Phase 0P, allowing externally seeded, visibly unadmitted maintainer dogfood without weakening Phase 0C admission requirements.
 
 ## Current implementation entry points
 
-1. Close A3p for the initial baseline and candidate route identities.
-2. Produce the minimal Phase A admission slice and close A5p against one concrete preview carrier.
-3. Keep the fork pinned to `801ded7f60a0dfab07b9690cb9d98fce6234d243`; do not claim official DSH compatibility before upstream acceptance.
+1. Inventory exact DSH and Artificial Analysis configurations, then close A3p for the first Experimental Auto route set.
+2. Freeze the external-evidence snapshot schema, exact-match rules, heuristic policy, and data-rights boundary.
+3. Implement the one-decision-per-Session Phase 0P path and close A5p against one concrete carrier.
+4. Keep the fork pinned to `801ded7f60a0dfab07b9690cb9d98fce6234d243`; do not claim route admission or official DSH compatibility.
+
+## Gates before Phase 0P dogfood
+
+- A1/A2 stay green on the pinned fork.
+- Every selectable configuration has exact A3p provider/model/reasoning-selection identity and one exact external-evidence match.
+- Artificial Analysis data is locally supplied, versioned, attributed, and kept out of the repository; any API credential remains outside the browser client and repository and is supplied through a process environment or secret store.
+- Experimental policy, persistence, and explanations preserve the `experimental-unadmitted` state and cannot compile into a normal admission.
+- Persistence proves one Session decision plus a fresh fail-closed authorization for every attempted Experimental Auto model call, including after cold load and live identity/capability drift; Manual bypasses the Auto listener.
+- Host-declared Recovery Capability and an ADR-007-compliant possible-loss bound accepted in a separate decision gate every mutable Auto call; until then, Phase 0P dogfood is read-only.
+- A5p proves one-operation Auto/manual control and explanation retrieval.
+- Keyless real composition passes, and a self-skipping with-key real-provider smoke passes whenever the required secret is available; a missing key is reported as skipped evidence, not a pass.
 
 ## Gates before Phase 0C preview planning
 
@@ -49,11 +62,11 @@ Phase 0 critical-path execution. The maintainer accepted `docs/spec.md` and ADR-
 
 ## Current blockers
 
-The specification gate is closed. A1 and A2 are no longer fork-preview blockers: they are implemented and tested on the maintainer fork, but are not present in official DSH and therefore remain an upstream compatibility dependency. A3p identity evidence, the minimal Phase A admission slice, and A5p carrier verification are the remaining Phase 0C blockers. Full recovery and external child model/reasoning-selection control remain deferred to later roadmap phases.
+The Phase 0P decision gate is closed. Its remaining implementation blockers are the exact initial route set and A3p mappings, the external-evidence snapshot and heuristic-policy contract, an ADR-007-compliant possible-loss bound plus Recovery Capability evidence for any mutable scope, and one verified A5p carrier. Until the recovery gate closes, Phase 0P dogfood is read-only. A1/A2 are implemented on the maintainer fork but remain an upstream compatibility dependency. The minimal Phase A admission slice is deliberately deferred from Phase 0P and remains a Phase 0C blocker. Full recovery and external child model/reasoning-selection control remain deferred.
 
 ## Next action
 
-Close A3p for the initial route identities, produce the minimal Phase A admission evidence, and close A5p for the concrete preview carrier. Keep A1/A2 verified against their pinned fork commit while monitoring Discussion #2281 and preparing separate upstream changes if maintainers invite contributions. The production release carrier remains a separate Phase B/release decision.
+Execute the accepted Phase 0P implementation plan: first freeze the exact DSH/Artificial Analysis route inventory and A3p evidence matrix, then establish the external-prior schema, immutable experimental resolution contract, and deterministic policy. Propose the ADR-007 loss bound and Recovery Capability evidence separately before enabling mutable tasks; Host and A5p integration can proceed with read-only fixtures meanwhile. Keep A1/A2 verified against the pinned fork and monitor Discussion #2281 asynchronously. RouterBench admission remains the next gate for Phase 0C, not a Phase 0P prerequisite.
 
 ## Status maintenance rules
 

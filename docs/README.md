@@ -29,4 +29,4 @@ The [architecture decision records](decisions/README.md) contain the accepted de
 
 ## Document state
 
-The specification and ADR-001 through ADR-007 are Accepted. Documents may still mark individual future interfaces or event names as Proposed. ADRs use `Proposed`, `Accepted`, `Superseded`, and `Deprecated` for their lifecycle.
+The specification and ADR-001 through ADR-008 are Accepted. Documents may still mark individual future interfaces or event names as Proposed. ADRs use `Proposed`, `Accepted`, `Superseded`, and `Deprecated` for their lifecycle.

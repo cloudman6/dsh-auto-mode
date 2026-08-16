@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routerbench.md
-translation-source-blob: 228909f3daf0f60636817cd855f403b759ac5549
+translation-source-blob: 14894625af9d3c1cd31fdf39ae41f64871326c58
 translation-status: current
 -->
 
@@ -16,6 +16,8 @@ RouterBench 是 Auto Mode 的证据基础。它必须分别回答两个问题，
 2. Policy Scenario Bench：生产策略能否正确选择、升级、降级、abstain 和恢复；每层新增控制面是否改善端到端结果？
 
 凡是运行策略的地方，Benchmark 与在线执行使用同一策略核心和 schema。Benchmark 的实验分组、oracle 元数据和 evaluator 不得进入生产策略输入。
+
+阶段 0P 有意在这些 admission 证据就绪前启动。它的 Artificial Analysis snapshot 是带 `experimental-unadmitted` 状态的外部先验，绝不能替代 Route Capability Bench 结果。阶段 0P 可以验证集成、持久化、解释和产品闭环行为，但不能满足绝对门槛、非劣性界限或阶段 0C admission。Dogfood case 在复用于任何 calibration 或 evaluation split 前必须经过 provenance 与泄漏审查，且永远不能事后加入 held-out set。
 
 ## 证据分层与数据隔离
 

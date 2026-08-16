@@ -92,10 +92,10 @@ The two verified Static Auto blockers are the immediate critical path. Other nee
 |---|---|---|---|---|
 | A1 | Pre-assembly step context shared with `agent/request` | Session Static Auto | Implemented and tested on pinned fork; absent upstream | DSH upstream |
 | A2 | Required plugin Session-event registration and compatibility | Session Static Auto | Implemented and tested on pinned fork; absent upstream | DSH upstream |
-| A3p | Stable identity evidence for every selected preview route | Phase 0C admission | Focused provider-specific audit required | Plugin plus selected provider adapters |
+| A3p | Stable identity evidence for every selected preview route | Phase 0P exact external matching and Phase 0C admission | Focused provider-specific audit required | Plugin plus selected provider adapters |
 | A3 | General stable resolved deployment identity/fingerprint contract | Evidence-backed official-compatible release | Focused audit required | Provider adapter or DSH upstream |
 | A4 | Extensible purpose and audit classification for fixed auxiliary calls | Task Assessor operations | Focused audit required | Plugin if open; otherwise DSH upstream |
-| A5p | One verified preview carrier for Auto/manual and persisted explanations | Phase 0C usability | Focused carrier audit required | Fork UI, client plugin, or explicit command/config surface |
+| A5p | One verified preview carrier for Auto/manual and persisted explanations | Phase 0P dogfood and Phase 0C usability | Focused carrier audit required | Fork UI, client plugin, or explicit command/config surface |
 | A5 | General Auto/manual and explanation UI extension contract | Official-compatible user-facing release | Focused audit required | Client plugin or DSH upstream |
 | B1 | Persistent typed child-creation metadata for semantic constraints | In-process child routing | Verified incomplete | Generic DSH seam plus plugin schema |
 | B2 | External subagent creation-time model/effort capabilities | External child routing | Verified absent in audited providers | Provider adapters; shared capability declaration if needed |
@@ -110,8 +110,8 @@ The two verified Static Auto blockers are the immediate critical path. Other nee
 2. **Completed:** add core contract tests for the absent baseline behavior.
 3. **Completed:** implement and verify the seams at fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`.
 4. **Completed:** publish the product-neutral contracts and fork evidence for upstream feedback in Discussion #2281.
-5. Close A3p for the initial baseline and candidate, and revoke either route when its stable identity cannot be reproduced.
-6. Close A5p with a real preview carrier probe covering the Auto/manual choice, persisted selection, actual configuration, and explanation retrieval.
+5. Close A3p for the initial Phase 0P exact route set; reuse an identity for Phase 0C only when later admission evidence binds that same deployment configuration.
+6. Close A5p with a real Experimental Auto carrier probe covering explicit opt-in, Auto/manual choice, persisted selection, actual configuration, and unadmitted explanation retrieval; add admission-aware assertions before promoting it to Phase 0C.
 7. Add a vertical Auto Mode probe proving pre-assembly decision input, assembly/request snapshot identity, pre-call rejection, required-event persistence, cold recovery, and the A3p/A5p preview path.
 8. If maintainers invite external changes, submit A1 and A2 as separate upstream contributions.
 9. Pin the plugin to the first compatible official DSH revision after merge. While upstream is unavailable, identify the exact fork and do not claim official compatibility.

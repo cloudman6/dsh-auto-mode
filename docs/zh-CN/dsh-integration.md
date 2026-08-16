@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 9f11feb304edd1fff8ea113727998a837542234f
+translation-source-blob: f7b192221c8be3246e85ab844006a1b3b7937f74
 translation-status: current
 -->
 
@@ -98,10 +98,10 @@ Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 name
 |---|---|---|---|---|
 | A1 | 与 `agent/request` 共享的 pre-assembly step context | Session Static Auto | 已在固定 fork 实现并通过测试；上游缺失 | DSH 上游 |
 | A2 | 必需插件 Session 事件注册与兼容处理 | Session Static Auto | 已在固定 fork 实现并通过测试；上游缺失 | DSH 上游 |
-| A3p | 每条选中 preview route 的稳定 identity 证据 | 阶段 0C 准入 | 需要 provider 专用专项审计 | 插件加选定 provider adapter |
+| A3p | 每条选中 preview route 的稳定 identity 证据 | 阶段 0P 精确外部匹配与阶段 0C 准入 | 需要 provider 专用专项审计 | 插件加选定 provider adapter |
 | A3 | 通用稳定 resolved deployment identity/fingerprint 契约 | 有证据保证且兼容官方版本的发布 | 需要专项审计 | Provider adapter 或 DSH 上游 |
 | A4 | 固定辅助调用的可扩展 purpose 与审计分类 | Task Assessor 运行 | 需要专项审计 | 接口开放时由插件实现，否则 DSH 上游 |
-| A5p | Auto/manual 与持久解释所需的一个已验证 preview 载体 | 阶段 0C 可用性 | 需要载体专项审计 | Fork UI、client plugin 或显式 command/config surface |
+| A5p | Auto/manual 与持久解释所需的一个已验证 preview 载体 | 阶段 0P dogfood 与阶段 0C 可用性 | 需要载体专项审计 | Fork UI、client plugin 或显式 command/config surface |
 | A5 | 通用 Auto/manual 与解释 UI 扩展契约 | 兼容官方版本且面向用户的发布 | 需要专项审计 | 客户端插件或 DSH 上游 |
 | B1 | 语义约束所需的持久类型化 child-creation metadata | 进程内 child 路由 | 已核实不完整 | 通用 DSH seam 加插件 schema |
 | B2 | 外部 subagent 创建时 model/effort capability | 外部 child 路由 | 被审计 provider 已核实缺失 | Provider adapter；需要时增加共享 capability 声明 |
@@ -116,8 +116,8 @@ Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 name
 2. **已完成：**为基线缺失行为增加 core contract test。
 3. **已完成：**在 fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243` 实现并验证 seam。
 4. **已完成：**在 Discussion #2281 发布产品无关契约与 fork 证据，获取上游反馈。
-5. 为初始 baseline 与 candidate 关闭 A3p；无法复现稳定 identity 时撤销对应 route。
-6. 使用真实 preview 载体关闭 A5p，探针覆盖 Auto/manual 选择、持久化选择、实际配置与解释读取。
+5. 为初始阶段 0P 精确 route set 关闭 A3p；只有后续 admission 证据绑定同一 deployment 配置时，才把该 identity 复用于阶段 0C。
+6. 使用真实 Experimental Auto 载体关闭 A5p，探针覆盖显式 opt-in、Auto/manual 选择、持久化选择、实际配置与未准入解释读取；提升到阶段 0C 前增加 admission-aware 断言。
 7. 增加 Auto Mode 纵向探针，证明 pre-assembly 决策输入、assembly/request snapshot identity、调用前拒绝、必需事件持久化、冷恢复和 A3p/A5p preview 路径。
 8. 若维护者邀请外部改动，将 A1、A2 拆成两项上游贡献。
 9. 合并后把插件固定到首个兼容官方 DSH revision。上游不可用期间明确记录精确 fork，不宣称兼容官方版本。

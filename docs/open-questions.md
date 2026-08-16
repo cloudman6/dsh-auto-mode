@@ -2,6 +2,15 @@
 
 [简体中文](zh-CN/open-questions.md)
 
+## Must close before Phase 0P dogfood
+
+1. Which exact DSH provider/model/reasoning selections match which Artificial Analysis configuration records, and what A3p fingerprint proves each mapping?
+2. Which Artificial Analysis index families and fields drive the initial task taxonomy, and what versioned heuristic thresholds define experimental `fast`, `standard`, and `strong`?
+3. What exact endpoint, prompt/index semantics, pagination coverage, local snapshot schema, canonical content digest, freshness rule, attribution, API access path, and data-rights boundary apply without redistributing ranking data?
+4. Which high-risk and low-confidence assessments force the strongest exact match from a valid catalog, and which mapping, identity, evidence, contract, or Recovery Capability failures produce `no-experimental-route` before a call?
+5. Which concrete A5p carrier exposes explicit Experimental Auto opt-in, Manual mode, and the persisted `experimental-unadmitted` explanation?
+6. What ADR-007-compliant possible-loss bound, if any, is accepted in a separate decision for mutable Phase 0P routing? Until it exists, Experimental Auto does not execute mutable work; an irreversible external effect terminates the Auto attempt, and intervention may only switch to Manual or wait for a new execution world.
+
 ## Must close before Phase 0C preview planning
 
 1. Which verified DSH gaps in [DSH integration and compatibility](dsh-integration.md) will be contributed upstream, and what exact minimum DSH version or commit will the plugin require?
@@ -10,7 +19,7 @@
 4. Which repositories, fixtures, and sources can provide genuinely isolated calibration, validation, held-out, and time-shifted data?
 5. Does Task Assessor need a model? If so, what fixed configuration, latency budget, schema, confidence threshold, and drift test apply?
 6. Which fields may persisted decision and evidence events expose without storing sensitive prompts, code, or provider-private state?
-7. Which concrete fork UI, client plugin, or command/config surface is the A5p preview carrier, and how does its probe prove one-operation Auto/manual control plus explanation retrieval?
+7. Can the Phase 0P A5p carrier be promoted to the Phase 0C preview carrier, and what additional admission-aware probe is required?
 
 ## Must close before Phase B and production-release planning
 

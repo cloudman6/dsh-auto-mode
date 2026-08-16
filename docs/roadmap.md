@@ -28,6 +28,34 @@ Freeze the normal product interaction as exactly two choices: Auto, or manual pr
 - If upstream review is pending or rejects the API shape, continue validation only on an exact pinned DSH fork and state that official DSH is unsupported.
 - Do not treat an `agent/request`-only prototype or ignorable Session events as a product-compatible fallback.
 
+### Phase 0P: AA-seeded Experimental Auto
+
+This is the earliest actively routed dogfood build. It exists to validate the product loop before RouterBench admission is available. It is maintainer-only, explicit opt-in, fork-pinned, and visibly labelled `experimental-unadmitted`; it is not the Phase 0C preview and makes no quality, non-inferiority, official-compatibility, or public-support claim.
+
+Phase 0P may proceed without the minimal Phase A admission slice only under [ADR-008](decisions/0008-external-prior-experimental-auto.md):
+
+1. A1 and A2 remain green on the declared fork.
+2. A3p binds every selectable DSH provider/model/reasoning selection to one exact external-evidence configuration; scores never transfer across explicit effort, adapter-default materialization, or provider-default omission.
+3. A versioned, attributed Artificial Analysis snapshot is supplied locally without repository-bundled data, website scraping, or a client-exposed API key.
+4. Deterministic Task Assessment selects an index family and deterministic Host policy selects a semantic experimental tier. The external source never chooses the final route.
+5. High-risk, unknown, or low-confidence task assessment may select the strongest exactly matched experimental configuration only from a valid frozen catalog. Unmatched or identity-drifted routes, invalid evidence, and missing required Host contracts leave Auto with `no-experimental-route` and no model call.
+6. A5p verifies one concrete carrier for one-operation Auto/manual control and persisted experimental explanations.
+7. Routing remains one frozen decision per Session.
+8. Host-declared `RecoveryCapability` is a required policy input. No experimental tier, including `strong`, may execute mutable work until possible loss is inside an ADR-007-compliant risk bound accepted in a separate decision and every effect class has sufficient attribution and recovery support. Any irreversible external effect or mutation outside that bound terminates the current Auto attempt. User intervention can switch to Manual or wait for a new execution-world declaration; confirmation cannot authorize the blocked Experimental Auto dispatch.
+
+Acceptance:
+
+- A maintainer can explicitly enable Experimental Auto, complete an end-to-end task on the pinned fork, inspect the actual provider/model/reasoning selection, and return to Manual mode.
+- Cold reload reconstructs the same decision, external-evidence snapshot identity, effective request encoding, and `experimental-unadmitted` explanation.
+- Exact-identity mismatch, unsupported effort, stale or malformed evidence, and missing A1/A2 always fail before a request. Only task-assessment fallback may select the strongest exact match, and only while the frozen catalog, exact identity, and required Host contracts remain valid.
+- Negative tests prove that all irreversible external effects, every mutation outside the accepted loss bound, and insufficient attribution or recovery support terminate Experimental Auto before a call. Until a loss bound is accepted, no experimental tier—including `strong`—may execute mutable work; a confirmation action cannot reach provider dispatch.
+- Repeated-step and cold-load tests prove one Session decision is reused while every attempted Experimental Auto call receives a new authorization; identity, Host-contract, evidence-freshness, provider, or Recovery Capability drift denies the call without re-routing. Switching to Manual bypasses the Auto listener and preserves the existing manual request path without consuming the claimed turn.
+- Tests prove that an Artificial Analysis record does not itself become a normal admission and cannot enter the Phase 0C Effective Route Catalog.
+- The repository contains no Artificial Analysis credential or redistributed ranking dataset.
+- A self-skipping, credentialed real-entry smoke loads the production plugin through DSH, calls the selected provider when its key is present, and verifies the external response plus persisted `request/header` agree with provider/model/reasoning selection. Absence of the key is an explicit skip, not a pass.
+
+Dogfood outcomes may inform RouterBench taxonomy and fixtures, but cannot be treated as held-out evidence or promoted directly into a Policy Pack admission.
+
 ### Phase 0C: Fork-based Static Auto Preview
 
 This is the earliest user-usable Auto mode. It is a dogfood preview on the declared DSH fork, not an official-DSH compatibility release. It may begin only after:

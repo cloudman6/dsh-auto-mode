@@ -19,6 +19,29 @@ Objective after admission:
 
 End-to-end metrics include assessment, prompt assembly, history replay, cache loss, switching, failures, escalation, and recovery. Comparing one API-call price is insufficient.
 
+## Phase 0P experimental objective
+
+Phase 0P does not claim to solve the admitted quality-constrained objective. It uses a separate, explicit evidence state:
+
+```ts
+type RouteEvidenceState =
+  | { kind: 'admitted'; admissionId: AdmissionId }
+  | {
+      kind: 'experimental-unadmitted'
+      source: 'artificial-analysis'
+      sourceSnapshotId: ExternalEvidenceSnapshotId
+      externalRecordId: string
+    }
+```
+
+Task Assessment deterministically chooses the relevant index family: coding work uses the Coding Index, tool-heavy multi-step work uses the Agentic Index, and broad reasoning uses the Intelligence Index. Any mixed weighting, score boundary, freshness period, or latency/cost tie-break is part of a versioned experimental policy, not a hidden runtime constant.
+
+The Phase 0P resolver considers only exact DSH and external-record identity matches. `strong` means the highest relevant external score among currently eligible exact matches; `standard` and `fast` select lower-latency configurations only within their recorded heuristic score boundaries. These names are experimental tiers, not quality guarantees. High-risk, unknown, or low-confidence task assessment selects the strongest exact match from a valid frozen catalog. An unmatched or drifted route, invalid evidence, or missing required Host contract exits Auto with `no-experimental-route` and no call. It never reuses admitted Auto's `no-safe-route`. The explanation always exposes the experimental state and source snapshot.
+
+Host-declared `RecoveryCapability` and execution-world effect classes are required policy inputs. No experimental tier, including `strong`, may execute mutable work unless possible loss is inside an ADR-007-compliant risk bound accepted in a separate decision and every relevant effect class has sufficient declared attribution and recovery support. This routing-safety bound is not route admission. Until it exists, Phase 0P does not automatically execute mutable work. Any irreversible external effect, or any mutation not proved inside the bound, terminates the current Experimental Auto attempt with `no-experimental-route`. User intervention may switch to Manual or wait for newly declared execution-world facts; confirmation cannot authorize the denied Experimental Auto dispatch. Task Assessment cannot infer or override these capability facts.
+
+Experimental evidence cannot satisfy `RouteAdmission`, cannot be consumed by Phase 0C policy, and cannot be promoted without the normal RouterBench protocol.
+
 ## User interaction boundary
 
 The ordinary user-facing choice has exactly two modes:
@@ -26,9 +49,13 @@ The ordinary user-facing choice has exactly two modes:
 - `Auto`: the Host selects an admitted route and explains changes.
 - Manual: the user selects provider/model/reasoning behavior directly, including supported defaults.
 
+Phase 0P retains these two modes but labels Auto as Experimental Auto and requires explicit maintainer opt-in.
+
 Ordinary users do not configure `epsilon`, `delta`, assessor thresholds, expiry, canaries, or route-admission matrices. Those facts belong to a maintainer-owned, versioned Policy Pack. Advanced users may restrict providers, define budgets, or install a custom pack, but a custom mapping has no quality guarantee until admitted by the same evidence protocol.
 
 Manual mode bypasses Auto policy, not Host security or provider capability validation. A manual choice is user intent, never a correctness label.
+
+The Experimental Auto preparation listener is a no-op in Manual mode: it returns control to DSH's existing manual model-selection and Host/provider validation path. Switching to Manual may append an Auto-exit audit fact, but it is never represented as a denied Auto call and must not reject or consume the manual turn.
 
 ## Policy Pack and deployment profile
 
@@ -68,7 +95,7 @@ interface AdmissionIdentity {
 
 `explicit` requires exact-route reasoning metadata that contains the requested effort. `adapter-default` requires a resolved adapter default and records the materialized effort. `provider-default` means the request deliberately omits effort and preserves provider behavior; it is not equivalent to an unknown or empty explicit effort. It may enter Auto only when admission evidence evaluated that omission behavior and the deployment identity contract is strong enough to detect or conservatively invalidate drift.
 
-Discovery is automatic and its size is not hard-coded. Availability in DSH is necessary but not sufficient for Auto: only the intersection of discovered configurations and current admissions enters the automatic candidate set. Unadmitted configurations may remain available to manual selection.
+Discovery is automatic and its size is not hard-coded. Availability in DSH is necessary but not sufficient for admitted Auto: only the intersection of discovered configurations and current admissions enters that candidate set. Phase 0P builds its structurally separate experimental candidate set under the exact-match rules above. Other unadmitted configurations may remain available to manual selection.
 
 Provider aliases, server-side model changes, default-effort changes, and missing fingerprints can invalidate evidence. Expired, revoked, or unidentifiable configurations are unavailable for automatic down-routing until canaries or a complete evaluation renew admission.
 
@@ -81,16 +108,42 @@ type PolicyDecision =
   | { outcome: 'selected'; route: BuiltinRoute; reasonCode: ReasonCode }
   | { outcome: 'abstained'; requestedFallback: 'strong'; reasonCode: ReasonCode }
 
-type ResolutionFailure =
+type SharedResolutionFailure =
   | 'constraints-unsatisfiable'
   | 'profile-invalid'
   | 'profile-unavailable'
   | 'provider-unavailable'
-  | 'no-safe-route'
 
 type RouteResolution =
-  | { outcome: 'resolved'; route: BuiltinRoute; config: EffectiveCallConfig }
-  | { outcome: 'failed'; failure: ResolutionFailure; reasonCode: ReasonCode }
+  | {
+      outcome: 'resolved'
+      route: BuiltinRoute
+      config: EffectiveCallConfig
+      evidence: { kind: 'admitted'; admissionIdentity: AdmissionIdentity }
+    }
+  | {
+      outcome: 'resolved'
+      route: BuiltinRoute
+      config: EffectiveCallConfig
+      evidence: {
+        kind: 'experimental-unadmitted'
+        experimentalRouteIdentity: ExperimentalRouteIdentity
+        sourceSnapshotId: ExternalEvidenceSnapshotId
+        externalRecordId: string
+      }
+    }
+  | {
+      outcome: 'failed'
+      evidenceKind: 'admitted'
+      failure: SharedResolutionFailure | 'no-safe-route'
+      reasonCode: ReasonCode
+    }
+  | {
+      outcome: 'failed'
+      evidenceKind: 'experimental-unadmitted'
+      failure: SharedResolutionFailure | 'no-experimental-route'
+      reasonCode: ReasonCode
+    }
 ```
 
 - `fast`: the lowest admitted guarantee tier for bounded, low-risk work.
@@ -98,9 +151,9 @@ type RouteResolution =
 - `strong`: the configured baseline guarantee tier for the task category, after that baseline passes an absolute gate.
 - `abstained`: Policy lacks evidence to choose a weaker tier. Resolution attempts the admitted baseline, but returns `no-safe-route` without a model call if no safe configuration exists.
 
-`fast < standard < strong` orders policy guarantee tiers, not raw model intelligence. A concrete configuration may occupy a tier for a task category only when the Policy Pack contains current admission evidence. A specialist configuration that outperforms the configured baseline belongs in the tier justified by its evidence; its model name does not determine the tier.
+In admitted Auto, `fast < standard < strong` orders policy guarantee tiers, not raw model intelligence. A concrete configuration may occupy an admitted tier for a task category only when the Policy Pack contains current admission evidence. A specialist configuration that outperforms the configured baseline belongs in the tier justified by its evidence; its model name does not determine the tier. Phase 0P's identically named tiers remain heuristic and `experimental-unadmitted`.
 
-Routing Policy and Route Profile Resolver operate on one immutable Effective Route Catalog snapshot. Policy uses versioned tier-level quality and performance evidence to select a guarantee tier. Within that selected tier and the resolved candidate set, the resolver filters by admission, identity, capability, and security; it then orders candidates by predicted end-to-end latency, total cost, and stable `AdmissionIdentity` as the final tie-break. Missing identity or required comparison metrics is `profile-invalid`. Live catalog order, asynchronous discovery completion, and object iteration order are never selection signals.
+Admitted Routing Policy and Route Profile Resolver operate on one immutable Effective Route Catalog snapshot. Phase 0P operates on a structurally separate immutable Experimental Route Catalog snapshot. The admitted resolver filters by admission, identity, capability, and security and uses stable `AdmissionIdentity` as its final tie-break; the experimental resolver filters by exact external evidence identity and uses its stable experimental route identity. Missing identity or required comparison metrics is `profile-invalid`. Live catalog order, asynchronous discovery completion, and object iteration order are never selection signals.
 
 ## Constraint resolution and precedence
 
