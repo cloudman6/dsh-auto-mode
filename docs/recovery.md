@@ -41,6 +41,12 @@ interface RecoveryCapability {
 
 This record describes what the execution world can prove, not what Recovery Supervisor hopes to restore. Unknown, irreversible, or unattributable high-impact mutations raise the route floor or prevent Auto execution. A workspace checkpoint never implies that database, message, deployment, or remote API side effects are recoverable.
 
+### Phase 0P accepted loss envelope
+
+[ADR-009](decisions/0009-phase-0p-attributable-worktree-loss-bound.md) accepts one narrow mutable envelope: all uncommitted filesystem changes produced by the current Attempt inside a clean isolated task worktree. The base branch, other worktrees, pre-existing user changes, Git history, remote state, dependency or system installation, and all external systems remain outside the bound.
+
+The decision is not a capability declaration. Before mutable Experimental Auto runs, a versioned Host provider must prove at least `workspace: 'attributable-files'` and `externalSideEffects: 'none'`, enforce canonical worktree containment before each effect, freeze and cover the exact production capability/tool-entry inventory, scrub ambient credentials from child processes, and durably attribute every created, modified, or deleted path to the Attempt through a causally ordered journal that survives cold load. Negative controls cover dirty-start drift, path, symlink, hard-link, or mount escape, Git repository-state mutation and helper execution, every network-capable or alternate caller, unclassified commands, and process leakage. After-the-fact escape detection and an in-memory-only journal are insufficient. Until that evidence exists, Phase 0P remains read-only. The envelope permits preservation and inspection of failed mutations; it does not claim automatic rollback, `salvage`, or `restart`.
+
 ## Attempt
 
 An Attempt is one execution try starting from a known Session boundary and a declared Recovery Capability. A workspace checkpoint is optional only when the execution is read-only or the admitted risk envelope permits attributable mutations without rollback. Before allowing a weak route to mutate state, Policy must know whether recovery is sufficient.

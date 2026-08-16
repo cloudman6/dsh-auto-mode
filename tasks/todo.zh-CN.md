@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: de2b97082f053a8dda0d14fce39bfb06cad4a3d9
+translation-source-blob: a7cb7f02bcc341550af3be92cd8a0d3875de1ac4
 translation-status: current
 -->
 
@@ -41,7 +41,7 @@ translation-status: current
 **验证：**
 - [ ] 合成的 valid、stale、incomplete 与 malformed 示例得到预期结果。
 - [ ] 任务 3 或 4 实施前，维护者明确批准 API access 与依赖新增。
-- [ ] 实现或启用任何可变阶段 0P 路径前，维护者单独接受符合 ADR-007 的 possible-loss bound 与已验证 Recovery Capability scope。
+- [x] 维护者已通过 ADR-009 接受符合 ADR-007 的 possible-loss bound。
 
 **依赖：** 任务 1
 
@@ -54,7 +54,8 @@ translation-status: current
 - [ ] 任务 1-2 完成并通过评审。
 - [ ] 没有 route 依赖名称匹配或推断 effort。
 - [ ] 所需外部 access 与依赖得到明确授权。
-- [ ] 可变 scope 已通过独立 recovery/loss-bound 决策得到明确授权，否则被限制为只读。
+
+任务 3-7 保持只读，并对可变执行 fail closed。任务 8-9 分别接受具体 provider 设计并证明其可执行 ADR-009 capability，再启用可变能力，从而避免与本检查点形成依赖循环。
 
 ## 任务 3：建立实施脚手架与领域类型
 
@@ -101,7 +102,7 @@ translation-status: current
 **验收标准：**
 - [ ] 相同 input snapshot 与 policy version 始终产生相同决策和解释。
 - [ ] 高风险、未知或低置信度 task assessment 从有效 catalog 中选择最强精确匹配；route 无法匹配或漂移、证据无效时，在调用前以 `no-experimental-route` 退出。
-- [ ] 符合 ADR-007 的 risk bound 通过另行决策被接受前，包括 `strong` 在内的任何实验档都不得执行可变工作；接受后仍要求 possible loss 落在 bound 内，并且每个 effect class 都有充分的已声明 attribution 与 recovery support。
+- [ ] 只有 possible loss 保持在 ADR-009 内，并且带版本 Host provider 为每个相关 effect class 证明干净 worktree isolation、Attempt attribution、containment、process control 与 `externalSideEffects: 'none'` 时，包括 `strong` 在内的实验档才能执行可变工作。
 - [ ] 任何不可逆外部副作用、超出已接受 bound 的 mutation，或 attribution/recovery support 不充分，都会以 `no-experimental-route` 终止当前 Experimental Auto attempt，与影响等级无关。用户介入可以切换到 Manual 或等待新的 execution-world facts，但不能授权已拒绝的 dispatch。
 - [ ] 每个结果携带 `experimental-unadmitted` 和 source-snapshot identity。
 
@@ -169,7 +170,61 @@ translation-status: current
 
 **预计范围：** Medium
 
-## 任务 8：用具体 client carrier 关闭 A5p
+## 任务 8：冻结并接受 execution-world provider 设计
+
+**说明：** 实施前审计实际 DSH production composition，并提出具体 provider 机制。冻结可变 Experimental Auto 能到达的每个 capability/tool entry、每项决策的 executor、runner/platform isolation 机制、支持的操作系统、dependency/service ownership、credential boundary、持久证据契约与 fail-closed 行为。把选择写入 Proposed ADR；只有维护者接受该 ADR，并明确授权每项新 dependency、external service 或 DSH Core seam 后才能实施。
+
+**验收标准：**
+- [ ] Production inventory 覆盖 in-process filesystem 与 Web tool、foreground/background shell 或 terminal execution、Code Mode nested dispatch、hook、subagent、direct capability caller，以及固定 DSH composition 中发现的每个 alternate executor。
+- [ ] 每个 inventory entry 标明精确 enforcement point，并且要么由 provider 覆盖，要么对可变 Experimental Auto 禁用。Schema omission、prompt 指令或 listener order 不算 enforcement。
+- [ ] 设计选择具体 platform/runner，解释 file、network、process、mount 与 environment isolation；不能把现有 DSH file-only sandbox claim 或 E2B limitation 提升为更广 capability evidence。
+- [ ] 设计规定支持的操作系统，并为 unsupported、partial enforcement、missing、stale 或 misconfigured provider 规定 fail-closed 结果。
+- [ ] 设计规定 option-aware 只读 Git wrapper/allowlist、固定 environment、禁用 output/external-helper path，以及前后 repository-state evidence。
+- [ ] 设计规定持久、带版本、按因果顺序追加的 Attempt boundary 与 attribution journal、不可变 identity、cold-load reconstruction、live reconciliation、interruption semantics 与安全持久字段。
+- [ ] Plugin code、DSH extension、platform runner、新 dependency、external service 与 credential scrubbing 的 ownership/composition 明确。项目 stop-and-ask 边界覆盖的每项变更都具有维护者明确授权。
+
+**验证：**
+- [ ] Source audit 把 inventory 映射到当前官方 DSH default branch 与固定 fork，包括 direct 与 alternate caller。
+- [ ] Threat-model review 把 file escape、network/exfiltration、ambient credential、process lifetime、Git helper/option bypass、concurrent mutation 与 crash/cold-load path 追踪到 executor-level denial 或 fail-closed state。
+- [ ] 项目 Code Review Skill 与必需的 fresh-context 独立评审都返回 `PASS`；随后由维护者明确接受 provider ADR。
+
+**依赖：** 任务 6、7
+
+**可能修改：** `docs/architecture.md`、`docs/dsh-integration.md`、`docs/recovery.md`、`docs/decisions/`、production capability inventory 与中文翻译
+
+**预计范围：** Large
+
+## 任务 9：实现并证明已接受的 ADR-009 execution-world provider
+
+**说明：** 为隔离 worktree envelope 实现已接受、带版本的 Host execution-world provider。Provider 只授权一个干净任务 worktree 内可归属的文件系统 mutation，在每个已盘点 executor 上于 effect 发生前阻止排除项，约束 child process，并向每次模型调用 authorization 提供可重建的 capability 与 attribution facts。
+
+**验收标准：**
+- [ ] 启动时拒绝 dirty 或非隔离 worktree，并在任何可变工具执行前记录稳定 Attempt 边界。
+- [ ] Canonical-path enforcement 在 effect 发生前阻止路径穿越、symlink、hard-link、mount 与 root 外逃逸；仅靠事后检测不合格。
+- [ ] Git index、object database、configuration、ref、history、linked-worktree administration、通过 Git 改变的 worktree 状态和 remote 都不能被修改。只读 Git 检查只能通过已接受的 option-aware wrapper，使用固定 environment，禁用 optional lock/index refresh，并拒绝 output、pager、hook、external-diff 与 text-conversion execution path。
+- [ ] 每个已盘点 Web、filesystem、shell/terminal、background、Code Mode、hook、subagent、direct 与 alternate entry 都在 executor 实施已接受 policy；未覆盖入口不可用。Agent 发起的联网或未分类命令、依赖或系统安装、外部 API、账户或操作系统变更及其他外部 effect 在执行前被拒绝。模型 provider dispatch 继续作为独立授权的 Host 动作。
+- [ ] Child process 只获得已接受的 scrubbed environment，不能读取 ambient credential，也不能通过任何已盘点 output 或 network path 外传 canary secret。
+- [ ] 允许的工具 process 及其 descendant 被约束，并在 Attempt 视为停止前进入 quiescent 状态；process 逃逸或泄漏必须 fail closed。
+- [ ] Provider 在发布不可变 `RecoveryCapability` reference 前，持久追加带版本的稳定 Attempt boundary 和按因果顺序追加的 attribution journal。每个创建、修改和删除的路径都可归属；并发或未知 mutation 使可变 authorization 失效。
+- [ ] Cold load 不依赖进程内存即可重建 journal 与 capability reference，把 orphan/interrupted boundary 标为 fail closed，在重新授权前 reconciliation live worktree，并按因果顺序持久化 drift 或 terminal evidence。
+- [ ] 失败时保留 worktree 与证据供检查，不宣称自动 rollback、`salvage` 或 `restart`。
+
+**验证：**
+- [ ] Executor-level fault injection 覆盖每个冻结 production entry point 与 alternate caller，包括 Web request/SSRF、foreground/background shell 或 terminal work、Code Mode nested dispatch、hook、subagent、direct capability call、package 或系统安装、未分类命令、ambient-credential canary exfiltration 与 child-process escape。外部 observer 验证未发生被拒绝的 request 或 state change。
+- [ ] Filesystem fault injection 覆盖 dirty start、路径穿越、symlink、hard-link、mount 与 canonical-path 逃逸、并发 mutation 和 attribution drift，并且在 effect 前阻断。
+- [ ] Git fault injection 覆盖 add、restore、clean、checkout/switch、commit、reset、ref/tag/branch/worktree/config/object-database/remote mutation，以及 output-file、pager、hook、external-diff、textconv 与任意 option bypass。正向 inspection 证明固定 environment 和完整 repository/worktree state 不变。
+- [ ] Journal test 在每个 durable boundary 后 interrupt 或 crash，在无旧进程内存时 cold load，对比重建 journal 与 live worktree，并证明 stale、orphan、reordered、missing 或 drifted evidence fail closed。
+- [ ] 正向测试覆盖可归属的 create、modify、delete effect，以及已接受的只读 Git 检查。
+- [ ] 真实 Loader/app/process composition 覆盖每个已启用 production executor，证明 policy 消费持久 capability reference 与 journal，并在 provider 或 inventory 缺失、不兼容、stale、partial enforcement 或报告 drift 时拒绝可变 dispatch。
+- [ ] 提交前项目 Code Review Skill 与必需的 fresh-context 独立评审都返回 `PASS`。
+
+**依赖：** 任务 8、其 Accepted provider ADR，以及每项选定新 dependency、external service 或 DSH Core seam 的明确授权
+
+**可能修改：** `src/execution-world/`、`src/host/`、`tests/execution-world/`、`tests/integration/`、capability 与证据文档
+
+**预计范围：** Large
+
+## 任务 10：用具体 client carrier 关闭 A5p
 
 **说明：** 在已验证 DSH client surface 增加显式 Experimental Auto/manual 控制，渲染实际持久化 selection、source snapshot 和未准入解释。
 
@@ -191,10 +246,10 @@ translation-status: current
 
 ## 检查点：集成路径
 
-- [ ] 任务 6-8 通过固定 fork、cold-load 与 client 验收测试。
+- [ ] 任务 6-10 通过固定 fork、cold-load、fault-injection 与 client 验收测试。
 - [ ] 实际 request 配置等于持久化并显示的 route snapshot。
 
-## 任务 9：打包并证明 dogfood build
+## 任务 11：打包并证明 dogfood build
 
 **说明：** 运行无密钥端到端 probe，创建本地维护者安装/runbook，记录精确 build 证据但不发布公开 release。
 
@@ -209,7 +264,7 @@ translation-status: current
 - [ ] 完整聚焦测试、typecheck、lint、文档、secret scan、keyless 纵向 probe 与可用 with-key smoke 通过。
 - [ ] 提交前最终项目 Code Review Skill 返回 `PASS`。
 
-**依赖：** 任务 1-8
+**依赖：** 任务 1-10
 
 **可能修改：** `docs/runbook/`、`docs/evidence/`、`PROJECT_STATUS.md`、README navigation 与翻译
 

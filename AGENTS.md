@@ -13,7 +13,7 @@ DSH Auto Mode gives individual power users of coding agents an adaptive Auto mod
 | Item | Current state |
 |---|---|
 | Stage | Phase 0P planning and critical-path execution; A1/A2 are implemented and pinned on the maintainer DSH fork |
-| Existing work | Accepted product specification, architecture, routing, recovery, delegation, RouterBench, DSH integration evidence, roadmap, open questions, and 8 Accepted ADRs |
+| Existing work | Accepted product specification, architecture, routing, recovery, delegation, RouterBench, DSH integration evidence, roadmap, open questions, and 9 Accepted ADRs |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Absolute baseline quality gate + candidate non-inferiority → end-to-end latency → total cost |
@@ -48,12 +48,13 @@ Load topic documents only when relevant; do not load the entire repository indis
 
 ## Current-stage constraints
 
-The maintainer accepted the specification and ADR-001 through ADR-007 on 2026-08-15 and accepted ADR-008 on 2026-08-16. Phase 0P implementation may proceed under these constraints:
+The maintainer accepted the specification and ADR-001 through ADR-007 on 2026-08-15 and accepted ADR-008 and ADR-009 on 2026-08-16. Phase 0P implementation may proceed under these constraints:
 
 - Treat the accepted specification and ADRs as binding until a superseding decision is explicitly accepted.
 - Keep the implemented A1 and A2 contracts product-neutral and pinned to the verified fork commit; DSH Core must not learn Auto Mode route tiers, Task Assessment, or Policy Pack semantics.
 - Keep Phase 0P maintainer-only, explicit opt-in, fork-pinned, and visibly `experimental-unadmitted`. External ranking evidence must remain structurally separate from RouterBench admission.
 - Require exact provider/model/reasoning-selection identity before matching an Artificial Analysis record; never transfer a measured score across effort or default encodings.
+- Treat ADR-009 as risk authorization, not capability evidence. Mutable Experimental Auto remains disabled until a separately accepted concrete provider design freezes every production tool entry and a versioned Host provider proves a clean isolated worktree, durable Attempt-scoped file attribution and containment, process and credential isolation, and `externalSideEffects: 'none'`; uncovered or unsupported entries fail closed.
 - Keep the Phase 0C preview fork-pinned and limited to one routing decision per Session.
 - Do not claim official DSH compatibility, route admission, or a usable preview until the corresponding roadmap evidence gates pass.
 
@@ -88,6 +89,7 @@ English canonical documents and Chinese translations are governed by `docs/local
 11. Ordinary users choose only between `Auto` and manual provider/model/reasoning selection. Maintainer-owned versioned Policy Packs carry defaults, calibration, expiry, and revocation; advanced overrides are optional.
 12. A route for one model step must be frozen before provider-dependent prompt and tool assembly, then applied unchanged at `agent/request`.
 13. Phase 0P external evidence cannot satisfy `RouteAdmission`, compile into the Phase 0C Effective Route Catalog, or be presented as RouterBench evidence.
+14. Phase 0P mutable work is limited by ADR-009 to attributable uncommitted changes created by the current Attempt in a clean isolated worktree. The concrete provider design and complete production tool-entry inventory require separate acceptance; user approval does not prove Recovery Capability and never authorizes external effects or automatic rollback.
 
 ## Authoritative document map
 

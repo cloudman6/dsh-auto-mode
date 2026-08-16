@@ -35,7 +35,7 @@
 **Verification:**
 - [ ] Synthetic valid, stale, incomplete, and malformed examples have expected outcomes.
 - [ ] Maintainer explicitly approves API access and dependency additions before Task 3 or 4 implementation.
-- [ ] Maintainer separately accepts an ADR-007-compliant possible-loss bound and verified Recovery Capability scope before any mutable Phase 0P path is implemented or enabled.
+- [x] Maintainer accepts the ADR-007-compliant possible-loss bound in ADR-009.
 
 **Dependencies:** Task 1
 
@@ -48,7 +48,8 @@
 - [ ] Tasks 1-2 are complete and reviewed.
 - [ ] No route relies on name-only or inferred-effort matching.
 - [ ] Required external access and dependencies are explicitly authorized.
-- [ ] Mutable scope is either explicitly authorized by the separate recovery/loss-bound decision or excluded as read-only.
+
+Tasks 3-7 remain read-only and fail closed for mutable execution. Tasks 8-9 separately accept the concrete provider design and prove its executable ADR-009 capability before mutable enablement, avoiding a dependency cycle with this checkpoint.
 
 ## Task 3: Establish the implementation scaffold and domain types
 
@@ -95,7 +96,7 @@
 **Acceptance criteria:**
 - [ ] Same input snapshot and policy version always produce the same decision and explanation.
 - [ ] High-risk, unknown, or low-confidence task assessment chooses the strongest exact match from a valid catalog; unmatched or drifted routes and invalid evidence exit with `no-experimental-route` before a call.
-- [ ] No experimental tier, including `strong`, may execute mutable work until an ADR-007-compliant risk bound is accepted in a separate decision; afterward it still requires possible loss inside that bound and sufficient declared attribution and recovery support for every effect class.
+- [ ] No experimental tier, including `strong`, may execute mutable work unless possible loss stays inside ADR-009 and a versioned Host provider proves clean worktree isolation, Attempt attribution, containment, process control, and `externalSideEffects: 'none'` for every relevant effect class.
 - [ ] Any irreversible external effect, mutation outside the accepted bound, or insufficient attribution/recovery support terminates the current Experimental Auto attempt with `no-experimental-route`, regardless of impact level. User intervention may switch to Manual or wait for new execution-world facts; it cannot authorize the denied dispatch.
 - [ ] Every result carries `experimental-unadmitted` and source-snapshot identity.
 
@@ -163,7 +164,61 @@
 
 **Estimated scope:** Medium
 
-## Task 8: Close A5p with a concrete client carrier
+## Task 8: Freeze and accept the execution-world provider design
+
+**Description:** Audit the actual DSH production composition and propose a concrete provider mechanism before implementation. Freeze every capability and tool entry that mutable Experimental Auto can reach, the executor where each decision is enforced, the runner/platform isolation mechanism, supported operating systems, dependency and service ownership, credential boundary, persistent evidence contract, and fail-closed behavior. Record the choice in a Proposed ADR; implementation cannot start until the maintainer accepts it and explicitly authorizes every new dependency, external service, or DSH Core seam.
+
+**Acceptance criteria:**
+- [ ] The production inventory covers in-process filesystem and Web tools, foreground and background shell or terminal execution, Code Mode nested dispatch, hooks, subagents, direct capability callers, and every alternate executor discovered in the pinned DSH composition.
+- [ ] Each inventory entry names the exact enforcement point and is either covered by the provider or disabled for mutable Experimental Auto. Schema omission, prompt instructions, or listener order are not treated as enforcement.
+- [ ] The design selects a concrete platform/runner and explains file, network, process, mount, and environment isolation; existing DSH file-only sandbox claims and E2B limitations are not promoted into broader capability evidence.
+- [ ] The design specifies supported operating systems and a fail-closed result for unsupported, partially enforced, missing, stale, or misconfigured providers.
+- [ ] The design specifies an option-aware read-only Git wrapper/allowlist, fixed environment, disabled output/external-helper paths, and before/after repository-state evidence.
+- [ ] The design specifies a durable, versioned, causally ordered Attempt boundary and attribution journal, immutable identity, cold-load reconstruction, live reconciliation, interruption semantics, and safe persisted fields.
+- [ ] Ownership and composition are explicit for plugin code, DSH extensions, platform runner, new dependencies, external services, and credential scrubbing. Every change covered by a project stop-and-ask boundary has explicit maintainer authorization.
+
+**Verification:**
+- [ ] Source audit maps the inventory to the current official DSH default branch and pinned fork, including direct and alternate callers.
+- [ ] Threat-model review traces file escape, network/exfiltration, ambient credentials, process lifetime, Git helper/option bypass, concurrent mutation, and crash/cold-load paths to an executor-level denial or fail-closed state.
+- [ ] Project Code Review Skill and required fresh-context independent review both return `PASS`; the maintainer then explicitly accepts the provider ADR.
+
+**Dependencies:** Tasks 6 and 7
+
+**Files likely touched:** `docs/architecture.md`, `docs/dsh-integration.md`, `docs/recovery.md`, `docs/decisions/`, production capability inventory and Chinese translations
+
+**Estimated scope:** Large
+
+## Task 9: Implement and prove the accepted ADR-009 execution-world provider
+
+**Description:** Implement the accepted, versioned Host execution-world provider for the isolated-worktree envelope. The provider authorizes only attributable filesystem mutations inside one clean task worktree, prevents excluded effects before they occur at every inventoried executor, contains child processes, and supplies reconstructable capability and attribution facts to each model-call authorization.
+
+**Acceptance criteria:**
+- [ ] Startup refuses a dirty or non-isolated worktree and records a stable Attempt boundary before any mutable tool execution.
+- [ ] Canonical-path enforcement prevents traversal, symlink, hard-link, mount, and out-of-root escape before the effect; after-the-fact detection alone is rejected.
+- [ ] Git index, object database, configuration, references, history, linked-worktree administration, worktree state changed through Git, and remotes cannot be mutated. Read-only Git inspection runs only through the accepted option-aware wrapper with fixed environment, optional locks/index refresh disabled, and output, pager, hook, external-diff, and text-conversion execution paths denied.
+- [ ] Every inventoried Web, filesystem, shell/terminal, background, Code Mode, hook, subagent, direct, and alternate entry enforces the accepted policy at its executor; uncovered entries are unavailable. Agent-issued networked or unclassified commands, dependency or system installation, external APIs, account or operating-system changes, and other external effects are denied before execution. Model-provider dispatch remains a separately authorized Host action.
+- [ ] Child processes receive only the accepted scrubbed environment, cannot read ambient credentials, and cannot exfiltrate canary secrets through any inventoried output or network path.
+- [ ] Allowed tool processes and descendants are contained and quiescent before the Attempt is considered stopped; process escape or leakage fails closed.
+- [ ] The provider durably appends a versioned stable Attempt boundary and causally ordered attribution journal before publishing the immutable `RecoveryCapability` reference. Every created, modified, and deleted path is attributable; concurrent or unknown mutation invalidates mutable authorization.
+- [ ] Cold load reconstructs the journal and capability reference without process-memory state, marks orphan/interrupted boundaries fail closed, reconciles the live worktree before reauthorization, and persists drift or terminal evidence in causal order.
+- [ ] Failure preserves the worktree and evidence for inspection without claiming automatic rollback, `salvage`, or `restart`.
+
+**Verification:**
+- [ ] Executor-level fault injection covers every frozen production entry point and alternate caller, including Web requests/SSRF, foreground and background shell or terminal work, Code Mode nested dispatch, hooks, subagents, direct capability calls, package or system installation, unclassified commands, ambient-credential canary exfiltration, and child-process escape. The external observer verifies no denied request or state change occurred.
+- [ ] Filesystem fault injection covers dirty start, path traversal, symlink, hard-link, mount and canonical-path escape, concurrent mutation, and attribution drift before effect.
+- [ ] Git fault injection covers add, restore, clean, checkout/switch, commit, reset, ref/tag/branch/worktree/config/object-database/remote mutation plus output-file, pager, hook, external-diff, textconv, and arbitrary-option bypasses. Positive inspection proves the fixed environment and full repository/worktree state are unchanged.
+- [ ] Journal tests interrupt or crash after every durable boundary, cold load without prior process memory, compare the reconstructed journal with the live worktree, and prove stale, orphaned, reordered, missing, or drifted evidence fails closed.
+- [ ] Positive tests cover attributable create, modify, and delete effects plus accepted read-only Git inspection.
+- [ ] Real Loader/app/process composition exercises every enabled production executor, proves policy consumes the persisted capability reference and journal, and refuses mutable dispatch when the provider or inventory is absent, incompatible, stale, partially enforced, or reports drift.
+- [ ] Project Code Review Skill and required fresh-context independent review both return `PASS` before commit.
+
+**Dependencies:** Task 8, its Accepted provider ADR, and explicit authorization for every selected new dependency, external service, or DSH Core seam
+
+**Files likely touched:** `src/execution-world/`, `src/host/`, `tests/execution-world/`, `tests/integration/`, capability and evidence documentation
+
+**Estimated scope:** Large
+
+## Task 10: Close A5p with a concrete client carrier
 
 **Description:** Add explicit Experimental Auto/manual control and render the actual persisted selection, source snapshot, and unadmitted explanation in the verified DSH client surface.
 
@@ -185,10 +240,10 @@
 
 ## Checkpoint: Integrated path
 
-- [ ] Tasks 6-8 pass pinned-fork, cold-load, and client acceptance tests.
+- [ ] Tasks 6-10 pass pinned-fork, cold-load, fault-injection, and client acceptance tests.
 - [ ] Actual request configuration equals the persisted and displayed route snapshot.
 
-## Task 9: Package and prove the dogfood build
+## Task 11: Package and prove the dogfood build
 
 **Description:** Run a secret-free end-to-end probe, create the local maintainer installation/runbook, and record exact build evidence without publishing a public release.
 
@@ -203,7 +258,7 @@
 - [ ] Full focused test suite, typecheck, lint, documentation, secret scan, keyless vertical probe, and available with-key smoke pass.
 - [ ] Final project Code Review Skill returns `PASS` before commit.
 
-**Dependencies:** Tasks 1-8
+**Dependencies:** Tasks 1-10
 
 **Files likely touched:** `docs/runbook/`, `docs/evidence/`, `PROJECT_STATUS.md`, README navigation and translations
 

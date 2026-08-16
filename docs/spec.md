@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted by the maintainer on 2026-08-15. The Phase 0P amendment was accepted on 2026-08-16 through ADR-008.
+Accepted by the maintainer on 2026-08-15. The Phase 0P amendment and initial mutable-work loss bound were accepted on 2026-08-16 through ADR-008 and ADR-009.
 
 ## Assumptions
 
@@ -69,6 +69,7 @@ Phase 0P uses the same one-operation Auto/manual interaction but requires an exp
 - Semantic routes: `fast`, `standard`, `strong`, and `abstain`.
 - Maintainer-owned versioned Policy Packs plus deployment profiles populated from DSH's active provider/model catalog and exact-route metadata; explicit effort, adapter-default materialization, and provider-default omission remain distinct admission identities, and arbitrary user mappings have no quality guarantee until admitted.
 - A separate Phase 0P `ExternalRoutePrior` snapshot and experimental catalog that can never be compiled into a normal admission or silently reused by Phase 0C.
+- An ADR-009-gated Phase 0P mutable surface limited to attributable uncommitted changes from the current Attempt in a clean isolated worktree. The risk decision does not substitute for executable Recovery Capability evidence and does not authorize external effects or automatic rollback.
 - Routing Policy running in the Host; neither parent agents nor classifier models own normal final decisions.
 - A route snapshot frozen before provider-dependent prompt and tool assembly, then applied unchanged to the corresponding model request.
 - Explicit resolution outcomes for invalid profiles, unavailable providers, unsatisfiable constraints, admitted `no-safe-route`, and experimental `no-experimental-route`.
@@ -205,7 +206,7 @@ Policy returns a target route. `keep`, `upgrade`, and `downgrade` are derived by
 - Integration tests: real DSH `agent/request`, Session events, child-agent lifecycle assembly, explicit/default reasoning encodings, and deterministic concrete-candidate resolution from a frozen catalog.
 - Snapshot tests: user-visible decision explanations and recovery transcripts.
 - RouterBench: isolated calibration/validation/held-out data, paired repeated runs, absolute gates, and four strategy arms covering Always Baseline through routing plus recovery.
-- Phase 0P contract tests: external-record parsing, exact identity and effort matching, stale or malformed snapshot rejection with persisted preparation failure, one Session decision plus per-call fail-closed authorization, deterministic heuristic policy, Recovery Capability gating for mutable work, explicit experimental explanations, and proof that experimental evidence cannot become admission evidence.
+- Phase 0P contract tests: external-record parsing, exact identity and effort matching, stale or malformed snapshot rejection with persisted preparation failure, one Session decision plus per-call fail-closed authorization, deterministic heuristic policy, ADR-009 loss-bound and Recovery Capability gating for mutable work, explicit experimental explanations, and proof that experimental evidence cannot become admission evidence.
 - Phase 0P composition tests: keyless real Loader/app JSONL transcript plus a self-skipping with-key real-provider smoke that verifies the external response and persisted `request/header` carry the selected provider/model/reasoning selection; missing credentials are skipped evidence, never a passing smoke.
 - Fault injection: model timeout, low-confidence assessor, wrong route, repeated test failure, and unavailable checkpoint.
 - Security tests: pre-existing uncommitted workspace changes, concurrent agent modifications, and malicious or incorrect parent-agent constraints.

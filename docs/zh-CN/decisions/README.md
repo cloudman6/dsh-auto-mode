@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/README.md
-translation-source-blob: ea8135604db45e919dd1ef44202885ccc84d5788
+translation-source-blob: ed8ce941c65d335647b9afe245a3db398508d801
 translation-status: current
 -->
 
@@ -18,5 +18,6 @@ translation-status: current
 | [ADR-006](0006-evidence-governed-route-admission.md) | Accepted | 将证据治理的 route 准入与策略场景分离 |
 | [ADR-007](0007-recovery-capability-gates-recovery-claims.md) | Accepted | Recovery Capability 约束可修改路由与恢复主张 |
 | [ADR-008](0008-external-prior-experimental-auto.md) | Accepted | 外部榜单可在 RouterBench 准入前为仅限维护者的实验 Auto 提供先验 |
+| [ADR-009](0009-phase-0p-attributable-worktree-loss-bound.md) | Accepted | 阶段 0P 可变工作仅限干净隔离 worktree 中可归属的变更 |
 
 ADR 被取代时保留原文件，并把状态指向替代 ADR。

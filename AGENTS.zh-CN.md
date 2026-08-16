@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: e356aef008f41e8ad7ba6f7201953c2f9fddcbaa
+translation-source-blob: 9cd578400b468e917ec3086bb5318a411ee61601
 translation-status: current
 -->
 
@@ -19,7 +19,7 @@ translation-status: current
 | 项目 | 当前状态 |
 |---|---|
 | 项目阶段 | 阶段 0P 规划与关键路径执行；A1/A2 已在维护者 DSH fork 上实现并固定版本 |
-| 已有成果 | 已接受的产品规范、架构、路由、恢复、委派、RouterBench、DSH 接入证据、路线图、开放问题和 8 项 Accepted ADR |
+| 已有成果 | 已接受的产品规范、架构、路由、恢复、委派、RouterBench、DSH 接入证据、路线图、开放问题和 9 项 Accepted ADR |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | baseline 绝对质量门槛 + candidate 非劣性 → 端到端延迟 → 总成本 |
@@ -54,12 +54,13 @@ translation-status: current
 
 ## 当前阶段约束
 
-维护者已于 2026-08-15 接受规范及 ADR-001 至 ADR-007，并于 2026-08-16 接受 ADR-008。阶段 0P 可以在以下约束下实施：
+维护者已于 2026-08-15 接受规范及 ADR-001 至 ADR-007，并于 2026-08-16 接受 ADR-008 与 ADR-009。阶段 0P 可以在以下约束下实施：
 
 - 已接受的规范和 ADR 是约束，除非后续明确接受替代决策。
 - 已实现的 A1/A2 契约必须保持产品无关并固定到已验证 fork commit；DSH Core 不得理解 Auto Mode route 档位、Task Assessment 或 Policy Pack 语义。
 - 阶段 0P 必须仅限维护者、显式启用、固定到 fork，并明显标记 `experimental-unadmitted`。外部榜单证据必须与 RouterBench admission 保持结构隔离。
 - 匹配 Artificial Analysis 记录前必须具备精确 provider/model/reasoning-selection identity；不得跨 effort 或默认编码转移测得分数。
+- 把 ADR-009 视为风险授权，而非能力证据。只有另行接受的具体 provider 设计冻结每个 production tool entry，并且带版本 Host provider 证明干净隔离 worktree、持久 Attempt scope 文件归属与 containment、process/credential isolation，以及 `externalSideEffects: 'none'` 后，才能启用可变 Experimental Auto；未覆盖或不支持的入口都 fail closed。
 - 阶段 0C preview 固定到明确 fork，并保持每 Session 一次路由决策。
 - 对应路线图证据 gate 通过前，不得宣称兼容官方 DSH、route 已准入或 preview 已可用。
 
@@ -94,6 +95,7 @@ translation-status: current
 11. 普通用户只在 `Auto` 与手动 provider/model/reasoning selection 之间选择。默认值、校准、过期和撤销由维护者负责的版本化 Policy Pack 承担；高级 override 只是可选项。
 12. 一个模型 step 的 route 必须在依赖 provider 的 prompt/tool 组装之前冻结，并在 `agent/request` 原样应用。
 13. 阶段 0P 外部证据不能满足 `RouteAdmission`、编译进阶段 0C Effective Route Catalog，也不能被展示为 RouterBench 证据。
+14. ADR-009 把阶段 0P 可变工作限制为当前 Attempt 在干净隔离 worktree 内产生且可归属的未提交变更。具体 provider 设计和完整 production tool-entry inventory 必须另行接受；用户批准不能证明 Recovery Capability，也绝不授权外部 effect 或自动回滚。
 
 ## 文档权威位置
 

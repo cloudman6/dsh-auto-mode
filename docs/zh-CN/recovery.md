@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/recovery.md
-translation-source-blob: 385d926913e15f965c35e1d0cff1f87af819bc34
+translation-source-blob: ebc8911d483db629197946b26e9e2042288482bd
 translation-status: current
 -->
 
@@ -46,6 +46,12 @@ interface RecoveryCapability {
 ```
 
 该记录描述执行世界能够证明什么，不描述 Recovery Supervisor 希望恢复什么。未知、不可逆或不可归属的高影响 mutation 会抬高 route floor 或阻止 Auto 执行。工作区 checkpoint 绝不表示数据库、消息、部署或远程 API 副作用可恢复。
+
+### 阶段 0P 已接受的损失 envelope
+
+[ADR-009](decisions/0009-phase-0p-attributable-worktree-loss-bound.md) 接受一个狭窄可变 envelope：当前 Attempt 在干净隔离任务 worktree 内产生的全部未提交文件系统变更。Base branch、其他 worktree、用户预先已有的变更、Git 历史、远端状态、依赖或系统安装以及全部外部系统均不在该 bound 内。
+
+该决策不是 capability declaration。可变 Experimental Auto 运行前，带版本 Host provider 必须至少证明 `workspace: 'attributable-files'` 与 `externalSideEffects: 'none'`，在每项 effect 发生前强制 canonical worktree containment，冻结并覆盖精确 production capability/tool-entry inventory，清除 child process 的 ambient credential，并通过可经 cold load 恢复、按因果顺序追加的持久 journal，把每个创建、修改或删除的路径归属到 Attempt。负向 control 覆盖 dirty-start drift、路径、symlink、hard-link 或 mount 逃逸、Git repository-state mutation 与 helper execution、每个具有网络能力或 alternate caller 的入口、未分类命令与 process leakage。仅靠事后逃逸检测或只存在内存中的 journal 都不充分。该证据存在前，阶段 0P 继续只读。该 envelope 允许保留并检查失败的 mutation；不宣称自动回滚、`salvage` 或 `restart`。
 
 ## Attempt
 

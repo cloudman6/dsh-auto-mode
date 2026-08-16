@@ -12,5 +12,6 @@
 | [ADR-006](0006-evidence-governed-route-admission.md) | Accepted | Separate evidence-governed route admission from policy scenarios |
 | [ADR-007](0007-recovery-capability-gates-recovery-claims.md) | Accepted | Recovery Capability gates mutable routing and recovery claims |
 | [ADR-008](0008-external-prior-experimental-auto.md) | Accepted | External rankings may seed maintainer-only Experimental Auto before RouterBench admission |
+| [ADR-009](0009-phase-0p-attributable-worktree-loss-bound.md) | Accepted | Phase 0P mutable work is bounded to attributable changes in a clean isolated worktree |
 
 When an ADR is superseded, retain the original file and point its status to the replacement ADR.

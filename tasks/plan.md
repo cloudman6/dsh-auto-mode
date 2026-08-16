@@ -18,25 +18,19 @@ Deliver a maintainer-only, explicit-opt-in, one-decision-per-Session Experimenta
 ## Dependency graph
 
 ```text
-Task 1: exact route inventory and A3p mapping
-       |
-       +--> Task 2: external-prior contract and data boundary
-                    |
-                    +--> Task 3: repository scaffold and domain types
-                              |
-                              +--> Task 4: snapshot loader and exact matcher
-                              |         |
-                              |         +--> Task 5: deterministic assessment and policy
-                              |                    |
-                              +--> Task 6: Session persistence and projection
-                                                   |
-                                                   +--> Task 7: pre-assembly Host integration
-                                                              |
-Task 1 -------------------------------------------------------+
-                                                              |
-                                                              +--> Task 8: A5p client carrier
-                                                                         |
-                                                                         +--> Task 9: vertical dogfood probe
+Task 1 -> Task 2 -> Task 3 -> Task 4 -> Task 5
+                     |                    |
+                     +------> Task 6 <----+
+                                 |
+Tasks 1 and 5 ----------------> Task 7
+                                 |
+                                 +------> Task 8: execution-world design decision
+                                 |          |
+                                 |          +--> Task 9: execution-world provider
+                                 |
+                                 +------> Task 10: A5p client carrier
+
+Tasks 1-10 -------------------> Task 11: vertical dogfood probe
 ```
 
 ## Task list
@@ -50,7 +44,9 @@ Task 1 -------------------------------------------------------+
 
 - [ ] Every proposed experimental route has an exact DSH-to-external-record mapping or is explicitly excluded.
 - [ ] The maintainer reviews the heuristic boundaries and explicitly authorizes any Artificial Analysis API access and new runtime/development dependencies before implementation.
-- [ ] The maintainer separately accepts an ADR-007-compliant possible-loss bound and verified Recovery Capability scope before mutable Experimental Auto is enabled; otherwise implementation and dogfood remain read-only.
+- [x] The maintainer accepted the ADR-007-compliant possible-loss bound in ADR-009.
+
+Core and Host integration use read-only fixtures until Task 9 proves the executable ADR-009 capability. This is an enablement gate, not a dependency of Tasks 2-7.
 
 ### Core
 
@@ -67,17 +63,20 @@ Task 1 -------------------------------------------------------+
 
 - [ ] Task 6: Persist and cold-reconstruct Phase 0P catalog, assessment, decision, resolution, and explanation events.
 - [ ] Task 7: Integrate one frozen Session decision through `agent/prepare-step`, provider-dependent assembly, and `agent/request`.
-- [ ] Task 8: Implement and verify the A5p Experimental Auto/manual carrier and persisted explanation view.
+- [ ] Task 8: Freeze and accept the concrete execution-world provider design, exact production capability/tool-entry inventory, platform support, dependency ownership, and fail-closed composition.
+- [ ] Task 9: Implement and prove the accepted ADR-009 execution-world provider before enabling mutable tasks.
+- [ ] Task 10: Implement and verify the A5p Experimental Auto/manual carrier and persisted explanation view.
 
 ### Checkpoint: integrated path
 
 - [ ] Pinned-fork contract tests prove request/snapshot identity, fail-closed incompatibility, and cold reconstruction.
+- [ ] Fault-injection tests prove the execution-world provider prevents out-of-bound effects before they occur and attributes every allowed mutation to the current Attempt.
 - [ ] Web or alternate carrier tests prove one-operation mode selection and actual persisted explanation retrieval.
 - [ ] A fresh project Code Review Skill run returns `PASS` for each bounded integration stage.
 
 ### Dogfood
 
-- [ ] Task 9: Run the secret-free vertical probe, package the maintainer dogfood build, and publish a local runbook and evidence report.
+- [ ] Task 11: Run the secret-free vertical probe, package the maintainer dogfood build, and publish a local runbook and evidence report.
 
 ### Checkpoint: Phase 0P ready
 
@@ -90,7 +89,7 @@ Task 1 -------------------------------------------------------+
 - Pure domain tests run without network or DSH runtime.
 - Snapshot tests use synthetic fixtures with Artificial Analysis-compatible fields, not copied production ranking data, and prove endpoint/pagination metadata plus a canonical content digest identify the exact input.
 - Contract tests prove exact identity and effort matching, freshness failure, malformed data failure, deterministic tie-breaking, and experimental/admitted type separation.
-- Policy tests prove mutable experimental routing requires a separately accepted loss bound plus sufficient Host-declared Recovery Capability for every effect class; irreversible external effects and out-of-bound mutations terminate Auto before a call. User intervention can switch to Manual or wait for new execution-world facts, but cannot authorize the denied Experimental Auto dispatch.
+- Policy and execution-world fault-injection tests prove mutable experimental routing stays inside the accepted ADR-009 bound and requires sufficient Host-declared Recovery Capability for every effect class. The frozen production inventory covers in-process filesystem and Web tools, foreground/background shell or terminal execution, Code Mode nested dispatch, hooks, subagents, and alternate callers; uncovered entries are disabled. External effects, ambient-credential exposure, dirty-start drift, Git repository-state or helper mutation, unclassified commands, process leakage, and path, symlink, hard-link, or mount escape are prevented before their effect and terminate Auto before the next model call. User intervention can switch to Manual or wait for new execution-world facts, but cannot authorize the denied Experimental Auto dispatch.
 - DSH integration tests include a real Loader plus app/process composition, a keyless headless Session JSONL transcript, a self-skipping with-key real-provider smoke, and negative controls. They prove one Session decision plus per-call authorization, stable A1 message identities without forward event references, interrupted-preparation recovery, Manual bypass without turn consumption, the same immutable route snapshot reaches assembly and request, required events survive cold reload, and the persisted request/header matches the provider's external response.
 - A5p tests prove displayed state comes from persisted Session facts rather than client-local optimistic state; a Web carrier also requires browser snapshots for positive, reload, Manual, and stopped states.
 - Every bounded implementation task invokes `.agents/skills/dsh-auto-mode-code-review/SKILL.md` after focused verification and before commit.
@@ -104,12 +103,13 @@ Task 1 -------------------------------------------------------+
 | A ranking measured at one effort is applied to another | High | Make reasoning-selection encoding part of the exact match key and test all three default/explicit forms |
 | Heuristic score boundaries look like safety guarantees | High | Persist and display `experimental-unadmitted`; use separate catalog types and explicit reason codes |
 | External rankings drift | Medium | Pin source index version and retrieval time, enforce freshness, and require a new snapshot rather than silently reinterpreting old decisions |
+| A partial sandbox or omitted DSH tool entry is mistaken for `externalSideEffects: 'none'` | Critical | Accept a concrete provider ADR first, freeze every production entry point, disable uncovered callers, and require executor-level real-composition fault injection |
 | A5p Web seams cannot retrieve required Session facts | High | Run the carrier seam probe before UI implementation and choose an alternate explicit carrier only if it satisfies the same contract |
 | Phase 0P code contaminates Phase 0C admission policy | High | Prohibit conversions from experimental evidence to `RouteAdmission`; add compile-time and runtime separation tests |
 
 ## Open questions
 
-The implementation must close the Phase 0P section of [open questions](../docs/open-questions.md). The immediate unresolved decisions are the exact initial route set, heuristic score boundaries, snapshot freshness, Artificial Analysis access/data rights, and the concrete A5p carrier.
+The implementation must close the Phase 0P section of [open questions](../docs/open-questions.md). The immediate unresolved decisions are the exact initial route set, heuristic score boundaries, snapshot freshness, Artificial Analysis access/data rights, the concrete execution-world provider and production capability inventory, and the concrete A5p carrier.
 
 ## Explicit non-goals
 

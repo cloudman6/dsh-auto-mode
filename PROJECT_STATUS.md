@@ -8,7 +8,7 @@
 
 ## Current stage
 
-Phase 0P planning and critical-path execution. The maintainer accepted ADR-008 on 2026-08-16, authorizing a maintainer-only, explicitly unadmitted Artificial Analysis-seeded dogfood path before RouterBench admission. Product-neutral A1 pre-assembly step preparation and A2 runtime Session-event registration remain implemented and tested on the declared DSH fork at commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`. Phase 0C remains separately gated by the minimal Phase A admission slice, A3p deployment identity, and A5p carrier verification.
+Phase 0P planning and critical-path execution. The maintainer accepted ADR-008 and ADR-009 on 2026-08-16, authorizing a maintainer-only, explicitly unadmitted Artificial Analysis-seeded dogfood path and a narrow possible-loss envelope for Attempt-attributable changes in a clean isolated worktree. Product-neutral A1 pre-assembly step preparation and A2 runtime Session-event registration remain implemented and tested on the declared DSH fork at commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`. Phase 0C remains separately gated by the minimal Phase A admission slice, A3p deployment identity, and A5p carrier verification.
 
 ## Completed
 
@@ -26,6 +26,7 @@ Phase 0P planning and critical-path execution. The maintainer accepted ADR-008 o
 - Added a repository-local Code Review Skill that gates every bounded implementation stage against accepted Auto Mode invariants and the pinned official DSH engineering contracts.
 - Published the bilingual product-neutral A1/A2 Host-contract proposal as DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281), with reproducible fork evidence and explicit maintainer questions.
 - Accepted ADR-008 and introduced Phase 0P, allowing externally seeded, visibly unadmitted maintainer dogfood without weakening Phase 0C admission requirements.
+- Accepted ADR-009's initial mutable-work loss bound: all uncommitted changes attributable to the current Attempt inside a clean isolated worktree, with no external effects or automatic-recovery claim.
 
 ## Current implementation entry points
 
@@ -41,7 +42,7 @@ Phase 0P planning and critical-path execution. The maintainer accepted ADR-008 o
 - Artificial Analysis data is locally supplied, versioned, attributed, and kept out of the repository; any API credential remains outside the browser client and repository and is supplied through a process environment or secret store.
 - Experimental policy, persistence, and explanations preserve the `experimental-unadmitted` state and cannot compile into a normal admission.
 - Persistence proves one Session decision plus a fresh fail-closed authorization for every attempted Experimental Auto model call, including after cold load and live identity/capability drift; Manual bypasses the Auto listener.
-- Host-declared Recovery Capability and an ADR-007-compliant possible-loss bound accepted in a separate decision gate every mutable Auto call; until then, Phase 0P dogfood is read-only.
+- ADR-009 supplies the accepted possible-loss bound, but a versioned Host provider must still prove clean worktree isolation, Attempt attribution, containment, process control, and `externalSideEffects: 'none'` before every mutable Auto call; until that evidence exists, Phase 0P dogfood is read-only.
 - A5p proves one-operation Auto/manual control and explanation retrieval.
 - Keyless real composition passes, and a self-skipping with-key real-provider smoke passes whenever the required secret is available; a missing key is reported as skipped evidence, not a pass.
 
@@ -62,11 +63,11 @@ Phase 0P planning and critical-path execution. The maintainer accepted ADR-008 o
 
 ## Current blockers
 
-The Phase 0P decision gate is closed. Its remaining implementation blockers are the exact initial route set and A3p mappings, the external-evidence snapshot and heuristic-policy contract, an ADR-007-compliant possible-loss bound plus Recovery Capability evidence for any mutable scope, and one verified A5p carrier. Until the recovery gate closes, Phase 0P dogfood is read-only. A1/A2 are implemented on the maintainer fork but remain an upstream compatibility dependency. The minimal Phase A admission slice is deliberately deferred from Phase 0P and remains a Phase 0C blocker. Full recovery and external child model/reasoning-selection control remain deferred.
+The Phase 0P decision gate and initial mutable-work loss-bound decision are closed. Remaining implementation blockers are the exact initial route set and A3p mappings, the external-evidence snapshot and heuristic-policy contract, an accepted concrete execution-world provider design plus executable ADR-009 Recovery Capability evidence for its frozen production tool inventory, and one verified A5p carrier. Until the provider design and capability evidence gates close, Phase 0P dogfood is read-only. A1/A2 are implemented on the maintainer fork but remain an upstream compatibility dependency. The minimal Phase A admission slice is deliberately deferred from Phase 0P and remains a Phase 0C blocker. Full recovery and external child model/reasoning-selection control remain deferred.
 
 ## Next action
 
-Execute the accepted Phase 0P implementation plan: first freeze the exact DSH/Artificial Analysis route inventory and A3p evidence matrix, then establish the external-prior schema, immutable experimental resolution contract, and deterministic policy. Propose the ADR-007 loss bound and Recovery Capability evidence separately before enabling mutable tasks; Host and A5p integration can proceed with read-only fixtures meanwhile. Keep A1/A2 verified against the pinned fork and monitor Discussion #2281 asynchronously. RouterBench admission remains the next gate for Phase 0C, not a Phase 0P prerequisite.
+Execute the accepted Phase 0P implementation plan: first freeze the exact DSH/Artificial Analysis route inventory and A3p evidence matrix, then establish the external-prior schema, immutable experimental resolution contract, and deterministic policy. Audit and explicitly accept the concrete ADR-009 provider design before implementing and proving it against the frozen production tool inventory; Host and A5p integration can proceed with read-only fixtures meanwhile. Keep A1/A2 verified against the pinned fork and monitor Discussion #2281 asynchronously. RouterBench admission remains the next gate for Phase 0C, not a Phase 0P prerequisite.
 
 ## Status maintenance rules
 

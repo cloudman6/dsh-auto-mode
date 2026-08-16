@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routing-policy.md
-translation-source-blob: 8dfb25fc7b2088105fc5a44efabedc09ddac3cac
+translation-source-blob: e9604cb48a6bfa9778e873e525372853b0402c57
 translation-status: current
 -->
 
@@ -44,7 +44,7 @@ Task Assessment 确定性地选择相关 index family：编码工作使用 Codin
 
 阶段 0P resolver 只考虑 DSH 与外部记录 identity 精确匹配的配置。`strong` 表示当前有资格精确匹配项中相关外部分数最高者；`standard` 与 `fast` 只在各自已记录的启发式分数边界内选择延迟更低的配置。这些名称是实验档位，不是质量保证。高风险、未知或低置信度 task assessment 从有效冻结 catalog 中选择最强精确匹配。Route 无法匹配或发生漂移、证据无效或缺失必需 Host contract 时，以 `no-experimental-route` 退出 Auto 且不调用模型。它绝不复用 admitted Auto 的 `no-safe-route`。解释必须始终暴露实验状态与来源 snapshot。
 
-Host 声明的 `RecoveryCapability` 与 execution-world effect class 是必需 policy input。只有 possible loss 落在另行决策接受且符合 ADR-007 的 risk bound 内，且每个相关 effect class 都有充分的已声明 attribution 与 recovery support 时，包括 `strong` 在内的实验档才可以执行可变工作。该 routing-safety bound 不等于 route admission。它存在之前，阶段 0P 不自动执行可变工作。任何不可逆外部副作用，或任何未证明落在 bound 内的 mutation，都会以 `no-experimental-route` 终止当前 Experimental Auto attempt。用户介入只能切换到 Manual 或等待新的 execution-world facts；单纯确认不能授权已拒绝的 Experimental Auto dispatch。Task Assessment 不能推断或覆盖这些 capability facts。
+Host 声明的 `RecoveryCapability` 与 execution-world effect class 是必需 policy input。[ADR-009](decisions/0009-phase-0p-attributable-worktree-loss-bound.md) 只接受当前 Attempt 在干净隔离任务 worktree 内产生且可归属的未提交文件系统变更。该 routing-safety bound 不等于 route admission，也不是 capability evidence。带版本 Host provider 证明 canonical worktree containment、Attempt scope attribution、process control 与 `externalSideEffects: 'none'` 前，包括 `strong` 在内的任何实验档都不得执行可变工作。Git repository-state mutation、依赖或系统安装、外部 effect、未知 attribution、dirty-start drift、路径、symlink、hard-link 或 mount 逃逸，以及超出 bound 的任何 mutation，都会以 `no-experimental-route` 终止当前 Experimental Auto attempt。排除的 effect 必须在发生前被阻止；事后检测不能把它们纳入 bound。用户介入只能切换到 Manual 或等待新的 execution-world facts；单纯确认不能授权已拒绝的 Experimental Auto dispatch。Task Assessment 不能推断或覆盖这些 capability facts。
 
 实验外部证据不能满足 `RouteAdmission`，不能被阶段 0C policy 消费，也不能绕过普通 RouterBench 协议直接提升。
 

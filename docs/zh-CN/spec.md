@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/spec.md
-translation-source-blob: 2b995e50d61e7d807d8470fd7a7a8fd3b76bef8a
+translation-source-blob: 003e085d5642d2295c8b8ea851abc35536779a63
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-维护者已于 2026-08-15 接受。阶段 0P 修订已于 2026-08-16 通过 ADR-008 接受。
+维护者已于 2026-08-15 接受。阶段 0P 修订与初始可变工作 loss bound 已于 2026-08-16 通过 ADR-008 和 ADR-009 接受。
 
 ## 假设
 
@@ -74,6 +74,7 @@ translation-status: current
 - 语义 route：`fast`、`standard`、`strong` 和 `abstain`。
 - 维护者负责的版本化 Policy Pack，加上从 DSH active provider/model catalog 与精确 route 元数据填充的部署 Profile；显式 effort、adapter-default 实体化和 provider-default omission 是不同的 admission identity，任意用户映射在准入前不享有质量保证。
 - 独立的阶段 0P `ExternalRoutePrior` snapshot 与实验 catalog；它不能编译成普通 admission，也不能被阶段 0C 静默复用。
+- 一个由 ADR-009 约束的阶段 0P 可变表面，仅限当前 Attempt 在干净隔离 worktree 内产生且可归属的未提交变更。风险决策不能代替可执行 Recovery Capability 证据，也不授权外部 effect 或自动回滚。
 - Host 中运行的 Routing Policy；父 Agent 和分类模型不拥有常规最终决策权。
 - 在依赖 provider 的 prompt/tool 组装前冻结 route snapshot，并在对应模型请求中原样应用。
 - 对无效 Profile、不可用 provider、不可满足约束、admitted `no-safe-route` 和 experimental `no-experimental-route` 给出明确解析结果。
@@ -210,7 +211,7 @@ type RouteResolution =
 - 集成测试：通过真实 DSH `agent/request`、Session 事件、子 Agent 生命周期、显式/default reasoning encoding，以及冻结 catalog 上的确定性具体候选解析验证装配。
 - 快照测试：验证用户可见决策解释和恢复转录。
 - RouterBench：隔离 calibration/validation/held-out 数据、重复配对运行、绝对门槛，以及从 Always Baseline 到路由加恢复的四个策略组。
-- 阶段 0P contract test：外部记录解析、精确 identity 与 effort 匹配、通过持久 preparation failure 拒绝过期或畸形 snapshot、一个 Session decision 加逐调用 fail-closed authorization、确定性启发式策略、可变工作的 Recovery Capability gate、明确实验解释，以及实验外部证据不能变成 admission evidence 的证明。
+- 阶段 0P contract test：外部记录解析、精确 identity 与 effort 匹配、通过持久 preparation failure 拒绝过期或畸形 snapshot、一个 Session decision 加逐调用 fail-closed authorization、确定性启发式策略、可变工作的 ADR-009 loss-bound 与 Recovery Capability gate、明确实验解释，以及实验外部证据不能变成 admission evidence 的证明。
 - 阶段 0P composition test：keyless 真实 Loader/app JSONL transcript，加上自跳过 with-key real-provider smoke；验证外部 response 与持久 `request/header` 携带选定 provider/model/reasoning selection。缺少 credential 是 skipped evidence，绝不算 smoke 通过。
 - 故障注入：模型超时、低置信度评估器、错误 route、重复测试失败、checkpoint 不可用。
 - 安全测试：工作区已有未提交修改、并发 Agent 修改、恶意/错误父 Agent 约束。
