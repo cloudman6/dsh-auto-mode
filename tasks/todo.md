@@ -4,16 +4,16 @@
 
 ## Task 1: Freeze exact routes and A3p mappings
 
-**Description:** Inventory the pinned fork's active provider/model/reasoning selections and map the smallest useful set to exact Artificial Analysis configuration records.
+**Description:** Inventory the pinned fork's active provider/model/reasoning selections, compute their exact intersection with Artificial Analysis configuration records, and exclude every selection whose deployment identity cannot be bound.
 
 **Acceptance criteria:**
-- [ ] Every included route has an exact provider/model/reasoning-selection key and reproducible fingerprint evidence.
-- [ ] Explicit effort, adapter-default, and provider-default identities are not collapsed.
-- [ ] Unmatched or unverifiable configurations are explicitly excluded.
+- [x] Every inventoried explicit selection has an exact provider/model/reasoning-selection key and reproducible fingerprint evidence.
+- [x] Explicit effort, adapter-default, and provider-default identities are not collapsed.
+- [x] Unmatched or unverifiable configurations are explicitly excluded.
 
 **Verification:**
-- [ ] Re-run the inventory from the pinned fork and obtain the same normalized identities.
-- [ ] Review the evidence matrix with the project Code Review Skill.
+- [x] Re-run the inventory from the pinned fork and obtain the same normalized identities.
+- [x] Review the evidence matrix with the project Code Review Skill.
 
 **Dependencies:** None
 

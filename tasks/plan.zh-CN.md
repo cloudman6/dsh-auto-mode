@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 191dbec063ecdedf3ff2d1870d0e1998ee25130a
+translation-source-blob: 1820f924cbe6acd3969596ffb260989790b3f177
 translation-status: current
 -->
 
@@ -43,7 +43,7 @@ translation-status: current
 
 ### 基础
 
-- [ ] 任务 1：冻结初始精确 route 清单与 A3p 证据矩阵。
+- [x] 任务 1：冻结初始精确 route 清单与 A3p 证据矩阵。
 - [ ] 任务 2：冻结 ExternalRoutePrior snapshot、启发式策略、freshness、attribution 与数据权利契约。
 
 ### 检查点：证据基础
@@ -115,7 +115,7 @@ Task 9 证明可执行 ADR-009 capability 前，核心与 Host 集成使用只�
 
 ## 开放问题
 
-实施必须关闭[开放问题](../docs/zh-CN/open-questions.md)中的阶段 0P 部分。当前立即未决项是精确初始 route set、启发式分数边界、snapshot freshness、Artificial Analysis access/data rights、具体 execution-world provider 与 production capability inventory，以及具体 A5p carrier。
+实施必须关闭[开放问题](../docs/zh-CN/open-questions.md)中的阶段 0P 部分。任务 1 已证明当前精确交集为空。当前立即未决项是如何获得非空且绑定版本的 route set、启发式分数边界、snapshot freshness、Artificial Analysis access/data rights、具体 execution-world provider 与 production capability inventory，以及具体 A5p carrier。
 
 ## 明确不做
 

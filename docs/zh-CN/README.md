@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/README.md
-translation-source-blob: 765c6e67acffc7f1229316f93050a6279c894974
+translation-source-blob: d63c5defc49a6bd8f2e97a1e063678e74c158c4d
 translation-status: current
 -->
 
@@ -24,6 +24,10 @@ translation-status: current
 10. [术语表](glossary.md)：检查术语与语义区分。
 
 [架构决策记录](decisions/README.md)包含约束实施的已接受决策。[文档本地化策略](localization.md)定义英文权威版本与简体中文同步流程。
+
+## 实施证据
+
+- [阶段 0P 精确 route 清单与 A3p 证据](evidence/phase-0p-route-inventory.md)：固定 DSH route identity、fingerprint、空的精确外部交集、排除项与剩余 deployment-binding 证据。
 
 ## 历史评审证据
 

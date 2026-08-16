@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: 0fec2d01c5d1b69a2831aa5f4873dcb4dfad480d
+translation-source-blob: 20ebb781c02d1f125e6968b8b6263d8b185de0e5
 translation-status: current
 -->
 
@@ -33,12 +33,13 @@ translation-status: current
 - 将双语的产品无关 A1/A2 Host 契约提案发布为 DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)，并附可复现 fork 证据与明确的维护者问题。
 - 接受 ADR-008 并增加阶段 0P，允许由外部先验驱动、明显标为未准入的维护者 dogfood，同时不削弱阶段 0C 的 admission 要求。
 - 接受 ADR-009 的初始可变工作 loss bound：当前 Attempt 在干净隔离 worktree 内产生且可归属的全部未提交变更；不允许外部 effect，也不宣称自动恢复。
+- 完成初始阶段 0P route-selection 清单与 A3p 证据矩阵。六条显式 DeepSeek Flash/Pro selection 具有可复现 DSH fingerprint，但精确外部交集为空：Artificial Analysis record 绑定带版本 deployment，而 DSH 公开无 revision 的 pass-through alias。Default、dormant pi-ai route 与非公共 endpoint 同样排除。
 
 ## 当前实施入口
 
-1. 盘点精确 DSH 与 Artificial Analysis 配置，为首组 Experimental Auto route 关闭 A3p。
-2. 冻结外部证据 snapshot schema、精确匹配规则、启发式策略与数据权利边界。
-3. 实现每 Session 一次决策的阶段 0P 路径，并针对一个具体载体关闭 A5p。
+1. 冻结外部证据 snapshot schema、精确匹配规则、启发式 policy 与数据权利边界，同时让空的初始 catalog fail closed。
+2. 实现每 Session 一次决策的阶段 0P 路径，并针对一个具体载体关闭 A5p。
+3. 在可变 dogfood 前审计、接受并证明具体 ADR-009 execution-world provider。
 4. 把 fork 固定在 `801ded7f60a0dfab07b9690cb9d98fce6234d243`；不得宣称 route admission 或官方 DSH 兼容。
 
 ## 进入阶段 0P dogfood 前的 gate
@@ -69,11 +70,11 @@ translation-status: current
 
 ## 当前阻塞
 
-阶段 0P 决策 gate 与初始可变工作 loss-bound 决策已经关闭。剩余实施阻塞是精确初始 route set 与 A3p 映射、外部证据 snapshot 和启发式策略契约、已接受的具体 execution-world provider 设计及其冻结 production tool inventory 所需的可执行 ADR-009 Recovery Capability 证据，以及一个已验证 A5p 载体。Provider 设计与 capability evidence gate 关闭前，阶段 0P dogfood 仅限只读。A1/A2 已在维护者 fork 上实现，但仍是上游兼容依赖。阶段 A 最小准入切片有意从阶段 0P 推迟，继续作为阶段 0C 阻塞。完整恢复和外部 child model/reasoning-selection 控制继续推迟。
+阶段 0P 决策 gate、初始可变工作 loss-bound 决策与任务 1 清单已经关闭。该清单没有产生可选 route。剩余实施阻塞是具有 A3p deployment binding 的非空精确 DSH/Artificial Analysis route 交集、外部证据 snapshot 和启发式策略契约、已接受的具体 execution-world provider 设计及其冻结 production tool inventory 所需的可执行 ADR-009 Recovery Capability 证据，以及一个已验证 A5p 载体。Provider 设计与 capability evidence gate 关闭前，阶段 0P dogfood 仅限只读。A1/A2 已在维护者 fork 上实现，但仍是上游兼容依赖。阶段 A 最小准入切片有意从阶段 0P 推迟，继续作为阶段 0C 阻塞。完整恢复和外部 child model/reasoning-selection 控制继续推迟。
 
 ## 下一步
 
-执行已接受的阶段 0P 实施计划：先冻结精确 DSH/Artificial Analysis route 清单与 A3p 证据矩阵，再建立外部先验 schema、不可变实验 resolution contract 与确定性 policy。先审计并明确接受具体 ADR-009 provider 设计，再针对冻结 production tool inventory 实现和证明它；Host/A5p 集成期间可以先使用只读 fixture。持续针对固定 fork 验证 A1/A2，并异步跟进 Discussion #2281。RouterBench admission 仍是阶段 0C 的下一道 gate，而不是阶段 0P 前置条件。
+执行已接受阶段 0P 实施计划的任务 2：建立外部先验 schema、不可变实验 resolution contract、确定性启发式 policy、source access method、attribution 与数据权利边界；空 catalog 产生 `no-experimental-route`。在并行 evidence 工作中，识别官方带版本 DeepSeek selector，或寻找 deployment identity 与 Artificial Analysis record 精确匹配的其他 DSH route；不得从 alias 推断 binding。先审计并明确接受具体 ADR-009 provider 设计，再针对冻结 production tool inventory 实现和证明它；Host/A5p 集成期间可以先使用只读 fixture。持续针对固定 fork 验证 A1/A2，并异步跟进 Discussion #2281。RouterBench admission 仍是阶段 0C 的下一道 gate，而不是阶段 0P 前置条件。
 
 ## 状态维护规则
 

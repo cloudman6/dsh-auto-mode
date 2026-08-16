@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: a7cb7f02bcc341550af3be92cd8a0d3875de1ac4
+translation-source-blob: 5100f27905fd7eb5c53844514ff018d50a8870fb
 translation-status: current
 -->
 
@@ -10,16 +10,16 @@ translation-status: current
 
 ## 任务 1：冻结精确 route 与 A3p 映射
 
-**说明：** 盘点固定 fork 的 active provider/model/reasoning selection，把最小有用集合映射到精确 Artificial Analysis 配置记录。
+**说明：** 盘点固定 fork 的 active provider/model/reasoning selection，计算它们与 Artificial Analysis 配置记录的精确交集，并排除无法绑定 deployment identity 的每项 selection。
 
 **验收标准：**
-- [ ] 每个纳入 route 都有精确 provider/model/reasoning-selection key 和可复现 fingerprint 证据。
-- [ ] Explicit effort、adapter-default 与 provider-default identity 不合并。
-- [ ] 无法匹配或验证的配置被明确排除。
+- [x] 每项已盘点的显式 selection 都有精确 provider/model/reasoning-selection key 和可复现 fingerprint 证据。
+- [x] Explicit effort、adapter-default 与 provider-default identity 不合并。
+- [x] 无法匹配或验证的配置被明确排除。
 
 **验证：**
-- [ ] 从固定 fork 重新运行盘点，得到相同规范化 identity。
-- [ ] 使用项目 Code Review Skill 评审证据矩阵。
+- [x] 从固定 fork 重新运行盘点，得到相同规范化 identity。
+- [x] 使用项目 Code Review Skill 评审证据矩阵。
 
 **依赖：** 无
 

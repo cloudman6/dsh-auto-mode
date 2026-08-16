@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/open-questions.md
-translation-source-blob: 8d2b0ddaeb303e0746a281c7ae6aecfa36d8968d
+translation-source-blob: 17271bb0a8c57810a583c8eb89a9d06298e10f15
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 必须在阶段 0P dogfood 前关闭
 
-1. 哪些精确 DSH provider/model/reasoning selection 对应哪些 Artificial Analysis 配置记录？每项映射由什么 A3p fingerprint 证明？
+1. DSH 可以调用哪些官方带版本 provider/model selector？什么 provider-response identity 或 provider 专用 attestation 能把每个 selector 绑定到对应 Artificial Analysis 被测 deployment，而不是无 revision alias 或页面名称？
 2. 初始任务 taxonomy 使用哪些 Artificial Analysis index family 与字段？哪些带版本启发式阈值定义实验 `fast`、`standard` 与 `strong`？
 3. 在不再分发榜单数据的前提下，使用哪个精确 endpoint、prompt/index 语义、pagination 覆盖、本地 snapshot schema、规范化内容 digest、freshness 规则、attribution、API access path 与数据权利边界？
 4. 哪些高风险与低置信度 assessment 强制从有效 catalog 使用最强精确匹配？哪些 mapping、identity、evidence、contract 或 Recovery Capability 失败会在调用前产生 `no-experimental-route`？

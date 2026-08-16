@@ -4,7 +4,7 @@
 
 ## Must close before Phase 0P dogfood
 
-1. Which exact DSH provider/model/reasoning selections match which Artificial Analysis configuration records, and what A3p fingerprint proves each mapping?
+1. Which official version-specific provider/model selectors can DSH call, and what provider-response identity or provider-specific attestation binds each selector to the corresponding Artificial Analysis measured deployment rather than a revisionless alias or page name?
 2. Which Artificial Analysis index families and fields drive the initial task taxonomy, and what versioned heuristic thresholds define experimental `fast`, `standard`, and `strong`?
 3. What exact endpoint, prompt/index semantics, pagination coverage, local snapshot schema, canonical content digest, freshness rule, attribution, API access path, and data-rights boundary apply without redistributing ranking data?
 4. Which high-risk and low-confidence assessments force the strongest exact match from a valid catalog, and which mapping, identity, evidence, contract, or Recovery Capability failures produce `no-experimental-route` before a call?

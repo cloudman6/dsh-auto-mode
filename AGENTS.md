@@ -19,7 +19,7 @@ DSH Auto Mode gives individual power users of coding agents an adaptive Auto mod
 | Optimization order | Absolute baseline quality gate + candidate non-inferiority → end-to-end latency → total cost |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Exact AA/DSH route inventory, Phase 0P A3p identity evidence, experimental policy contract, and A5p carrier verification |
+| Next-stage gate | A non-empty exact AA/DSH route set, external-prior contract, execution-world provider evidence, and A5p carrier verification |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
@@ -41,6 +41,7 @@ Load topic documents only when relevant; do not load the entire repository indis
 - Parent- and child-agent authority: `docs/delegation.md`.
 - Task suites, quality gates, and evaluation: `docs/routerbench.md`.
 - Verified DSH extension points and upstream gaps: `docs/dsh-integration.md`.
+- Frozen Phase 0P exact-route identities and exclusions: `docs/evidence/phase-0p-route-inventory.md`.
 - Historical multi-view review evidence: `docs/reviews/2026-08-14-multi-view-design-review.md`.
 - Terms: `docs/glossary.md`.
 - Documentation language and translation synchronization: `docs/localization.md`.

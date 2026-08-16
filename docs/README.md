@@ -19,6 +19,10 @@ Current progress, blockers, and the next action are maintained in the repository
 
 The [architecture decision records](decisions/README.md) contain the accepted decisions that constrain implementation. The [documentation localization policy](localization.md) defines the English source of truth and Simplified Chinese synchronization workflow.
 
+## Implementation evidence
+
+- [Phase 0P exact route inventory and A3p evidence](evidence/phase-0p-route-inventory.md): pinned DSH route identities, fingerprints, the empty exact external intersection, exclusions, and remaining deployment-binding evidence.
+
 ## Historical review evidence
 
 - [2026-08-14 multi-view design review](reviews/2026-08-14-multi-view-design-review.md): informational record of findings, conflict arbitration, and meta-review limits that produced the current revision.

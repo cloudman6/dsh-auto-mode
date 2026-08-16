@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: f7b192221c8be3246e85ab844006a1b3b7937f74
+translation-source-blob: 37a453aae1eed26641dcbb31bf612d86cd828899
 translation-status: current
 -->
 
@@ -98,7 +98,7 @@ Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 name
 |---|---|---|---|---|
 | A1 | 与 `agent/request` 共享的 pre-assembly step context | Session Static Auto | 已在固定 fork 实现并通过测试；上游缺失 | DSH 上游 |
 | A2 | 必需插件 Session 事件注册与兼容处理 | Session Static Auto | 已在固定 fork 实现并通过测试；上游缺失 | DSH 上游 |
-| A3p | 每条选中 preview route 的稳定 identity 证据 | 阶段 0P 精确外部匹配与阶段 0C 准入 | 需要 provider 专用专项审计 | 插件加选定 provider adapter |
+| A3p | 每条选中 preview route 的稳定 identity 证据 | 阶段 0P 精确外部匹配与阶段 0C 准入 | DSH selection 清单已冻结；当前 DeepSeek alias 缺少 revision binding，因此精确外部交集为空 | 插件加选定 provider adapter |
 | A3 | 通用稳定 resolved deployment identity/fingerprint 契约 | 有证据保证且兼容官方版本的发布 | 需要专项审计 | Provider adapter 或 DSH 上游 |
 | A4 | 固定辅助调用的可扩展 purpose 与审计分类 | Task Assessor 运行 | 需要专项审计 | 接口开放时由插件实现，否则 DSH 上游 |
 | A5p | Auto/manual 与持久解释所需的一个已验证 preview 载体 | 阶段 0P dogfood 与阶段 0C 可用性 | 需要载体专项审计 | Fork UI、client plugin 或显式 command/config surface |
@@ -116,7 +116,7 @@ Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 name
 2. **已完成：**为基线缺失行为增加 core contract test。
 3. **已完成：**在 fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243` 实现并验证 seam。
 4. **已完成：**在 Discussion #2281 发布产品无关契约与 fork 证据，获取上游反馈。
-5. 为初始阶段 0P 精确 route set 关闭 A3p；只有后续 admission 证据绑定同一 deployment 配置时，才把该 identity 复用于阶段 0C。
+5. **清单完成；没有 route 匹配：**[route 清单证据](evidence/phase-0p-route-inventory.md)冻结六条 DSH selection fingerprint，并排除全部当前候选，因为无 revision alias 不能绑定带版本 Artificial Analysis deployment。只有带版本 selector、provider-response identity 或其他 provider 专用 attestation 建立 binding 后才关闭 A3p；此后 runtime drift 仍按调用 fail closed。只有后续 admission 证据绑定同一 deployment 配置时，才把该 identity 复用于阶段 0C。
 6. 使用真实 Experimental Auto 载体关闭 A5p，探针覆盖显式 opt-in、Auto/manual 选择、持久化选择、实际配置与未准入解释读取；提升到阶段 0C 前增加 admission-aware 断言。
 7. 增加 Auto Mode 纵向探针，证明 pre-assembly 决策输入、assembly/request snapshot identity、调用前拒绝、必需事件持久化、冷恢复和 A3p/A5p preview 路径。
 8. 若维护者邀请外部改动，将 A1、A2 拆成两项上游贡献。

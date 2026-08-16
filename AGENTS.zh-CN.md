@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 9cd578400b468e917ec3086bb5318a411ee61601
+translation-source-blob: bdf874794996aac5fa7834a32af721ac1f678a67
 translation-status: current
 -->
 
@@ -25,7 +25,7 @@ translation-status: current
 | 优化顺序 | baseline 绝对质量门槛 + candidate 非劣性 → 端到端延迟 → 总成本 |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 精确 AA/DSH route 清单、阶段 0P A3p identity 证据、实验策略契约与 A5p 载体核验 |
+| 下一阶段入口 | 非空的精确 AA/DSH route set、外部先验契约、execution-world provider 证据及 A5p 载体核验 |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
@@ -47,6 +47,7 @@ translation-status: current
 - 父 Agent 与子 Agent 权限：`docs/delegation.md`。
 - 任务集、质量门槛和评估：`docs/routerbench.md`。
 - 已验证的 DSH 扩展点和上游缺口：`docs/dsh-integration.md`。
+- 已冻结的阶段 0P 精确 route identity 与排除项：`docs/evidence/phase-0p-route-inventory.md`。
 - 历史多视角评审证据：`docs/reviews/2026-08-14-multi-view-design-review.md`。
 - 术语定义：`docs/glossary.md`。
 - 文档语言和翻译同步：`docs/localization.md`。

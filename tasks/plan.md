@@ -37,7 +37,7 @@ Tasks 1-10 -------------------> Task 11: vertical dogfood probe
 
 ### Foundation
 
-- [ ] Task 1: Freeze the initial exact route inventory and A3p evidence matrix.
+- [x] Task 1: Freeze the initial exact route inventory and A3p evidence matrix.
 - [ ] Task 2: Freeze the ExternalRoutePrior snapshot, heuristic-policy, freshness, attribution, and data-rights contract.
 
 ### Checkpoint: evidence foundation
@@ -109,7 +109,7 @@ Core and Host integration use read-only fixtures until Task 9 proves the executa
 
 ## Open questions
 
-The implementation must close the Phase 0P section of [open questions](../docs/open-questions.md). The immediate unresolved decisions are the exact initial route set, heuristic score boundaries, snapshot freshness, Artificial Analysis access/data rights, the concrete execution-world provider and production capability inventory, and the concrete A5p carrier.
+The implementation must close the Phase 0P section of [open questions](../docs/open-questions.md). Task 1 proved that the current exact intersection is empty. The immediate unresolved decisions are how to obtain a non-empty version-bound route set, heuristic score boundaries, snapshot freshness, Artificial Analysis access/data rights, the concrete execution-world provider and production capability inventory, and the concrete A5p carrier.
 
 ## Explicit non-goals
 
