@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: e6fff89584ae3b475dad7e37d7119bb5881d27ba
+translation-source-blob: 1670530f0c91296f88e25b451b3715e5fbf1dc68
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 最后更新
 
-2026-08-15
+2026-08-16
 
 ## 当前阶段
 
@@ -30,7 +30,7 @@ translation-status: current
 - 根据维护者明确授权，接受修订后的规范及 ADR-001 至 ADR-007。
 - 在维护者 DSH fork 上实现 A1/A2，通过组合 JSONL 冷加载探针、402 项相关测试、typecheck、lint 与全部 28 项 DSH 文档 gate，并推送精确 fork commit。
 - 增加仓库内 Code Review Skill，在每个有边界的实施阶段按已接受的 Auto Mode 不变量与固定版本的 DSH 官方工程契约执行 gate。
-- 准备尚未发布的双语 GitHub Discussions Ideas 提案，反馈产品无关的 A1/A2 Host 契约，并附可复现 fork 证据与明确的维护者问题。
+- 将双语的产品无关 A1/A2 Host 契约提案发布为 DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)，并附可复现 fork 证据与明确的维护者问题。
 
 ## 当前实施入口
 
@@ -59,7 +59,7 @@ translation-status: current
 
 ## 下一步
 
-关闭初始 route identity 的 A3p，产出阶段 A 最小准入证据，并为具体 preview 载体关闭 A5p。在准备拆分上游评审期间，持续针对固定 fork commit 验证 A1/A2。生产 release 载体仍是阶段 B/release 的独立决策。
+关闭初始 route identity 的 A3p，产出阶段 A 最小准入证据，并为具体 preview 载体关闭 A5p。持续针对固定 fork commit 验证 A1/A2，同时跟进 Discussion #2281；若维护者邀请贡献，再准备拆分后的上游改动。生产 release 载体仍是阶段 B/release 的独立决策。
 
 ## 状态维护规则
 

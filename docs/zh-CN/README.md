@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/README.md
-translation-source-blob: 56c4198b4b075a357d5fdb41eccedf41378c8e46
+translation-source-blob: 4f069c6ecbbda416d311efec17c02cc53fe41e49
 translation-status: current
 -->
 
@@ -29,9 +29,9 @@ translation-status: current
 
 - [2026-08-14 多视角设计评审](reviews/2026-08-14-multi-view-design-review.md)：产生本轮修订的评审结论、冲突裁决与元评审限制信息记录。
 
-## 上游反馈草案
+## 上游反馈
 
-- [A1/A2 产品无关 Host 契约](upstream/2026-08-15-host-contracts-discussion.md)：尚未发布的 GitHub Discussions Ideas 提案，包含固定 fork 证据与维护者问题。
+- [A1/A2 产品无关 Host 契约](upstream/2026-08-15-host-contracts-discussion.md)：已发布为 DeepSeek Harness Discussion #2281，包含固定 fork 证据与维护者问题。
 
 ## 文档状态
 

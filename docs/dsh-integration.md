@@ -12,6 +12,8 @@ The plugin must pin an exact tested DSH version or commit and run an extension-c
 
 The current preview runtime carrier is the maintainer fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness). Its `master` branch was verified at the audited baseline on 2026-08-14. Product-neutral A1 and A2 contracts were subsequently implemented from that baseline and pushed on branch `codex/auto-mode-host-contracts` at exact commit [`801ded7f60a0dfab07b9690cb9d98fce6234d243`](https://github.com/cloudman6/deepseek-harness/commit/801ded7f60a0dfab07b9690cb9d98fce6234d243).
 
+The product-neutral seams and fork evidence were published for upstream design feedback in DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281) on 2026-08-16. Publication does not imply maintainer acceptance or official compatibility.
+
 Every preview build must identify the exact fork remote and post-seam commit. That identifies the Host build, not the remote model deployment: every admitted preview route also needs provider-specific deployment identity evidence. A local checkout path is never part of the public compatibility contract, and successful fork validation must not be presented as official DSH support.
 
 The fork is the preview runtime carrier, not automatically the user-interface carrier. Phase 0C must separately name and verify the concrete fork UI, client plugin, or command/config surface that provides the one-operation Auto/manual choice and retrieves the persisted explanation.
@@ -107,11 +109,12 @@ The two verified Static Auto blockers are the immediate critical path. Other nee
 1. **Completed:** freeze product-neutral contracts for A1 and A2 in narrow DSH design notes.
 2. **Completed:** add core contract tests for the absent baseline behavior.
 3. **Completed:** implement and verify the seams at fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`.
-4. Close A3p for the initial baseline and candidate, and revoke either route when its stable identity cannot be reproduced.
-5. Close A5p with a real preview carrier probe covering the Auto/manual choice, persisted selection, actual configuration, and explanation retrieval.
-6. Add a vertical Auto Mode probe proving pre-assembly decision input, assembly/request snapshot identity, pre-call rejection, required-event persistence, cold recovery, and the A3p/A5p preview path.
-7. Submit A1 and A2 as separate upstream PRs.
-8. Pin the plugin to the first compatible official DSH revision after merge. While upstream is unavailable, identify the exact fork and do not claim official compatibility.
+4. **Completed:** publish the product-neutral contracts and fork evidence for upstream feedback in Discussion #2281.
+5. Close A3p for the initial baseline and candidate, and revoke either route when its stable identity cannot be reproduced.
+6. Close A5p with a real preview carrier probe covering the Auto/manual choice, persisted selection, actual configuration, and explanation retrieval.
+7. Add a vertical Auto Mode probe proving pre-assembly decision input, assembly/request snapshot identity, pre-call rejection, required-event persistence, cold recovery, and the A3p/A5p preview path.
+8. If maintainers invite external changes, submit A1 and A2 as separate upstream contributions.
+9. Pin the plugin to the first compatible official DSH revision after merge. While upstream is unavailable, identify the exact fork and do not claim official compatibility.
 
 A1 must be product-neutral: it carries claimed messages, stable step identity, cancellation, and immutable per-step context, but knows nothing about routes. A2 must fail with a precise missing-plugin or incompatible-event diagnostic rather than silently skipping normative state.
 

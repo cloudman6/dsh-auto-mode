@@ -4,7 +4,7 @@
 
 ## Last updated
 
-2026-08-15
+2026-08-16
 
 ## Current stage
 
@@ -24,7 +24,7 @@ Phase 0 critical-path execution. The maintainer accepted `docs/spec.md` and ADR-
 - Accepted the revised specification and ADR-001 through ADR-007 on explicit maintainer authorization.
 - Implemented A1 and A2 on the maintainer DSH fork, passed their combined JSONL cold-reload probe, 402 relevant tests, typecheck, lint, and all 28 DSH documentation gates, and pushed the exact fork commit.
 - Added a repository-local Code Review Skill that gates every bounded implementation stage against accepted Auto Mode invariants and the pinned official DSH engineering contracts.
-- Prepared an unpublished bilingual GitHub Discussions Ideas proposal for the product-neutral A1/A2 Host contracts, including reproducible fork evidence and explicit maintainer questions.
+- Published the bilingual product-neutral A1/A2 Host-contract proposal as DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281), with reproducible fork evidence and explicit maintainer questions.
 
 ## Current implementation entry points
 
@@ -53,7 +53,7 @@ The specification gate is closed. A1 and A2 are no longer fork-preview blockers:
 
 ## Next action
 
-Close A3p for the initial route identities, produce the minimal Phase A admission evidence, and close A5p for the concrete preview carrier. Keep A1/A2 verified against their pinned fork commit while preparing them for separate upstream review. The production release carrier remains a separate Phase B/release decision.
+Close A3p for the initial route identities, produce the minimal Phase A admission evidence, and close A5p for the concrete preview carrier. Keep A1/A2 verified against their pinned fork commit while monitoring Discussion #2281 and preparing separate upstream changes if maintainers invite contributions. The production release carrier remains a separate Phase B/release decision.
 
 ## Status maintenance rules
 

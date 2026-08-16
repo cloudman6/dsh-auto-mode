@@ -1,24 +1,27 @@
 <!--
 translation-source: docs/upstream/2026-08-15-host-contracts-discussion.md
-translation-source-blob: ae718182608e2002955f3be1cd9b9f97fcbfb457
+translation-source-blob: 73a0ab2885559ff32eee4040b49e0c40bbc1a9eb
 translation-status: current
 -->
 
-# Discussion 草稿：面向路由插件的产品无关 Host 契约
+# 已发布 Discussion：面向路由插件的产品无关 Host 契约
 
 [English](../../upstream/2026-08-15-host-contracts-discussion.md)
 
-## 发布建议
+## 发布记录
 
-发布到 DeepSeek Harness 官方 Discussions 的 [**Ideas** 分类](https://github.com/deepseek-ai/deepseek-harness/discussions/categories/ideas)，标题使用：
+已于 2026-08-16 发布到 DeepSeek Harness 官方 Discussions 的 [**Ideas** 分类](https://github.com/deepseek-ai/deepseek-harness/discussions/categories/ideas)，标题为：
 
-> Proposal: pre-assembly step preparation and runtime registration for required plugin Session events
+> 提案：模型路由插件的预组装 Hook 与 Session 事件注册 / Proposal: pre-assembly hook and Session-event registration
 
-2026-08-15 抽样的最新 100 个 Discussion 标题中，26 个仅中文、34 个仅英文、40 个中英混合。样本内 28 个 Ideas 几乎均分：10 个仅中文、9 个仅英文、9 个中英混合。样本来自 GitHub API 按创建时间返回的最新 100 个 Discussion；分类依据是标题中是否包含汉字与拉丁字母。技术提案没有占绝对优势的单一语言。建议使用下面的英文技术正文，以便精确表达并支持全球检索，同时把中文摘要放在最前面，方便维护者与中文社区阅读。
+- 公开地址：[Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)
+- 发布账号：[`cloudman6`](https://github.com/cloudman6)
 
-状态：仅为草稿，尚未发布。
+2026-08-15 抽样的最新 100 个 Discussion 标题中，26 个仅中文、34 个仅英文、40 个中英混合。样本内 28 个 Ideas 几乎均分：10 个仅中文、9 个仅英文、9 个中英混合。样本来自 GitHub API 按创建时间返回的最新 100 个 Discussion；分类依据是标题中是否包含汉字与拉丁字母。该证据支持使用精简双语标题、中文摘要置顶和英文技术正文，以兼顾全球检索与契约评审。
 
-## 可直接发布的正文
+状态：已发布；尚未记录维护者回复或上游接受。
+
+## 已发布正文
 
 ### 中文摘要
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 674e7ca101d5b8cb81cb1a68dcb0f7fdd4c919d8
+translation-source-blob: 9f11feb304edd1fff8ea113727998a837542234f
 translation-status: current
 -->
 
@@ -17,6 +17,8 @@ translation-status: current
 ## 当前 fork preview 运行时载体
 
 当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，并推送到分支 `codex/auto-mode-host-contracts` 的精确 commit [`801ded7f60a0dfab07b9690cb9d98fce6234d243`](https://github.com/cloudman6/deepseek-harness/commit/801ded7f60a0dfab07b9690cb9d98fce6234d243)。
+
+产品无关 seam 与 fork 证据已于 2026-08-16 发布到 DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)，用于获取上游设计反馈。发布不代表维护者接受，也不代表兼容官方 DSH。
 
 每个 preview build 必须记录精确 fork remote 和包含 seam 实现的 commit。它只能标识 Host build，不能标识远程模型 deployment；每条已准入 preview route 还必须具有 provider 专用的 deployment identity 证据。公共兼容契约绝不包含本地 checkout 路径；fork 验证成功也不能表述成官方 DSH 支持。
 
@@ -113,11 +115,12 @@ Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 name
 1. **已完成：**在范围窄的 DSH 设计说明中冻结 A1、A2 的产品无关契约。
 2. **已完成：**为基线缺失行为增加 core contract test。
 3. **已完成：**在 fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243` 实现并验证 seam。
-4. 为初始 baseline 与 candidate 关闭 A3p；无法复现稳定 identity 时撤销对应 route。
-5. 使用真实 preview 载体关闭 A5p，探针覆盖 Auto/manual 选择、持久化选择、实际配置与解释读取。
-6. 增加 Auto Mode 纵向探针，证明 pre-assembly 决策输入、assembly/request snapshot identity、调用前拒绝、必需事件持久化、冷恢复和 A3p/A5p preview 路径。
-7. 将 A1、A2 拆成两个上游 PR。
-8. 合并后把插件固定到首个兼容官方 DSH revision。上游不可用期间明确记录精确 fork，不宣称兼容官方版本。
+4. **已完成：**在 Discussion #2281 发布产品无关契约与 fork 证据，获取上游反馈。
+5. 为初始 baseline 与 candidate 关闭 A3p；无法复现稳定 identity 时撤销对应 route。
+6. 使用真实 preview 载体关闭 A5p，探针覆盖 Auto/manual 选择、持久化选择、实际配置与解释读取。
+7. 增加 Auto Mode 纵向探针，证明 pre-assembly 决策输入、assembly/request snapshot identity、调用前拒绝、必需事件持久化、冷恢复和 A3p/A5p preview 路径。
+8. 若维护者邀请外部改动，将 A1、A2 拆成两项上游贡献。
+9. 合并后把插件固定到首个兼容官方 DSH revision。上游不可用期间明确记录精确 fork，不宣称兼容官方版本。
 
 A1 必须与产品无关：它携带已领取消息、稳定 step identity、取消和不可变 step context，但不理解 route。A2 必须给出精确的插件缺失或事件不兼容诊断，不能静默跳过规范状态。
 

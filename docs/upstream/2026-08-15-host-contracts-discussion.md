@@ -1,18 +1,21 @@
-# Discussion draft: product-neutral Host contracts for routing plugins
+# Published Discussion: product-neutral Host contracts for routing plugins
 
 [简体中文](../../docs/zh-CN/upstream/2026-08-15-host-contracts-discussion.md)
 
-## Publication recommendation
+## Publication record
 
-Post this in the official DeepSeek Harness [**Ideas** category](https://github.com/deepseek-ai/deepseek-harness/discussions/categories/ideas) with this title:
+Published in the official DeepSeek Harness [**Ideas** category](https://github.com/deepseek-ai/deepseek-harness/discussions/categories/ideas) on 2026-08-16 with this title:
 
-> Proposal: pre-assembly step preparation and runtime registration for required plugin Session events
+> 提案：模型路由插件的预组装 Hook 与 Session 事件注册 / Proposal: pre-assembly hook and Session-event registration
 
-The latest 100 Discussion titles sampled on 2026-08-15 contained 26 Chinese-only, 34 English-only, and 40 mixed-language titles. The 28 Ideas in that sample were almost evenly split: 10 Chinese-only, 9 English-only, and 9 mixed. The sample was the newest 100 Discussions returned by GitHub's API in creation order; classification used the presence of Han and Latin letters in each title. There is no dominant language for technical proposals. Use the English technical body below for precise searchable contracts, with the Chinese summary first for maintainers and the Chinese-speaking community.
+- Public URL: [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)
+- Author: [`cloudman6`](https://github.com/cloudman6)
 
-Status: draft only; not published.
+The latest 100 Discussion titles sampled on 2026-08-15 contained 26 Chinese-only, 34 English-only, and 40 mixed-language titles. The 28 Ideas in that sample were almost evenly split: 10 Chinese-only, 9 English-only, and 9 mixed. The sample was the newest 100 Discussions returned by GitHub's API in creation order; classification used the presence of Han and Latin letters in each title. That evidence supported a concise bilingual title, an opening Chinese summary, and an English technical body for precise global search and contract review.
 
-## Copy-ready body
+Status: published; no maintainer response or upstream acceptance recorded yet.
+
+## Published body
 
 ### 中文摘要
 
