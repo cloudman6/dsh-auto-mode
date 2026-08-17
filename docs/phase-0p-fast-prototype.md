@@ -4,7 +4,7 @@
 
 ## Status
 
-Implemented and verified on 2026-08-17 against the maintainer DSH fork at `d94cbe1f7c3bb438109ba8ef69b456ad9bcee753`.
+Implemented and verified on 2026-08-17 against the maintainer DSH fork at `4aedc2a3c5022de3222eb6e53ec4f8ff2ddc2705`.
 
 This is a maintainer-only `experimental-unadmitted` prototype. It proves the Auto interaction and request-routing loop. It does not claim safety, quality improvement, RouterBench admission, immutable deployment identity, public support, or official DSH compatibility.
 
@@ -72,7 +72,7 @@ The pinned fork exposes the prototype through the existing model-selection menu:
 
 - `Auto` is the first item, above manual model and reasoning-effort controls. A check mark identifies the active mode.
 - The trigger updates from the Session projection, and the Auto status card explicitly labels `Effective selection` as `model · effort` for the current task, even when the advisory model catalog does not contain that exact route.
-- The initial effective selection does not animate. A later decision carries its preceding route in the Session projection, and the trigger plus effective-selection card roll only a changed model and/or effort value to the current value over 1.2 seconds; when both change, both tracks roll together. Auto and each changed target use DSH business blue, breathe twice, and then return to their regular color. The chat timeline records the before/after model and effort, tier, reason code, and explanation as a route fact. The switch text uses the same facts; reduced-motion preference keeps the final values and notice without movement.
+- The initial effective selection does not animate. A later decision carries its preceding route in the Session projection, and the trigger plus effective-selection card roll only a changed model and/or effort value to the current value over 1.2 seconds; when both change, both tracks roll together. Auto and each changed target use DSH business blue, breathe twice, and then return to their regular color, including when only effort changes. The chat timeline records the before/after model and effort, tier, reason code, and explanation as a route fact immediately after the triggering user message and before the resulting assistant response. The switch text uses the same facts; reduced-motion preference keeps the final values and notice without movement.
 - The menu shows the selected tier, reason code, short explanation, and an explicit `Experimental / unadmitted` label.
 - Selecting a manual model or reasoning effort first turns Auto off, then applies the manual selection. Manual selection remains available when the Auto capability is absent.
 

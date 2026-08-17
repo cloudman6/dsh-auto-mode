@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 8d0267925795f583bbf0f7eb42aa45ba1a10a606
+translation-source-blob: 0da2830b9a135d5affeafc4dba5fa273cf9008d1
 translation-status: current
 -->
 
@@ -16,13 +16,13 @@ translation-status: current
 
 ## 当前 fork preview 运行时载体
 
-当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，再在不改变这些契约的前提下增加实验性 Auto UI。分支 `codex/auto-mode-host-contracts` 固定在精确 commit [`d94cbe1f7c3bb438109ba8ef69b456ad9bcee753`](https://github.com/cloudman6/deepseek-harness/commit/d94cbe1f7c3bb438109ba8ef69b456ad9bcee753)。
+当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，再在不改变这些契约的前提下增加实验性 Auto UI。分支 `codex/auto-mode-host-contracts` 固定在精确 commit [`4aedc2a3c5022de3222eb6e53ec4f8ff2ddc2705`](https://github.com/cloudman6/deepseek-harness/commit/4aedc2a3c5022de3222eb6e53ec4f8ff2ddc2705)。
 
 产品无关 seam 与 fork 证据已于 2026-08-16 发布到 DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)，用于获取上游设计反馈。发布不代表维护者接受，也不代表兼容官方 DSH。
 
 每个 preview build 必须记录精确 fork remote 和包含 seam 实现的 commit。它只能标识 Host build，不能标识远程模型 deployment；每条已准入 preview route 还必须具有 provider 专用的 deployment identity 证据。公共兼容契约绝不包含本地 checkout 路径；fork 验证成功也不能表述成官方 DSH 支持。
 
-阶段 0P 的具体 A5p 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与 effort，以及持久化的实验解释。决定变化时会携带前一条 route，使界面只把发生变化的模型和／或 effort 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，以呼吸灯方式平滑亮灭两次后恢复默认颜色。聊天时间线会单独把前后模型与 effort，以及层级、原因代码和解释记录为路由事实。这只关闭限定范围的阶段 0P 载体问题；提升到阶段 0C 仍需 admission-aware 断言，生产载体也仍未决定。
+阶段 0P 的具体 A5p 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与 effort，以及持久化的实验解释。决定变化时会携带前一条 route，使界面只把发生变化的模型和／或 effort 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，以呼吸灯方式平滑亮灭两次后恢复默认颜色，包括只切换 effort 的情况。聊天时间线会把前后模型与 effort，以及层级、原因代码和解释记录为路由事实，紧跟在触发它的用户消息之后、产生结果的助手回复之前。这只关闭限定范围的阶段 0P 载体问题；提升到阶段 0C 仍需 admission-aware 断言，生产载体也仍未决定。
 
 ### Fork 契约证据
 
@@ -114,7 +114,7 @@ Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 name
 
 1. **已完成：**在范围窄的 DSH 设计说明中冻结 A1、A2 的产品无关契约。
 2. **已完成：**为基线缺失行为增加 core contract test。
-3. **已完成：**实现并验证 seam，当前由 fork commit `d94cbe1f7c3bb438109ba8ef69b456ad9bcee753` 承载。
+3. **已完成：**实现并验证 seam，当前由 fork commit `4aedc2a3c5022de3222eb6e53ec4f8ff2ddc2705` 承载。
 4. **已完成：**在 Discussion #2281 发布产品无关契约与 fork 证据，获取上游反馈。
 5. **清单完成；没有 route 匹配：**[route 清单证据](evidence/phase-0p-route-inventory.md)冻结六条 DSH selection fingerprint，并排除全部当前候选，因为无 revision alias 不能绑定带版本 Artificial Analysis deployment。只有带版本 selector、provider-response identity 或其他 provider 专用 attestation 建立 binding 后才关闭 A3p；此后 runtime drift 仍按调用 fail closed。只有后续 admission 证据绑定同一 deployment 配置时，才把该 identity 复用于阶段 0C。
 6. **阶段 0P 已完成：**fork UI 与插件 projection/命令覆盖显式 opt-in、Auto/manual 选择、持久化选择、实际配置与未准入解释读取；提升到阶段 0C 前增加 admission-aware 断言。
