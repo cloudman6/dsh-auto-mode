@@ -10,7 +10,7 @@ The plugin must pin an exact tested DSH version or commit and run an extension-c
 
 ## Current fork preview runtime carrier
 
-The current preview runtime carrier is the maintainer fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness). Its `master` branch was verified at the audited baseline on 2026-08-14. Product-neutral A1 and A2 contracts were implemented from that baseline; the experimental Auto UI was then added without changing those contracts. Branch `codex/auto-mode-host-contracts` is pinned at exact commit [`0fb4723e266ff7aad1f046e5a82473fa5e84f2af`](https://github.com/cloudman6/deepseek-harness/commit/0fb4723e266ff7aad1f046e5a82473fa5e84f2af).
+The current preview runtime carrier is the maintainer fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness). Its `master` branch was verified at the audited baseline on 2026-08-14. Product-neutral A1 and A2 contracts were implemented from that baseline; the experimental Auto UI was then added without changing those contracts. Branch `codex/auto-mode-host-contracts` is pinned at exact commit [`30c1198d2aaea9ae34e6901fd518607b5275b476`](https://github.com/cloudman6/deepseek-harness/commit/30c1198d2aaea9ae34e6901fd518607b5275b476).
 
 The product-neutral seams and fork evidence were published for upstream design feedback in DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281) on 2026-08-16. Publication does not imply maintainer acceptance or official compatibility.
 
@@ -108,7 +108,7 @@ The two verified Static Auto blockers are the immediate critical path. Other nee
 
 1. **Completed:** freeze product-neutral contracts for A1 and A2 in narrow DSH design notes.
 2. **Completed:** add core contract tests for the absent baseline behavior.
-3. **Completed:** implement and verify the seams, now carried by fork commit `0fb4723e266ff7aad1f046e5a82473fa5e84f2af`.
+3. **Completed:** implement and verify the seams, now carried by fork commit `30c1198d2aaea9ae34e6901fd518607b5275b476`.
 4. **Completed:** publish the product-neutral contracts and fork evidence for upstream feedback in Discussion #2281.
 5. **Inventory complete; no route matched:** the [route inventory evidence](evidence/phase-0p-route-inventory.md) freezes six DSH selection fingerprints and excludes every current candidate because the revisionless aliases do not bind the versioned Artificial Analysis deployments. Close A3p only after a version-specific selector, provider-response identity, or another provider-specific attestation establishes that binding; runtime drift then remains fail-closed per call. Reuse an identity for Phase 0C only when later admission evidence binds that same deployment configuration.
 6. **Phase 0P completed:** the fork UI and plugin projection/command cover explicit opt-in, Auto/manual choice, persisted selection, actual configuration, and unadmitted explanation retrieval. Add admission-aware assertions before promoting this carrier to Phase 0C.

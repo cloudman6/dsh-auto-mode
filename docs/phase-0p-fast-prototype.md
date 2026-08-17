@@ -4,7 +4,7 @@
 
 ## Status
 
-Implemented and verified on 2026-08-17 against the maintainer DSH fork at `0fb4723e266ff7aad1f046e5a82473fa5e84f2af`.
+Implemented and verified on 2026-08-17 against the maintainer DSH fork at `30c1198d2aaea9ae34e6901fd518607b5275b476`.
 
 This is a maintainer-only `experimental-unadmitted` prototype. It proves the Auto interaction and request-routing loop. It does not claim safety, quality improvement, RouterBench admission, immutable deployment identity, public support, or official DSH compatibility.
 
