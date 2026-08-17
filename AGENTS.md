@@ -12,20 +12,28 @@ DSH Auto Mode gives individual power users of coding agents an adaptive Auto mod
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 0P planning and critical-path execution; A1/A2 are implemented and pinned on the maintainer DSH fork |
-| Existing work | Accepted product specification, architecture, routing, recovery, delegation, RouterBench, DSH integration evidence, roadmap, open questions, and 9 Accepted ADRs |
+| Stage | Phase 0P fast prototype implemented on the A1/A2-pinned maintainer DSH fork |
+| Existing work | Runnable `experimental-unadmitted` plugin, focused tests and real-provider evidence, plus the accepted long-term design |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Absolute baseline quality gate + candidate non-inferiority → end-to-end latency → total cost |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | A non-empty exact AA/DSH route set, external-prior contract, execution-world provider evidence, and A5p carrier verification |
+| Next-stage gate | Maintainer dogfood of the four-criterion fast prototype; production evidence gates remain deferred |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
 ## Required reading for a new session
 
-Read in this order:
+While `PROJECT_STATUS.md` identifies the Phase 0P fast prototype as the active stage, read only these files before implementation or review:
+
+1. `PROJECT_STATUS.md`.
+2. `docs/phase-0p-fast-prototype.md`.
+3. The code and tests directly involved in the requested change.
+
+Do not load the long-term specification, architecture, roadmap, recovery, admission, or open-question documents unless the maintainer explicitly asks to change that long-term design or the active prototype document links to a specific fact needed by the task. Findings from those deferred documents cannot enlarge the prototype boundary.
+
+Outside that active scope lock, read in this order:
 
 1. `PROJECT_STATUS.md`: progress, blockers, next action, and recent status changes.
 2. `docs/spec.md`: product scope, assumptions, success criteria, and boundaries.
@@ -58,6 +66,16 @@ The maintainer accepted the specification and ADR-001 through ADR-007 on 2026-08
 - Treat ADR-009 as risk authorization, not capability evidence. Mutable Experimental Auto remains disabled until a separately accepted concrete provider design freezes every production tool entry and a versioned Host provider proves a clean isolated worktree, durable Attempt-scoped file attribution and containment, process and credential isolation, and `externalSideEffects: 'none'`; uncovered or unsupported entries fail closed.
 - Keep the Phase 0C preview fork-pinned and limited to one routing decision per Session.
 - Do not claim official DSH compatibility, route admission, or a usable preview until the corresponding roadmap evidence gates pass.
+
+## Phase 0P fast-prototype scope lock
+
+While `PROJECT_STATUS.md` names the fast prototype as the active stage, its only acceptance criteria are: select Auto; route different tasks to different model/effort pairs; keep the persisted selection equal to the effective request; and leave Manual unchanged. Apply these rules:
+
+- Add work only when it directly implements, proves, or repairs one of those four criteria.
+- Record production-grade concerns outside that boundary as deferred work. Do not turn them into prototype blockers or new normative contracts.
+- Do not introduce rights approval, signatures, credential binding, revocation ledgers, Session-egress isolation, certificates/sidecars, dispatch-contract ADRs, or complex recovery state machines unless the maintainer explicitly changes the active scope.
+- Code review evaluates the bounded prototype against this scope, the pinned A1/A2 behavior, ordinary correctness, and secret/destructive-action safety. A reviewer may report deferred production risk, but may not require out-of-scope production infrastructure for a prototype `PASS`.
+- Any proposed scope expansion must name the acceptance criterion it serves. Without that direct link, stop the expansion and continue the current prototype.
 
 ## Bounded-stage code review gate
 

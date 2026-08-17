@@ -14,6 +14,16 @@ Review raw artifacts, not the author's explanation. Treat this as a quality gate
 3. Prefer the staged diff before commit. Otherwise review an explicit `<base>...<head>` range. Never infer the boundary from chat chronology.
 4. Record generated, untracked, and pre-existing files separately. Exclude unrelated user work; do not silently absorb it into the review.
 
+## Respect an active prototype scope lock
+
+When `PROJECT_STATUS.md` identifies the Phase 0P fast prototype as the active stage, load `docs/phase-0p-fast-prototype.md` and treat its four acceptance criteria as the review boundary.
+
+- For this stage, `PROJECT_STATUS.md`, `docs/phase-0p-fast-prototype.md`, the staged artifacts, and the pinned A1/A2 sources replace the broader authority-loading list below. Do not load deferred long-term design documents unless the staged change edits them or the prototype document cites a fact that must be verified there.
+- Judge the change against those criteria, pinned A1/A2 behavior, ordinary correctness, and secret/destructive-action safety.
+- Do not require production identity, admission, rights automation, signatures, credential binding, revocation, egress, certificate, recovery, or dispatch infrastructure that the prototype explicitly defers.
+- Report such concerns as residual production risks or backlog notes, not P0-P2 findings, unless the diff makes the deferred production claim or the issue directly breaks a prototype criterion.
+- A review must not create a new contract or enlarge implementation scope. Scope expansion requires an explicit maintainer decision outside the reviewer role.
+
 ## Load authority
 
 Read project authority before judging the diff:

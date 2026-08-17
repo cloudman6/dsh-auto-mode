@@ -4,7 +4,7 @@
 
 DSH Auto Mode is an adaptive routing plugin for DeepSeek Harness, designed for individual power users of coding agents. The normal interaction is one choice: use Auto, or manually select a provider/model/reasoning selection, including supported default behavior. Auto selects only from evidence-admitted configurations. Its optimization order is strict: pass the configured baseline's absolute quality gate, preserve candidate non-inferiority, reduce latency, and only then reduce cost.
 
-The specification and all current ADRs are accepted. Product-neutral A1 pre-assembly step preparation and A2 runtime Session-event registration are implemented and pinned on the declared DSH fork. No user-usable Auto Mode preview exists until the remaining Phase 0C admission, deployment-identity, and carrier gates pass.
+The accepted long-term design remains evidence-gated. A separate maintainer-only Phase 0P fast prototype is now runnable: it uses local manually entered AA seeds and the pinned A1/A2 Host seams to prove Auto selection, real request switching, persisted explanations, fallback, and Manual non-interference. It is visibly `experimental-unadmitted` and makes no safety, quality, public-support, or official-compatibility claim.
 
 ## Product boundary
 
@@ -21,6 +21,7 @@ Actual task scheduling—concurrency limits, priorities, queues, preemption, and
 ## Documentation
 
 - [Project status](PROJECT_STATUS.md)
+- [Runnable Phase 0P fast prototype](docs/phase-0p-fast-prototype.md)
 - [Product specification](docs/spec.md)
 - [System architecture](docs/architecture.md)
 - [Routing policy](docs/routing-policy.md)
@@ -35,27 +36,30 @@ Actual task scheduling—concurrency limits, priorities, queues, preemption, and
 - [Architecture decision records](docs/decisions/README.md)
 - [Documentation localization policy](docs/localization.md)
 - [2026-08-14 multi-view design review](docs/reviews/2026-08-14-multi-view-design-review.md)
-- [Current Phase 0P implementation plan](tasks/plan.md)
-- [Current Phase 0P task checklist](tasks/todo.md)
+- [Deferred production-grade Phase 0P plan](tasks/plan.md)
+- [Deferred production-grade Phase 0P checklist](tasks/todo.md)
 - [Bounded-stage Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## Current commands
 
-This repository currently contains the accepted specification and implementation plans; product code has not yet landed here.
+The repository contains a dependency-free prototype plus the accepted design documents.
 
 ```bash
-# Inspect the worktree
-git status --short --branch
+# Run dependency-free unit tests
+npm test
+
+# Add real DSH Loader composition coverage
+DSH_FORK_ROOT="$HOME/deepseek-harness/.worktrees/auto-mode-host-contracts/workspace" npm test
 
 # Check whitespace errors and merge-conflict markers
 git diff --check
 rg -n '^(<<<<<<<|=======|>>>>>>>)' .
 
-# List design documents
-find docs -type f -name '*.md' -print | sort
+# Inspect the worktree
+git status --short --branch
 ```
 
 ## Contributing
 
-Start with the accepted assumptions, success criteria, and scope in [`docs/spec.md`](docs/spec.md), then review the architecture, ADRs, roadmap gates, and current task plan. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for language and contribution rules.
+While the fast prototype is active, start with [`PROJECT_STATUS.md`](PROJECT_STATUS.md) and [`docs/phase-0p-fast-prototype.md`](docs/phase-0p-fast-prototype.md); do not use deferred production documents to expand prototype work. For long-term design changes, start with the accepted assumptions and scope in [`docs/spec.md`](docs/spec.md). See [`CONTRIBUTING.md`](CONTRIBUTING.md) for language and contribution rules.

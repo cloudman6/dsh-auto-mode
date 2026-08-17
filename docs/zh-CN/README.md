@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/README.md
-translation-source-blob: d63c5defc49a6bd8f2e97a1e063678e74c158c4d
+translation-source-blob: f3d2dca5f96fcb6dc44fbb14c6562f145ae9972c
 translation-status: current
 -->
 
@@ -9,6 +9,8 @@ translation-status: current
 [English](../README.md)
 
 当前进展、阻塞和下一步统一维护在仓库根目录的 [`PROJECT_STATUS.zh-CN.md`](../../PROJECT_STATUS.zh-CN.md)。
+
+可运行且刻意限定范围的实施见[阶段 0P 快速原型](phase-0p-fast-prototype.md)。原型工作由其中四项验收标准约束；下面更长的评审顺序约束推迟的产品设计。
 
 ## 评审顺序
 
@@ -27,6 +29,7 @@ translation-status: current
 
 ## 实施证据
 
+- [阶段 0P 快速原型](phase-0p-fast-prototype.md)：可运行配置、本地 seed 边界、确定性策略、验收标准和真实 provider 证据。
 - [阶段 0P 精确 route 清单与 A3p 证据](evidence/phase-0p-route-inventory.md)：固定 DSH route identity、fingerprint、空的精确外部交集、排除项与剩余 deployment-binding 证据。
 
 ## 历史评审证据

@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: 20ebb781c02d1f125e6968b8b6263d8b185de0e5
+translation-source-blob: 386e3398e2a89b42e564d66777844cbac0d49eba
 translation-status: current
 -->
 
@@ -10,11 +10,11 @@ translation-status: current
 
 ## 最后更新
 
-2026-08-16
+2026-08-17
 
 ## 当前阶段
 
-阶段 0P 规划与关键路径执行。维护者已于 2026-08-16 接受 ADR-008 与 ADR-009，允许运行仅限维护者、明确未准入且由 Artificial Analysis 提供先验的 dogfood 路径，并接受当前 Attempt 在干净隔离 worktree 内产生且可归属的变更这一狭窄 possible-loss envelope。产品无关的 A1 pre-assembly step preparation 与 A2 Session 事件运行时注册继续固定在 DSH fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243` 并通过测试。阶段 0C 仍独立受阶段 A 最小准入切片、A3p deployment identity 与 A5p 载体核验约束。
+阶段 0P 快速原型实施与维护者 dogfood。现在已有可运行、零依赖的 `experimental-unadmitted` 插件，在固定 DSH fork `801ded7f60a0dfab07b9690cb9d98fce6234d243` 上使用产品无关 A1/A2 seam。它消费手工维护、本地且被 Git 忽略的 AA seed；执行确定性的 fast/standard/strong 策略；持久化选择与解释；映射异常时回退到已配置的固定强模型；Manual 保持不变。本原型不修改也不满足推迟的生产准入、deployment identity、数据权利、恢复或官方兼容 gate。
 
 ## 已完成
 
@@ -34,15 +34,18 @@ translation-status: current
 - 接受 ADR-008 并增加阶段 0P，允许由外部先验驱动、明显标为未准入的维护者 dogfood，同时不削弱阶段 0C 的 admission 要求。
 - 接受 ADR-009 的初始可变工作 loss bound：当前 Attempt 在干净隔离 worktree 内产生且可归属的全部未提交变更；不允许外部 effect，也不宣称自动恢复。
 - 完成初始阶段 0P route-selection 清单与 A3p 证据矩阵。六条显式 DeepSeek Flash/Pro selection 具有可复现 DSH fingerprint，但精确外部交集为空：Artificial Analysis record 绑定带版本 deployment，而 DSH 公开无 revision 的 pass-through alias。Default、dormant pi-ai route 与非公共 endpoint 同样排除。
+- 实现刻意限定范围的阶段 0P 快速原型：11 项单元与真实 Loader 测试通过；Auto fast/strong 决策与实际 request header 一致；Manual 不变；`deepseek-v4-flash / off` 与 `deepseek-v4-pro / max` 的真实 provider 调用完成且 Session 证据匹配。
 
 ## 当前实施入口
 
-1. 冻结外部证据 snapshot schema、精确匹配规则、启发式 policy 与数据权利边界，同时让空的初始 catalog fail closed。
-2. 实现每 Session 一次决策的阶段 0P 路径，并针对一个具体载体关闭 A5p。
-3. 在可变 dogfood 前审计、接受并证明具体 ADR-009 execution-world provider。
-4. 把 fork 固定在 `801ded7f60a0dfab07b9690cb9d98fce6234d243`；不得宣称 route admission 或官方 DSH 兼容。
+1. 按 `docs/zh-CN/phase-0p-fast-prototype.md` 中的 Loader 配置 dogfood 四项验收的快速原型。
+2. 仅在本地记录任务文本、所选档位、实际请求、延迟和用户结果，不把用户选择视为正确标签。
+3. 只修复破坏 Auto 选择、route 分流、事件/请求一致性或 Manual 不受影响的缺陷。
+4. 保持 fork 固定且所有结果明显标为 `experimental-unadmitted`；不得宣称 route admission、质量提升或官方 DSH 兼容。
 
-## 进入阶段 0P dogfood 前的 gate
+## 推迟的生产级阶段 0P gate
+
+快速原型不等待以下 gate。在宣称任何生产级或公开支持的 Auto 前，它们仍是必需条件：
 
 - A1/A2 在固定 fork 上持续通过。
 - 每个可选配置都有精确 A3p provider/model/reasoning-selection identity 和一项精确外部证据匹配。
@@ -70,11 +73,11 @@ translation-status: current
 
 ## 当前阻塞
 
-阶段 0P 决策 gate、初始可变工作 loss-bound 决策与任务 1 清单已经关闭。该清单没有产生可选 route。剩余实施阻塞是具有 A3p deployment binding 的非空精确 DSH/Artificial Analysis route 交集、外部证据 snapshot 和启发式策略契约、已接受的具体 execution-world provider 设计及其冻结 production tool inventory 所需的可执行 ADR-009 Recovery Capability 证据，以及一个已验证 A5p 载体。Provider 设计与 capability evidence gate 关闭前，阶段 0P dogfood 仅限只读。A1/A2 已在维护者 fork 上实现，但仍是上游兼容依赖。阶段 A 最小准入切片有意从阶段 0P 推迟，继续作为阶段 0C 阻塞。完整恢复和外部 child model/reasoning-selection 控制继续推迟。
+限定范围的快速原型不存在实施阻塞。此前识别的生产阻塞——绑定 deployment 的 A3 identity、可分发的外部证据合同、数据权利自动化、生产载体、完整恢复证据和 RouterBench 准入——继续推迟，不得重新变成原型阻塞。A1/A2 仍依赖固定 fork。
 
 ## 下一步
 
-执行已接受阶段 0P 实施计划的任务 2：建立外部先验 schema、不可变实验 resolution contract、确定性启发式 policy、source access method、attribution 与数据权利边界；空 catalog 产生 `no-experimental-route`。在并行 evidence 工作中，识别官方带版本 DeepSeek selector，或寻找 deployment identity 与 Artificial Analysis record 精确匹配的其他 DSH route；不得从 alias 推断 binding。先审计并明确接受具体 ADR-009 provider 设计，再针对冻结 production tool inventory 实现和证明它；Host/A5p 集成期间可以先使用只读 fixture。持续针对固定 fork 验证 A1/A2，并异步跟进 Discussion #2281。RouterBench admission 仍是阶段 0C 的下一道 gate，而不是阶段 0P 前置条件。
+使用本地 AA seed 执行维护者 dogfood，并记录四项原型标准在普通任务中是否持续成立。下一次实施修改必须由其中一项标准的可复现失败驱动。生产合同研究保留在原 worktree 中，除非维护者明确改变范围，否则不得恢复该方向。
 
 ## 状态维护规则
 

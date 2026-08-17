@@ -4,6 +4,8 @@
 
 Current progress, blockers, and the next action are maintained in the repository-root [`PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
+The runnable, deliberately bounded implementation is documented in the [Phase 0P fast prototype](phase-0p-fast-prototype.md). Its four acceptance criteria govern prototype work; the longer review order below governs the deferred product design.
+
 ## Review order
 
 1. [Product specification](spec.md): confirm users, objectives, success criteria, boundaries, and assumptions.
@@ -21,6 +23,7 @@ The [architecture decision records](decisions/README.md) contain the accepted de
 
 ## Implementation evidence
 
+- [Phase 0P fast prototype](phase-0p-fast-prototype.md): runnable configuration, local-seed boundary, deterministic policy, acceptance criteria, and real-provider evidence.
 - [Phase 0P exact route inventory and A3p evidence](evidence/phase-0p-route-inventory.md): pinned DSH route identities, fingerprints, the empty exact external intersection, exclusions, and remaining deployment-binding evidence.
 
 ## Historical review evidence

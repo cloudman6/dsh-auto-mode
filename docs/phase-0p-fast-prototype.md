@@ -1,0 +1,90 @@
+# Phase 0P fast prototype
+
+[简体中文](zh-CN/phase-0p-fast-prototype.md)
+
+## Status
+
+Implemented and verified on 2026-08-17 against the maintainer DSH fork at `801ded7f60a0dfab07b9690cb9d98fce6234d243`.
+
+This is a maintainer-only `experimental-unadmitted` prototype. It proves the Auto interaction and request-routing loop. It does not claim safety, quality improvement, RouterBench admission, immutable deployment identity, public support, or official DSH compatibility.
+
+## Acceptance boundary
+
+The prototype has exactly four acceptance criteria:
+
+1. The user can select `auto`; omitted mode and `manual` leave routing untouched.
+2. Different task text selects different complete provider/model/reasoning-effort configurations.
+3. The persisted `dsh-auto-mode/selection` event matches the effective `request/header` configuration.
+4. Manual mode does not add selection events or change the configured request.
+
+Work that does not directly prove or preserve one of these criteria is deferred. Production evidence contracts, data-rights automation, signatures, credential binding, revocation ledgers, Session-egress controls, certificates, complex recovery, and admission remain outside this prototype.
+
+## Runtime shape
+
+The plugin is a dependency-free Cordis module at `src/plugin.mjs`. It uses the pinned Host's existing seams:
+
+- The first `agent/prepare-step` of a turn classifies the current task and selects a complete local route; later tool-result steps in that turn reuse it.
+- `system-prompt/assemble` snapshots that selection and exposes the selected provider/model to prompt variables.
+- `agent/request` applies the same frozen provider/model/reasoning effort.
+- A2 `registerEventNamespace()` validates the required `dsh-auto-mode/selection` Session event.
+
+The deterministic policy is deliberately small:
+
+- security, concurrency, architecture, migration, incident, and data-loss signals → `strong`;
+- formatting, typo, README, rename, locate/find, and summarization signals → `fast`;
+- everything else → `standard`.
+
+`strong` wins when signals overlap. A missing or invalid tier mapping uses the configured fixed strong fallback. Tier names are heuristics, not quality guarantees.
+
+## Local AA seed
+
+Copy `examples/aa-seed.example.json` to `local/aa-seed.json` and manually enter the currently observed Artificial Analysis records plus the exact DSH selections you choose to associate with them. `local/` is gitignored. The plugin neither fetches Artificial Analysis nor redistributes its data.
+
+Each route contains one complete selection:
+
+```json
+{
+  "provider": "deepseek-official",
+  "model": "deepseek-v4-flash",
+  "reasoningEffort": "off"
+}
+```
+
+The prototype treats this association as a maintainer assertion. It does not prove that a revisionless DSH alias is the same deployment measured by Artificial Analysis.
+
+## Loader configuration
+
+Add the plugin to a Loader tree that already provides the DSH Session service:
+
+```yaml
+- id: auto-mode
+  name: './path/to/dsh-auto-mode/src/plugin.mjs'
+  config:
+    mode: auto
+    seedPath: './path/to/dsh-auto-mode/local/aa-seed.json'
+```
+
+Set `mode: manual` or omit `mode` to preserve the configured DSH request without loading the seed.
+
+## Verification
+
+Run the dependency-free unit suite:
+
+```bash
+npm test
+```
+
+Run the real Loader composition suite against the pinned fork:
+
+```bash
+DSH_FORK_ROOT="$HOME/deepseek-harness/.worktrees/auto-mode-host-contracts/workspace" npm test
+```
+
+The Loader suite proves Auto fast/strong divergence, event/header equality, and Manual non-interference through the real DSH composition. Two with-credential provider calls additionally completed on 2026-08-17:
+
+| Task signal | Selection event | Request header | Provider result source |
+|---|---|---|---|
+| bounded formatting | `deepseek-official / deepseek-v4-flash / off` | same | `deepseek-official / deepseek-v4-flash` |
+| authentication race condition | `deepseek-official / deepseek-v4-pro / max` | same | `deepseek-official / deepseek-v4-pro` |
+
+These calls prove dispatch, not model quality or the correctness of the local AA association.

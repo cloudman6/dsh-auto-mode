@@ -4,11 +4,11 @@
 
 ## Last updated
 
-2026-08-16
+2026-08-17
 
 ## Current stage
 
-Phase 0P planning and critical-path execution. The maintainer accepted ADR-008 and ADR-009 on 2026-08-16, authorizing a maintainer-only, explicitly unadmitted Artificial Analysis-seeded dogfood path and a narrow possible-loss envelope for Attempt-attributable changes in a clean isolated worktree. Product-neutral A1 pre-assembly step preparation and A2 runtime Session-event registration remain implemented and tested on the declared DSH fork at commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`. Phase 0C remains separately gated by the minimal Phase A admission slice, A3p deployment identity, and A5p carrier verification.
+Phase 0P fast prototype implementation and maintainer dogfood. A runnable, dependency-free `experimental-unadmitted` plugin now uses the product-neutral A1/A2 seams on the pinned DSH fork at `801ded7f60a0dfab07b9690cb9d98fce6234d243`. It consumes a manually maintained, local, gitignored AA seed; applies a deterministic fast/standard/strong policy; persists the choice and explanation; falls back to a configured fixed strong selection; and leaves Manual unchanged. This prototype does not amend or satisfy the deferred production admission, deployment-identity, rights, recovery, or official-compatibility gates.
 
 ## Completed
 
@@ -28,15 +28,18 @@ Phase 0P planning and critical-path execution. The maintainer accepted ADR-008 a
 - Accepted ADR-008 and introduced Phase 0P, allowing externally seeded, visibly unadmitted maintainer dogfood without weakening Phase 0C admission requirements.
 - Accepted ADR-009's initial mutable-work loss bound: all uncommitted changes attributable to the current Attempt inside a clean isolated worktree, with no external effects or automatic-recovery claim.
 - Completed the initial Phase 0P route-selection inventory and A3p evidence matrix. Six explicit DeepSeek Flash/Pro selections have reproducible DSH fingerprints, but the exact external intersection is empty: Artificial Analysis records bind versioned deployments while DSH exposes revisionless pass-through aliases. Defaults, dormant pi-ai routes, and non-public endpoints are also excluded.
+- Implemented the deliberately bounded Phase 0P fast prototype: 11 unit and real-Loader tests pass; Auto fast/strong decisions match effective request headers; Manual is unchanged; and real provider calls completed on `deepseek-v4-flash / off` and `deepseek-v4-pro / max` with matching Session evidence.
 
 ## Current implementation entry points
 
-1. Freeze the external-evidence snapshot schema, exact-match rules, heuristic policy, and data-rights boundary while keeping the empty initial catalog fail closed.
-2. Implement the one-decision-per-Session Phase 0P path and close A5p against one concrete carrier.
-3. Audit, accept, and prove the concrete ADR-009 execution-world provider before mutable dogfood.
-4. Keep the fork pinned to `801ded7f60a0dfab07b9690cb9d98fce6234d243`; do not claim route admission or official DSH compatibility.
+1. Dogfood the four-criterion fast prototype through the Loader configuration documented in `docs/phase-0p-fast-prototype.md`.
+2. Collect task text, selected tier, effective request, latency, and user outcome locally without treating user choices as correctness labels.
+3. Repair only defects that break Auto selection, route divergence, event/request equality, or Manual non-interference.
+4. Keep the fork pinned and every result visibly `experimental-unadmitted`; do not claim route admission, quality improvement, or official DSH compatibility.
 
-## Gates before Phase 0P dogfood
+## Deferred production-grade Phase 0P gates
+
+The fast prototype does not wait on the following gates. They remain required before any production-grade or publicly supported Auto claim:
 
 - A1/A2 stay green on the pinned fork.
 - Every selectable configuration has exact A3p provider/model/reasoning-selection identity and one exact external-evidence match.
@@ -64,11 +67,11 @@ Phase 0P planning and critical-path execution. The maintainer accepted ADR-008 a
 
 ## Current blockers
 
-The Phase 0P decision gate, initial mutable-work loss-bound decision, and Task 1 inventory are closed. The inventory produced no selectable route. Remaining implementation blockers are a non-empty exact DSH/Artificial Analysis route intersection with A3p deployment binding, the external-evidence snapshot and heuristic-policy contract, an accepted concrete execution-world provider design plus executable ADR-009 Recovery Capability evidence for its frozen production tool inventory, and one verified A5p carrier. Until the provider design and capability evidence gates close, Phase 0P dogfood is read-only. A1/A2 are implemented on the maintainer fork but remain an upstream compatibility dependency. The minimal Phase A admission slice is deliberately deferred from Phase 0P and remains a Phase 0C blocker. Full recovery and external child model/reasoning-selection control remain deferred.
+There is no implementation blocker for the bounded fast prototype. The previously identified production blockers—deployment-bound A3 identity, a distributable external-evidence contract, data-rights automation, a production carrier, full recovery evidence, and RouterBench admission—remain deferred and must not be converted back into prototype blockers. A1/A2 remain a pinned-fork dependency.
 
 ## Next action
 
-Execute Task 2 of the accepted Phase 0P implementation plan: establish the external-prior schema, immutable experimental resolution contract, deterministic heuristic policy, source-access method, attribution, and data-rights boundary, with an empty catalog producing `no-experimental-route`. In parallel evidence work, identify an official version-specific DeepSeek selector or another DSH route whose deployment identity exactly matches an Artificial Analysis record; do not infer a binding from an alias. Audit and explicitly accept the concrete ADR-009 provider design before implementing and proving it against the frozen production tool inventory; Host and A5p integration can proceed with read-only fixtures meanwhile. Keep A1/A2 verified against the pinned fork and monitor Discussion #2281 asynchronously. RouterBench admission remains the next gate for Phase 0C, not a Phase 0P prerequisite.
+Run maintainer dogfood with the local AA seed and record whether the four prototype criteria continue to hold across ordinary tasks. The next implementation change must be driven by a reproduced failure in one of those criteria. Keep production-contract research in its preserved worktree and do not resume it unless the maintainer explicitly changes scope.
 
 ## Status maintenance rules
 

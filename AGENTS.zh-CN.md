@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: bdf874794996aac5fa7834a32af721ac1f678a67
+translation-source-blob: 17e3c46c9388b42cf20ce4d08a605f8635c20761
 translation-status: current
 -->
 
@@ -18,20 +18,28 @@ translation-status: current
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 阶段 0P 规划与关键路径执行；A1/A2 已在维护者 DSH fork 上实现并固定版本 |
-| 已有成果 | 已接受的产品规范、架构、路由、恢复、委派、RouterBench、DSH 接入证据、路线图、开放问题和 9 项 Accepted ADR |
+| 项目阶段 | 阶段 0P 快速原型已在固定 A1/A2 的维护者 DSH fork 上实现 |
+| 已有成果 | 可运行的 `experimental-unadmitted` 插件、聚焦测试、真实 provider 证据，以及已接受的长期设计 |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | baseline 绝对质量门槛 + candidate 非劣性 → 端到端延迟 → 总成本 |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 非空的精确 AA/DSH route set、外部先验契约、execution-world provider 证据及 A5p 载体核验 |
+| 下一阶段入口 | 对四项验收的快速原型执行维护者 dogfood；生产证据 gate 继续推迟 |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
 ## 新会话必读
 
-按顺序读取：
+当 `PROJECT_STATUS.md` 把阶段 0P 快速原型列为当前阶段时，在实施或评审前只读取：
+
+1. `PROJECT_STATUS.md`。
+2. `docs/zh-CN/phase-0p-fast-prototype.md`。
+3. 与当前变更直接相关的代码和测试。
+
+除非维护者明确要求修改长期设计，或当前原型文档链接了任务所需的特定事实，否则不得加载长期规范、架构、Roadmap、恢复、准入或未决问题文档。不得用这些延期文档中的发现扩大原型边界。
+
+在该有效范围锁之外，按顺序读取：
 
 1. `PROJECT_STATUS.md`：当前进度、阻塞、下一步和最近状态变化。
 2. `docs/spec.md`：产品范围、假设、成功标准和工作边界。
@@ -64,6 +72,16 @@ translation-status: current
 - 把 ADR-009 视为风险授权，而非能力证据。只有另行接受的具体 provider 设计冻结每个 production tool entry，并且带版本 Host provider 证明干净隔离 worktree、持久 Attempt scope 文件归属与 containment、process/credential isolation，以及 `externalSideEffects: 'none'` 后，才能启用可变 Experimental Auto；未覆盖或不支持的入口都 fail closed。
 - 阶段 0C preview 固定到明确 fork，并保持每 Session 一次路由决策。
 - 对应路线图证据 gate 通过前，不得宣称兼容官方 DSH、route 已准入或 preview 已可用。
+
+## 阶段 0P 快速原型范围锁
+
+当 `PROJECT_STATUS.md` 把快速原型列为当前阶段时，验收标准只有四项：选择 Auto；不同任务路由到不同 model/effort；持久化选择与实际请求一致；Manual 不变。执行以下规则：
+
+- 只有直接实施、证明或修复四项标准之一时，才增加工作。
+- 边界外的生产级问题记录为推迟事项，不得升级为原型阻塞或新规范合同。
+- 除非维护者明确改变当前范围，否则不得引入 rights approval、签名、credential binding、revocation ledger、Session egress isolation、certificate/sidecar、dispatch-contract ADR 或复杂恢复状态机。
+- Code review 按本范围、固定 A1/A2 行为、普通正确性以及 secret/破坏性操作安全评估原型。评审可以记录推迟的生产风险，但不得要求用范围外的生产基础设施换取原型 `PASS`。
+- 任何范围扩展都必须指出它直接服务哪项验收标准。无法建立直接联系时，立即停止扩展并继续当前原型。
 
 ## 有边界阶段的 Code Review gate
 

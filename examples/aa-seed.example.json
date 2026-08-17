@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "name": "Artificial Analysis",
+    "capturedAt": "YYYY-MM-DDTHH:mm:ss.sssZ",
+    "url": "https://artificialanalysis.ai/models"
+  },
+  "routes": {
+    "fast": {
+      "selection": {
+        "provider": "your-provider",
+        "model": "your-fast-model",
+        "reasoningEffort": "off"
+      },
+      "aa": {
+        "recordId": "manually-recorded-aa-entry-id",
+        "label": "Manually recorded AA label"
+      }
+    },
+    "standard": {
+      "selection": {
+        "provider": "your-provider",
+        "model": "your-standard-model",
+        "reasoningEffort": "high"
+      },
+      "aa": {
+        "recordId": "manually-recorded-aa-entry-id",
+        "label": "Manually recorded AA label"
+      }
+    },
+    "strong": {
+      "selection": {
+        "provider": "your-provider",
+        "model": "your-strong-model",
+        "reasoningEffort": "max"
+      },
+      "aa": {
+        "recordId": "manually-recorded-aa-entry-id",
+        "label": "Manually recorded AA label"
+      }
+    }
+  },
+  "fallback": {
+    "provider": "your-provider",
+    "model": "your-fixed-strong-model",
+    "reasoningEffort": "max"
+  }
+}
