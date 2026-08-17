@@ -119,6 +119,7 @@ export function apply(ctx, config = {}) {
         active: true,
         evidenceStatus: EVIDENCE_STATUS,
         decision: null,
+        previousDecision: null,
       }),
       apply: (state, event) => {
         if (event.type === MODE_EVENT) {
@@ -126,6 +127,7 @@ export function apply(ctx, config = {}) {
             active: event.data.active,
             evidenceStatus: EVIDENCE_STATUS,
             decision: null,
+            previousDecision: null,
           }
         }
         if (event.type !== SELECTION_EVENT) return state
@@ -134,6 +136,7 @@ export function apply(ctx, config = {}) {
           active: true,
           evidenceStatus: EVIDENCE_STATUS,
           decision,
+          previousDecision: state.decision,
         }
       },
       view: state => state,

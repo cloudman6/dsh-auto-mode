@@ -4,7 +4,7 @@
 
 ## Status
 
-Implemented and verified on 2026-08-17 against the maintainer DSH fork at `38c49596040814e688da010d4f46aa62ca987471`.
+Implemented and verified on 2026-08-17 against the maintainer DSH fork at `6fc27e011a2e0db50697b7b801a8bd2aed042db6`.
 
 This is a maintainer-only `experimental-unadmitted` prototype. It proves the Auto interaction and request-routing loop. It does not claim safety, quality improvement, RouterBench admission, immutable deployment identity, public support, or official DSH compatibility.
 
@@ -72,7 +72,7 @@ The pinned fork exposes the prototype through the existing model-selection menu:
 
 - `Auto` is the first item, above manual model and reasoning-effort controls. A check mark identifies the active mode.
 - The trigger updates from the Session projection, and the Auto status card explicitly labels `Effective selection` as `model · effort` for the current task, even when the advisory model catalog does not contain that exact route.
-- The initial effective selection does not animate. A later change to the projected actual provider, model, or effort briefly highlights the trigger and effective selection and displays a textual switch notice; reduced-motion preference keeps the notice without movement.
+- The initial effective selection does not animate. A later decision carries its preceding route in the Session projection, and the trigger plus effective-selection card roll only a changed model and/or effort value to the current value; when both change, both tracks roll together. The switch text uses the same facts; reduced-motion preference keeps the final values and notice without movement.
 - The menu shows the selected tier, reason code, short explanation, and an explicit `Experimental / unadmitted` label.
 - Selecting a manual model or reasoning effort first turns Auto off, then applies the manual selection. Manual selection remains available when the Auto capability is absent.
 

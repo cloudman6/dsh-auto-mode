@@ -163,7 +163,7 @@ describe('DSH Auto Mode plugin', () => {
     assert.deepEqual(subject.events, [])
   })
 
-  it('switches Auto per session through /auto and exposes the latest decision projection', async () => {
+  it('switches Auto per session through /auto and projects the preceding route for UI transition feedback', async () => {
     const ctx = new FakeContext()
     apply(ctx, { mode: 'auto', seed: seed() })
     const subject = agent()
@@ -194,6 +194,11 @@ describe('DSH Auto Mode plugin', () => {
       [{ ...payload, turn: 2 }],
       () => Promise.resolve({ kind: 'enter' }),
     )
+    await ctx.waterfall(
+      'agent/prepare-step',
+      [{ ...payload, messages: [{ content: [{ type: 'text', text: 'Investigate a security incident.' }] }], turn: 3 }],
+      () => Promise.resolve({ kind: 'enter' }),
+    )
 
     const projected = subject.events.reduce(
       (state, event) => ctx.projection.apply(state, event),
@@ -203,6 +208,16 @@ describe('DSH Auto Mode plugin', () => {
       active: true,
       evidenceStatus: 'experimental-unadmitted',
       decision: {
+        turn: 3,
+        step: 0,
+        tier: 'strong',
+        provider: 'p',
+        model: 'pro',
+        reasoningEffort: 'max',
+        reasonCode: 'high-complexity-task',
+        reason: 'Matched a high-complexity or high-consequence task signal.',
+      },
+      previousDecision: {
         turn: 2,
         step: 0,
         tier: 'fast',
