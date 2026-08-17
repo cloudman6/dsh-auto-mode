@@ -4,7 +4,7 @@
 
 ## Status
 
-Implemented and verified on 2026-08-17 against the maintainer DSH fork at `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90`.
+Implemented and verified on 2026-08-17 against the maintainer DSH fork at `ec5d692166b5fe6f7deb8e5385fe3be2f1a50320`.
 
 This is a maintainer-only `experimental-unadmitted` prototype. It proves the Auto interaction and request-routing loop. It does not claim safety, quality improvement, RouterBench admission, immutable deployment identity, public support, or official DSH compatibility.
 
@@ -71,7 +71,7 @@ Set `mode: manual` or omit `mode` to preserve the configured DSH request without
 The pinned fork exposes the prototype through the existing model-selection menu:
 
 - `Auto` is the first item, above manual model and reasoning-effort controls. A check mark identifies the active mode.
-- The trigger and menu update from the Session projection to show the effective model and effort selected for the current task, even when the advisory model catalog does not contain that exact route.
+- The trigger updates from the Session projection, and the Auto status card explicitly labels `Effective selection` as `model · effort` for the current task, even when the advisory model catalog does not contain that exact route.
 - The menu shows the selected tier, reason code, short explanation, and an explicit `Experimental / unadmitted` label.
 - Selecting a manual model or reasoning effort first turns Auto off, then applies the manual selection. Manual selection remains available when the Auto capability is absent.
 

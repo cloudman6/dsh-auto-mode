@@ -8,7 +8,7 @@
 
 ## Current stage
 
-Phase 0P fast prototype implementation and maintainer dogfood. A runnable, dependency-free `experimental-unadmitted` plugin now uses the product-neutral A1/A2 seams and the visible Auto carrier on the pinned DSH fork at `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90`. It consumes a manually maintained, local, gitignored AA seed; applies a deterministic fast/standard/strong policy; persists and displays the choice and explanation; falls back to a configured fixed strong selection; and leaves Manual unchanged. This prototype does not amend or satisfy the deferred production admission, deployment-identity, rights, recovery, or official-compatibility gates.
+Phase 0P fast prototype implementation and maintainer dogfood. A runnable, dependency-free `experimental-unadmitted` plugin now uses the product-neutral A1/A2 seams and the visible Auto carrier on the pinned DSH fork at `ec5d692166b5fe6f7deb8e5385fe3be2f1a50320`. It consumes a manually maintained, local, gitignored AA seed; applies a deterministic fast/standard/strong policy; persists and displays the choice and explanation; falls back to a configured fixed strong selection; and leaves Manual unchanged. This prototype does not amend or satisfy the deferred production admission, deployment-identity, rights, recovery, or official-compatibility gates.
 
 ## Completed
 
@@ -29,7 +29,7 @@ Phase 0P fast prototype implementation and maintainer dogfood. A runnable, depen
 - Accepted ADR-009's initial mutable-work loss bound: all uncommitted changes attributable to the current Attempt inside a clean isolated worktree, with no external effects or automatic-recovery claim.
 - Completed the initial Phase 0P route-selection inventory and A3p evidence matrix. Six explicit DeepSeek Flash/Pro selections have reproducible DSH fingerprints, but the exact external intersection is empty: Artificial Analysis records bind versioned deployments while DSH exposes revisionless pass-through aliases. Defaults, dormant pi-ai routes, and non-public endpoints are also excluded.
 - Implemented the deliberately bounded Phase 0P fast prototype: 12 unit and real-Loader tests pass; Auto fast/strong decisions match effective request headers; Manual is unchanged; and real provider calls completed on `deepseek-v4-flash / off` and `deepseek-v4-pro / max` with matching Session evidence.
-- Closed the bounded Phase 0P A5p carrier: the model menu puts checked `Auto` above manual controls, updates the effective model/effort and explanation from the Session projection while a task runs, and exits Auto before applying a manual choice. Focused tests, the full GUI suite, a keyless assembled-Web golden snapshot, and browser dogfood passed on fork commit `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90`.
+- Closed the bounded Phase 0P A5p carrier: the model menu puts checked `Auto` above manual controls, labels the effective model/effort explicitly inside the Auto status card, updates that selection and its explanation from the Session projection while a task runs, and exits Auto before applying a manual choice. Focused tests, the full GUI suite, keyless assembled-Web golden snapshots, and browser dogfood passed through fork commit `ec5d692166b5fe6f7deb8e5385fe3be2f1a50320`.
 
 ## Current implementation entry points
 

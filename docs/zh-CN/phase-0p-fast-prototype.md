@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/phase-0p-fast-prototype.md
-translation-source-blob: c94b2969b32b7d0ebfcc9fc01ec8be06b8bf3c58
+translation-source-blob: f1d899a408e3a9bfa9edfddb099c9d2a6a288e71
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-已于 2026-08-17 基于维护者 DSH fork `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90` 完成实施与验证。
+已于 2026-08-17 基于维护者 DSH fork `ec5d692166b5fe6f7deb8e5385fe3be2f1a50320` 完成实施与验证。
 
 这是仅限维护者的 `experimental-unadmitted` 原型，只证明 Auto 交互和请求路由闭环。它不宣称安全、质量提升、RouterBench 准入、不可变 deployment identity、公开支持或官方 DSH 兼容。
 
@@ -77,7 +77,7 @@ translation-status: current
 固定 fork 通过现有模型选择菜单暴露本原型：
 
 - `Auto` 是第一项，位于手动模型和推理强度控件上方；启用时显示对勾。
-- 触发器和菜单从 Session projection 实时显示当前任务实际选择的模型与 effort；即使 advisory model catalog 没有该精确 route，也显示原始标识。
+- 触发器从 Session projection 实时更新，Auto 状态卡片把当前任务的实际选择明确标注为“`模型 · effort`”；即使 advisory model catalog 没有该精确 route，也显示原始标识。
 - 菜单显示所选档位、reason code、简短解释和明确的 `Experimental / unadmitted` 标识。
 - 选择手动模型或推理强度时，先关闭 Auto，再应用手动选择。Auto capability 不存在时，手动选择仍可使用。
 
