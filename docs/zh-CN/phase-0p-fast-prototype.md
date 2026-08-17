@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/phase-0p-fast-prototype.md
-translation-source-blob: f1d899a408e3a9bfa9edfddb099c9d2a6a288e71
+translation-source-blob: 7ab66739503d7cb533b85be0a51bf4f2d1524c70
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-已于 2026-08-17 基于维护者 DSH fork `ec5d692166b5fe6f7deb8e5385fe3be2f1a50320` 完成实施与验证。
+已于 2026-08-17 基于维护者 DSH fork `38c49596040814e688da010d4f46aa62ca987471` 完成实施与验证。
 
 这是仅限维护者的 `experimental-unadmitted` 原型，只证明 Auto 交互和请求路由闭环。它不宣称安全、质量提升、RouterBench 准入、不可变 deployment identity、公开支持或官方 DSH 兼容。
 
@@ -78,6 +78,7 @@ translation-status: current
 
 - `Auto` 是第一项，位于手动模型和推理强度控件上方；启用时显示对勾。
 - 触发器从 Session projection 实时更新，Auto 状态卡片把当前任务的实际选择明确标注为“`模型 · effort`”；即使 advisory model catalog 没有该精确 route，也显示原始标识。
+- 首次实际选择不会播放动画。后续投影出的实际 provider、模型或 effort 发生变化时，触发器和实际选择会短暂高亮并显示文字切换提示；启用减少动态效果偏好时保留文字提示但不移动。
 - 菜单显示所选档位、reason code、简短解释和明确的 `Experimental / unadmitted` 标识。
 - 选择手动模型或推理强度时，先关闭 Auto，再应用手动选择。Auto capability 不存在时，手动选择仍可使用。
 

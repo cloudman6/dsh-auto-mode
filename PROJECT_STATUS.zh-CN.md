@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: ffd5652bdcd1ae141a3ee15cd9a92d0a17bb6260
+translation-source-blob: 389ab45e14d86da7e17334e263dc09d1bfd4dbd6
 translation-status: current
 -->
 
@@ -14,7 +14,7 @@ translation-status: current
 
 ## 当前阶段
 
-阶段 0P 快速原型实施与维护者 dogfood。现在已有可运行、零依赖的 `experimental-unadmitted` 插件，在固定 DSH fork `ec5d692166b5fe6f7deb8e5385fe3be2f1a50320` 上使用产品无关 A1/A2 seam 和可见 Auto 载体。它消费手工维护、本地且被 Git 忽略的 AA seed；执行确定性的 fast/standard/strong 策略；持久化并显示选择与解释；映射异常时回退到已配置的固定强模型；Manual 保持不变。本原型不修改也不满足推迟的生产准入、deployment identity、数据权利、恢复或官方兼容 gate。
+阶段 0P 快速原型实施与维护者 dogfood。现在已有可运行、零依赖的 `experimental-unadmitted` 插件，在固定 DSH fork `38c49596040814e688da010d4f46aa62ca987471` 上使用产品无关 A1/A2 seam 和可见 Auto 载体。它消费手工维护、本地且被 Git 忽略的 AA seed；执行确定性的 fast/standard/strong 策略；持久化并显示选择与解释；映射异常时回退到已配置的固定强模型；Manual 保持不变。本原型不修改也不满足推迟的生产准入、deployment identity、数据权利、恢复或官方兼容 gate。
 
 ## 已完成
 
@@ -35,7 +35,7 @@ translation-status: current
 - 接受 ADR-009 的初始可变工作 loss bound：当前 Attempt 在干净隔离 worktree 内产生且可归属的全部未提交变更；不允许外部 effect，也不宣称自动恢复。
 - 完成初始阶段 0P route-selection 清单与 A3p 证据矩阵。六条显式 DeepSeek Flash/Pro selection 具有可复现 DSH fingerprint，但精确外部交集为空：Artificial Analysis record 绑定带版本 deployment，而 DSH 公开无 revision 的 pass-through alias。Default、dormant pi-ai route 与非公共 endpoint 同样排除。
 - 实现刻意限定范围的阶段 0P 快速原型：12 项单元与真实 Loader 测试通过；Auto fast/strong 决策与实际 request header 一致；Manual 不变；`deepseek-v4-flash / off` 与 `deepseek-v4-pro / max` 的真实 provider 调用完成且 Session 证据匹配。
-- 关闭限定范围的阶段 0P A5p 载体：模型菜单把带对勾的 `Auto` 放在手动控件上方，并在 Auto 状态卡片中明确标注实际模型/effort；任务运行时从 Session projection 更新该选择与解释；应用手动选择前先退出 Auto。专项测试、完整 GUI 测试、无密钥 assembled-Web golden snapshot 和浏览器 dogfood 均已通过 fork commit `ec5d692166b5fe6f7deb8e5385fe3be2f1a50320`。
+- 关闭限定范围的阶段 0P A5p 载体：模型菜单把带对勾的 `Auto` 放在手动控件上方，并在 Auto 状态卡片中明确标注实际模型/effort；任务运行时从 Session projection 更新该选择与解释；应用手动选择前先退出 Auto。后续发生实际 provider/model/effort 变化时，触发器和实际选择会短暂高亮，并显示文字切换提示；首次 projection 不会播放动画。专项测试、完整 GUI 测试、无密钥 assembled-Web golden snapshot 和浏览器 dogfood 均已通过 fork commit `38c49596040814e688da010d4f46aa62ca987471`。
 
 ## 当前实施入口
 
