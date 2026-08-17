@@ -32,12 +32,32 @@ function seed() {
 class FakeContext {
   listeners = new Map()
   namespace
+  command
+  projection
 
   sessions = {
     registerEventNamespace: registration => {
       this.namespace = registration
       return () => {}
     },
+  }
+
+  commands = {
+    register: command => {
+      this.command = command
+      return () => {}
+    },
+  }
+
+  sessionProjections = {
+    register: projection => {
+      this.projection = projection
+      return () => {}
+    },
+  }
+
+  inject(_dependencies, callback) {
+    callback(this)
   }
 
   on(name, listener) {
@@ -60,6 +80,7 @@ function agent() {
   const events = []
   return {
     session: {
+      events,
       append(type, data) {
         events.push({ type, data })
       },
@@ -140,5 +161,57 @@ describe('DSH Auto Mode plugin', () => {
     assert.deepEqual(assembled.variables, { provider: 'manual', model: 'manual' })
     assert.equal(request, manual)
     assert.deepEqual(subject.events, [])
+  })
+
+  it('switches Auto per session through /auto and exposes the latest decision projection', async () => {
+    const ctx = new FakeContext()
+    apply(ctx, { mode: 'auto', seed: seed() })
+    const subject = agent()
+    const signal = new AbortController().signal
+    const payload = {
+      agent: subject,
+      messages: [{ content: [{ type: 'text', text: 'Rename this variable.' }] }],
+      turn: 1,
+      step: 0,
+      signal,
+    }
+
+    const disabled = await ctx.command.handler({ agent: subject, rawInput: 'off', signal })
+    assert.deepEqual(disabled, { kind: 'success', text: 'Experimental Auto disabled.' })
+    await ctx.waterfall('agent/prepare-step', [payload], () => Promise.resolve({ kind: 'enter' }))
+    const manual = { provider: 'manual', model: 'manual', reasoningEffort: 'high' }
+    const untouched = await ctx.waterfall(
+      'agent/request',
+      [{ agent: subject, turn: 1, step: 0, signal }],
+      () => Promise.resolve(manual),
+    )
+    assert.equal(untouched, manual)
+
+    const enabled = await ctx.command.handler({ agent: subject, rawInput: '', signal })
+    assert.deepEqual(enabled, { kind: 'success', text: 'Experimental Auto enabled.' })
+    await ctx.waterfall(
+      'agent/prepare-step',
+      [{ ...payload, turn: 2 }],
+      () => Promise.resolve({ kind: 'enter' }),
+    )
+
+    const projected = subject.events.reduce(
+      (state, event) => ctx.projection.apply(state, event),
+      ctx.projection.init(),
+    )
+    assert.deepEqual(ctx.projection.view(projected), {
+      active: true,
+      evidenceStatus: 'experimental-unadmitted',
+      decision: {
+        turn: 2,
+        step: 0,
+        tier: 'fast',
+        provider: 'p',
+        model: 'flash',
+        reasoningEffort: 'off',
+        reasonCode: 'bounded-simple-task',
+        reason: 'Matched a bounded low-complexity task signal.',
+      },
+    })
   })
 })

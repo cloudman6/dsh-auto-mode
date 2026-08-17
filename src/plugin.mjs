@@ -7,6 +7,8 @@ export const name = 'dsh-auto-mode'
 export const inject = ['sessions']
 
 const SELECTION_EVENT = 'dsh-auto-mode/selection'
+const MODE_EVENT = 'dsh-auto-mode/mode'
+const EVIDENCE_STATUS = 'experimental-unadmitted'
 
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -54,6 +56,26 @@ function parseSelectionEvent(value) {
   return value
 }
 
+function parseModeEvent(value) {
+  if (!isRecord(value)
+    || value.schemaVersion !== 1
+    || typeof value.active !== 'boolean'
+    || value.evidenceStatus !== EVIDENCE_STATUS) {
+    throw new TypeError('invalid dsh-auto-mode mode event')
+  }
+  return value
+}
+
+function parseProjection(value) {
+  if (!isRecord(value)
+    || typeof value.active !== 'boolean'
+    || value.evidenceStatus !== EVIDENCE_STATUS
+    || (value.decision !== null && !isRecord(value.decision))) {
+    throw new TypeError('invalid dsh-auto-mode projection')
+  }
+  return value
+}
+
 /** Install the Phase 0P fast prototype on existing A1/A2 Host seams. */
 export function apply(ctx, config = {}) {
   const mode = config.mode ?? 'manual'
@@ -65,19 +87,94 @@ export function apply(ctx, config = {}) {
   const catalog = compileSeed(loadSeed(config))
   const stateByAgent = new WeakMap()
 
+  const stateFor = (agent) => {
+    let state = stateByAgent.get(agent)
+    if (state !== undefined) return state
+    let active = true
+    if (Array.isArray(agent.session?.events)) {
+      for (const event of agent.session.events) {
+        if (event?.type === MODE_EVENT) active = event.data.active
+      }
+    }
+    state = { active }
+    stateByAgent.set(agent, state)
+    return state
+  }
+
   ctx.sessions.registerEventNamespace({
     namespace: 'dsh-auto-mode',
     owner: 'dsh-auto-mode',
     version: 1,
     events: {
       [SELECTION_EVENT]: { parse: parseSelectionEvent },
+      [MODE_EVENT]: { parse: parseModeEvent },
     },
+  })
+
+  ctx.inject(['sessionProjections'], (projectionCtx) => {
+    projectionCtx.sessionProjections.register({
+      key: 'dshAutoMode',
+      schema: { parse: parseProjection },
+      init: () => ({
+        active: true,
+        evidenceStatus: EVIDENCE_STATUS,
+        decision: null,
+      }),
+      apply: (state, event) => {
+        if (event.type === MODE_EVENT) {
+          return {
+            active: event.data.active,
+            evidenceStatus: EVIDENCE_STATUS,
+            decision: null,
+          }
+        }
+        if (event.type !== SELECTION_EVENT) return state
+        const { aaRecordId: _aaRecordId, mode: _mode, evidenceStatus: _status, schemaVersion: _version, ...decision } = event.data
+        return {
+          active: true,
+          evidenceStatus: EVIDENCE_STATUS,
+          decision,
+        }
+      },
+      view: state => state,
+      stateVersion: 1,
+    })
+  })
+
+  ctx.inject(['commands'], (commandCtx) => {
+    commandCtx.commands.register({
+      name: 'auto',
+      description: 'Enable or disable experimental Auto model selection',
+      input: { hint: '[off]' },
+      handler: ({ agent, rawInput }) => {
+        const input = rawInput.trim()
+        if (input !== '' && input !== 'off') {
+          return { kind: 'error', text: 'Usage: /auto [off]' }
+        }
+        const active = input !== 'off'
+        const state = stateFor(agent)
+        state.active = active
+        state.turn = undefined
+        state.current = undefined
+        state.assembled = undefined
+        agent.session.append(MODE_EVENT, {
+          schemaVersion: 1,
+          active,
+          evidenceStatus: EVIDENCE_STATUS,
+        })
+        return {
+          kind: 'success',
+          text: active ? 'Experimental Auto enabled.' : 'Experimental Auto disabled.',
+        }
+      },
+    })
   })
 
   ctx.on('agent/prepare-step', async (payload, next) => {
     const entered = await next()
     if (entered?.kind !== 'enter') return entered
-    const state = stateByAgent.get(payload.agent) ?? {}
+    const state = stateFor(payload.agent)
+    if (!state.active) return entered
     const decision = state.turn === payload.turn && state.current !== undefined
       ? state.current
       : chooseRoute(taskText(payload.messages), catalog)
@@ -88,7 +185,7 @@ export function apply(ctx, config = {}) {
     payload.agent.session.append(SELECTION_EVENT, {
       schemaVersion: 1,
       mode: 'auto',
-      evidenceStatus: 'experimental-unadmitted',
+      evidenceStatus: EVIDENCE_STATUS,
       turn: payload.turn,
       step: payload.step,
       tier: decision.tier,
@@ -104,9 +201,9 @@ export function apply(ctx, config = {}) {
 
   ctx.on('system-prompt/assemble', async (_assembly, context, next) => {
     const selectedState = isRecord(context) && isRecord(context.agent)
-      ? stateByAgent.get(context.agent)
+      ? stateFor(context.agent)
       : undefined
-    const selected = selectedState?.current
+    const selected = selectedState?.active ? selectedState.current : undefined
     const assembled = await next()
     if (selectedState !== undefined) selectedState.assembled = selected
     if (selected === undefined) return assembled
@@ -122,7 +219,8 @@ export function apply(ctx, config = {}) {
 
   ctx.on('agent/request', async (payload, next) => {
     const resolved = await next()
-    const selected = stateByAgent.get(payload.agent)?.assembled
+    const state = stateFor(payload.agent)
+    const selected = state.active ? state.assembled : undefined
     if (selected === undefined) return resolved
     const { reasoningEffort: _inheritedEffort, ...withoutInheritedEffort } = resolved
     return {

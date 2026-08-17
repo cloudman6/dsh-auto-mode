@@ -8,8 +8,7 @@
 2. Which Artificial Analysis index families and fields drive the initial task taxonomy, and what versioned heuristic thresholds define experimental `fast`, `standard`, and `strong`?
 3. What exact endpoint, prompt/index semantics, pagination coverage, local snapshot schema, canonical content digest, freshness rule, attribution, API access path, and data-rights boundary apply without redistributing ranking data?
 4. Which high-risk and low-confidence assessments force the strongest exact match from a valid catalog, and which mapping, identity, evidence, contract, or Recovery Capability failures produce `no-experimental-route` before a call?
-5. Which concrete A5p carrier exposes explicit Experimental Auto opt-in, Manual mode, and the persisted `experimental-unadmitted` explanation?
-6. Which concrete versioned execution-world provider, platform runner, supported operating systems, production capability/tool-entry inventory, dependency ownership, durable attribution journal, and executor-level tests prove ADR-009's clean isolated-worktree, Attempt-attribution, containment, process-control, credential isolation, and `externalSideEffects: 'none'` requirements? Until the design is accepted and that evidence exists, Experimental Auto does not execute mutable work.
+5. Which concrete versioned execution-world provider, platform runner, supported operating systems, production capability/tool-entry inventory, dependency ownership, durable attribution journal, and executor-level tests prove ADR-009's clean isolated-worktree, Attempt-attribution, containment, process-control, credential isolation, and `externalSideEffects: 'none'` requirements? Until the design is accepted and that evidence exists, Experimental Auto does not execute mutable work.
 
 ## Must close before Phase 0C preview planning
 

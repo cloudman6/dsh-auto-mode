@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 37a453aae1eed26641dcbb31bf612d86cd828899
+translation-source-blob: d8a184ba8822c93fb0c2be478ecd88f78fd46344
 translation-status: current
 -->
 
@@ -16,13 +16,13 @@ translation-status: current
 
 ## 当前 fork preview 运行时载体
 
-当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，并推送到分支 `codex/auto-mode-host-contracts` 的精确 commit [`801ded7f60a0dfab07b9690cb9d98fce6234d243`](https://github.com/cloudman6/deepseek-harness/commit/801ded7f60a0dfab07b9690cb9d98fce6234d243)。
+当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，再在不改变这些契约的前提下增加实验性 Auto UI。分支 `codex/auto-mode-host-contracts` 固定在精确 commit [`c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90`](https://github.com/cloudman6/deepseek-harness/commit/c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90)。
 
 产品无关 seam 与 fork 证据已于 2026-08-16 发布到 DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)，用于获取上游设计反馈。发布不代表维护者接受，也不代表兼容官方 DSH。
 
 每个 preview build 必须记录精确 fork remote 和包含 seam 实现的 commit。它只能标识 Host build，不能标识远程模型 deployment；每条已准入 preview route 还必须具有 provider 专用的 deployment identity 证据。公共兼容契约绝不包含本地 checkout 路径；fork 验证成功也不能表述成官方 DSH 支持。
 
-该 fork 是 preview 运行时载体，不会自动成为用户界面载体。阶段 0C 还必须单独指定并验证具体的 fork UI、client plugin 或 command/config surface，用来提供一次操作完成的 Auto/manual 选择并读取持久解释。
+阶段 0P 的具体 A5p 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与 effort，以及持久化的实验解释。这只关闭限定范围的阶段 0P 载体问题；提升到阶段 0C 仍需 admission-aware 断言，生产载体也仍未决定。
 
 ### Fork 契约证据
 
@@ -30,7 +30,7 @@ translation-status: current
 
 组合 JSONL 探针在 `agent/prepare-step` 中修改所选模型，验证 prompt assembly 与 `agent/request` 使用同一模型，持久化必需插件决策事件，在 registration 缺失时拒绝冷加载，并在恢复精确 registration 后成功加载。2026-08-15 的验证通过 402 项相关测试、`pnpm typecheck`、`pnpm lint` 与 `pnpm doc-sync` 全部 28 项 gate。
 
-该证据只关闭固定 fork preview 的 A1/A2。它不代表兼容官方 DSH，也不关闭 route deployment identity、准入证据或面向用户的 preview 载体。
+该证据只关闭固定 fork preview 的 A1/A2 与限定范围的阶段 0P A5p 载体。它不代表兼容官方 DSH，也不关闭 route deployment identity、准入证据、阶段 0C 载体 gate 或生产载体。
 
 ## 已核实可用的 seam
 
@@ -101,7 +101,7 @@ Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 name
 | A3p | 每条选中 preview route 的稳定 identity 证据 | 阶段 0P 精确外部匹配与阶段 0C 准入 | DSH selection 清单已冻结；当前 DeepSeek alias 缺少 revision binding，因此精确外部交集为空 | 插件加选定 provider adapter |
 | A3 | 通用稳定 resolved deployment identity/fingerprint 契约 | 有证据保证且兼容官方版本的发布 | 需要专项审计 | Provider adapter 或 DSH 上游 |
 | A4 | 固定辅助调用的可扩展 purpose 与审计分类 | Task Assessor 运行 | 需要专项审计 | 接口开放时由插件实现，否则 DSH 上游 |
-| A5p | Auto/manual 与持久解释所需的一个已验证 preview 载体 | 阶段 0P dogfood 与阶段 0C 可用性 | 需要载体专项审计 | Fork UI、client plugin 或显式 command/config surface |
+| A5p | Auto/manual 与持久解释所需的一个已验证 preview 载体 | 阶段 0P dogfood 与阶段 0C 可用性 | 阶段 0P 载体已在固定 fork 验证；阶段 0C 仍需 admission-aware 探针 | Fork UI 加插件 Session projection 与命令 |
 | A5 | 通用 Auto/manual 与解释 UI 扩展契约 | 兼容官方版本且面向用户的发布 | 需要专项审计 | 客户端插件或 DSH 上游 |
 | B1 | 语义约束所需的持久类型化 child-creation metadata | 进程内 child 路由 | 已核实不完整 | 通用 DSH seam 加插件 schema |
 | B2 | 外部 subagent 创建时 model/effort capability | 外部 child 路由 | 被审计 provider 已核实缺失 | Provider adapter；需要时增加共享 capability 声明 |
@@ -114,10 +114,10 @@ Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 name
 
 1. **已完成：**在范围窄的 DSH 设计说明中冻结 A1、A2 的产品无关契约。
 2. **已完成：**为基线缺失行为增加 core contract test。
-3. **已完成：**在 fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243` 实现并验证 seam。
+3. **已完成：**实现并验证 seam，当前由 fork commit `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90` 承载。
 4. **已完成：**在 Discussion #2281 发布产品无关契约与 fork 证据，获取上游反馈。
 5. **清单完成；没有 route 匹配：**[route 清单证据](evidence/phase-0p-route-inventory.md)冻结六条 DSH selection fingerprint，并排除全部当前候选，因为无 revision alias 不能绑定带版本 Artificial Analysis deployment。只有带版本 selector、provider-response identity 或其他 provider 专用 attestation 建立 binding 后才关闭 A3p；此后 runtime drift 仍按调用 fail closed。只有后续 admission 证据绑定同一 deployment 配置时，才把该 identity 复用于阶段 0C。
-6. 使用真实 Experimental Auto 载体关闭 A5p，探针覆盖显式 opt-in、Auto/manual 选择、持久化选择、实际配置与未准入解释读取；提升到阶段 0C 前增加 admission-aware 断言。
+6. **阶段 0P 已完成：**fork UI 与插件 projection/命令覆盖显式 opt-in、Auto/manual 选择、持久化选择、实际配置与未准入解释读取；提升到阶段 0C 前增加 admission-aware 断言。
 7. 增加 Auto Mode 纵向探针，证明 pre-assembly 决策输入、assembly/request snapshot identity、调用前拒绝、必需事件持久化、冷恢复和 A3p/A5p preview 路径。
 8. 若维护者邀请外部改动，将 A1、A2 拆成两项上游贡献。
 9. 合并后把插件固定到首个兼容官方 DSH revision。上游不可用期间明确记录精确 fork，不宣称兼容官方版本。

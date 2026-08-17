@@ -74,12 +74,12 @@ While `PROJECT_STATUS.md` names the fast prototype as the active stage, its only
 - Add work only when it directly implements, proves, or repairs one of those four criteria.
 - Record production-grade concerns outside that boundary as deferred work. Do not turn them into prototype blockers or new normative contracts.
 - Do not introduce rights approval, signatures, credential binding, revocation ledgers, Session-egress isolation, certificates/sidecars, dispatch-contract ADRs, or complex recovery state machines unless the maintainer explicitly changes the active scope.
-- Code review evaluates the bounded prototype against this scope, the pinned A1/A2 behavior, ordinary correctness, and secret/destructive-action safety. A reviewer may report deferred production risk, but may not require out-of-scope production infrastructure for a prototype `PASS`.
+- When the maintainer explicitly requests a review of this repository, evaluate the bounded prototype against this scope, the pinned A1/A2 behavior, ordinary correctness, and secret/destructive-action safety. A reviewer may report deferred production risk, but may not require out-of-scope production infrastructure for a prototype `PASS`.
 - Any proposed scope expansion must name the acceptance criterion it serves. Without that direct link, stop the expansion and continue the current prototype.
 
-## Bounded-stage code review gate
+## Explicit-only code review
 
-A bounded implementation stage has one acceptance outcome and is independently testable and revertible. After its focused verification passes and before committing, invoke [the project Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md). A `BLOCKED` verdict, any P0-P2 finding, missing mandatory evidence, or ambiguous scope prevents commit; fix the stage and run a fresh review. Changes to routing authority, DSH extension points, durable Session data, recovery, security, deployment identity, or parent/child authority also require the skill's fresh-context independent review when that facility is available.
+Do not invoke [the DSH Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md) automatically for changes in either `dsh-auto-mode` or the maintained DeepSeek Harness fork. Invoke it only when the maintainer explicitly requests a code review for the current task. When explicitly requested, a `BLOCKED` verdict, any P0-P2 finding, missing mandatory evidence, or ambiguous scope prevents the reviewed commit; fix the stage and run a fresh review. Ordinary focused verification and the task-completion checks still apply when no review is requested.
 
 ## Language rules
 
@@ -128,7 +128,7 @@ English canonical documents and Chinese translations are governed by `docs/local
 | High-cost decisions whose alternatives and consequences must survive | `docs/decisions/*.md` |
 | Navigation and project entry points | `README.md`, `docs/README.md` |
 | Agent-wide rules, task start, and completion discipline | `AGENTS.md` |
-| Bounded-stage code review procedure and verdict | `.agents/skills/dsh-auto-mode-code-review/SKILL.md` |
+| Explicitly requested code review procedure and verdict | `.agents/skills/dsh-auto-mode-code-review/SKILL.md` |
 
 ## Documentation maintenance discipline
 

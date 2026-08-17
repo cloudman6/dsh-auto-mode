@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 17e3c46c9388b42cf20ce4d08a605f8635c20761
+translation-source-blob: e63aca2ec296dd8efc1b2430c201cc06f7e47354
 translation-status: current
 -->
 
@@ -80,12 +80,12 @@ translation-status: current
 - 只有直接实施、证明或修复四项标准之一时，才增加工作。
 - 边界外的生产级问题记录为推迟事项，不得升级为原型阻塞或新规范合同。
 - 除非维护者明确改变当前范围，否则不得引入 rights approval、签名、credential binding、revocation ledger、Session egress isolation、certificate/sidecar、dispatch-contract ADR 或复杂恢复状态机。
-- Code review 按本范围、固定 A1/A2 行为、普通正确性以及 secret/破坏性操作安全评估原型。评审可以记录推迟的生产风险，但不得要求用范围外的生产基础设施换取原型 `PASS`。
+- 维护者明确要求评审本仓库时，按本范围、固定 A1/A2 行为、普通正确性以及 secret/破坏性操作安全评估原型。评审可以记录推迟的生产风险，但不得要求用范围外的生产基础设施换取原型 `PASS`。
 - 任何范围扩展都必须指出它直接服务哪项验收标准。无法建立直接联系时，立即停止扩展并继续当前原型。
 
-## 有边界阶段的 Code Review gate
+## 仅显式触发的 Code Review
 
-一个有边界的实施阶段只有一项验收结果，并且可独立测试、可独立回退。聚焦验证通过后、提交前，必须调用[项目 Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md)。出现 `BLOCKED` verdict、任何 P0-P2 finding、缺失强制证据或范围含糊时不得提交；修复后重新执行一次 fresh review。修改路由权限、DSH 扩展点、持久 Session 数据、恢复、安全、deployment identity 或父子 Agent 权限时，只要环境支持，还必须执行该 Skill 要求的 fresh-context 独立评审。
+无论修改 `dsh-auto-mode` 还是维护者 DeepSeek Harness fork，都不得自动调用 [DSH Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md)。只有维护者对当前任务明确要求代码评审时才调用。明确要求评审后，出现 `BLOCKED` verdict、任何 P0-P2 finding、缺失强制证据或范围含糊时不得提交被评审变更；修复后重新执行 fresh review。未要求评审时，聚焦验证和任务完成检查仍照常执行。
 
 ## 语言规范
 
@@ -134,7 +134,7 @@ translation-status: current
 | 高代价、需要保留替代方案和后果的决策 | `docs/decisions/*.md` |
 | 导航和项目入口 | `README.md`、`docs/README.md` |
 | Agent 常驻规则、起手和完成纪律 | `AGENTS.md` |
-| 有边界阶段 Code Review 流程与 verdict | `.agents/skills/dsh-auto-mode-code-review/SKILL.md` |
+| 明确要求时使用的 Code Review 流程与 verdict | `.agents/skills/dsh-auto-mode-code-review/SKILL.md` |
 
 ## 文档维护纪律
 

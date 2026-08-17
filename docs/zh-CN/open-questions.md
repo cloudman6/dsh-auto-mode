@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/open-questions.md
-translation-source-blob: 17271bb0a8c57810a583c8eb89a9d06298e10f15
+translation-source-blob: bc4ab85ee2b6695d5dc7c2d2178bffa81119b02a
 translation-status: current
 -->
 
@@ -14,8 +14,7 @@ translation-status: current
 2. 初始任务 taxonomy 使用哪些 Artificial Analysis index family 与字段？哪些带版本启发式阈值定义实验 `fast`、`standard` 与 `strong`？
 3. 在不再分发榜单数据的前提下，使用哪个精确 endpoint、prompt/index 语义、pagination 覆盖、本地 snapshot schema、规范化内容 digest、freshness 规则、attribution、API access path 与数据权利边界？
 4. 哪些高风险与低置信度 assessment 强制从有效 catalog 使用最强精确匹配？哪些 mapping、identity、evidence、contract 或 Recovery Capability 失败会在调用前产生 `no-experimental-route`？
-5. 哪个具体 A5p 载体暴露显式 Experimental Auto opt-in、Manual 模式和持久化的 `experimental-unadmitted` 解释？
-6. 哪个具体、带版本的 execution-world provider、platform runner、支持的操作系统、production capability/tool-entry inventory、dependency ownership、持久 attribution journal 与 executor-level 测试，能证明 ADR-009 的干净隔离 worktree、Attempt attribution、containment、process control、credential isolation 与 `externalSideEffects: 'none'` 要求？设计被接受且该证据存在前，Experimental Auto 不执行可变工作。
+5. 哪个具体、带版本的 execution-world provider、platform runner、支持的操作系统、production capability/tool-entry inventory、dependency ownership、持久 attribution journal 与 executor-level 测试，能证明 ADR-009 的干净隔离 worktree、Attempt attribution、containment、process control、credential isolation 与 `externalSideEffects: 'none'` 要求？设计被接受且该证据存在前，Experimental Auto 不执行可变工作。
 
 ## 必须在阶段 0C preview planning 前关闭
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: 386e3398e2a89b42e564d66777844cbac0d49eba
+translation-source-blob: a9f3913499f3b86b3a0b40cda685eb3fece8010b
 translation-status: current
 -->
 
@@ -14,7 +14,7 @@ translation-status: current
 
 ## 当前阶段
 
-阶段 0P 快速原型实施与维护者 dogfood。现在已有可运行、零依赖的 `experimental-unadmitted` 插件，在固定 DSH fork `801ded7f60a0dfab07b9690cb9d98fce6234d243` 上使用产品无关 A1/A2 seam。它消费手工维护、本地且被 Git 忽略的 AA seed；执行确定性的 fast/standard/strong 策略；持久化选择与解释；映射异常时回退到已配置的固定强模型；Manual 保持不变。本原型不修改也不满足推迟的生产准入、deployment identity、数据权利、恢复或官方兼容 gate。
+阶段 0P 快速原型实施与维护者 dogfood。现在已有可运行、零依赖的 `experimental-unadmitted` 插件，在固定 DSH fork `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90` 上使用产品无关 A1/A2 seam 和可见 Auto 载体。它消费手工维护、本地且被 Git 忽略的 AA seed；执行确定性的 fast/standard/strong 策略；持久化并显示选择与解释；映射异常时回退到已配置的固定强模型；Manual 保持不变。本原型不修改也不满足推迟的生产准入、deployment identity、数据权利、恢复或官方兼容 gate。
 
 ## 已完成
 
@@ -34,7 +34,8 @@ translation-status: current
 - 接受 ADR-008 并增加阶段 0P，允许由外部先验驱动、明显标为未准入的维护者 dogfood，同时不削弱阶段 0C 的 admission 要求。
 - 接受 ADR-009 的初始可变工作 loss bound：当前 Attempt 在干净隔离 worktree 内产生且可归属的全部未提交变更；不允许外部 effect，也不宣称自动恢复。
 - 完成初始阶段 0P route-selection 清单与 A3p 证据矩阵。六条显式 DeepSeek Flash/Pro selection 具有可复现 DSH fingerprint，但精确外部交集为空：Artificial Analysis record 绑定带版本 deployment，而 DSH 公开无 revision 的 pass-through alias。Default、dormant pi-ai route 与非公共 endpoint 同样排除。
-- 实现刻意限定范围的阶段 0P 快速原型：11 项单元与真实 Loader 测试通过；Auto fast/strong 决策与实际 request header 一致；Manual 不变；`deepseek-v4-flash / off` 与 `deepseek-v4-pro / max` 的真实 provider 调用完成且 Session 证据匹配。
+- 实现刻意限定范围的阶段 0P 快速原型：12 项单元与真实 Loader 测试通过；Auto fast/strong 决策与实际 request header 一致；Manual 不变；`deepseek-v4-flash / off` 与 `deepseek-v4-pro / max` 的真实 provider 调用完成且 Session 证据匹配。
+- 关闭限定范围的阶段 0P A5p 载体：模型菜单把带对勾的 `Auto` 放在手动控件上方；任务运行时从 Session projection 更新实际模型/effort 与解释；应用手动选择前先退出 Auto。专项测试、完整 GUI 测试、无密钥 assembled-Web golden snapshot 和浏览器 dogfood 均在 fork commit `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90` 通过。
 
 ## 当前实施入口
 
@@ -53,7 +54,7 @@ translation-status: current
 - 实验策略、持久状态和解释保留 `experimental-unadmitted` 状态，且不能编译为普通 admission。
 - 持久化证明一个 Session decision 加每次 attempted Experimental Auto model call 的全新 fail-closed authorization，包括 cold load 后和 live identity/capability drift；手动模式绕过 Auto listener。
 - ADR-009 已提供 accepted possible-loss bound，但带版本 Host provider 仍必须在每个可变 Auto 调用前证明干净 worktree isolation、Attempt attribution、containment、process control 与 `externalSideEffects: 'none'`；该证据存在前，阶段 0P dogfood 仅限只读。
-- A5p 证明一次操作的 Auto/manual 控制与解释读取。
+- 限定范围的阶段 0P A5p 载体已经证明；阶段 0C 仍需 admission-aware 载体探针。
 - Keyless 真实 composition 通过；所需 secret 可用时，自跳过的 with-key real-provider smoke 通过。缺少 key 记录为 evidence skipped，不算 pass。
 
 ## 进入阶段 0C preview planning 前的 gate
@@ -61,7 +62,7 @@ translation-status: current
 - 保持已实现的产品无关 A1 pre-assembly 与 A2 required-event 契约固定在明确 fork 上并持续通过测试。
 - 预注册初始 Policy Pack taxonomy、基线/候选 deployment、统计方法、evaluator 治理和隔离数据集。
 - 为初始 baseline 与 candidate 关闭 A3p，提供可复现的 provider/model/reasoning-selection identity 证据。
-- 关闭 A5p，验证一个具体 preview 载体能够提供 Auto/manual 选择与持久解释。
+- 在已验证的阶段 0P A5p 载体上增加 admission-aware 断言，再把它作为阶段 0C preview 载体。
 - 把阶段 0C 路由作用域固定为每 Session 一次决策；不引入尚未解决的 objective 边界启发式。
 
 ## 进入阶段 B 与生产 release planning 前的 gate

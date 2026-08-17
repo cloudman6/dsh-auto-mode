@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/phase-0p-fast-prototype.md
-translation-source-blob: 9d2788351dfc9b55997dad5c2e05b4542eefb2e1
+translation-source-blob: c94b2969b32b7d0ebfcc9fc01ec8be06b8bf3c58
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-已于 2026-08-17 基于维护者 DSH fork `801ded7f60a0dfab07b9690cb9d98fce6234d243` 完成实施与验证。
+已于 2026-08-17 基于维护者 DSH fork `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90` 完成实施与验证。
 
 这是仅限维护者的 `experimental-unadmitted` 原型，只证明 Auto 交互和请求路由闭环。它不宣称安全、质量提升、RouterBench 准入、不可变 deployment identity、公开支持或官方 DSH 兼容。
 
@@ -72,6 +72,17 @@ translation-status: current
 
 设置 `mode: manual` 或省略 `mode`，即可在不加载 seed 的情况下保留 DSH 已配置请求。
 
+## Web 交互
+
+固定 fork 通过现有模型选择菜单暴露本原型：
+
+- `Auto` 是第一项，位于手动模型和推理强度控件上方；启用时显示对勾。
+- 触发器和菜单从 Session projection 实时显示当前任务实际选择的模型与 effort；即使 advisory model catalog 没有该精确 route，也显示原始标识。
+- 菜单显示所选档位、reason code、简短解释和明确的 `Experimental / unadmitted` 标识。
+- 选择手动模型或推理强度时，先关闭 Auto，再应用手动选择。Auto capability 不存在时，手动选择仍可使用。
+
+无界面运行时可通过 `/auto` 和 `/auto off` 完成相同模式切换。该 UI 是实验性 fork 载体，不是 DSH 官方扩展合同。
+
 ## 验证
 
 运行零依赖单元测试：
@@ -86,7 +97,7 @@ npm test
 DSH_FORK_ROOT="$HOME/deepseek-harness/.worktrees/auto-mode-host-contracts/workspace" npm test
 ```
 
-Loader 测试通过真实 DSH composition 证明 Auto fast/strong 分流、事件/header 一致和 Manual 不受影响。2026-08-17 还完成了两次带 credential 的实际 provider 调用：
+12 项插件与 Loader 测试通过真实 DSH composition 证明 Auto fast/strong 分流、事件/header 一致、Session projection、命令切换和 Manual 不受影响。fork UI 还通过了 20 项专项测试、3,760 项 GUI 测试（另有一项无关 skip）和无密钥 assembled-Web golden snapshot。浏览器 dogfood 验证了：有界任务在完成前把界面实际选择更新为 `deepseek-v4-flash / off`；手动选择 `deepseek-v4-pro / high` 会关闭 Auto。2026-08-17 还完成了两次带 credential 的实际 provider 调用：
 
 | 任务信号 | Selection 事件 | Request header | Provider 结果来源 |
 |---|---|---|---|

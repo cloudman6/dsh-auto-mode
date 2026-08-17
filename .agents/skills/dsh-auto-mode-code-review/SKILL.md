@@ -1,11 +1,13 @@
 ---
 name: dsh-auto-mode-code-review
-description: Review one bounded DSH Auto Mode implementation stage against the accepted product invariants, the pinned DeepSeek Harness contracts, and current official DSH engineering standards. Use after focused verification and before committing any independently testable code, test, build, configuration, persistence, routing, recovery, delegation, or DSH-integration increment; also use before merge, when reviewing a PR, or when a DSH compatibility target changes.
+description: Review one bounded DSH Auto Mode or maintained DeepSeek Harness fork change against accepted product invariants, pinned DSH contracts, and current official DSH engineering standards. Invoke only when the maintainer explicitly requests a code review for the current task; never use it as an automatic commit or merge gate.
 ---
 
 # Review DSH Auto Mode code
 
 Review raw artifacts, not the author's explanation. Treat this as a quality gate: report defects and evidence, do not edit the implementation while wearing the reviewer role. A blocked stage returns to implementation, then receives a new review.
+
+This skill is never an automatic gate for either `dsh-auto-mode` or the maintained DeepSeek Harness fork. If the maintainer did not explicitly request a code review for the current task, stop and report that the skill is not applicable; do not create a review gate implicitly.
 
 ## Establish the review boundary
 

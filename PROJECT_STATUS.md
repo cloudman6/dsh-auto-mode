@@ -8,7 +8,7 @@
 
 ## Current stage
 
-Phase 0P fast prototype implementation and maintainer dogfood. A runnable, dependency-free `experimental-unadmitted` plugin now uses the product-neutral A1/A2 seams on the pinned DSH fork at `801ded7f60a0dfab07b9690cb9d98fce6234d243`. It consumes a manually maintained, local, gitignored AA seed; applies a deterministic fast/standard/strong policy; persists the choice and explanation; falls back to a configured fixed strong selection; and leaves Manual unchanged. This prototype does not amend or satisfy the deferred production admission, deployment-identity, rights, recovery, or official-compatibility gates.
+Phase 0P fast prototype implementation and maintainer dogfood. A runnable, dependency-free `experimental-unadmitted` plugin now uses the product-neutral A1/A2 seams and the visible Auto carrier on the pinned DSH fork at `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90`. It consumes a manually maintained, local, gitignored AA seed; applies a deterministic fast/standard/strong policy; persists and displays the choice and explanation; falls back to a configured fixed strong selection; and leaves Manual unchanged. This prototype does not amend or satisfy the deferred production admission, deployment-identity, rights, recovery, or official-compatibility gates.
 
 ## Completed
 
@@ -28,7 +28,8 @@ Phase 0P fast prototype implementation and maintainer dogfood. A runnable, depen
 - Accepted ADR-008 and introduced Phase 0P, allowing externally seeded, visibly unadmitted maintainer dogfood without weakening Phase 0C admission requirements.
 - Accepted ADR-009's initial mutable-work loss bound: all uncommitted changes attributable to the current Attempt inside a clean isolated worktree, with no external effects or automatic-recovery claim.
 - Completed the initial Phase 0P route-selection inventory and A3p evidence matrix. Six explicit DeepSeek Flash/Pro selections have reproducible DSH fingerprints, but the exact external intersection is empty: Artificial Analysis records bind versioned deployments while DSH exposes revisionless pass-through aliases. Defaults, dormant pi-ai routes, and non-public endpoints are also excluded.
-- Implemented the deliberately bounded Phase 0P fast prototype: 11 unit and real-Loader tests pass; Auto fast/strong decisions match effective request headers; Manual is unchanged; and real provider calls completed on `deepseek-v4-flash / off` and `deepseek-v4-pro / max` with matching Session evidence.
+- Implemented the deliberately bounded Phase 0P fast prototype: 12 unit and real-Loader tests pass; Auto fast/strong decisions match effective request headers; Manual is unchanged; and real provider calls completed on `deepseek-v4-flash / off` and `deepseek-v4-pro / max` with matching Session evidence.
+- Closed the bounded Phase 0P A5p carrier: the model menu puts checked `Auto` above manual controls, updates the effective model/effort and explanation from the Session projection while a task runs, and exits Auto before applying a manual choice. Focused tests, the full GUI suite, a keyless assembled-Web golden snapshot, and browser dogfood passed on fork commit `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90`.
 
 ## Current implementation entry points
 
@@ -47,7 +48,7 @@ The fast prototype does not wait on the following gates. They remain required be
 - Experimental policy, persistence, and explanations preserve the `experimental-unadmitted` state and cannot compile into a normal admission.
 - Persistence proves one Session decision plus a fresh fail-closed authorization for every attempted Experimental Auto model call, including after cold load and live identity/capability drift; Manual bypasses the Auto listener.
 - ADR-009 supplies the accepted possible-loss bound, but a versioned Host provider must still prove clean worktree isolation, Attempt attribution, containment, process control, and `externalSideEffects: 'none'` before every mutable Auto call; until that evidence exists, Phase 0P dogfood is read-only.
-- A5p proves one-operation Auto/manual control and explanation retrieval.
+- The bounded Phase 0P A5p carrier is proven; Phase 0C still requires an admission-aware carrier probe.
 - Keyless real composition passes, and a self-skipping with-key real-provider smoke passes whenever the required secret is available; a missing key is reported as skipped evidence, not a pass.
 
 ## Gates before Phase 0C preview planning
@@ -55,7 +56,7 @@ The fast prototype does not wait on the following gates. They remain required be
 - Keep the implemented product-neutral A1 pre-assembly and A2 required-event contracts pinned and green on the declared fork.
 - Preregister the initial Policy Pack taxonomy, baseline/candidate deployments, statistics, evaluator governance, and isolated datasets.
 - Close A3p for the initial baseline and candidate with reproducible provider/model/reasoning-selection identity evidence.
-- Close A5p by verifying one concrete preview carrier for the Auto/manual choice and persisted explanations.
+- Extend the verified Phase 0P A5p carrier with admission-aware assertions before treating it as the Phase 0C preview carrier.
 - Keep Phase 0C routing scope fixed to one decision per Session; do not introduce an unresolved objective-boundary heuristic.
 
 ## Gates before Phase B and production-release planning

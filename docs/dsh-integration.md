@@ -10,13 +10,13 @@ The plugin must pin an exact tested DSH version or commit and run an extension-c
 
 ## Current fork preview runtime carrier
 
-The current preview runtime carrier is the maintainer fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness). Its `master` branch was verified at the audited baseline on 2026-08-14. Product-neutral A1 and A2 contracts were subsequently implemented from that baseline and pushed on branch `codex/auto-mode-host-contracts` at exact commit [`801ded7f60a0dfab07b9690cb9d98fce6234d243`](https://github.com/cloudman6/deepseek-harness/commit/801ded7f60a0dfab07b9690cb9d98fce6234d243).
+The current preview runtime carrier is the maintainer fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness). Its `master` branch was verified at the audited baseline on 2026-08-14. Product-neutral A1 and A2 contracts were implemented from that baseline; the experimental Auto UI was then added without changing those contracts. Branch `codex/auto-mode-host-contracts` is pinned at exact commit [`c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90`](https://github.com/cloudman6/deepseek-harness/commit/c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90).
 
 The product-neutral seams and fork evidence were published for upstream design feedback in DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281) on 2026-08-16. Publication does not imply maintainer acceptance or official compatibility.
 
 Every preview build must identify the exact fork remote and post-seam commit. That identifies the Host build, not the remote model deployment: every admitted preview route also needs provider-specific deployment identity evidence. A local checkout path is never part of the public compatibility contract, and successful fork validation must not be presented as official DSH support.
 
-The fork is the preview runtime carrier, not automatically the user-interface carrier. Phase 0C must separately name and verify the concrete fork UI, client plugin, or command/config surface that provides the one-operation Auto/manual choice and retrieves the persisted explanation.
+For Phase 0P, the concrete A5p carrier is now the fork model-selection UI plus the plugin's optional Session projection and `/auto` command. It provides a one-operation Auto/manual choice, a checked Auto state, the effective model and effort, and the persisted experimental explanation. This closes the bounded Phase 0P carrier question only; promotion to Phase 0C still requires admission-aware assertions, and the production carrier remains undecided.
 
 ### Fork contract evidence
 
@@ -24,7 +24,7 @@ The pinned fork commit adds an agent-scoped `agent/prepare-step` waterfall after
 
 The combined JSONL probe changes the selected model during `agent/prepare-step`, verifies that prompt assembly and `agent/request` use that same model, persists a required plugin decision event, rejects cold load without its registration, and reloads successfully after the exact registration is restored. Verification passed on 2026-08-15 with 402 relevant tests, `pnpm typecheck`, `pnpm lint`, and all 28 `pnpm doc-sync` gates.
 
-This evidence closes A1/A2 for the pinned fork preview only. It is not official DSH compatibility and does not close route deployment identity, admission evidence, or the user-facing preview carrier.
+This evidence closes A1/A2 and the bounded Phase 0P A5p carrier for the pinned fork preview only. It is not official DSH compatibility and does not close route deployment identity, admission evidence, the Phase 0C carrier gate, or the production carrier.
 
 ## Verified usable seams
 
@@ -95,7 +95,7 @@ The two verified Static Auto blockers are the immediate critical path. Other nee
 | A3p | Stable identity evidence for every selected preview route | Phase 0P exact external matching and Phase 0C admission | DSH selection inventory frozen; exact external intersection empty because current DeepSeek aliases lack revision binding | Plugin plus selected provider adapters |
 | A3 | General stable resolved deployment identity/fingerprint contract | Evidence-backed official-compatible release | Focused audit required | Provider adapter or DSH upstream |
 | A4 | Extensible purpose and audit classification for fixed auxiliary calls | Task Assessor operations | Focused audit required | Plugin if open; otherwise DSH upstream |
-| A5p | One verified preview carrier for Auto/manual and persisted explanations | Phase 0P dogfood and Phase 0C usability | Focused carrier audit required | Fork UI, client plugin, or explicit command/config surface |
+| A5p | One verified preview carrier for Auto/manual and persisted explanations | Phase 0P dogfood and Phase 0C usability | Phase 0P carrier verified on pinned fork; Phase 0C admission-aware probe remains | Fork UI plus plugin Session projection and command |
 | A5 | General Auto/manual and explanation UI extension contract | Official-compatible user-facing release | Focused audit required | Client plugin or DSH upstream |
 | B1 | Persistent typed child-creation metadata for semantic constraints | In-process child routing | Verified incomplete | Generic DSH seam plus plugin schema |
 | B2 | External subagent creation-time model/effort capabilities | External child routing | Verified absent in audited providers | Provider adapters; shared capability declaration if needed |
@@ -108,10 +108,10 @@ The two verified Static Auto blockers are the immediate critical path. Other nee
 
 1. **Completed:** freeze product-neutral contracts for A1 and A2 in narrow DSH design notes.
 2. **Completed:** add core contract tests for the absent baseline behavior.
-3. **Completed:** implement and verify the seams at fork commit `801ded7f60a0dfab07b9690cb9d98fce6234d243`.
+3. **Completed:** implement and verify the seams, now carried by fork commit `c90df90a0fd1e03ae5b9101d5e1f2b74c1f54a90`.
 4. **Completed:** publish the product-neutral contracts and fork evidence for upstream feedback in Discussion #2281.
 5. **Inventory complete; no route matched:** the [route inventory evidence](evidence/phase-0p-route-inventory.md) freezes six DSH selection fingerprints and excludes every current candidate because the revisionless aliases do not bind the versioned Artificial Analysis deployments. Close A3p only after a version-specific selector, provider-response identity, or another provider-specific attestation establishes that binding; runtime drift then remains fail-closed per call. Reuse an identity for Phase 0C only when later admission evidence binds that same deployment configuration.
-6. Close A5p with a real Experimental Auto carrier probe covering explicit opt-in, Auto/manual choice, persisted selection, actual configuration, and unadmitted explanation retrieval; add admission-aware assertions before promoting it to Phase 0C.
+6. **Phase 0P completed:** the fork UI and plugin projection/command cover explicit opt-in, Auto/manual choice, persisted selection, actual configuration, and unadmitted explanation retrieval. Add admission-aware assertions before promoting this carrier to Phase 0C.
 7. Add a vertical Auto Mode probe proving pre-assembly decision input, assembly/request snapshot identity, pre-call rejection, required-event persistence, cold recovery, and the A3p/A5p preview path.
 8. If maintainers invite external changes, submit A1 and A2 as separate upstream contributions.
 9. Pin the plugin to the first compatible official DSH revision after merge. While upstream is unavailable, identify the exact fork and do not claim official compatibility.
