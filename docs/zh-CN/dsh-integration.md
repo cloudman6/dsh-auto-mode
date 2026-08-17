@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 0da2830b9a135d5affeafc4dba5fa273cf9008d1
+translation-source-blob: a33fc4bdd8eac02383c7ef6e3c61cfbdf42f5771
 translation-status: current
 -->
 
@@ -16,7 +16,7 @@ translation-status: current
 
 ## 当前 fork preview 运行时载体
 
-当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，再在不改变这些契约的前提下增加实验性 Auto UI。分支 `codex/auto-mode-host-contracts` 固定在精确 commit [`4aedc2a3c5022de3222eb6e53ec4f8ff2ddc2705`](https://github.com/cloudman6/deepseek-harness/commit/4aedc2a3c5022de3222eb6e53ec4f8ff2ddc2705)。
+当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，再在不改变这些契约的前提下增加实验性 Auto UI。分支 `codex/auto-mode-host-contracts` 固定在精确 commit [`0fb4723e266ff7aad1f046e5a82473fa5e84f2af`](https://github.com/cloudman6/deepseek-harness/commit/0fb4723e266ff7aad1f046e5a82473fa5e84f2af)。
 
 产品无关 seam 与 fork 证据已于 2026-08-16 发布到 DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)，用于获取上游设计反馈。发布不代表维护者接受，也不代表兼容官方 DSH。
 
@@ -114,7 +114,7 @@ Fork 解决方案：`SessionStore.registerEventNamespace()` 现在会绑定 name
 
 1. **已完成：**在范围窄的 DSH 设计说明中冻结 A1、A2 的产品无关契约。
 2. **已完成：**为基线缺失行为增加 core contract test。
-3. **已完成：**实现并验证 seam，当前由 fork commit `4aedc2a3c5022de3222eb6e53ec4f8ff2ddc2705` 承载。
+3. **已完成：**实现并验证 seam，当前由 fork commit `0fb4723e266ff7aad1f046e5a82473fa5e84f2af` 承载。
 4. **已完成：**在 Discussion #2281 发布产品无关契约与 fork 证据，获取上游反馈。
 5. **清单完成；没有 route 匹配：**[route 清单证据](evidence/phase-0p-route-inventory.md)冻结六条 DSH selection fingerprint，并排除全部当前候选，因为无 revision alias 不能绑定带版本 Artificial Analysis deployment。只有带版本 selector、provider-response identity 或其他 provider 专用 attestation 建立 binding 后才关闭 A3p；此后 runtime drift 仍按调用 fail closed。只有后续 admission 证据绑定同一 deployment 配置时，才把该 identity 复用于阶段 0C。
 6. **阶段 0P 已完成：**fork UI 与插件 projection/命令覆盖显式 opt-in、Auto/manual 选择、持久化选择、实际配置与未准入解释读取；提升到阶段 0C 前增加 admission-aware 断言。

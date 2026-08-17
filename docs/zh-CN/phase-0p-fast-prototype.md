@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/phase-0p-fast-prototype.md
-translation-source-blob: 689720ef0763ccba3197979a64434d269073e37f
+translation-source-blob: 2031df4cd16b867adb89c79a9f832404557bca76
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-已于 2026-08-17 基于维护者 DSH fork `4aedc2a3c5022de3222eb6e53ec4f8ff2ddc2705` 完成实施与验证。
+已于 2026-08-17 基于维护者 DSH fork `0fb4723e266ff7aad1f046e5a82473fa5e84f2af` 完成实施与验证。
 
 这是仅限维护者的 `experimental-unadmitted` 原型，只证明 Auto 交互和请求路由闭环。它不宣称安全、质量提升、RouterBench 准入、不可变 deployment identity、公开支持或官方 DSH 兼容。
 
@@ -31,7 +31,7 @@ translation-status: current
 
 - 一个 turn 的首个 `agent/prepare-step` 对当前任务分类并选择完整本地 route；该 turn 后续的 tool-result step 复用同一选择。
 - `system-prompt/assemble` 冻结该选择，并把所选 provider/model 暴露给 prompt variables。
-- `agent/request` 应用同一个已冻结 provider/model/reasoning effort。
+- `agent/request` 在当前 `user/message` 之后、实际 `request/header` 之前追加已冻结的 `dsh-auto-mode/selection`，然后应用同一个 provider/model/reasoning effort。
 - A2 `registerEventNamespace()` 校验必需的 `dsh-auto-mode/selection` Session 事件。
 
 确定性策略刻意保持简单：
@@ -98,7 +98,7 @@ npm test
 DSH_FORK_ROOT="$HOME/deepseek-harness/.worktrees/auto-mode-host-contracts/workspace" npm test
 ```
 
-12 项插件与 Loader 测试通过真实 DSH composition 证明 Auto fast/strong 分流、事件/header 一致、Session projection、命令切换和 Manual 不受影响。fork UI 还通过了 20 项专项测试、3,760 项 GUI 测试（另有一项无关 skip）和无密钥 assembled-Web golden snapshot。浏览器 dogfood 验证了：有界任务在完成前把界面实际选择更新为 `deepseek-v4-flash / off`；手动选择 `deepseek-v4-pro / high` 会关闭 Auto。2026-08-17 还完成了两次带 credential 的实际 provider 调用：
+12 项插件与 Loader 测试通过真实 DSH composition 证明 Auto fast/strong 分流、`user/message → selection → request/header` 事件顺序、事件/header 一致、Session projection、命令切换和 Manual 不受影响。fork UI 还通过了 20 项专项测试、3,760 项 GUI 测试（另有一项无关 skip）和无密钥 assembled-Web golden snapshot。浏览器 dogfood 验证了：有界任务在完成前把界面实际选择更新为 `deepseek-v4-flash / off`；手动选择 `deepseek-v4-pro / high` 会关闭 Auto。2026-08-17 还完成了两次带 credential 的实际 provider 调用：
 
 | 任务信号 | Selection 事件 | Request header | Provider 结果来源 |
 |---|---|---|---|

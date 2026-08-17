@@ -4,7 +4,7 @@
 
 ## Status
 
-Implemented and verified on 2026-08-17 against the maintainer DSH fork at `4aedc2a3c5022de3222eb6e53ec4f8ff2ddc2705`.
+Implemented and verified on 2026-08-17 against the maintainer DSH fork at `0fb4723e266ff7aad1f046e5a82473fa5e84f2af`.
 
 This is a maintainer-only `experimental-unadmitted` prototype. It proves the Auto interaction and request-routing loop. It does not claim safety, quality improvement, RouterBench admission, immutable deployment identity, public support, or official DSH compatibility.
 
@@ -25,7 +25,7 @@ The plugin is a dependency-free Cordis module at `src/plugin.mjs`. It uses the p
 
 - The first `agent/prepare-step` of a turn classifies the current task and selects a complete local route; later tool-result steps in that turn reuse it.
 - `system-prompt/assemble` snapshots that selection and exposes the selected provider/model to prompt variables.
-- `agent/request` applies the same frozen provider/model/reasoning effort.
+- `agent/request` appends the frozen `dsh-auto-mode/selection` after the current `user/message` and before the effective `request/header`, then applies that same provider/model/reasoning effort.
 - A2 `registerEventNamespace()` validates the required `dsh-auto-mode/selection` Session event.
 
 The deterministic policy is deliberately small:
@@ -92,7 +92,7 @@ Run the real Loader composition suite against the pinned fork:
 DSH_FORK_ROOT="$HOME/deepseek-harness/.worktrees/auto-mode-host-contracts/workspace" npm test
 ```
 
-The 12-test plugin and Loader suite proves Auto fast/strong divergence, event/header equality, Session projection, command transitions, and Manual non-interference through the real DSH composition. The fork UI additionally passed 20 focused tests, 3,760 GUI tests with one unrelated skip, and a keyless assembled-Web golden snapshot. Browser dogfood verified that a bounded task changed the visible selection to `deepseek-v4-flash / off` before completion and that selecting `deepseek-v4-pro / high` disabled Auto. Two with-credential provider calls additionally completed on 2026-08-17:
+The 12-test plugin and Loader suite proves Auto fast/strong divergence, `user/message → selection → request/header` event order, event/header equality, Session projection, command transitions, and Manual non-interference through the real DSH composition. The fork UI additionally passed 20 focused tests, 3,760 GUI tests with one unrelated skip, and a keyless assembled-Web golden snapshot. Browser dogfood verified that a bounded task changed the visible selection to `deepseek-v4-flash / off` before completion and that selecting `deepseek-v4-pro / high` disabled Auto. Two with-credential provider calls additionally completed on 2026-08-17:
 
 | Task signal | Selection event | Request header | Provider result source |
 |---|---|---|---|

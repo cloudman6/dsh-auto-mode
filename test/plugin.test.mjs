@@ -102,6 +102,7 @@ describe('DSH Auto Mode plugin', () => {
       [{ agent: subject, messages, turn: 1, step: 0, signal }],
       () => Promise.resolve({ kind: 'enter' }),
     )
+    assert.deepEqual(subject.events, [])
     const assembled = await ctx.waterfall(
       'system-prompt/assemble',
       [{}, { agent: subject }],
@@ -195,9 +196,29 @@ describe('DSH Auto Mode plugin', () => {
       () => Promise.resolve({ kind: 'enter' }),
     )
     await ctx.waterfall(
+      'system-prompt/assemble',
+      [{}, { agent: subject }],
+      () => Promise.resolve({ variables: {} }),
+    )
+    await ctx.waterfall(
+      'agent/request',
+      [{ agent: subject, turn: 2, step: 0, signal }],
+      () => Promise.resolve(manual),
+    )
+    await ctx.waterfall(
       'agent/prepare-step',
       [{ ...payload, messages: [{ content: [{ type: 'text', text: 'Investigate a security incident.' }] }], turn: 3 }],
       () => Promise.resolve({ kind: 'enter' }),
+    )
+    await ctx.waterfall(
+      'system-prompt/assemble',
+      [{}, { agent: subject }],
+      () => Promise.resolve({ variables: {} }),
+    )
+    await ctx.waterfall(
+      'agent/request',
+      [{ agent: subject, turn: 3, step: 0, signal }],
+      () => Promise.resolve(manual),
     )
 
     const projected = subject.events.reduce(

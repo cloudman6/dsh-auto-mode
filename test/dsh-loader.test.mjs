@@ -153,6 +153,16 @@ describe('pinned DSH Loader integration', { skip: !runIntegration }, () => {
       model: strongDecision.data.model,
       reasoningEffort: strongDecision.data.reasoningEffort,
     })
+    assert.ok(
+      fastEvents.findIndex(event => event.type === 'user/message')
+        < fastEvents.findIndex(event => event.type === 'dsh-auto-mode/selection'),
+      'the route selection must follow its user message',
+    )
+    assert.ok(
+      fastEvents.findIndex(event => event.type === 'dsh-auto-mode/selection')
+        < fastEvents.findIndex(event => event.type === 'request/header'),
+      'the route selection must precede the effective request header',
+    )
     assertSelectionsMatchEffectiveHeaders(fastEvents)
     assertSelectionsMatchEffectiveHeaders(strongEvents)
     assert.equal(

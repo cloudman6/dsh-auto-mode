@@ -184,21 +184,6 @@ export function apply(ctx, config = {}) {
     state.turn = payload.turn
     state.current = decision
     stateByAgent.set(payload.agent, state)
-
-    payload.agent.session.append(SELECTION_EVENT, {
-      schemaVersion: 1,
-      mode: 'auto',
-      evidenceStatus: EVIDENCE_STATUS,
-      turn: payload.turn,
-      step: payload.step,
-      tier: decision.tier,
-      provider: decision.selection.provider,
-      model: decision.selection.model,
-      reasoningEffort: decision.selection.reasoningEffort,
-      reasonCode: decision.reasonCode,
-      reason: decision.reason,
-      ...decision.aaRecordId === undefined ? {} : { aaRecordId: decision.aaRecordId },
-    })
     return entered
   })
 
@@ -225,6 +210,20 @@ export function apply(ctx, config = {}) {
     const state = stateFor(payload.agent)
     const selected = state.active ? state.assembled : undefined
     if (selected === undefined) return resolved
+    payload.agent.session.append(SELECTION_EVENT, {
+      schemaVersion: 1,
+      mode: 'auto',
+      evidenceStatus: EVIDENCE_STATUS,
+      turn: payload.turn,
+      step: payload.step,
+      tier: selected.tier,
+      provider: selected.selection.provider,
+      model: selected.selection.model,
+      reasoningEffort: selected.selection.reasoningEffort,
+      reasonCode: selected.reasonCode,
+      reason: selected.reason,
+      ...selected.aaRecordId === undefined ? {} : { aaRecordId: selected.aaRecordId },
+    })
     const { reasoningEffort: _inheritedEffort, ...withoutInheritedEffort } = resolved
     return {
       ...withoutInheritedEffort,
