@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/phase-0p-fast-prototype.md
-translation-source-blob: 8488a610e2b86d7ab7d466edc99d4bb1393df48b
+translation-source-blob: f5609b6c2177e9162c8af38d02806cbf49b4fd5c
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-已于 2026-08-17 基于维护者 DSH fork `6fc27e011a2e0db50697b7b801a8bd2aed042db6` 完成实施与验证。
+已于 2026-08-17 基于维护者 DSH fork `d94cbe1f7c3bb438109ba8ef69b456ad9bcee753` 完成实施与验证。
 
 这是仅限维护者的 `experimental-unadmitted` 原型，只证明 Auto 交互和请求路由闭环。它不宣称安全、质量提升、RouterBench 准入、不可变 deployment identity、公开支持或官方 DSH 兼容。
 
@@ -78,7 +78,7 @@ translation-status: current
 
 - `Auto` 是第一项，位于手动模型和推理强度控件上方；启用时显示对勾。
 - 触发器从 Session projection 实时更新，Auto 状态卡片把当前任务的实际选择明确标注为“`模型 · effort`”；即使 advisory model catalog 没有该精确 route，也显示原始标识。
-- 首次实际选择不会播放动画。后续决定会在 Session projection 中携带前一条 route；触发器和实际选择卡片只把发生变化的模型和／或 effort 值滚动到当前值，两者都变化时两条轨道同步滚动。切换文字使用同一批事实；启用减少动态效果偏好时保留最终值和提示文字而不移动。
+- 首次实际选择不会播放动画。后续决定会在 Session projection 中携带前一条 route；触发器和实际选择卡片只把发生变化的模型和／或 effort 值在 1.2 秒内滚动到当前值，两者都变化时两条轨道同步滚动。Auto 和每个变化目标使用 DSH 业务蓝，以呼吸灯方式平滑亮灭两次后恢复常规颜色。聊天时间线会把前后模型与 effort、层级、原因代码和解释记录为路由事实。切换文字使用同一批事实；启用减少动态效果偏好时保留最终值和提示文字而不移动。
 - 菜单显示所选档位、reason code、简短解释和明确的 `Experimental / unadmitted` 标识。
 - 选择手动模型或推理强度时，先关闭 Auto，再应用手动选择。Auto capability 不存在时，手动选择仍可使用。
 
