@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/phase-0p-fast-prototype.md
-translation-source-blob: 2031df4cd16b867adb89c79a9f832404557bca76
+translation-source-blob: 5afd0db42a067db1ef3c5667b64966b23801fc87
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-已于 2026-08-17 基于维护者 DSH fork `30c1198d2aaea9ae34e6901fd518607b5275b476` 完成实施与验证。
+已于 2026-08-18 基于维护者 DSH fork `2a2db7a6ec3ce9969857cc41de839f911ef5902e` 完成实施与验证，并由维护者接受为阶段 0P MVP。后续工作将按 roadmap 逐步迭代。
 
 这是仅限维护者的 `experimental-unadmitted` 原型，只证明 Auto 交互和请求路由闭环。它不宣称安全、质量提升、RouterBench 准入、不可变 deployment identity、公开支持或官方 DSH 兼容。
 

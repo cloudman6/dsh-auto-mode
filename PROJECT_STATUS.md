@@ -4,11 +4,11 @@
 
 ## Last updated
 
-2026-08-17
+2026-08-18
 
 ## Current stage
 
-Phase 0P fast prototype implementation and maintainer dogfood. A runnable, dependency-free `experimental-unadmitted` plugin now uses the product-neutral A1/A2 seams and the visible Auto carrier on the pinned DSH fork at `30c1198d2aaea9ae34e6901fd518607b5275b476`. It consumes a manually maintained, local, gitignored AA seed; applies a deterministic fast/standard/strong policy; persists and displays the choice and explanation; falls back to a configured fixed strong selection; and leaves Manual unchanged. This prototype does not amend or satisfy the deferred production admission, deployment-identity, rights, recovery, or official-compatibility gates.
+Phase 0P fast prototype MVP accepted by the maintainer on 2026-08-18. The runnable, dependency-free `experimental-unadmitted` plugin uses the product-neutral A1/A2 seams and the visible Auto carrier on the pinned DSH fork at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. It consumes a manually maintained, local, gitignored AA seed; applies a deterministic fast/standard/strong policy; persists and displays the choice and explanation; falls back to a configured fixed strong selection; and leaves Manual unchanged. Subsequent work proceeds incrementally through the roadmap. This MVP does not amend or satisfy the deferred production admission, deployment-identity, rights, recovery, or official-compatibility gates.
 
 ## Completed
 
@@ -29,14 +29,14 @@ Phase 0P fast prototype implementation and maintainer dogfood. A runnable, depen
 - Accepted ADR-009's initial mutable-work loss bound: all uncommitted changes attributable to the current Attempt inside a clean isolated worktree, with no external effects or automatic-recovery claim.
 - Completed the initial Phase 0P route-selection inventory and A3p evidence matrix. Six explicit DeepSeek Flash/Pro selections have reproducible DSH fingerprints, but the exact external intersection is empty: Artificial Analysis records bind versioned deployments while DSH exposes revisionless pass-through aliases. Defaults, dormant pi-ai routes, and non-public endpoints are also excluded.
 - Implemented the deliberately bounded Phase 0P fast prototype: 12 unit and real-Loader tests pass; Auto fast/strong decisions match effective request headers; Manual is unchanged; and real provider calls completed on `deepseek-v4-flash / off` and `deepseek-v4-pro / max` with matching Session evidence.
-- Closed the bounded Phase 0P A5p carrier: the model menu puts checked `Auto` above manual controls, labels the effective model/effort explicitly inside the Auto status card, updates that selection and its explanation from the Session projection while a task runs, and exits Auto before applying a manual choice. A changed decision carries its preceding route, so the UI rolls each changed model and/or effort value to the effective route over 1.2 seconds; Auto and every changed target use DSH business blue, breathe twice, and return to their normal color. The browser regression covers model-only, effort-only, and simultaneous changes. The plugin persists each selection after its current user message and before its effective request header, so the chat timeline records each changed field as prior value, arrow, and blue effective value, while unchanged fields display only the effective value; it also records tier, reason code, and explanation in that same interval, before the resulting assistant response. Initial projection remains static. Focused component, conversation-node, Loader-composition, and keyless assembled-Web tests passed through fork commit `30c1198d2aaea9ae34e6901fd518607b5275b476`.
+- Closed the bounded Phase 0P A5p carrier: the model menu puts checked `Auto` above manual controls, labels the effective model/effort explicitly inside the Auto status card, updates that selection and its explanation from the Session projection while a task runs, and exits Auto before applying a manual choice. A changed decision carries its preceding route, so the UI rolls each changed model and/or effort value to the effective route over 1.2 seconds; Auto and every changed target use DSH business blue, breathe twice, and return to their normal color. The browser regression covers model-only, effort-only, and simultaneous changes. The plugin persists each selection after its current user message and before its effective request header, so the chat timeline records each changed field as prior value, arrow, and blue effective value, while unchanged fields display only the effective value; it also records tier, reason code, and explanation in that same interval, before the resulting assistant response. Initial projection remains static. Focused component, conversation-node, Loader-composition, and keyless assembled-Web tests passed through fork commit `2a2db7a6ec3ce9969857cc41de839f911ef5902e`.
+- Accepted the Phase 0P fast-prototype MVP after its four criteria were demonstrated: Auto can be selected, distinct tasks can route to distinct model/effort configurations, the persisted selection matches the effective request, and Manual remains unchanged.
 
-## Current implementation entry points
+## Next implementation direction
 
-1. Dogfood the four-criterion fast prototype through the Loader configuration documented in `docs/phase-0p-fast-prototype.md`.
-2. Collect task text, selected tier, effective request, latency, and user outcome locally without treating user choices as correctness labels.
-3. Repair only defects that break Auto selection, route divergence, event/request equality, or Manual non-interference.
-4. Keep the fork pinned and every result visibly `experimental-unadmitted`; do not claim route admission, quality improvement, or official DSH compatibility.
+1. Continue iteratively from the accepted MVP in the dependency order defined by `docs/roadmap.md`.
+2. Keep collecting task text, selected tier, effective request, latency, and user outcome locally without treating user choices as correctness labels.
+3. Keep the fork pinned and every result visibly `experimental-unadmitted`; do not claim route admission, quality improvement, or official DSH compatibility until the relevant roadmap gates close.
 
 ## Deferred production-grade Phase 0P gates
 
@@ -72,7 +72,7 @@ There is no implementation blocker for the bounded fast prototype. The previousl
 
 ## Next action
 
-Run maintainer dogfood with the local AA seed and record whether the four prototype criteria continue to hold across ordinary tasks. The next implementation change must be driven by a reproduced failure in one of those criteria. Keep production-contract research in its preserved worktree and do not resume it unless the maintainer explicitly changes scope.
+Implement the next roadmap item selected by the maintainer, starting from the accepted MVP rather than reopening its closed acceptance boundary. Keep the preserved production-contract research worktree separate until the corresponding roadmap work is explicitly resumed.
 
 ## Status maintenance rules
 
