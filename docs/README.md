@@ -4,18 +4,18 @@
 
 Current progress, blockers, and the next action are maintained in the repository-root [`PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
-The runnable, deliberately bounded implementation is documented in the [Phase 0P fast prototype](phase-0p-fast-prototype.md). Its four acceptance criteria govern prototype work; the longer review order below governs the deferred product design.
+The accepted MVP is documented in the [Phase 0P fast prototype](phase-0p-fast-prototype.md). Post-MVP implementation follows ADR-010 and the current roadmap.
 
 ## Review order
 
 1. [Product specification](spec.md): confirm users, objectives, success criteria, boundaries, and assumptions.
-2. [Routing policy](routing-policy.md): confirm guarantee tiers, Policy Packs, absolute and relative quality gates, and failure behavior.
+2. [Routing policy](routing-policy.md): confirm task-handling levels, AA matching, price-first resolution, fallback, and failure behavior.
 3. [System architecture](architecture.md): confirm capability boundaries, Route Snapshot timing, state ownership, and persistence.
 4. [DSH integration and compatibility](dsh-integration.md): confirm fork-resolved Host contracts, remaining upstream gaps, and compatibility policy.
-5. [RouterBench](routerbench.md): confirm evidence isolation, statistical admission, strategy ablation, and revocation.
+5. [Optional evaluation track](routerbench.md): confirm bounded regression and policy-evaluation scope without making it a release gate.
 6. [Recovery and episodes](recovery.md): confirm signals, provenance, recovery capability, episodes, and actions.
 7. [Child-agent delegation authority](delegation.md): confirm proposal, resolution, and override boundaries.
-8. [Product roadmap](roadmap.md): confirm evidence-gated implementation order and phase acceptance criteria.
+8. [Product roadmap](roadmap.md): confirm the AA catalog, semantic assessor, beta, adaptive execution, and later phase order.
 9. [Open questions](open-questions.md): choose the next discussion and validation focus.
 10. [Glossary](glossary.md): check terminology and semantic distinctions.
 
@@ -24,7 +24,7 @@ The [architecture decision records](decisions/README.md) contain the accepted de
 ## Implementation evidence
 
 - [Phase 0P fast prototype](phase-0p-fast-prototype.md): runnable configuration, local-seed boundary, deterministic policy, acceptance criteria, and real-provider evidence.
-- [Phase 0P exact route inventory and A3p evidence](evidence/phase-0p-route-inventory.md): pinned DSH route identities, fingerprints, the empty exact external intersection, exclusions, and remaining deployment-binding evidence.
+- [Historical Phase 0P exact route inventory and A3p evidence](evidence/phase-0p-route-inventory.md): the deployment-exact experiment that preceded ADR-010's normalized AA model-key policy.
 
 ## Historical review evidence
 
@@ -36,4 +36,4 @@ The [architecture decision records](decisions/README.md) contain the accepted de
 
 ## Document state
 
-The specification and ADR-001 through ADR-009 are Accepted. Documents may still mark individual future interfaces or event names as Proposed. ADRs use `Proposed`, `Accepted`, `Superseded`, and `Deprecated` for their lifecycle.
+The specification and ADR-010 define the current AA-informed direction. ADR-002, ADR-006, and ADR-008 are superseded but retained as historical decisions; the other accepted ADRs remain in force for their stated boundaries. ADRs use `Proposed`, `Accepted`, `Superseded`, and `Deprecated` for their lifecycle.

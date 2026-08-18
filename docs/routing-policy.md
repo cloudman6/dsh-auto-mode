@@ -2,244 +2,143 @@
 
 [简体中文](zh-CN/routing-policy.md)
 
-## Objective function
+## Objective
 
-Routing Policy solves a quality-constrained optimization problem. It does not seek the cheapest model and it does not assume that a configuration named `strong` is safe merely because of its name.
+Routing Policy implements a simple, deterministic rule:
 
 ```text
-Admission prerequisites:
-  the task-category baseline passes an absolute quality gate
-  AND the candidate satisfies a predeclared non-inferiority bound
-  AND the unacceptable-result upper bound satisfies delta
-  AND the evidence is current and no severe failure cluster is unresolved
-
-Objective after admission:
-  minimize end-to-end latency first, then total cost
+infer the required task-handling level
+→ filter routes by availability, capability, and user constraints
+→ keep routes assigned to that level
+→ prefer lower AA-reported price
+→ break ties with lower AA-reported latency
+→ break remaining ties with stable route identity
 ```
 
-End-to-end metrics include assessment, prompt assembly, history replay, cache loss, switching, failures, escalation, and recovery. Comparing one API-call price is insufficient.
+The policy does not estimate token counts or build a private cost model. Capability bands, prices, and latency comparisons come directly from the current versioned AA snapshot.
 
-## Phase 0P experimental objective
+## Task assessment
 
-Phase 0P does not claim to solve the admitted quality-constrained objective. It uses a separate, explicit evidence state:
-
-```ts
-type RouteEvidenceState =
-  | { kind: 'admitted'; admissionId: AdmissionId }
-  | {
-      kind: 'experimental-unadmitted'
-      source: 'artificial-analysis'
-      sourceSnapshotId: ExternalEvidenceSnapshotId
-      externalRecordId: string
-    }
-```
-
-Task Assessment deterministically chooses the relevant index family: coding work uses the Coding Index, tool-heavy multi-step work uses the Agentic Index, and broad reasoning uses the Intelligence Index. Any mixed weighting, score boundary, freshness period, or latency/cost tie-break is part of a versioned experimental policy, not a hidden runtime constant.
-
-The Phase 0P resolver considers only exact DSH and external-record identity matches. `strong` means the highest relevant external score among currently eligible exact matches; `standard` and `fast` select lower-latency configurations only within their recorded heuristic score boundaries. These names are experimental tiers, not quality guarantees. High-risk, unknown, or low-confidence task assessment selects the strongest exact match from a valid frozen catalog. An unmatched or drifted route, invalid evidence, or missing required Host contract exits Auto with `no-experimental-route` and no call. It never reuses admitted Auto's `no-safe-route`. The explanation always exposes the experimental state and source snapshot.
-
-Host-declared `RecoveryCapability` and execution-world effect classes are required policy inputs. [ADR-009](decisions/0009-phase-0p-attributable-worktree-loss-bound.md) accepts possible loss only for uncommitted filesystem changes attributable to the current Attempt inside a clean isolated task worktree. This routing-safety bound is not route admission and is not capability evidence. No experimental tier, including `strong`, may execute mutable work until a versioned Host provider proves canonical worktree containment, Attempt-scoped attribution, process control, and `externalSideEffects: 'none'`. Git repository-state mutation, dependency or system installation, external effects, unknown attribution, dirty-start drift, path, symlink, hard-link, or mount escape, or any mutation outside the bound terminates the current Experimental Auto attempt with `no-experimental-route`. Excluded effects must be prevented before they occur; post-effect detection does not bring them inside the bound. User intervention may switch to Manual or wait for newly declared execution-world facts; confirmation cannot authorize the denied Experimental Auto dispatch. Task Assessment cannot infer or override these capability facts.
-
-Experimental evidence cannot satisfy `RouteAdmission`, cannot be consumed by Phase 0C policy, and cannot be promoted without the normal RouterBench protocol.
-
-## User interaction boundary
-
-The ordinary user-facing choice has exactly two modes:
-
-- `Auto`: the Host selects an admitted route and explains changes.
-- Manual: the user selects provider/model/reasoning behavior directly, including supported defaults.
-
-Phase 0P retains these two modes but labels Auto as Experimental Auto and requires explicit maintainer opt-in.
-
-Ordinary users do not configure `epsilon`, `delta`, assessor thresholds, expiry, canaries, or route-admission matrices. Those facts belong to a maintainer-owned, versioned Policy Pack. Advanced users may restrict providers, define budgets, or install a custom pack, but a custom mapping has no quality guarantee until admitted by the same evidence protocol.
-
-Manual mode bypasses Auto policy, not Host security or provider capability validation. A manual choice is user intent, never a correctness label.
-
-The Experimental Auto preparation listener is a no-op in Manual mode: it returns control to DSH's existing manual model-selection and Host/provider validation path. Switching to Manual may append an Auto-exit audit fact, but it is never represented as a denied Auto call and must not reject or consume the manual turn.
-
-## Policy Pack and deployment profile
-
-A versioned Policy Pack binds the facts required to interpret route guarantees:
+The fixed Task Assessor returns provider-independent attributes:
 
 ```ts
-interface PolicyPack {
-  id: string
-  version: string
-  taxonomyVersion: string
-  policyVersion: string
-  evaluatorVersion: string
-  admissions: RouteAdmission[]
-  expiresAt: string
-  revocationState: 'active' | 'expired' | 'revoked'
+interface TaskAssessment {
+  taskKind: string
+  scope: 'bounded' | 'normal' | 'broad' | 'unknown'
+  complexity: 'low' | 'medium' | 'high' | 'unknown'
+  risk: 'low' | 'medium' | 'high' | 'unknown'
+  verifiability: 'mechanical' | 'partial' | 'none' | 'unknown'
+  confidence: number
+  reasons: readonly string[]
+  assessorVersion: string
 }
 ```
 
-It contains task taxonomy, baseline definitions, candidate admissions, quality thresholds, assessor policy, evidence references, expiry, and revocation conditions. A deployment profile reads the active provider/model catalog and exact-route metadata from DSH, then combines them with credentials references, user allowlists, capability metadata, and stable deployment identity evidence. The Effective Route Catalog is compiled from the Policy Pack and deployment profile; neither source alone grants admission.
+The assessor uses one fixed configuration outside Auto routing, has no tools, and returns validated structured data. It never emits a model name or effort. Failure, timeout, invalid output, or confidence below policy threshold becomes `unknown` and selects `deep`.
 
-Reasoning selection is part of concrete route identity and has three non-interchangeable forms:
+## Level semantics
 
 ```ts
-type ReasoningSelection =
-  | { mode: 'explicit'; effortId: ReasoningEffortId }
-  | { mode: 'adapter-default'; effortId: ReasoningEffortId }
-  | { mode: 'provider-default' }
+type TaskHandlingLevel = 'light' | 'standard' | 'deep'
+```
 
-interface AdmissionIdentity {
-  providerRoute: string
-  modelId: string
-  reasoning: ReasoningSelection
-  deploymentFingerprint: string
-  adapterIdentity: string
+- `light`: bounded, low-risk work with few steps and a directly checkable result.
+- `standard`: ordinary development, analysis, and modification work.
+- `deep`: broad, uncertain, high-risk, weakly verifiable, or reasoning-intensive work.
+
+The display label is “Task handling level”, not “task difficulty”. Risk and uncertainty can justify `deep` even when the requested edit is small.
+
+The deterministic mapper uses the highest level required by any material attribute. High risk, broad or unknown scope, no verifiability, or low confidence forces `deep`. It records all contributing reason codes.
+
+## AA matching key
+
+AA records and DSH models are matched by:
+
+```ts
+interface AAModelKey {
+  family: string
+  semanticVersion: string
+  variant: string
+  effort: string
 }
 ```
 
-`explicit` requires exact-route reasoning metadata that contains the requested effort. `adapter-default` requires a resolved adapter default and records the materialized effort. `provider-default` means the request deliberately omits effort and preserves provider behavior; it is not equivalent to an unknown or empty explicit effort. It may enter Auto only when admission evidence evaluated that omission behavior and the deployment identity contract is strong enough to detect or conservatively invalidate drift.
+Normalization is explicit and versioned. Case, punctuation, and known presentation aliases may be normalized. Semantic version, model variant, and effort may not be inferred or crossed.
 
-Discovery is automatic and its size is not hard-coded. Availability in DSH is necessary but not sufficient for admitted Auto: only the intersection of discovered configurations and current admissions enters that candidate set. Phase 0P builds its structurally separate experimental candidate set under the exact-match rules above. Other unadmitted configurations may remain available to manual selection.
+Date suffixes and deployment/build revisions are ignored for equality. If several AA rows normalize to the same key, the latest row in the snapshot is the representative record. This is a version-family match, not proof that DSH reached the exact AA-tested deployment.
 
-Provider aliases, server-side model changes, default-effort changes, and missing fingerprints can invalidate evidence. Expired, revoked, or unidentifiable configurations are unavailable for automatic down-routing until canaries or a complete evaluation renew admission.
+## Catalog construction
 
-## Route semantics
+The catalog compiler:
 
-```ts
-type BuiltinRoute = 'fast' | 'standard' | 'strong'
+1. reads DSH's currently available concrete routes;
+2. materializes the route's model family, semantic version, variant, and effort;
+3. joins the route with the latest matching AA record;
+4. excludes unmatched, unavailable, capability-incompatible, or user-disallowed routes;
+5. assigns each remaining route to one versioned AA capability band: `light`, `standard`, or `deep`;
+6. freezes the resulting catalog and source-snapshot identity for one decision.
 
-type PolicyDecision =
-  | { outcome: 'selected'; route: BuiltinRoute; reasonCode: ReasonCode }
-  | { outcome: 'abstained'; requestedFallback: 'strong'; reasonCode: ReasonCode }
+Band boundaries are maintainer-owned policy data derived from AA scores. They are heuristics and must be visible and versioned; changing them changes the policy version.
 
-type SharedResolutionFailure =
-  | 'constraints-unsatisfiable'
-  | 'profile-invalid'
-  | 'profile-unavailable'
-  | 'provider-unavailable'
+## Resolution inside one level
 
-type RouteResolution =
-  | {
-      outcome: 'resolved'
-      route: BuiltinRoute
-      config: EffectiveCallConfig
-      evidence: { kind: 'admitted'; admissionIdentity: AdmissionIdentity }
-    }
-  | {
-      outcome: 'resolved'
-      route: BuiltinRoute
-      config: EffectiveCallConfig
-      evidence: {
-        kind: 'experimental-unadmitted'
-        experimentalRouteIdentity: ExperimentalRouteIdentity
-        sourceSnapshotId: ExternalEvidenceSnapshotId
-        externalRecordId: string
-      }
-    }
-  | {
-      outcome: 'failed'
-      evidenceKind: 'admitted'
-      failure: SharedResolutionFailure | 'no-safe-route'
-      reasonCode: ReasonCode
-    }
-  | {
-      outcome: 'failed'
-      evidenceKind: 'experimental-unadmitted'
-      failure: SharedResolutionFailure | 'no-experimental-route'
-      reasonCode: ReasonCode
-    }
-```
+After a level is selected, the resolver orders eligible routes by:
 
-- `fast`: the lowest admitted guarantee tier for bounded, low-risk work.
-- `standard`: the normal admitted guarantee tier for production work.
-- `strong`: the configured baseline guarantee tier for the task category, after that baseline passes an absolute gate.
-- `abstained`: Policy lacks evidence to choose a weaker tier. Resolution attempts the admitted baseline, but returns `no-safe-route` without a model call if no safe configuration exists.
+1. lower AA-reported price;
+2. lower AA-reported latency when price is equal or AA does not distinguish it;
+3. stable concrete route identity.
 
-In admitted Auto, `fast < standard < strong` orders policy guarantee tiers, not raw model intelligence. A concrete configuration may occupy an admitted tier for a task category only when the Policy Pack contains current admission evidence. A specialist configuration that outperforms the configured baseline belongs in the tier justified by its evidence; its model name does not determine the tier. Phase 0P's identically named tiers remain heuristic and `experimental-unadmitted`.
+No estimated input/output token calculation is performed. If AA lacks the required price field for a route, that route does not win a price comparison by accident; the policy either applies an explicit missing-data rule or excludes it.
 
-Admitted Routing Policy and Route Profile Resolver operate on one immutable Effective Route Catalog snapshot. Phase 0P operates on a structurally separate immutable Experimental Route Catalog snapshot. The admitted resolver filters by admission, identity, capability, and security and uses stable `AdmissionIdentity` as its final tie-break; the experimental resolver filters by exact external evidence identity and uses its stable experimental route identity. Missing identity or required comparison metrics is `profile-invalid`. Live catalog order, asynchronous discovery completion, and object iteration order are never selection signals.
+## Fallback and escalation
 
-## Constraint resolution and precedence
+- Low assessment confidence or unknown task shape selects `deep`.
+- No eligible route at `light` or `standard` escalates to the next level.
+- If no AA-matched route resolves, the configured deep fallback may be used only when that concrete route is available, Host-valid, and explicitly configured by the user or maintainer.
+- If no valid fallback exists, Auto returns an explicit failure and does not silently reuse a stale route.
 
-Auto computes constraints before selecting a route:
+The fallback is conservative but not certified safe. Explanations say “deep fallback” and the triggering reason, not “safe baseline”.
+
+## User and parent authority
+
+The user can choose Auto or an exact Manual configuration. Manual exits Auto for that scope and is never a correctness label.
+
+A parent agent may propose task properties and constraints. Host policy validates them and retains final authority. A parent cannot silently name an arbitrary provider/model/effort and bypass the catalog.
+
+## Transparency
+
+Every decision persists and displays:
+
+- task-handling level;
+- actual provider/model/effort;
+- AA snapshot and normalized model key;
+- capability-band reason;
+- price-first route-selection reason;
+- fallback or escalation reason when applicable;
+- policy, assessor, normalizer, and catalog versions.
+
+The UI may summarize this as:
 
 ```text
-Host security and provider capability constraints
-→ user provider allow/deny rules and user quality floor
-→ Host-accepted parent-agent requirements
-→ floors from active Recovery Episodes
-→ Routing Policy
-→ Route Profile Resolver
+Task handling level: Standard
+Selected: DeepSeek V4 Flash / High
+Reason: standard AA capability band; lower AA price among available routes in this band
 ```
 
-An exact provider/model/reasoning selection is Manual mode, not a higher-priority Auto rule. A parent constraint becomes binding only when it maps to a Host-recognized requirement or the user explicitly grants the parent semantic-route override authority. Unsupported or conflicting constraints produce an explicit resolution failure; they are not silently discarded.
+## Later adaptive behavior
 
-The resolver emits `ResolvedRoutingConstraints`, including accepted and rejected inputs, their provenance, the effective candidate set, the computed floor, and reason codes. Route Profile Resolver then resolves only within that candidate set.
+Within-session reassessment, failure-driven escalation, phase changes, and recovery are later roadmap capabilities. They reuse the same level names and catalog resolver. A model self-report alone never proves that a phase ended or that a lower level is sufficient.
 
-## Initial selection
+## Claims
 
-The first question is:
+Allowed:
 
-> Is there current evidence that an admitted route can satisfy this task's quality and safety requirements?
+- “AA-informed Auto routing.”
+- “Selected from the current AA snapshot using task attributes and price-first policy.”
 
-When evidence is insufficient, Policy abstains. It does not infer that the configured baseline is safe from its label. The resolver may use an admitted baseline candidate or stop with `no-safe-route`.
+Not allowed without separate evidence:
 
-Recovery capability is part of the input. Before selecting a weaker route for mutable work, Policy must know whether the execution world is read-only, mutations are attributable and recoverable, or external side effects are declared irreversible. Unknown or non-recoverable high-impact mutation capability raises the floor or prevents Auto execution.
-
-## Admission without mechanical verification
-
-No runtime test does not mean no objective evidence. Policy may combine:
-
-1. Current RouterBench priors for the task category.
-2. Task risk, scope, reversibility, and error detectability.
-3. Partial checks such as citation coverage, source fidelity, and predeclared omission checklists.
-4. Distribution membership and calibrated assessment confidence.
-5. An absolute unacceptable-result gate for both baseline and candidate.
-
-A route below the baseline is allowed only when all conditions hold:
-
-```text
-candidate admission is current for this task category
-AND baseline and candidate pass their absolute gates
-AND task belongs to the calibrated distribution
-AND impact and scope fit the admission envelope
-AND the execution world's recovery capability is sufficient
-AND assessment confidence reaches the policy threshold
-```
-
-## Phase routing within a turn
-
-Within-turn phase routing is a candidate capability, not a prerequisite for the first usable Auto mode. It may be enabled only when Policy Scenario Bench shows a material end-to-end improvement over Session-level static routing without violating the quality gate.
-
-When enabled:
-
-- Execution Context Projector owns confirmed `PhaseState`; a model or classifier may only propose a phase.
-- Routing Policy consumes a persisted confirmed phase, never a free-form completion claim.
-- An unresolved episode floor may only stay fixed or rise.
-- A confirmed phase transition does not close an episode; episode release still requires its own evidence.
-- Down-routing requires current admission, sufficient recovery capability, hysteresis, and expected savings greater than switching cost.
-
-Effective guarantee tier:
-
-```text
-max(
-  admitted base tier for confirmed phase,
-  user quality floor,
-  Host-accepted delegation floor,
-  floor of every active episode
-)
-```
-
-## Escalation and switching
-
-Repeated failure, high-risk ambiguity, missing capability, context overflow, or invalidated admission may escalate or stop immediately. Time, step, or token expiration may trigger reassessment but cannot prove resolution or release a floor.
-
-Switching may discard prompt cache, require history replay, and lose provider-private state. Route selection therefore estimates remaining work and switching cost. A trivial tail action does not force a switch when its expected savings are smaller than the handoff cost; deterministic tools remain preferable when they can complete the work without another model call.
-
-## Decision transparency
-
-Auto executes admitted decisions without asking users to provide pseudo-supervision. The default UI shows the current route plus route changes, abstention, resolution failures, and recovery actions. Repeated `keep` events are aggregated. A detailed timeline exposes:
-
-- Effective guarantee tier, provider/model/reasoning selection, and request encoding.
-- Selection, keep, escalation, down-routing, abstention, or failure.
-- Structured reason code and concise explanation.
-- Evidence references and Policy Pack/profile versions.
-- Recovery action, execution-world capability, and checkpoint when applicable.
-
-Accepting, rejecting, or manually replacing a route expresses user intent only; it is never treated as a correct routing label.
+- “Benchmark-proven quality.”
+- “The best model for this task.”
+- “Safest route.”
+- “Guaranteed non-inferior to a baseline.”

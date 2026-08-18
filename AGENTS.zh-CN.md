@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: e63aca2ec296dd8efc1b2430c201cc06f7e47354
+translation-source-blob: ad73806b796c79e405cca13dec4341393e386978
 translation-status: current
 -->
 
@@ -12,32 +12,35 @@ translation-status: current
 
 ## 一句话项目定位
 
-为个人重度 Agent 用户提供 DeepSeek Harness 自适应 Auto 模式：阶段 0P 先使用明显未准入的外部先验验证闭环；admitted Auto 在 baseline 通过绝对质量门槛后，根据任务、运行证据和用户约束从已准入 route 中选择模型与 reasoning effort，优先降低延迟，其次降低成本，并在误路由后限制损失。
+为个人重度 Agent 用户提供 AA 驱动的 DeepSeek Harness Auto 模式：固定语义 assessor 描述任务，确定性 Host policy 选择轻量、常规或深度，resolver 在该级别的合格 route 中依次优先 AA 价格更低和 AA 延迟更低者。
 
 ## 项目快照
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 阶段 0P 快速原型已在固定 A1/A2 的维护者 DSH fork 上实现 |
-| 已有成果 | 可运行的 `experimental-unadmitted` 插件、聚焦测试、真实 provider 证据，以及已接受的长期设计 |
+| 项目阶段 | 阶段 0P MVP 已接受，当前进入阶段 1 AA route catalog |
+| 已有成果 | 固定 A1/A2 的维护者 DSH fork 上的可运行 MVP、聚焦测试、真实 provider 证据和已接受 ADR-010 方向 |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
-| 优化顺序 | baseline 绝对质量门槛 + candidate 非劣性 → 端到端延迟 → 总成本 |
+| 优化顺序 | 所需任务处理级别 → AA 报告价格 → AA 报告延迟 → 稳定 route identity |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 对四项验收的快速原型执行维护者 dogfood；生产证据 gate 继续推迟 |
+| 下一阶段入口 | 阶段 1A：用 fixture 证明规范化模型键匹配 |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
 ## 新会话必读
 
-当 `PROJECT_STATUS.md` 把阶段 0P 快速原型列为当前阶段时，在实施或评审前只读取：
+当 `PROJECT_STATUS.md` 把阶段 1 列为当前阶段时，在实施或评审前只读取：
 
 1. `PROJECT_STATUS.md`。
-2. `docs/zh-CN/phase-0p-fast-prototype.md`。
-3. 与当前变更直接相关的代码和测试。
+2. `docs/zh-CN/spec.md`。
+3. `docs/zh-CN/routing-policy.md`。
+4. `docs/zh-CN/roadmap.md` 和 `tasks/todo.zh-CN.md` 中当前任务。
+5. 只有需要保留或比较 MVP 行为时才读取 `docs/zh-CN/phase-0p-fast-prototype.md`。
+6. 与当前变更直接相关的代码和测试。
 
-除非维护者明确要求修改长期设计，或当前原型文档链接了任务所需的特定事实，否则不得加载长期规范、架构、Roadmap、恢复、准入或未决问题文档。不得用这些延期文档中的发现扩大原型边界。
+不得用后续自适应、恢复或生态文档扩大当前 roadmap phase 的边界。
 
 在该有效范围锁之外，按顺序读取：
 
@@ -63,15 +66,17 @@ translation-status: current
 
 ## 当前阶段约束
 
-维护者已于 2026-08-15 接受规范及 ADR-001 至 ADR-007，并于 2026-08-16 接受 ADR-008 与 ADR-009。阶段 0P 可以在以下约束下实施：
+维护者已于 2026-08-18 接受 ADR-010。MVP 后实施遵循以下约束：
 
-- 已接受的规范和 ADR 是约束，除非后续明确接受替代决策。
+- 已接受的规范和 ADR-010 是约束。ADR-002、ADR-006 和 ADR-008 对 MVP 后产品行为属于历史且已被取代。
 - 已实现的 A1/A2 契约必须保持产品无关并固定到已验证 fork commit；DSH Core 不得理解 Auto Mode route 档位、Task Assessment 或 Policy Pack 语义。
-- 阶段 0P 必须仅限维护者、显式启用、固定到 fork，并明显标记 `experimental-unadmitted`。外部榜单证据必须与 RouterBench admission 保持结构隔离。
-- 匹配 Artificial Analysis 记录前必须具备精确 provider/model/reasoning-selection identity；不得跨 effort 或默认编码转移测得分数。
+- AA 是 capability、price 和 latency 结论的外部来源；不得宣称本项目 Benchmark 质量或普遍最优。
+- AA 与 DSH 按模型家族、语义版本、变体和显式 effort 匹配。相等判断忽略 date/build revision，但绝不跨越 version、variant 或 effort。
+- 内部使用 `light`、`standard`、`deep`，用户界面使用 Light/Standard/Deep 与轻量/常规/深度。已完成 MVP 的旧标签在迁移前只属于历史实现。
+- 同一处理级别内，依次优先 AA 报告价格更低、AA 报告延迟更低和稳定 route identity。不得增加本地 token-cost estimator。
+- 固定 Task Assessor 只能返回结构化任务属性；确定性 Host policy 拥有级别和具体 route 决策权。
 - 把 ADR-009 视为风险授权，而非能力证据。只有另行接受的具体 provider 设计冻结每个 production tool entry，并且带版本 Host provider 证明干净隔离 worktree、持久 Attempt scope 文件归属与 containment、process/credential isolation，以及 `externalSideEffects: 'none'` 后，才能启用可变 Experimental Auto；未覆盖或不支持的入口都 fail closed。
-- 阶段 0C preview 固定到明确 fork，并保持每 Session 一次路由决策。
-- 对应路线图证据 gate 通过前，不得宣称兼容官方 DSH、route 已准入或 preview 已可用。
+- 实施继续固定 fork；对应 roadmap gate 通过前不得宣称兼容官方 DSH。
 
 ## 阶段 0P 快速原型范围锁
 
@@ -101,19 +106,19 @@ translation-status: current
 
 ## 产品关键不变量
 
-1. Admitted Auto 质量优先：baseline 必须先通过绝对质量门槛，candidate 再满足预声明的非劣效界限；之后先优化端到端延迟，再优化总成本。阶段 0P 是类型独立、明确未准入的维护者实验，不作质量主张。
+1. Auto 是 AA 驱动的启发式路由：先选择所需任务处理级别，再在该级别的 Host-valid route 中优先 AA price 和 AA latency。不得宣称经过 Benchmark 的质量、安全、非劣性或普遍最优。
 2. 不把用户选择、父 Agent override 或模型自我报告当作正确路由标签。
 3. Host Routing Policy 拥有常规路由决策权；模型只提供任务意图或可选语义评估。
-4. 在 admitted Auto 中，高风险、分布外或证据不足的任务必须 `abstain`；若没有当前已准入的安全配置，返回 `no-safe-route`，不得调用模型。阶段 0P 只能从有效冻结 catalog 使用最强精确外部匹配；证据无效、contract 缺失或 identity 失败时返回 `no-experimental-route`，且两种结果都绝不称为安全。
+4. 高风险、未知、低置信度或无效 Task Assessment 选择 `deep`。缺少 AA match 时只能使用配置且通过 Host 验证的 Deep fallback，并明确说明 fallback；否则返回明确 no-route failure。
 5. 自动决策必须可解释、可审计；实际 provider/model/reasoning selection、request encoding 和原因必须可持久重建。只有明确声明且测试过的副作用类别才能宣称可恢复。
 6. 同一未解决 episode 内 route floor 只能保持或升级；阶段变化后的降级是需要证据准入的能力，不是无条件产品承诺。
 7. 父 Agent 约束只是提议。只有 Host 认可的要求或用户明确授权的 override 才成为硬约束；父 Agent 不得静默提高、降低或绕过 Routing Policy 指定任意 provider/model。
 8. Recovery Supervisor 核心通过形式化事件工作，不建立每 turn 注入 prompt 的自我报告协议。
 9. 不用裸 Git 回滚实现工作区恢复；Session checkpoint 与工作区 checkpoint 分别拥有明确语义和所有权。
-10. route 能力评估与生产策略场景评估使用独立数据集和 runner；涉及策略时，RouterBench 与在线运行使用同一 policy core。辅助评估器、切换、重试和恢复成本进入端到端指标。
-11. 普通用户只在 `Auto` 与手动 provider/model/reasoning selection 之间选择。默认值、校准、过期和撤销由维护者负责的版本化 Policy Pack 承担；高级 override 只是可选项。
+10. RouterBench 是可选评估设施，不是 route admission 或 release gate。必需正确性测试仍覆盖 normalization、catalog 编译、价格排序、assessor fallback、持久化、UI 一致和 Manual 不受影响。
+11. 普通用户只在 `Auto` 与手动 provider/model/reasoning selection 之间选择。默认值由维护者负责的带版本 AA snapshot、normalizer、band policy 和 fallback 承担；高级限制只是可选项。
 12. 一个模型 step 的 route 必须在依赖 provider 的 prompt/tool 组装之前冻结，并在 `agent/request` 原样应用。
-13. 阶段 0P 外部证据不能满足 `RouteAdmission`、编译进阶段 0C Effective Route Catalog，也不能被展示为 RouterBench 证据。
+13. AA 数据只支持启发式路由。不得把它表述成项目 Benchmark 证据、精确 deployment 证明或具体任务质量保证。
 14. ADR-009 把阶段 0P 可变工作限制为当前 Attempt 在干净隔离 worktree 内产生且可归属的未提交变更。具体 provider 设计和完整 production tool-entry inventory 必须另行接受；用户批准不能证明 Recovery Capability，也绝不授权外部 effect 或自动回滚。
 
 ## 文档权威位置
@@ -178,7 +183,7 @@ translation-status: current
    git ls-remote origin refs/heads/main
    ```
 5. 每个修改文件的任务都从 clean、已核对的 `main` 创建独立 `codex/<task-slug>` 分支和 worktree。维护者已长期授权通过受限 `codex-worktree add` 包装命令创建，今后直接执行，不再询问。若运行环境已经为本任务提供独立 worktree，不创建嵌套 worktree。
-6. 明确任务类型：规范/文档、DSH 扩展点调研、RouterBench、插件实现、恢复机制、委派适配或发布。
+6. 明确任务类型：规范/文档、AA catalog、语义判断、插件实现、DSH 扩展点调研、可选评估、自适应执行、恢复机制、委派适配或发布。
 7. 先查仓库和 DSH 现状，再问用户。能从代码、文档和已记录决策得到的事实不重复询问。
 8. 将新结论归为已确认规范、Proposed 决策、证据、开放问题或当前进度，并写入权威文件。
 9. 开工前检查是否触碰产品关键不变量或“何时必须停下来问用户”。
@@ -300,7 +305,7 @@ sh "$codex_tools_dir/codex-worktree" remove \
 
 ## 当前硬阻塞
 
-当前没有实现层面的故障阻塞；剩余证据 gate 与未决问题由 `PROJECT_STATUS.md` 与 `docs/open-questions.md` 维护。不要在这里复制完整清单。
+阶段 1A 当前没有实现层面阻塞。当前 field/边界选择和后续阶段问题由 `PROJECT_STATUS.md` 与 `docs/open-questions.md` 维护。不要在这里复制完整清单。
 
 ## 安全边界
 

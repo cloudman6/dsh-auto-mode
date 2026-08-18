@@ -6,30 +6,33 @@
 
 ## Project in one sentence
 
-DSH Auto Mode gives individual power users of coding agents an adaptive Auto mode for DeepSeek Harness. Phase 0P first validates the loop with visibly unadmitted external priors; admitted Auto selects models and reasoning effort from task context, execution evidence, and user constraints, admits a configured baseline only after an absolute quality gate, optimizes latency before cost, and limits damage when routing is wrong.
+DSH Auto Mode gives individual power users of coding agents an AA-informed Auto mode for DeepSeek Harness: a fixed semantic assessor describes the task, deterministic Host policy chooses Light, Standard, or Deep, and the resolver prefers lower AA price then lower AA latency among eligible routes in that level.
 
 ## Project snapshot
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 0P fast prototype implemented on the A1/A2-pinned maintainer DSH fork |
-| Existing work | Runnable `experimental-unadmitted` plugin, focused tests and real-provider evidence, plus the accepted long-term design |
+| Stage | Phase 1 AA route catalog after the accepted Phase 0P MVP |
+| Existing work | Runnable MVP on the A1/A2-pinned maintainer DSH fork, focused tests and real-provider evidence, plus accepted ADR-010 direction |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
-| Optimization order | Absolute baseline quality gate + candidate non-inferiority → end-to-end latency → total cost |
+| Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Maintainer dogfood of the four-criterion fast prototype; production evidence gates remain deferred |
+| Next-stage gate | Phase 1A normalized model-key matching with fixture evidence |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
 ## Required reading for a new session
 
-While `PROJECT_STATUS.md` identifies the Phase 0P fast prototype as the active stage, read only these files before implementation or review:
+While `PROJECT_STATUS.md` identifies Phase 1 as active, read only these files before implementation or review:
 
 1. `PROJECT_STATUS.md`.
-2. `docs/phase-0p-fast-prototype.md`.
-3. The code and tests directly involved in the requested change.
+2. `docs/spec.md`.
+3. `docs/routing-policy.md`.
+4. `docs/roadmap.md` and the current task in `tasks/todo.md`.
+5. `docs/phase-0p-fast-prototype.md` only when preserving or comparing MVP behavior.
+6. The code and tests directly involved in the requested change.
 
 Do not load the long-term specification, architecture, roadmap, recovery, admission, or open-question documents unless the maintainer explicitly asks to change that long-term design or the active prototype document links to a specific fact needed by the task. Findings from those deferred documents cannot enlarge the prototype boundary.
 
@@ -57,15 +60,17 @@ Load topic documents only when relevant; do not load the entire repository indis
 
 ## Current-stage constraints
 
-The maintainer accepted the specification and ADR-001 through ADR-007 on 2026-08-15 and accepted ADR-008 and ADR-009 on 2026-08-16. Phase 0P implementation may proceed under these constraints:
+The maintainer accepted ADR-010 on 2026-08-18. Post-MVP implementation proceeds under these constraints:
 
-- Treat the accepted specification and ADRs as binding until a superseding decision is explicitly accepted.
+- Treat the accepted specification and ADR-010 as binding. ADR-002, ADR-006, and ADR-008 are historical and superseded for post-MVP product behavior.
 - Keep the implemented A1 and A2 contracts product-neutral and pinned to the verified fork commit; DSH Core must not learn Auto Mode route tiers, Task Assessment, or Policy Pack semantics.
-- Keep Phase 0P maintainer-only, explicit opt-in, fork-pinned, and visibly `experimental-unadmitted`. External ranking evidence must remain structurally separate from RouterBench admission.
-- Require exact provider/model/reasoning-selection identity before matching an Artificial Analysis record; never transfer a measured score across effort or default encodings.
+- Use AA as the external source for capability, price, and latency conclusions; do not claim project-Benchmarked quality or universal optimality.
+- Match AA and DSH by model family, semantic version, variant, and explicit effort. Ignore date/build revisions for equality, but never cross version, variant, or effort.
+- Use `light`, `standard`, and `deep` internally and Light/Standard/Deep plus 轻量/常规/深度 in user-facing text. The completed MVP's old labels remain historical until migrated.
+- Within one handling level, prefer lower AA-reported price, then lower AA-reported latency, then stable route identity. Do not add a local token-cost estimator.
+- A fixed Task Assessor may return structured task attributes only; deterministic Host policy owns the level and concrete route decision.
 - Treat ADR-009 as risk authorization, not capability evidence. Mutable Experimental Auto remains disabled until a separately accepted concrete provider design freezes every production tool entry and a versioned Host provider proves a clean isolated worktree, durable Attempt-scoped file attribution and containment, process and credential isolation, and `externalSideEffects: 'none'`; uncovered or unsupported entries fail closed.
-- Keep the Phase 0C preview fork-pinned and limited to one routing decision per Session.
-- Do not claim official DSH compatibility, route admission, or a usable preview until the corresponding roadmap evidence gates pass.
+- Keep the implementation fork-pinned and do not claim official DSH compatibility until the corresponding roadmap gate passes.
 
 ## Phase 0P fast-prototype scope lock
 
@@ -95,19 +100,19 @@ English canonical documents and Chinese translations are governed by `docs/local
 
 ## Product invariants
 
-1. Quality comes first in admitted Auto: a route is eligible only after its baseline passes an absolute quality gate and the candidate satisfies a predeclared non-inferiority bound; optimize end-to-end latency before total cost. Phase 0P is a separately typed, explicitly unadmitted maintainer experiment and makes no quality claim.
+1. Auto is AA-informed heuristic routing: choose the required task-handling level first, then prefer lower AA price and lower AA latency among Host-valid routes in that level. Do not claim Benchmark-proven quality, safety, non-inferiority, or universal optimality.
 2. Do not treat user choices, parent-agent overrides, or model self-reports as correct routing labels.
 3. Host Routing Policy owns normal routing decisions; models may provide task intent or optional semantic assessment only.
-4. In admitted Auto, high-risk, out-of-distribution, or weak-evidence tasks must `abstain`; if no currently admitted safe configuration exists, return `no-safe-route` and do not call a model. Phase 0P may use the strongest exact external match only from a valid frozen catalog; invalid evidence, missing contracts, or identity failure returns `no-experimental-route`, and neither result is called safe.
+4. High-risk, unknown, low-confidence, or invalid Task Assessment selects `deep`. Missing AA matches may use only a configured Host-valid Deep fallback with an explicit fallback reason; otherwise return an explicit no-route failure.
 5. Every automatic decision must be explainable and auditable; the effective provider/model/reasoning selection, request encoding, and rationale must be reconstructable from persisted facts. Recovery may be claimed only for explicitly declared and tested effect classes.
 6. Within one unresolved episode, the route floor may only stay fixed or rise. Down-routing after a phase change is an evidence-gated capability, not an unconditional product promise.
 7. Parent-agent constraints are proposals. Only Host-recognized requirements or explicitly user-authorized overrides become binding; a parent may not silently raise, lower, or bypass Routing Policy with an arbitrary provider/model.
 8. Recovery Supervisor operates on formal events and does not require a self-reporting prompt protocol on every turn.
 9. Never implement workspace recovery with raw Git rollback. Session checkpoints and workspace checkpoints have separate semantics and owners.
-10. Route capability evaluation and production-policy scenario evaluation are separate datasets and runners; where policy is exercised, RouterBench and online execution use the same policy core. End-to-end metrics include assessor, switching, retry, and recovery costs.
-11. Ordinary users choose only between `Auto` and manual provider/model/reasoning selection. Maintainer-owned versioned Policy Packs carry defaults, calibration, expiry, and revocation; advanced overrides are optional.
+10. RouterBench is optional evaluation infrastructure, not a route-admission or release gate. Required correctness tests still cover normalization, catalog compilation, price ordering, assessor fallback, persistence, UI equality, and Manual non-interference.
+11. Ordinary users choose only between `Auto` and manual provider/model/reasoning selection. Maintainer-owned versioned AA snapshots, normalizers, band policies, and fallbacks carry defaults; advanced restrictions are optional.
 12. A route for one model step must be frozen before provider-dependent prompt and tool assembly, then applied unchanged at `agent/request`.
-13. Phase 0P external evidence cannot satisfy `RouteAdmission`, compile into the Phase 0C Effective Route Catalog, or be presented as RouterBench evidence.
+13. AA data supports heuristic routing only. It must not be presented as project Benchmark evidence, an exact deployment proof, or a task-specific quality guarantee.
 14. Phase 0P mutable work is limited by ADR-009 to attributable uncommitted changes created by the current Attempt in a clean isolated worktree. The concrete provider design and complete production tool-entry inventory require separate acceptance; user approval does not prove Recovery Capability and never authorizes external effects or automatic rollback.
 
 ## Authoritative document map
@@ -172,7 +177,7 @@ Before substantive work:
    git ls-remote origin refs/heads/main
    ```
 5. Every file-changing task starts from verified `main` in an independent `codex/<task-slug>` branch and worktree. Creation through the restricted `codex-worktree add` wrapper is standing-authorized by the maintainer; execute it without asking again. If the environment already provides a task worktree, do not create a nested worktree.
-6. Classify the task: specification/documentation, DSH extension-point research, RouterBench, plugin implementation, recovery, delegation adaptation, or release.
+6. Classify the task: specification/documentation, AA catalog, semantic assessment, plugin implementation, DSH extension-point research, optional evaluation, adaptive execution, recovery, delegation adaptation, or release.
 7. Inspect the repository and DSH before asking the user. Do not ask for facts already available in code, documents, or recorded decisions.
 8. Classify every new conclusion as confirmed specification, Proposed decision, evidence, open question, or current status, and update its authoritative file.
 9. Check whether the work affects a product invariant or any item under “When to stop and ask.”
@@ -294,7 +299,7 @@ Do not decide these items autonomously:
 
 ## Current hard blocker
 
-There is no implementation-level fault blocker. The remaining evidence gates and unresolved questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
+There is no implementation-level blocker to Phase 1A. Current field/boundary choices and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
 ## Security boundaries
 

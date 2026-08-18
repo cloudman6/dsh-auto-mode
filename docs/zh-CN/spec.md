@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/spec.md
-translation-source-blob: 003e085d5642d2295c8b8ea851abc35536779a63
+translation-source-blob: 3cca3ef1bf31f5281937fec281d13e98283d22cc
 translation-status: current
 -->
 
@@ -10,279 +10,109 @@ translation-status: current
 
 ## 状态
 
-维护者已于 2026-08-15 接受。阶段 0P 修订与初始可变工作 loss bound 已于 2026-08-16 通过 ADR-008 和 ADR-009 接受。
+已由维护者接受。AA 驱动的 MVP 后方向已于 2026-08-18 通过 [ADR-010](decisions/0010-aa-informed-heuristic-routing.md) 接受。
 
-## 假设
+## 产品前提
 
-当前规范基于以下假设；任何一项被否定都需要先修改规范，再进入实施：
+DSH Auto Mode 服务不想自己猜测任务需要哪个模型和 reasoning effort 的个人重度 Agent 用户。项目没有资源维护模型质量 Benchmark，因此把 Artificial Analysis（AA）作为模型能力、价格和延迟比较的外部来源，同时由确定性的 Host 策略保留最终路由权。
 
-1. 首要用户是个人重度 Agent 用户，而不是企业统一治理团队。
-2. 首要成功指标是真实活跃用户，而不是插件下载量、GitHub stars 或模型调用量。
-3. 产品面向 DeepSeek Harness，并应保持可通过其插件生态安装；但已审计的 DSH 缺口可能需要范围收敛的上游 core 或 extension-package 修改，最终产品载体尚未接受。
-4. 实现语言预计为 TypeScript/ESM，并遵循 DSH/Cordis 的插件与能力 seam，但技术栈尚未最终接受。
-5. 用户愿意为更可靠的 Auto 模式投入模型调用和由项目维护的 Benchmark 资源；用户不负责维护校准阈值或 route 证据。
-6. 阶段 0P 可以在 RouterBench 就绪前按照 ADR-008 运行仅限维护者、明确未准入的 Experimental Auto 路径，但只有全部阶段 0C gate 通过后，项目才能宣称存在可用或受质量治理的 Auto Mode preview。
+AA 证据是有用的市场先验，不证明某条 route 对某位用户的具体任务最优。产品措辞必须使用“AA 驱动”或“基于当前 AA 快照”，不得宣称经过自有 Benchmark 证明的质量、安全、非劣性或普遍最优性价比。
 
-## 目标
+## 主要结果
 
-让用户不再手工猜测当前任务应该使用哪个模型和 reasoning effort。系统根据任务属性、可用模型能力、受治理的 RouterBench 证据、当前 Session 证据、运行时失败和用户约束，自动选择合适的 route。在治理准入证据就绪前，阶段 0P 只能为维护者 dogfood 使用明确标记的外部榜单先验。误判后限制损失，只执行已声明能力支持的恢复；否则停止或请求介入。
+- 主要用户：个人重度编码 Agent 用户。
+- 首要成功指标：持续使用 Auto 的真实活跃用户。
+- 正常交互：只需在 Auto 和手动 provider/model/reasoning selection 之间选择一次。
+- 优化规则：先决定任务所需的处理级别；在该级别的合格 route 中优先 AA 报告价格更低者，再比较 AA 报告延迟。
 
-产品承诺的优化顺序是：
+## 面向用户的任务处理级别
 
-1. 配置 baseline 必须先通过绝对质量门槛；candidate 只有满足预声明的非劣效界限和不可接受结果上限后才可准入。
-2. 在这些质量约束内优先降低端到端延迟。
-3. 延迟目标满足后再降低模型成本和 token 消耗。
+这些级别描述 Auto 分配多少推理能力，不是对用户任务是否简单或重要的客观评价：
 
-在 admitted Auto 中，`strong` 表示配置的 baseline 保证档，不表示某个模型在所有任务上都最强。若不存在当前已准入的安全配置，admitted Auto 返回 `no-safe-route` 并停止，不调用未经验证的 fallback。阶段 0P 使用 ADR-008 定义的独立启发式含义。
+| 内部 ID | 中文标签 | 英文标签 | 含义 |
+|---|---|---|---|
+| `light` | 轻量 | Light | 范围明确、步骤少、结果可直接检查 |
+| `standard` | 常规 | Standard | 一般开发、分析和修改任务 |
+| `deep` | 深度 | Deep | 范围广、不确定性或风险高、难验证或需要大量推理 |
 
-## 用户问题
+高风险、分类置信度低、任务形态未知或请求级别无可用 route 时，决策提升到 `deep`。配置的 Deep fallback 是保守的启发式 fallback，不是经过认证的安全 baseline。
 
-个人重度 Agent 用户面对的核心问题不是缺少模型选择器，而是缺少可信选择依据：
+## AA route catalog
 
-- 用户难以判断任务复杂度与正确 effort，手工选择经常接近随机。
-- 为保险起见长期使用高配置，造成不必要延迟和成本。
-- 用户没有 A/B 对照，无法判断一次选择是否正确，因此手工选择不应成为监督标签。
-- 普通 Auto 模式只选择第一次调用，无法解释为什么切换，也无法在选择错误后恢复。
-- 父 Agent 若可随意指定子 Agent 模型，会绕过统一策略并形成新的错误来源。
-
-## 用户体验
-
-普通交互只有两种选择：`Auto`，或手动选择 provider/model/reasoning selection。Reasoning selection 可以是显式 effort，也可以是该精确 route 支持并显示的默认行为。选择 Auto 只有一次操作。策略阈值、准入矩阵、校准、过期和撤销属于项目维护的版本化 Policy Pack，不属于普通用户配置；高级 provider 限制和自定义 pack 只是可选项。
-
-用户可以查看但不需要确认每次决策：
+具体 route 仍是 DSH 实际使用的完整 provider/model/reasoning selection。AA 能力匹配使用规范化模型键：
 
 ```text
-已选择 standard
-原因：局部代码修改，有明确测试；standard 对该任务切片的准入仍有效，
-且已配置 baseline 通过绝对门槛。
-
-已升级至 strong
-原因：同一验证失败重复出现，进入故障诊断 episode。
-
-已降至 standard
-原因：原失败已解决并验证，进入文档同步阶段；预计剩余工作足以覆盖切换成本。
+模型家族 + 语义版本 + 变体 + 显式 reasoning effort
 ```
 
-不提供要求用户猜测“是否应该切换”的 Shadow Mode。透明度用于解释与审计，不把用户接受或拒绝一次建议当作正确标签。手动选择在该作用域退出 Auto 策略，但仍受 Host 安全与 provider 能力校验。
+日期、发布日后缀、provider deployment revision 和隐藏 build fingerprint 不参与相等判断。同一规范化键在 AA 快照中有多条带日期记录时，catalog 使用快照中的最新记录。语义版本、变体或 effort 不同绝不匹配。未指定 effort 只有在单独声明的规范化规则能够明确物化实际 effort 时才能匹配。
 
-阶段 0P 沿用一次操作的 Auto/manual 交互，但要求显式启用 Experimental Auto。解释必须始终展示 `experimental-unadmitted`、外部证据 snapshot 版本，以及本项目尚无非劣性证据这一事实。
+即使 AA 能力证据按规范化模型键共享，provider 仍属于可执行 DSH route 和 capability 过滤条件。
 
-## 功能范围
+## 路由所有权
 
-### 必须具备
+- 一个固定且不受 Auto 递归路由的 Task Assessor 可以判断任务属性和置信度。
+- Assessor 只返回结构化任务属性，不返回 provider、model 或 effort。
+- 确定性的 Routing Policy 把属性映射到 `light`、`standard` 或 `deep`。
+- Route Resolver 排除不可用或不兼容 route，并在所选级别内按 AA 价格优先排序。
+- 具体配置在依赖 provider 的组装前冻结，并原样应用到 `agent/request`。
+- 生效配置和解释持久化到被服务的 Session。
 
-- 语义 route：`fast`、`standard`、`strong` 和 `abstain`。
-- 维护者负责的版本化 Policy Pack，加上从 DSH active provider/model catalog 与精确 route 元数据填充的部署 Profile；显式 effort、adapter-default 实体化和 provider-default omission 是不同的 admission identity，任意用户映射在准入前不享有质量保证。
-- 独立的阶段 0P `ExternalRoutePrior` snapshot 与实验 catalog；它不能编译成普通 admission，也不能被阶段 0C 静默复用。
-- 一个由 ADR-009 约束的阶段 0P 可变表面，仅限当前 Attempt 在干净隔离 worktree 内产生且可归属的未提交变更。风险决策不能代替可执行 Recovery Capability 证据，也不授权外部 effect 或自动回滚。
-- Host 中运行的 Routing Policy；父 Agent 和分类模型不拥有常规最终决策权。
-- 在依赖 provider 的 prompt/tool 组装前冻结 route snapshot，并在对应模型请求中原样应用。
-- 对无效 Profile、不可用 provider、不可满足约束、admitted `no-safe-route` 和 experimental `no-experimental-route` 给出明确解析结果。
-- 按因果顺序持久化原始决策 context、constraints、assessment、decision、理由、冻结 catalog 与 Policy Pack 版本、实际模型、reasoning selection 和 request encoding。
-- RouterBench：分别使用 route 能力协议和生产策略场景协议评估质量、延迟、成本、覆盖率和恢复表现。
-- 运行时升级和 episode 状态，避免在未解决问题中反复降级。
-- 子 Agent 约束语义与权限规则。
+## 必需产品行为
 
-### 完整方向
+- Auto 和 Manual 仍是一次操作的二选一；Manual 不受 Auto 策略修改。
+- 每次自动决策显示任务处理级别、实际模型、实际 effort、来源快照和简短依据。
+- 模型和 effort 变化继续在 selector 与对话中显示，并位于触发它的用户消息和对应助手回复之间。
+- AA 数据缺失或畸形、没有兼容 route 或判断置信度低时，在可用且通过 Host 验证的情况下使用配置的 Deep fallback；否则明确报告解析失败。
+- 用户选择、父 Agent 提议和模型自报都不是正确路由标签。
+- 父 Agent 可以表达任务约束，但不直接拥有具体 route 选择权。
 
-- 只有在证明相对 Session 级路由具有增量价值后，才启用证据准入的 turn 内 phase 路由。
-- `continue`、`salvage` 和 `restart` 三类恢复动作；完整恢复相对基础路由安全独立评估。
-- Session checkpoint 与隔离工作区 checkpoint 的关联。
-- 具有独立校准协议的可选 Task Assessor 与 Recovery Assessor。
-- 进程外 Codex、Claude Code 等子 Agent provider 的创建前路由适配。
-- 基于真实运行事实的匿名遥测和策略校准，前提是用户明确同意。
+## 当前与未来范围
 
-### 不属于当前范围
+### 当前路径
 
-- 通用任务队列、并发调度、优先级、抢占和组织预算治理。
-- 训练新的基础模型。
-- 根据一次用户手工选择自动学习“正确模型”。
-- 让 Router Agent 使用完整 Session、工具和自主循环决定路由。
-- 无隔离机制时使用裸 Git 命令自动撤销用户工作区。
+- 带版本的本地 AA 快照，初期手工维护并被 Git 忽略。
+- 不要求 deployment 日期 identity 的模型版本／变体／effort 规范化匹配。
+- AA 驱动的 `light`/`standard`/`deep` catalog 编译。
+- 固定语义 Task Assessor 加确定性的级别和 route 策略。
+- 透明的 DSH Web UI、持久决策事实和 Manual 不受影响。
 
-## 预期技术栈
+### 后续路径
 
-在实施决策明确接受前，以下技术选型仍是提案：
+- 稳定的 AA 数据获取和快照更新。
+- Session 内重新判断和基于执行证据的升级。
+- 只对明确支持的 effect class 实现恢复动作。
+- 父子 Agent 路由约束，以及 Codex 和 Claude Code adapter。
+- 可选的隐私保护 dogfood 校准和社区 route profile。
 
-- TypeScript，严格类型，ESM。
-- Cordis 插件与 DSH Service Definition / Provider / Consumer 结构。
-- Vitest 或 DSH 当前测试基础设施。
-- JSON Schema 或等价的运行时边界校验，用于模型评估和持久事件。
-- RouterBench runner 与可版本化任务数据集。
+### 非必需路径
 
-没有 Accepted 实施决策时，不选择额外运行时依赖。
-
-## 当前命令
-
-仓库尚无实现工具链，可执行检查只有：
-
-```bash
-git status --short --branch
-git diff --check
-rg -n '^(<<<<<<<|=======|>>>>>>>)' .
-find docs -type f -name '*.md' -print | sort
-```
-
-实施计划接受后，必须在此处补全安装、构建、测试、lint、typecheck 和 Benchmark 命令，不能依赖未记录的隐式流程。
-
-## 项目结构
-
-当前结构：
-
-```text
-docs/                 英文权威设计规范和评审材料
-docs/decisions/       英文权威架构决策记录
-docs/zh-CN/           简体中文翻译
-README.md             英文权威项目入口
-README.zh-CN.md       简体中文项目入口
-CONTRIBUTING.md       英文权威贡献规则
-AGENTS.md             英文权威 Agent 工作规则
-```
-
-预期实施结构需在技术计划中评审，当前不创建空 `src/` 或 `tests/` 目录。
-
-## 代码风格提案
-
-公共类型使用显式判别联合，语义 route 与具体模型分离：
-
-```ts
-type RouteDecision =
-  | {
-      outcome: 'selected'
-      route: RouteId
-      reasonCode: ReasonCode
-      policyVersion: string
-    }
-  | {
-      outcome: 'abstained'
-      requestedFallback: RouteId
-      reasonCode: ReasonCode
-      policyVersion: string
-    }
-
-type RouteResolution =
-  | {
-      outcome: 'resolved'
-      route: RouteId
-      config: EffectiveCallConfig
-      evidence: { kind: 'admitted'; admissionIdentity: AdmissionIdentity }
-    }
-  | {
-      outcome: 'resolved'
-      route: RouteId
-      config: EffectiveCallConfig
-      evidence: {
-        kind: 'experimental-unadmitted'
-        experimentalRouteIdentity: ExperimentalRouteIdentity
-        sourceSnapshotId: ExternalEvidenceSnapshotId
-        externalRecordId: string
-      }
-    }
-  | {
-      outcome: 'failed'
-      evidenceKind: 'admitted'
-      failure:
-        | 'constraints-unsatisfiable'
-        | 'profile-invalid'
-        | 'profile-unavailable'
-        | 'provider-unavailable'
-        | 'no-safe-route'
-      reasonCode: ReasonCode
-    }
-  | {
-      outcome: 'failed'
-      evidenceKind: 'experimental-unadmitted'
-      failure:
-        | 'constraints-unsatisfiable'
-        | 'profile-invalid'
-        | 'profile-unavailable'
-        | 'provider-unavailable'
-        | 'no-experimental-route'
-      reasonCode: ReasonCode
-    }
-```
-
-策略输出目标 route；`keep`、`upgrade` 和 `downgrade` 由前后决策比较得到，不混入决策类型。对外 API 必须记录输入、输出、失败、时序与持久性要求。
-
-## 测试策略
-
-- 单元测试：route 约束解析、策略优先级、episode 状态机、恢复动作选择。
-- 属性/状态机测试：确保硬约束不能被模型建议或父 Agent override 绕过。
-- 集成测试：通过真实 DSH `agent/request`、Session 事件、子 Agent 生命周期、显式/default reasoning encoding，以及冻结 catalog 上的确定性具体候选解析验证装配。
-- 快照测试：验证用户可见决策解释和恢复转录。
-- RouterBench：隔离 calibration/validation/held-out 数据、重复配对运行、绝对门槛，以及从 Always Baseline 到路由加恢复的四个策略组。
-- 阶段 0P contract test：外部记录解析、精确 identity 与 effort 匹配、通过持久 preparation failure 拒绝过期或畸形 snapshot、一个 Session decision 加逐调用 fail-closed authorization、确定性启发式策略、可变工作的 ADR-009 loss-bound 与 Recovery Capability gate、明确实验解释，以及实验外部证据不能变成 admission evidence 的证明。
-- 阶段 0P composition test：keyless 真实 Loader/app JSONL transcript，加上自跳过 with-key real-provider smoke；验证外部 response 与持久 `request/header` 携带选定 provider/model/reasoning selection。缺少 credential 是 skipped evidence，绝不算 smoke 通过。
-- 故障注入：模型超时、低置信度评估器、错误 route、重复测试失败、checkpoint 不可用。
-- 安全测试：工作区已有未提交修改、并发 Agent 修改、恶意/错误父 Agent 约束。
-
-任何用户可见路由行为都需要关键路径的无密钥测试；需要真实模型的评测必须单独标记并可复现。
-
-## 工作边界
-
-### 始终执行
-
-- 先更新规范或 ADR，再实现改变公共行为的代码。
-- 记录每次 route 决策、实际生效配置和理由。
-- 在 admitted Auto 中，低置信度、分布外和高风险不可验证任务执行 `abstain`；没有已准入安全 route 时停止。阶段 0P 改为遵循 ADR-008 的“最强精确匹配或退出”实验规则，且绝不把该选择描述为安全。
-- 将模型评估视为证据，不视为最终授权。
-- 涉及策略时，在线路由与 Policy Scenario Bench 使用同一策略实现；Route Capability Bench 的实验分组与 oracle 元数据保持在策略之外。
-
-### 需要先确认
-
-- 改动 DSH 核心扩展点或 Session 格式。
-- 新增第三方依赖、遥测上传、远程服务或账户体系。
-- 修改质量基线、优化目标顺序或父 Agent 权限模型。
-- 自动创建、恢复或删除工作区 checkpoint。
-- 发布 npm 包、GitHub Release 或默认开启 Auto。
-
-### 永不执行
-
-- 提交密钥或记录 prompt 中的敏感值。
-- 把用户模型选择、父 Agent override 或一次自我报告当作正确标签。
-- 让 episode 因时间、token 或 step 数量到期而自动降级。
-- 在没有所有权证明的情况下回滚文件或外部副作用。
-- 静默切换模型而不记录最终配置和原因。
+- 把自建模型质量 Benchmark 作为 Auto admission gate。
+- 宣称 AA 排名证明具体任务质量或安全。
+- 训练 Router 基础模型。
+- 拥有自身工具和自治 Session 的 Router Agent。
+- 组织级调度、配额或审批治理。
+- 自动回滚未声明的 workspace 或外部 effect。
 
 ## 成功标准
 
-### 产品成功
+- 用户一次选择 Auto，就能看到当前任务实际选择的模型和 effort。
+- 不同任务属性产生可解释的任务处理级别和具体 route 差异。
+- 同一级别内，resolver 确定性地优先 AA 报告价格更低者，再比较 AA 报告延迟。
+- 持久化选择、界面显示和实际请求配置一致。
+- Manual 保持不变，并在其作用域退出 Auto。
+- 用户理解这是 AA 驱动的启发式路由，不是本项目 Benchmark 准入。
+- 真实用户在多次任务后继续使用 Auto。
 
-- 首要指标：持续使用 Auto 的真实活跃用户。
-- 操作定义：在同意产品遥测的用户中，报告 28 天内完成配置数量 Auto 任务且在之后 28 天窗口再次使用的 cohort。未同意用户保持不可观测，不估算进总体。
-- 辅助指标：Auto 启用率、完成的 Auto 任务、手动接管、失败后留存和退出率。
-- 用户可以理解任意一次路由或恢复动作为什么发生。
-- 普通用户只进行一次模式选择——Auto 或手动——无需维护校准数据，也不需要为路由器提供伪监督标签。
+## 安全与完整性边界
 
-### 路由质量
+- Host security、provider availability 和具体 route capability 检查先于经济排序。
+- 不从模型名或 AA 分数推断缺失 capability。
+- Task Assessor 不能绕过 Host 策略或直接选择具体模型。
+- 每次 route 变化都要记录，禁止静默切换。
+- 不提交 secret、credential、原始 AA 数据集、敏感 prompt 或私有代码。
+- 实现恢复和 workspace mutation 能力时，相关声明继续受 ADR-007 与 ADR-009 约束。
 
-以下标准约束阶段 0C 及后续 admitted Auto。阶段 0P 只作为产品闭环与集成证据评估，不能报告已通过这些标准。
+## 被取代的要求
 
-- 每个任务类别的 baseline 必须通过绝对质量门槛后，才能定义保证档。
-- 只有 RouterBench 证明 candidate 满足预声明的 `epsilon` 非劣效界限、`delta` 不可接受结果概率上界、充分统计功效且不存在未解释严重失败簇时，才允许自动覆盖该任务类别。
-- 分布外、证据不足或高影响不可验证任务执行 `abstain`。
-- 过期、撤销、漂移或无法识别的准入不能降级；没有已准入安全 baseline 时返回 `no-safe-route`。
-- 报告 auto coverage、abstention rate 和 under-routing loss，不用平均分掩盖严重失败。
-
-### 性能
-
-- 指标包含完整端到端延迟，包括分类器、切换、缓存失效、恢复和重试成本。
-- 在质量约束成立后，先比较延迟，再比较成本。
-- 单步节省不足以覆盖模型切换成本时不降级。
-- 在准入后续控制面前，比较 Always Baseline、Session 级静态 Auto、turn 内 Auto，以及 turn 内 Auto 加恢复。
-
-### 恢复
-
-- 同一未解决 episode 内 route 下限只能保持或升级。
-- turn 内降级只有在存在持久化的已确认 phase 边界，并有独立证据证明它相对 Session 级路由带来净收益后才启用。
-- 可变任务降级需要声明且充分的恢复能力；`salvage` 和 `restart` 只适用于可归属、适配器支持的副作用，并且不得覆盖用户或其他 Agent 的既有修改。
-
-## 开放问题
-
-权威清单见[开放问题](open-questions.md)。在以下问题关闭前不进入完整实现：
-
-- 初始 taxonomy、绝对质量门槛、非劣效 margin 和评价统计功效。
-- 默认 Policy Pack 的来源、签名、过期、撤销和更新责任。
-- [DSH 接入证据](dsh-integration.md)中识别的上游 seam。
-- 可安全恢复的执行世界与 checkpoint provider。
-- Task/Recovery Assessor 的固定配置、调用门槛和隐私边界。
+ADR-010 取代以下旧要求：RouterBench admission、精确 deployment fingerprint、绝对 baseline、candidate 非劣性和延迟优先于成本必须先于可用 Auto 产品。RouterBench 保留为可选评估设施，可以影响未来策略，但不在关键路径上。

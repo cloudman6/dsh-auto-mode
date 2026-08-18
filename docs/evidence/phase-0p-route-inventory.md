@@ -1,5 +1,7 @@
 # Phase 0P exact route inventory and A3p evidence
 
+> Historical Phase 0P evidence. ADR-010 supersedes deployment-level exact matching for post-MVP routing; the current policy matches model family, semantic version, variant, and effort while ignoring date/build revision.
+
 [简体中文](../zh-CN/evidence/phase-0p-route-inventory.md)
 
 ## Evidence status

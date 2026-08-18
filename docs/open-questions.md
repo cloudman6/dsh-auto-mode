@@ -2,80 +2,48 @@
 
 [简体中文](zh-CN/open-questions.md)
 
-## Must close before Phase 0P dogfood
+## Phase 1: AA catalog
 
-1. Which official version-specific provider/model selectors can DSH call, and what provider-response identity or provider-specific attestation binds each selector to the corresponding Artificial Analysis measured deployment rather than a revisionless alias or page name?
-2. Which Artificial Analysis index families and fields drive the initial task taxonomy, and what versioned heuristic thresholds define experimental `fast`, `standard`, and `strong`?
-3. What exact endpoint, prompt/index semantics, pagination coverage, local snapshot schema, canonical content digest, freshness rule, attribution, API access path, and data-rights boundary apply without redistributing ranking data?
-4. Which high-risk and low-confidence assessments force the strongest exact match from a valid catalog, and which mapping, identity, evidence, contract, or Recovery Capability failures produce `no-experimental-route` before a call?
-5. Which concrete versioned execution-world provider, platform runner, supported operating systems, production capability/tool-entry inventory, dependency ownership, durable attribution journal, and executor-level tests prove ADR-009's clean isolated-worktree, Attempt-attribution, containment, process-control, credential isolation, and `externalSideEffects: 'none'` requirements? Until the design is accepted and that evidence exists, Experimental Auto does not execute mutable work.
+1. Which exact AA capability score or published rank defines the three initial band boundaries, and should boundaries use absolute score ranges or distance from the current leader?
+2. Which AA price field is the canonical within-band comparator, and what explicit rule applies when that field is missing?
+3. Which AA latency field breaks price ties?
+4. What normalization aliases map current DSH model identifiers to model family, semantic version, variant, and effort?
+5. When duplicate dated AA rows normalize to one key, which timestamp establishes “latest” and how is an absent date handled?
+6. Which DSH routes expose an unspecified/default effort, and can their effective effort be materialized reliably enough to match AA?
 
-## Must close before Phase 0C preview planning
+## Phase 2: Semantic assessor
 
-1. Which verified DSH gaps in [DSH integration and compatibility](dsh-integration.md) will be contributed upstream, and what exact minimum DSH version or commit will the plugin require?
-2. Which provider/model/reasoning-selection deployments form the first admitted baseline and candidates, what stable identity evidence binds them, and who maintains their Policy Pack evidence?
-3. What absolute baseline thresholds, `epsilon`, `delta`, confidence level, power, and high-risk fixed-tier rules are preregistered for each initial task slice?
-4. Which repositories, fixtures, and sources can provide genuinely isolated calibration, validation, held-out, and time-shifted data?
-5. Does Task Assessor need a model? If so, what fixed configuration, latency budget, schema, confidence threshold, and drift test apply?
-6. Which fields may persisted decision and evidence events expose without storing sensitive prompts, code, or provider-private state?
-7. Can the Phase 0P A5p carrier be promoted to the Phase 0C preview carrier, and what additional admission-aware probe is required?
+1. Which fixed provider/model/effort runs the assessor without entering Auto recursion?
+2. What bounded task context is necessary without exposing excessive prompt, code, or tool history?
+3. What schema, timeout, and confidence threshold trigger `deep` fallback?
+4. Which fixture prompts cover coding, debugging, research, writing, architecture, security, and ambiguous tasks?
+5. Which attributes independently force `deep`, and which combinations distinguish `light` from `standard`?
 
-## Must close before Phase B and production-release planning
+## Phase 3: Auto beta
 
-1. Is the production carrier an external plugin, an upstream DSH core capability, or a split architecture? Host decision authority does not by itself answer the deployment-carrier question.
-2. What general A3 deployment-identity contract replaces the provider-specific A3p preview evidence?
-3. What general A5 client-extension contract replaces the concrete A5p preview carrier?
-4. Which real-use evidence requires consent, minimization, retention, deletion, and cross-provider data-boundary controls?
-5. Which Recovery Capability providers and side-effect classes, if any, enter the first production implementation plan?
+1. What constitutes a new task boundary for reassessment: every user message, a Session objective, or another Host-owned event?
+2. Is the configured deep fallback global, project-local, or Session-local?
+3. Which explanation details are shown by default and which remain behind inspection?
+4. What user-visible wording distinguishes an AA-matched route from a configured fallback?
+5. Which fork commit and plugin version define the first beta support matrix?
 
-## DSH upstream critical path
+## Phase 4: AA refresh
 
-1. What is the smallest product-neutral pre-assembly step contract that exposes claimed messages and stable turn/step identity, supports cancellation and pre-call rejection, and carries one immutable context through assembly and `agent/request`?
-2. How does required plugin Session-event registration establish namespace ownership, schema/version compatibility, cold-load registration order, missing-plugin diagnostics, and migration behavior?
-3. Which executable core and plugin contract tests must pass before Session Static Auto may claim compatibility?
-4. Can current provider adapters expose a stable resolved deployment identity or fingerprint, or is a common DSH model-identity contract required?
-5. Is auxiliary-call `purpose` extensible enough to classify and audit fixed Task Assessor calls without changing DSH Core?
-6. Which current client extension points can implement the Auto/manual control and decision explanations without a core UI change?
-7. What upstream issue and PR boundaries keep A1 and A2 independently reviewable while proving their combined vertical contract?
+1. What stable acquisition method, terms, attribution, and retention boundary apply to maintained snapshots?
+2. Can a minimized derived catalog be distributed, or must each installation acquire its own local snapshot?
+3. What freshness period is useful without forcing a live runtime dependency?
+4. How does a maintainer review model additions, removals, renamed versions, and band changes before publishing a snapshot?
 
-## Routing and Policy Packs
+## Adaptive execution and recovery
 
-1. How are deployment identity and provider/model fingerprints established when aliases or server-side revisions are opaque?
-2. What makes a capability/risk constraint Host-recognized and user-authorized instead of an untrusted parent proposal?
-3. How are Policy Packs signed, reviewed, expired, revoked, and rolled back after a severe failure cluster?
-4. Phase 0C fixes one decision per Session. Before objective-scoped Static Auto is admitted later, what objective boundary and Host-owned events confirm that the objective changed?
-5. Which explicit UI and automation behavior applies to `constraints-unsatisfiable`, `profile-invalid`, `provider-unavailable`, and `no-safe-route`?
+1. Which formal runtime signals justify `light → standard → deep` escalation?
+2. What task or phase boundary permits reassessment without reclassifying every tool step?
+3. Under what evidence, if any, should down-routing enter scope?
+4. Which effect classes support Continue, Salvage, or Restart without overwriting user or other-agent work?
 
-## Within-turn routing
+## Product and ecosystem
 
-1. Does Within-turn Auto materially outperform Session Static Auto after prompt-cache loss, takeover context, classification latency, and phase uncertainty?
-2. Which non-model signals confirm phase boundaries, and how does Execution Context Projector resolve conflicting or missing evidence?
-3. How are remaining work and switching overhead estimated without turning the current model's self-report into authority?
-4. What minimum hold time and hysteresis thresholds are supported by held-out Policy Scenario Bench results?
-5. If the incremental evidence gate fails, should phase routing remain experimental or be removed from the product surface while the architecture stays documented?
-
-## Recovery
-
-1. Which tools can expose structured validation, mutation, provenance, and trust signals?
-2. Which side-effect classes can declare `checkpoint`, `attribution`, `restore`, and `isolation` support, and how are those claims contract-tested?
-3. How should failure fingerprints avoid merging distinct failures into one episode?
-4. Which release policies are fully mechanical, and when is a fixed Recovery Assessor justified?
-5. How does Continue injection avoid expanding context and reinforcing incorrect hypotheses?
-6. What is the required user-intervention flow when mutation is unknown, recovery fails, or an external effect is irreversible?
-7. How is the atomic relationship among Session lineage, Route Snapshot, attempt, checkpoint, and execution-world state persisted?
-
-## Child agents
-
-1. Should RoutingConstraints belong to general Agent creation options, Subagent requests, or an independent persistent capability?
-2. Which parent-provided fields are hints, which are Host-recognized proposals, and which can become binding after validation?
-3. Which semantic overrides may a user authorize without permitting raw provider/model bypass?
-4. How is “different model family” defined and verified without claiming false evaluator independence?
-5. When and at what granularity can external Codex or Claude Code providers actually select or switch model and effort?
-
-## Product, privacy, and ecosystem
-
-1. What compact explanation is shown by default while the full decision trace remains inspectable?
-2. Where is the single Auto/manual control stored: global default, project preference, or Session override?
-3. What exact consented telemetry cohort and retention calculation define a real active user?
-4. How are task text, code, tool output, evaluator rationales, and failure evidence minimized, redacted, retained, and deleted?
-5. Which Policy Pack and contract-test infrastructure belongs upstream in DSH, and which remains this plugin's differentiated product?
+1. Is the long-term carrier the maintained DSH fork, an upstream extension, or a split package?
+2. Which minimized dogfood signals may be collected with consent, and for how long?
+3. How are community normalization aliases and policy profiles reviewed, versioned, and rolled back?
+4. Which Codex and Claude Code APIs expose model and effort control strongly enough for adapters?

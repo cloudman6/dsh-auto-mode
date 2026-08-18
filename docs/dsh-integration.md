@@ -14,9 +14,9 @@ The current preview runtime carrier is the maintainer fork [`cloudman6/deepseek-
 
 The product-neutral seams and fork evidence were published for upstream design feedback in DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281) on 2026-08-16. Publication does not imply maintainer acceptance or official compatibility.
 
-Every preview build must identify the exact fork remote and post-seam commit. That identifies the Host build, not the remote model deployment: every admitted preview route also needs provider-specific deployment identity evidence. A local checkout path is never part of the public compatibility contract, and successful fork validation must not be presented as official DSH support.
+Every preview build must identify the exact fork remote and post-seam commit. That identifies the Host build, not the remote model deployment. Under ADR-010, AA matching uses model family, semantic version, variant, and effort rather than a provider deployment fingerprint. A local checkout path is never part of the public compatibility contract, and successful fork validation must not be presented as official DSH support.
 
-For Phase 0P, the concrete A5p carrier is now the fork model-selection UI plus the plugin's optional Session projection and `/auto` command. It provides a one-operation Auto/manual choice, a checked Auto state, the effective model and effort, and the persisted experimental explanation. A changed decision includes its preceding route, allowing the UI to roll only the changed model and/or effort value to the effective selection over 1.2 seconds; Auto and changed targets use DSH business blue, breathe twice, and return to their normal color, including on an effort-only transition. The chat timeline records the before/after model and effort plus the tier, reason code, and explanation immediately after the triggering user message and before the resulting assistant response. This closes the bounded Phase 0P carrier question only; promotion to Phase 0C still requires admission-aware assertions, and the production carrier remains undecided.
+The concrete MVP carrier is the fork model-selection UI plus the plugin's optional Session projection and `/auto` command. It provides a one-operation Auto/manual choice, a checked Auto state, the effective model and effort, and the persisted explanation. A changed decision includes its preceding route, allowing the UI to roll only the changed model and/or effort value to the effective selection over 1.2 seconds; Auto and changed targets use DSH business blue, breathe twice, and return to their normal color, including on an effort-only transition. The chat timeline records the before/after model and effort plus the handling level, reason code, and explanation immediately after the triggering user message and before the resulting assistant response. Phase 1 reuses this carrier and migrates its terminology and policy to ADR-010; the production carrier remains undecided.
 
 ### Fork contract evidence
 
@@ -24,7 +24,7 @@ The pinned fork commit adds an agent-scoped `agent/prepare-step` waterfall after
 
 The combined JSONL probe changes the selected model during `agent/prepare-step`, verifies that prompt assembly and `agent/request` use that same model, persists a required plugin decision event, rejects cold load without its registration, and reloads successfully after the exact registration is restored. Verification passed on 2026-08-15 with 402 relevant tests, `pnpm typecheck`, `pnpm lint`, and all 28 `pnpm doc-sync` gates.
 
-This evidence closes A1/A2 and the bounded Phase 0P A5p carrier for the pinned fork preview only. It is not official DSH compatibility and does not close route deployment identity, admission evidence, the Phase 0C carrier gate, or the production carrier.
+This evidence closes A1/A2 and the bounded MVP carrier for the pinned fork only. It is not official DSH compatibility and does not decide the production carrier.
 
 ## Verified usable seams
 
@@ -44,15 +44,15 @@ Auto Mode should reuse or generalize this snapshot mechanism rather than create 
 
 DSH already exposes provider-neutral runtime discovery: `listProviders()` enumerates active adapter routes, `listModels(provider)` returns each adapter's advisory model catalog, `resolveModelInfo(provider, model)` returns exact-route metadata and may expose adapter-owned reasoning efforts, and `llm/adapters-updated` tells consumers to refresh after topology changes. See [`LlmRuntime`](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/index.ts#L415-L421), [catalog and exact-model resolution](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/index.ts#L575-L624), the [topology event](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/types.ts#L12-L24), and [optional reasoning metadata](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/types.ts#L252-L280).
 
-Auto Mode should populate its deployment profile from these seams and refresh it on topology changes. DSH explicitly defines catalog membership as advisory, so discovery proves only current availability metadata; it does not prove deployment identity, quality, completeness, or admission. Phase 0C deliberately restricts Auto to discovered exact provider/model routes, but this is a conservative preview discovery policy rather than proof that the advisory catalog contains every valid route.
+Auto Mode should populate its concrete route inventory from these seams and refresh it on topology changes. DSH explicitly defines catalog membership as advisory, so discovery proves only current availability metadata; it does not prove quality or completeness. ADR-010 joins discovered routes to AA by normalized model family, semantic version, variant, and effort, then applies Host capability and user constraints.
 
-Reasoning metadata is optional. An explicit effort is eligible only when exact-route metadata lists that effort. If the adapter exposes `defaultEffort`, omitting a caller effort produces an adapter-materialized default whose exact effort is recorded. If no adapter default is materialized, omission preserves provider-default behavior. These three request semantics are distinct admission identities; Auto must never invent an effort merely because metadata is absent. A provider-default route is eligible only when its omission behavior was evaluated and its identity evidence satisfies the same drift policy as every other admitted route. Manual mode may still expose unadmitted or explicitly entered configurations under normal DSH validation.
+Reasoning metadata is optional. An explicit effort is eligible only when exact-route metadata lists that effort. If the adapter exposes `defaultEffort`, omitting a caller effort produces an adapter-materialized default whose exact effort is recorded. If no adapter default is materialized, omission preserves provider-default behavior. These request semantics remain distinct matching inputs; Auto must never invent an effort merely because metadata is absent. A provider-default route is eligible only when a declared normalizer can materialize the effective effort required by the AA key. Manual mode may still expose explicitly entered configurations under normal DSH validation.
 
 ### In-process child execution
 
 In-process children are created as ordinary DSH Agents and therefore enter the same Agent loop. `SubagentStartRequest.agentOptions` can carry concrete Agent options, but the request has no semantic routing-constraint contract. See [`SubagentStartRequest`](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/subagent/subagent/src/types.ts#L100-L154) and the [in-process driver](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/subagent/subagent-in-process-driver/src/index.ts#L99-L143).
 
-The existing delegation helpers persist sandbox and approval policy, proving that child-local durable policy is a supported pattern. They do not persist Auto Mode's risk, minimum guarantee, diversity, or latency constraints.
+The existing delegation helpers persist sandbox and approval policy, proving that child-local durable policy is a supported pattern. They do not persist Auto Mode's risk, minimum handling level, diversity, or latency constraints.
 
 ## Baseline gaps resolved on the pinned fork
 
@@ -74,7 +74,7 @@ Fork resolution: `SessionStore.registerEventNamespace()` now binds a namespace, 
 
 ### Child routing constraints are not a first-class durable contract
 
-`agentOptions` permits a caller to pass concrete options, but it does not express or validate semantic intent such as risk, minimum guarantee tier, independent review, deadline, or model-family diversity. Auto Mode needs a Host-resolved persistent constraint contract; raw `agentOptions` is not a substitute.
+`agentOptions` permits a caller to pass concrete options, but it does not express or validate semantic intent such as risk, minimum handling level, independent review, deadline, or model-family diversity. Auto Mode needs a Host-resolved persistent constraint contract; raw `agentOptions` is not a substitute.
 
 External Codex and Claude Code providers also do not expose request-level model/effort selection through this subagent seam. Their documented behavior delegates model choice to native product configuration: [Codex provider](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/subagent/subagent-codex/README.md#L28-L30) and [Claude Code provider](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/subagent/subagent-claude-code/README.md#L63-L65).
 
@@ -86,16 +86,16 @@ Implementation planning must identify explicit upstream or composed providers fo
 
 ## Upstream dependency tracks and priority
 
-The two verified Static Auto blockers are the immediate critical path. Other needs must be audited now but introduced only at the product phase that consumes them.
+A1 and A2 are resolved on the maintained fork. Other needs enter only in the roadmap phase that consumes them.
 
 | Track | Capability | Required for | Audited status | Expected owner |
 |---|---|---|---|---|
 | A1 | Pre-assembly step context shared with `agent/request` | Session Static Auto | Implemented and tested on pinned fork; absent upstream | DSH upstream |
 | A2 | Required plugin Session-event registration and compatibility | Session Static Auto | Implemented and tested on pinned fork; absent upstream | DSH upstream |
-| A3p | Stable identity evidence for every selected preview route | Phase 0P exact external matching and Phase 0C admission | DSH selection inventory frozen; exact external intersection empty because current DeepSeek aliases lack revision binding | Plugin plus selected provider adapters |
-| A3 | General stable resolved deployment identity/fingerprint contract | Evidence-backed official-compatible release | Focused audit required | Provider adapter or DSH upstream |
+| A3p | Versioned normalized model-key mapping | Phase 1 AA catalog | DSH selection inventory exists; ADR-010 replaces deployment binding with family/version/variant/effort matching | Plugin |
+| A3 | Optional resolved deployment fingerprint | Future claims that require exact deployment identity | Focused audit required; not on current critical path | Provider adapter or DSH upstream |
 | A4 | Extensible purpose and audit classification for fixed auxiliary calls | Task Assessor operations | Focused audit required | Plugin if open; otherwise DSH upstream |
-| A5p | One verified preview carrier for Auto/manual and persisted explanations | Phase 0P dogfood and Phase 0C usability | Phase 0P carrier verified on pinned fork; Phase 0C admission-aware probe remains | Fork UI plus plugin Session projection and command |
+| A5p | One verified carrier for Auto/manual and persisted explanations | Phase 1–3 usability | MVP carrier verified on pinned fork; terminology and AA details remain to migrate | Fork UI plus plugin Session projection and command |
 | A5 | General Auto/manual and explanation UI extension contract | Official-compatible user-facing release | Focused audit required | Client plugin or DSH upstream |
 | B1 | Persistent typed child-creation metadata for semantic constraints | In-process child routing | Verified incomplete | Generic DSH seam plus plugin schema |
 | B2 | External subagent creation-time model/effort capabilities | External child routing | Verified absent in audited providers | Provider adapters; shared capability declaration if needed |
@@ -110,19 +110,19 @@ The two verified Static Auto blockers are the immediate critical path. Other nee
 2. **Completed:** add core contract tests for the absent baseline behavior.
 3. **Completed:** implement and verify the seams, now carried by fork commit `2a2db7a6ec3ce9969857cc41de839f911ef5902e`.
 4. **Completed:** publish the product-neutral contracts and fork evidence for upstream feedback in Discussion #2281.
-5. **Inventory complete; no route matched:** the [route inventory evidence](evidence/phase-0p-route-inventory.md) freezes six DSH selection fingerprints and excludes every current candidate because the revisionless aliases do not bind the versioned Artificial Analysis deployments. Close A3p only after a version-specific selector, provider-response identity, or another provider-specific attestation establishes that binding; runtime drift then remains fail-closed per call. Reuse an identity for Phase 0C only when later admission evidence binds that same deployment configuration.
-6. **Phase 0P completed:** the fork UI and plugin projection/command cover explicit opt-in, Auto/manual choice, persisted selection, actual configuration, and unadmitted explanation retrieval. Add admission-aware assertions before promoting this carrier to Phase 0C.
-7. Add a vertical Auto Mode probe proving pre-assembly decision input, assembly/request snapshot identity, pre-call rejection, required-event persistence, cold recovery, and the A3p/A5p preview path.
+5. **Historical inventory complete:** the [Phase 0P route inventory](evidence/phase-0p-route-inventory.md) records why the former deployment-level rule produced an empty exact intersection. ADR-010 supersedes that rule for post-MVP work.
+6. **MVP completed:** the fork UI and plugin projection/command cover explicit opt-in, Auto/manual choice, persisted selection, actual configuration, and explanation retrieval.
+7. Add a vertical Phase 1–3 probe proving semantic assessment, normalized AA matching, price-first resolution, assembly/request selection identity, persistence, and Manual non-interference.
 8. If maintainers invite external changes, submit A1 and A2 as separate upstream contributions.
 9. Pin the plugin to the first compatible official DSH revision after merge. While upstream is unavailable, identify the exact fork and do not claim official compatibility.
 
 A1 must be product-neutral: it carries claimed messages, stable step identity, cancellation, and immutable per-step context, but knows nothing about routes. A2 must fail with a precise missing-plugin or incompatible-event diagnostic rather than silently skipping normative state.
 
-An `agent/request`-only prototype, ignorable plugin events, an identity-unbound admission, or a configuration-only UI with no explanation path may be used as diagnostic experiments, but none satisfies the Static Auto preview contract.
+An `agent/request`-only prototype, ignorable plugin events, or a configuration-only UI with no explanation path remains insufficient for the AA-informed product path.
 
 ### Later-track ownership boundary
 
-DSH should provide lifecycle, persistence, capability, and execution-world contracts. Auto Mode retains Task Assessment schemas and models, Policy Packs, route semantics, Routing Policy, admission evidence, episode policy, and RouterBench. This boundary keeps upstream extensions reusable and prevents DSH Core from embedding one routing product's taxonomy.
+DSH should provide lifecycle, persistence, capability, and execution-world contracts. Auto Mode retains Task Assessment schemas and models, AA catalog normalization, task-handling levels, Routing Policy, episode policy, and optional evaluation. This boundary keeps upstream extensions reusable and prevents DSH Core from embedding one routing product's taxonomy.
 
 ## Compatibility policy
 
@@ -131,13 +131,13 @@ An Auto Mode release must declare:
 - Exact tested DSH version/commit range.
 - Required event-registration and pre-assembly contracts.
 - Contract-test version and results.
-- Stable identity semantics for every admitted provider/model/reasoning selection.
+- Normalized AA matching semantics and concrete route capability requirements.
 - The verified Auto/manual and explanation carrier for the declared release surface.
 - Supported in-process and external child providers.
 - Supported recovery-effect classes.
 - Fail-closed behavior for every missing or incompatible seam.
 
-Plugin activation fails before serving Auto when a required normative event cannot round-trip through cold persistence, when route assembly and request cannot share one snapshot, or when the configured Policy Pack requires an unavailable capability.
+Plugin activation fails before serving Auto when a required normative event cannot round-trip through cold persistence, when route assembly and request cannot share one snapshot, or when the configured catalog requires an unavailable capability.
 
 ## Upstream contribution candidates
 

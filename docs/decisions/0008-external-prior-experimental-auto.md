@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-010](0010-aa-informed-heuristic-routing.md) for post-MVP development. Retained as the decision that authorized the completed Phase 0P MVP.
 
 ## Date
 

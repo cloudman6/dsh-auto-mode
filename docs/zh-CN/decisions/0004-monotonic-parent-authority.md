@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0004-monotonic-parent-authority.md
-translation-source-blob: 7f73dfe12173d859f60be6fd44499c297b29f180
+translation-source-blob: 1a432e2e293ca95da075af34df00bca11f047c75
 translation-status: current
 -->
 
@@ -24,7 +24,7 @@ Accepted
 
 父 Agent 提交结构化任务意图和路由约束提议。Host Delegation Policy 验证 provenance、用户授权、能力事实、安全策略和冲突后，产出 `ResolvedRoutingConstraints`。
 
-提高最低保证档位的提议比较保守，但不会自动成为硬约束。有 Host 认可要求支持时接受；证据不足时可以保持现有 floor；不可能或未授权约束必须显式拒绝。父 Agent 默认绝不能降低 Host floor，也不能选择任意 raw provider/model/reasoning selection。
+提高最低任务处理级别的提议比较保守，但不会自动成为硬约束。有 Host 认可要求支持时接受；证据不足时可以保持现有 floor；不可能或未授权约束必须显式拒绝。父 Agent 默认绝不能降低 Host floor，也不能选择任意 raw provider/model/reasoning selection。
 
 只有用户明确授权时，父 Agent 才可从 allowlist 做语义 override。Raw provider/model 绕过仍禁止。持久化提议、解析结果和理由；这些都不是正确性标签。
 

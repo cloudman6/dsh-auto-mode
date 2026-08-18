@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0006-evidence-governed-route-admission.md
-translation-source-blob: 6dd0595148bc3479d26b633fa5626b5a8ff99cbd
+translation-source-blob: f733ab6fd821d727457ec6f76c23c27ffc05d1fc
 translation-status: current
 -->
 
@@ -10,9 +10,7 @@ translation-status: current
 
 ## 状态
 
-Accepted
-
-阶段 0P 只能按照 [ADR-008](0008-external-prior-experimental-auto.md) 把外部榜单用作明确未准入的实验先验。RouterBench 仍是本项目唯一的准入路径。
+MVP 后产品方向已被 [ADR-010](0010-aa-informed-heuristic-routing.md) 取代。RouterBench 现在是可选评估轨道，不再是唯一 route admission 路径。
 
 ## 日期
 

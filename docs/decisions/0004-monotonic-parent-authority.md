@@ -18,7 +18,7 @@ A parent Agent knows child-task intent but remains an untrusted model. If concre
 
 A parent Agent submits structured task intent and routing-constraint proposals. Host Delegation Policy validates provenance, user authorization, capability facts, security policy, and conflicts before producing `ResolvedRoutingConstraints`.
 
-A proposal to raise the minimum guarantee tier is conservative but not automatically binding. The Host accepts it when backed by a recognized requirement, may keep its existing floor when evidence is insufficient, and rejects impossible or unauthorized constraints explicitly. A parent may never lower the Host floor or select an arbitrary raw provider/model/reasoning selection by default.
+A proposal to raise the minimum task-handling level is conservative but not automatically binding. The Host accepts it when backed by a recognized requirement, may keep its existing floor when evidence is insufficient, and rejects impossible or unauthorized constraints explicitly. A parent may never lower the Host floor or select an arbitrary raw provider/model/reasoning selection by default.
 
 Only explicit user authorization may permit a parent semantic override from an allowlist. Raw provider/model bypass remains prohibited. Persist proposals, resolution results, and reasons; none are correctness labels.
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0008-external-prior-experimental-auto.md
-translation-source-blob: d22e5e9d12276b3bbf795438949c036e1aae3351
+translation-source-blob: ca427c84920d55d8406c02ba80a8a5b765cab8a6
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-Accepted
+MVP 后开发方向已被 [ADR-010](0010-aa-informed-heuristic-routing.md) 取代。本文件保留为授权已完成阶段 0P MVP 的历史决策。
 
 ## 日期
 

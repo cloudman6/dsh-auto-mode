@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0002-quality-constrained-optimization.md
-translation-source-blob: 1ef32fadf91919a5be36f0a05312c838ed6ad995
+translation-source-blob: 39a8e50f45424cc97d2e2e989c2c05a08da70edd
 translation-status: current
 -->
 
@@ -10,9 +10,7 @@ translation-status: current
 
 ## 状态
 
-Accepted
-
-阶段 0P 是 [ADR-008](0008-external-prior-experimental-auto.md) 定义的严格受限实验执行路径。它不修改阶段 0C 或公开质量主张的准入要求。
+MVP 后产品方向已被 [ADR-010](0010-aa-informed-heuristic-routing.md) 取代。本文件保留为历史 Benchmark 治理设计。
 
 ## 日期
 

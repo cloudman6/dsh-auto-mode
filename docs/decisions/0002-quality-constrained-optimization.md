@@ -4,9 +4,7 @@
 
 ## Status
 
-Accepted
-
-Phase 0P is a narrowly scoped experimental execution path defined by [ADR-008](0008-external-prior-experimental-auto.md). It does not amend the admission requirements for Phase 0C or public quality claims.
+Superseded by [ADR-010](0010-aa-informed-heuristic-routing.md) for the post-MVP product direction. Retained as the historical benchmark-governed design.
 
 ## Date
 

@@ -4,9 +4,7 @@
 
 ## Status
 
-Accepted
-
-Phase 0P may use external rankings only as explicitly unadmitted experimental priors under [ADR-008](0008-external-prior-experimental-auto.md). RouterBench remains the sole project admission path.
+Superseded by [ADR-010](0010-aa-informed-heuristic-routing.md) for the post-MVP product direction. RouterBench is now an optional evaluation track rather than the sole route-admission path.
 
 ## Date
 

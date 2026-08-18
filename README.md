@@ -2,19 +2,20 @@
 
 [简体中文](README.zh-CN.md)
 
-DSH Auto Mode is an adaptive routing plugin for DeepSeek Harness, designed for individual power users of coding agents. The normal interaction is one choice: use Auto, or manually select a provider/model/reasoning selection, including supported default behavior. Auto selects only from evidence-admitted configurations. Its optimization order is strict: pass the configured baseline's absolute quality gate, preserve candidate non-inferiority, reduce latency, and only then reduce cost.
+DSH Auto Mode is an adaptive routing plugin for DeepSeek Harness, designed for individual power users of coding agents. The normal interaction is one choice: use Auto, or manually select a provider/model/reasoning selection. Auto uses task context to choose a `light`, `standard`, or `deep` handling level, then prefers the lower Artificial Analysis price among eligible routes in that level and uses AA latency as a tie-break.
 
-The accepted long-term design remains evidence-gated. A separate maintainer-only Phase 0P fast prototype is now runnable: it uses local manually entered AA seeds and the pinned A1/A2 Host seams to prove Auto selection, real request switching, persisted explanations, fallback, and Manual non-interference. It is visibly `experimental-unadmitted` and makes no safety, quality, public-support, or official-compatibility claim.
+The Phase 0P MVP is runnable on the pinned maintainer fork and has been accepted. It uses a local, manually entered AA seed and the A1/A2 Host seams to prove Auto selection, real request switching, persisted explanations, fallback, and Manual non-interference. Post-MVP development now follows the AA-informed roadmap in ADR-010. AA is the external source for market-wide capability, price, and latency conclusions; the plugin does not claim project-benchmarked quality, universal optimality, safety, or official DSH compatibility.
 
 ## Product boundary
 
-DSH Auto Mode begins with evidence-governed model selection. Its full, evidence-gated direction includes:
+DSH Auto Mode begins with AA-informed model selection. Its full direction includes:
 
-- Adaptive Router: selects a semantic route before every model request and explains the decision.
-- Routing Policy: uses a testable policy to select `fast`, `standard`, `strong`, or `abstain`.
+- Adaptive Router: selects a task-handling level and concrete route before a model request and explains the decision.
+- Routing Policy: maps structured task attributes to `light`, `standard`, or `deep`.
+- AA Route Catalog: matches model family, semantic version, variant, and effort, then resolves same-level candidates by AA price and latency.
 - Recovery Supervisor: detects stalled execution and performs escalation, continue, salvage, or restart only where declared recovery support permits it.
 - Delegation Policy: constrains how a parent agent can influence child-agent routing.
-- RouterBench: separately qualifies concrete configurations and evaluates policy behavior with held-out task and scenario suites.
+- Optional evaluation: focused fixtures and scenarios may study policy behavior without becoming a model-quality admission gate.
 
 Actual task scheduling—concurrency limits, priorities, queues, preemption, and budget allocation across child agents—is outside the current scope and should not be conflated with model routing under the name “scheduler.”
 
@@ -27,7 +28,7 @@ Actual task scheduling—concurrency limits, priorities, queues, preemption, and
 - [Routing policy](docs/routing-policy.md)
 - [Recovery and episodes](docs/recovery.md)
 - [Child-agent delegation authority](docs/delegation.md)
-- [RouterBench](docs/routerbench.md)
+- [Optional evaluation track](docs/routerbench.md)
 - [DSH integration and compatibility](docs/dsh-integration.md)
 - [Published upstream A1/A2 Host-contract Discussion](docs/upstream/2026-08-15-host-contracts-discussion.md)
 - [Product roadmap](docs/roadmap.md)
@@ -36,8 +37,8 @@ Actual task scheduling—concurrency limits, priorities, queues, preemption, and
 - [Architecture decision records](docs/decisions/README.md)
 - [Documentation localization policy](docs/localization.md)
 - [2026-08-14 multi-view design review](docs/reviews/2026-08-14-multi-view-design-review.md)
-- [Deferred production-grade Phase 0P plan](tasks/plan.md)
-- [Deferred production-grade Phase 0P checklist](tasks/todo.md)
+- [Current implementation plan](tasks/plan.md)
+- [Current implementation checklist](tasks/todo.md)
 - [Bounded-stage Code Review Skill](.agents/skills/dsh-auto-mode-code-review/SKILL.md)
 - [Contributing](CONTRIBUTING.md)
 
@@ -62,4 +63,4 @@ git status --short --branch
 
 ## Contributing
 
-While the fast prototype is active, start with [`PROJECT_STATUS.md`](PROJECT_STATUS.md) and [`docs/phase-0p-fast-prototype.md`](docs/phase-0p-fast-prototype.md); do not use deferred production documents to expand prototype work. For long-term design changes, start with the accepted assumptions and scope in [`docs/spec.md`](docs/spec.md). See [`CONTRIBUTING.md`](CONTRIBUTING.md) for language and contribution rules.
+Start with [`PROJECT_STATUS.md`](PROJECT_STATUS.md), [`docs/spec.md`](docs/spec.md), and the current phase in [`docs/roadmap.md`](docs/roadmap.md). The completed MVP remains documented in [`docs/phase-0p-fast-prototype.md`](docs/phase-0p-fast-prototype.md). See [`CONTRIBUTING.md`](CONTRIBUTING.md) for language and contribution rules.

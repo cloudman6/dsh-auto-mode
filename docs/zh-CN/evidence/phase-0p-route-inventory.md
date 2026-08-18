@@ -1,10 +1,12 @@
 <!--
 translation-source: docs/evidence/phase-0p-route-inventory.md
-translation-source-blob: b5b76a1783b45e7b87db3fac076004ccfde96568
+translation-source-blob: 92a60cd9013cb569ac05f872b3d4159075503894
 translation-status: current
 -->
 
 # 阶段 0P 精确 route 清单与 A3p 证据
+
+> 阶段 0P 历史证据。ADR-010 已在 MVP 后路由中取代 deployment-level 精确匹配；当前策略按模型家族、语义版本、变体和 effort 匹配，并忽略日期/build revision。
 
 [English](../../evidence/phase-0p-route-inventory.md)
 

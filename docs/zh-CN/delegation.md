@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/delegation.md
-translation-source-blob: 2b1b456b2c5fa5bd18f0ef8321d551caf860ad41
+translation-source-blob: 4859cba7df97f520bd915abd789c1aa732992fdf
 translation-status: current
 -->
 
@@ -16,16 +16,16 @@ translation-status: current
 
 ```text
 Host 安全与 provider 能力约束
-→ 用户显式 Auto/manual 选择或语义 route lock
+→ 用户显式 Auto/manual 选择或语义处理级别 lock
 → Host 接受的父 Agent 要求
 → Routing Policy
-→ Route 解析：已准入 baseline 或 no-safe-route
+→ Route 解析：合格 AA catalog route、配置的 Deep fallback 或明确失败
 ```
 
 父 Agent 默认可以：
 
 - 描述子任务和验收要求。
-- 带语义理由地提议最低保证档。
+- 带语义理由地提议最低任务处理级别。
 - 声明高风险、只读、独立评审、延迟期限等约束。
 - 要求模型家族或 provider 多样性，但不指定具体型号。
 - 限制子 Agent 可用工具和执行能力。
@@ -50,7 +50,7 @@ interface RoutingConstraints {
     differentModelFamily?: boolean
   }
   latencyDeadlineMs?: number
-  minimumRoute?: RouteId
+  minimumHandlingLevel?: TaskHandlingLevel
   requiredCapabilities?: CapabilityId[]
 }
 
@@ -65,18 +65,18 @@ interface DelegatedTask {
 
 ## 有界单调权限
 
-被接受的父 Agent 权限在质量上是单调的：可以缩小候选集或提高生效 floor，但不能降低 Host 要求。父 Agent 不能单方面决定自己的提议已被接受。
+被接受的父 Agent 权限相对 Host 选择的处理级别是单调的：可以缩小候选集或提高生效 floor，但不能降低 Host 要求。父 Agent 不能单方面决定自己的提议已被接受。
 
 ```text
-父 Agent 以高风险评审为理由提议 minimumRoute=strong
+父 Agent 以高风险评审为理由提议 minimumHandlingLevel=deep
 AND Host 接受该要求
-→ 策略至少选择 strong
+→ 策略选择 Deep
 
-父 Agent minimumRoute=fast
-且策略判断任务需要 strong
-→ strong 保持有效
+父 Agent minimumHandlingLevel=light
+且策略判断任务需要 Deep
+→ Deep 保持有效
 
-父 Agent 无已接受要求地提议 minimumRoute=strong
+父 Agent 无已接受要求地提议 minimumHandlingLevel=deep
 → 记录提议，但不能绕过策略
 ```
 
@@ -86,9 +86,9 @@ AND Host 接受该要求
 delegationPolicy:
   parentRouteOverride:
     enabled: true
-    allowedRoutes:
+    allowedHandlingLevels:
       - standard
-      - strong
+      - deep
 ```
 
 不向父 Agent 暴露原始 provider/model，避免配置耦合和无约束逃生口。每次提议、接受或拒绝、override 来源和理由都持久记录，但不把它们视为正确标签。报告父 Agent 的升级请求率与接受率，使系统性过度升级可见。
@@ -114,10 +114,10 @@ Scheduler 一词保留给真正的任务调度：并发上限、队列、优先�
 
 RoutingConstraints 必须与 child Session 或其持久描述关联，以支持：
 
-- 冷恢复后保持相同质量下限。
+- 冷恢复后保持相同任务处理级别下限。
 - 审计父 Agent 提交了什么、策略接受了什么。
 - 区分用户授权与模型生成的约束。
-- RouterBench 重放真实委派场景。
+- 可选策略场景套件重放真实委派场景。
 
 如果 DSH 当前 Subagent 请求只支持具体 AgentOptions，而没有语义约束扩展点，需要提出最窄的上游能力 seam，不能把约束偷偷编码进 prompt。
 

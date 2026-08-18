@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/recovery.md
-translation-source-blob: ebc8911d483db629197946b26e9e2042288482bd
+translation-source-blob: 155bf6a4c8b9da2ef8cb84b07c8500a94bb3f0dd
 translation-status: current
 -->
 
@@ -125,7 +125,7 @@ interface RoutingEpisode {
   attemptId: AttemptId
   openedAt: { turn: number; step: number }
   trigger: EpisodeTrigger
-  minimumRoute: RouteId
+  minimumHandlingLevel: TaskHandlingLevel
   releasePolicy: ReleasePolicy
   status: 'open' | 'resolved' | 'superseded' | 'abandoned'
 }
@@ -180,7 +180,7 @@ type EpisodeEnd =
 - 从 attempt 前稳定 Session 边界创建新执行上下文。
 - 恢复隔离工作区 checkpoint。
 - 注入结构化 Evidence Capsule。
-- 由 strong route 重新诊断。
+- 在 Deep 处理级别重新诊断。
 
 Evidence Capsule 只携带可核实事实：
 
@@ -209,7 +209,7 @@ interface EvidenceCapsule {
 
 - 回到 attempt 前 Session 边界与工作区 checkpoint。
 - 不携带旧模型假设。
-- strong route 从原任务重新执行。
+- 在 Deep 处理级别从原任务重新执行。
 
 适用于反复修改、验证退化、上下文严重污染或 workaround 扩散。
 
@@ -244,7 +244,7 @@ Recovery Supervisor 核心不使用模型。仅在以下情况考虑 Recovery As
 - 是否存在值得 salvage 的调查证据。
 - `salvage` 与 `restart` 的代价差异显著且形式化证据不足。
 
-评估器使用固定模型与 effort、无工具、一次性调用，返回结构化结果。低置信度时保持当前安全 route。它的调用成本计入 RouterBench。
+评估器使用固定模型与 effort、无工具、一次性调用，返回结构化结果。低置信度时保持当前级别或升级到 Deep；它不能据此宣称 route 安全。未来可选的策略场景评估应计入评估器调用成本。
 
 ## Prompt 注入
 

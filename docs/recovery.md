@@ -119,7 +119,7 @@ interface RoutingEpisode {
   attemptId: AttemptId
   openedAt: { turn: number; step: number }
   trigger: EpisodeTrigger
-  minimumRoute: RouteId
+  minimumHandlingLevel: TaskHandlingLevel
   releasePolicy: ReleasePolicy
   status: 'open' | 'resolved' | 'superseded' | 'abandoned'
 }
@@ -174,7 +174,7 @@ Use when complexity increased but execution has not produced clearly harmful mut
 - Create a new execution context from the stable Session boundary before the attempt.
 - Restore the isolated workspace checkpoint.
 - Inject a structured Evidence Capsule.
-- Re-diagnose with a strong route.
+- Re-diagnose at the Deep handling level.
 
 The Evidence Capsule carries only verifiable facts:
 
@@ -203,7 +203,7 @@ Do not rely solely on a weak model's free-form summary; it may replicate incorre
 
 - Return to the pre-attempt Session boundary and workspace checkpoint.
 - Carry no hypotheses from the previous model.
-- Re-execute the original task with a strong route.
+- Re-execute the original task at the Deep handling level.
 
 Use after repeated mutation, validation regression, severe context pollution, or expanding workarounds.
 
@@ -238,7 +238,7 @@ Recovery Supervisor core does not use a model. Consider Recovery Assessor only w
 - An investigation produced evidence worth salvaging.
 - The cost difference between `salvage` and `restart` is material and formal evidence is insufficient.
 
-The assessor uses a fixed model and effort, has no tools, makes one call, and returns a structured result. Low confidence retains the current safe route. RouterBench includes assessor cost.
+The assessor uses a fixed model and effort, has no tools, makes one call, and returns a structured result. Low confidence retains the current level or escalates to Deep; it never claims a route is safe. Any future policy-scenario evaluation includes assessor cost.
 
 ## Prompt injection
 
