@@ -220,7 +220,7 @@ Use the controlled wrapper when a branch switch is required:
 sh "$codex_tools_dir/codex-worktree" switch <branch>
 ```
 
-After the task worktree is clean and its commit has been integrated with authorization:
+After the task worktree is clean, its commit has been integrated into `main`, and step 9 has verified the remote `main`, remove it automatically:
 
 ```bash
 cd "$main_worktree"
@@ -228,7 +228,7 @@ sh "$codex_tools_dir/codex-worktree" remove \
   .worktrees/<task-slug>/workspace
 ```
 
-Deleting local task branches, pruning, or forcing any operation requires separate authorization. Never force-push `main`.
+Automatic removal applies only to the current task's clean, integrated worktree. Never remove a dirty or unmerged worktree, and never use force. Deleting local task branches, pruning, or forcing any operation still requires separate authorization. Never force-push `main`.
 
 ## Task-completion checklist
 
@@ -282,7 +282,7 @@ After every change:
    git ls-remote origin refs/heads/main
    git merge-base --is-ancestor "$task_commit" main
    ```
-10. Worktree removal remains a separate destructive action. Preserve the completed worktree and report its exact path unless the user explicitly authorizes removal; never remove a dirty worktree.
+10. After step 9 succeeds, automatically remove the clean, integrated task worktree through `codex-worktree remove`. If it is dirty, unmerged, missing, or removal fails, preserve it and report the exact path and reason; never use force. Do not delete the local task branch without separate authorization.
 
 ## When to stop and ask
 
@@ -295,7 +295,7 @@ Do not decide these items autonomously:
 - Relax parent-agent authority, abstention criteria, episode release criteria, or recovery safety boundaries.
 - Automatically create, restore, or delete a workspace checkpoint, or handle non-file external side effects.
 - Delete or rename a public document, event, configuration, or user-facing interface.
-- Delete a branch/worktree, change remotes, amend or rewrite commits, rebase, reset, force-push, create a non-fast-forward merge, or otherwise rewrite published history without explicit authorization for the current task. A validated atomic commit, normal task-branch push, and guarded fast-forward merge and push to `main` are standing-authorized by the maintainer.
+- Delete a branch, delete a dirty or unmerged worktree, change remotes, amend or rewrite commits, rebase, reset, force-push, create a non-fast-forward merge, or otherwise rewrite published history without explicit authorization for the current task. A validated atomic commit, normal task-branch push, guarded fast-forward merge and push to `main`, and removal of the current clean integrated task worktree are standing-authorized by the maintainer.
 
 ## Current hard blocker
 

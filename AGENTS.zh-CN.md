@@ -226,7 +226,7 @@ $main_worktree/.worktrees/<task-slug>/workspace
 sh "$codex_tools_dir/codex-worktree" switch <branch>
 ```
 
-任务 worktree clean 且其提交已经按授权集成后，使用：
+任务 worktree clean、其提交已合入 `main` 且第 9 步已经核验远端 `main` 后，直接自动移除：
 
 ```bash
 cd "$main_worktree"
@@ -234,7 +234,7 @@ sh "$codex_tools_dir/codex-worktree" remove \
   .worktrees/<task-slug>/workspace
 ```
 
-删除本地任务分支、prune 或任何强制操作都需要单独授权。绝不 force-push `main`。
+自动移除只适用于当前任务已干净且已合入的 worktree。不得移除 dirty 或未合入的 worktree，也不得使用 force。删除本地任务分支、prune 或任何强制操作仍需要单独授权。绝不 force-push `main`。
 
 ## 任务完成 checklist
 
@@ -288,7 +288,7 @@ sh "$codex_tools_dir/codex-worktree" remove \
    git ls-remote origin refs/heads/main
    git merge-base --is-ancestor "$task_commit" main
    ```
-10. 删除 worktree 仍是独立的破坏性操作。除非用户明确授权删除，否则保留已完成的 worktree 并报告准确路径；绝不删除 dirty worktree。
+10. 第 9 步成功后，通过 `codex-worktree remove` 自动移除当前任务干净且已合入的 worktree。若 worktree dirty、尚未合入、不存在或移除失败，则保留它并报告准确路径与原因；不得使用 force。未经单独授权不得删除本地任务分支。
 
 ## 何时必须停下来问用户
 
@@ -301,7 +301,7 @@ sh "$codex_tools_dir/codex-worktree" remove \
 - 放宽父 Agent 权限、abstain 条件、episode 释放条件或恢复安全边界。
 - 自动创建、恢复或删除工作区 checkpoint，或处理非文件外部副作用。
 - 删除/重命名公共文档、事件、配置或用户可见接口。
-- 未经本次明确授权就删除分支/worktree、修改 remote、amend/改写 commit、rebase、reset、force-push、创建非 fast-forward merge，或以其他方式改写已发布历史。校验通过后的原子 commit、普通任务分支 push，以及带保护的 fast-forward 合入并 push `main`，已获得维护者长期授权。
+- 未经本次明确授权就删除分支、删除 dirty 或未合入的 worktree、修改 remote、amend/改写 commit、rebase、reset、force-push、创建非 fast-forward merge，或以其他方式改写已发布历史。校验通过后的原子 commit、普通任务分支 push、带保护的 fast-forward 合入并 push `main`，以及移除当前任务干净且已合入的 worktree，已获得维护者长期授权。
 
 ## 当前硬阻塞
 
