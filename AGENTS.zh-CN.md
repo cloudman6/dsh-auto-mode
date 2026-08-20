@@ -232,9 +232,10 @@ sh "$codex_tools_dir/codex-worktree" switch <branch>
 cd "$main_worktree"
 sh "$codex_tools_dir/codex-worktree" remove \
   .worktrees/<task-slug>/workspace
+rmdir "$main_worktree/.worktrees/<task-slug>"
 ```
 
-自动移除只适用于当前任务已干净且已合入的 worktree。不得移除 dirty 或未合入的 worktree，也不得使用 force。删除本地任务分支、prune 或任何强制操作仍需要单独授权。绝不 force-push `main`。
+`codex-worktree remove` 会删除 Git worktree 目录，但会刻意保留任务容器目录。紧接着必须用只会在目录为空时成功的 `rmdir` 删除该容器。若 `rmdir` 失败，保留容器并报告其内容；不得改用递归删除。自动移除只适用于当前任务已干净且已合入的 worktree。不得移除 dirty 或未合入的 worktree，也不得使用 force。删除本地任务分支、prune 或任何强制操作仍需要单独授权。绝不 force-push `main`。
 
 ## 任务完成 checklist
 
@@ -288,7 +289,7 @@ sh "$codex_tools_dir/codex-worktree" remove \
    git ls-remote origin refs/heads/main
    git merge-base --is-ancestor "$task_commit" main
    ```
-10. 第 9 步成功后，通过 `codex-worktree remove` 自动移除当前任务干净且已合入的 worktree。若 worktree dirty、尚未合入、不存在或移除失败，则保留它并报告准确路径与原因；不得使用 force。未经单独授权不得删除本地任务分支。
+10. 第 9 步成功后，通过 `codex-worktree remove` 自动移除当前任务干净且已合入的 worktree，随后用 `rmdir` 删除其空的 `.worktrees/<task-slug>` 容器。若 worktree dirty、尚未合入、不存在，或任一步移除失败，则保留余下路径并报告准确原因；不得使用 force 或递归删除。未经单独授权不得删除本地任务分支。
 
 ## 何时必须停下来问用户
 

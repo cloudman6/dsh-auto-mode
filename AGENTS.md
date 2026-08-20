@@ -226,9 +226,10 @@ After the task worktree is clean, its commit has been integrated into `main`, an
 cd "$main_worktree"
 sh "$codex_tools_dir/codex-worktree" remove \
   .worktrees/<task-slug>/workspace
+rmdir "$main_worktree/.worktrees/<task-slug>"
 ```
 
-Automatic removal applies only to the current task's clean, integrated worktree. Never remove a dirty or unmerged worktree, and never use force. Deleting local task branches, pruning, or forcing any operation still requires separate authorization. Never force-push `main`.
+`codex-worktree remove` removes the Git worktree directory but intentionally leaves its task container. Immediately remove that container with `rmdir`, which succeeds only when it is empty. If `rmdir` fails, preserve the container and report its contents; never substitute recursive deletion. Automatic removal applies only to the current task's clean, integrated worktree. Never remove a dirty or unmerged worktree, and never use force. Deleting local task branches, pruning, or forcing any operation still requires separate authorization. Never force-push `main`.
 
 ## Task-completion checklist
 
@@ -282,7 +283,7 @@ After every change:
    git ls-remote origin refs/heads/main
    git merge-base --is-ancestor "$task_commit" main
    ```
-10. After step 9 succeeds, automatically remove the clean, integrated task worktree through `codex-worktree remove`. If it is dirty, unmerged, missing, or removal fails, preserve it and report the exact path and reason; never use force. Do not delete the local task branch without separate authorization.
+10. After step 9 succeeds, automatically remove the clean, integrated task worktree through `codex-worktree remove`, then remove its empty `.worktrees/<task-slug>` container with `rmdir`. If the worktree is dirty, unmerged, missing, or either removal fails, preserve the remaining path and report the exact reason; never use force or recursive deletion. Do not delete the local task branch without separate authorization.
 
 ## When to stop and ask
 
