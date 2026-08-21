@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "valid": [
+    {
+      "name": "bounded coding task",
+      "output": {
+        "taskKind": "coding",
+        "scope": "bounded",
+        "complexity": "low",
+        "risk": "low",
+        "verifiability": "mechanical",
+        "confidence": 0.8,
+        "reasons": [
+          "explicit-single-step",
+          "mechanically-checkable"
+        ]
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "model attempts to select its own route",
+      "output": {
+        "taskKind": "coding",
+        "scope": "bounded",
+        "complexity": "low",
+        "risk": "low",
+        "verifiability": "mechanical",
+        "confidence": 1,
+        "reasons": [
+          "explicit-single-step"
+        ],
+        "provider": "deepseek-official",
+        "model": "deepseek-v4-pro",
+        "effort": "off"
+      }
+    }
+  ],
+  "timeout": [
+    {
+      "name": "assessment deadline expires",
+      "result": {
+        "kind": "timeout"
+      }
+    }
+  ],
+  "lowConfidence": [
+    {
+      "name": "material context is missing",
+      "output": {
+        "taskKind": "unknown",
+        "scope": "unknown",
+        "complexity": "unknown",
+        "risk": "unknown",
+        "verifiability": "unknown",
+        "confidence": 0.5,
+        "reasons": [
+          "missing-material-context"
+        ]
+      }
+    }
+  ]
+}
