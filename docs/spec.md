@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted by the maintainer. The AA-informed post-MVP direction was accepted on 2026-08-18 through [ADR-010](decisions/0010-aa-informed-heuristic-routing.md).
+Accepted by the maintainer. [ADR-011](decisions/0011-bind-host-routes-to-aa-evidence.md) defines the current AA-informed post-MVP direction and succeeds ADR-010.
 
 ## Product premise
 
@@ -33,15 +33,13 @@ High risk, low classifier confidence, an unknown task shape, or an unavailable r
 
 ## AA route catalog
 
-A concrete route remains the complete provider/model/reasoning selection used by DSH. AA capability matching uses a normalized model key:
+A concrete route remains the complete effective provider/model/request configuration used by DSH. Its stable Host route identity includes every Host-materialized option that can change execution semantics; reasoning effort is optional rather than an industry-wide required field.
 
-```text
-model family + semantic version + variant + explicit reasoning effort
-```
+A versioned AA evidence binding explicitly maps one Host route identity to one stable AA model/configuration record in a frozen snapshot. The binding records the route configuration fingerprint, snapshot and AA record IDs, binding-rule version, declared match basis, relevant AA release metadata, and known limitations.
 
-Dates, release-day suffixes, provider deployment revisions, and hidden build fingerprints are not part of equality. If the AA snapshot contains multiple dated records for one normalized key, the catalog uses the latest record in that snapshot. A semantic-version, variant, or effort mismatch never matches. An unspecified effort matches only when a separately declared normalization rule makes its effective effort explicit.
+Bindings are maintained data, not runtime name inference. Family, version, variant, effort, dates, and provider metadata may be evidence when available, but no fixed subset is mandatory across providers. A binding never crosses a Host-materialized execution difference. Snapshot updates do not silently substitute a newer AA record; every addition, replacement, or removal is reviewed explicitly.
 
-The provider remains part of the executable DSH route and capability filtering even when AA capability evidence is shared by normalized model key.
+The Host route remains authoritative for execution and capability filtering. The AA record supplies external evidence and never replaces executable route identity. An unmatched or ambiguous route is excluded with a stable reason.
 
 ## Routing ownership
 
@@ -55,8 +53,8 @@ The provider remains part of the executable DSH route and capability filtering e
 ## Required product behavior
 
 - Auto and Manual remain one-operation alternatives; Manual is not changed by Auto policy.
-- Every automatic decision displays the task-handling level, actual model, actual effort, source snapshot, and concise reason.
-- Model and effort changes remain visible in the selector and in the conversation between the triggering user message and resulting assistant response.
+- Every automatic decision displays the task-handling level, actual model, applicable execution configuration, source snapshot, and concise reason.
+- Model and applicable configuration changes remain visible in the selector and in the conversation between the triggering user message and resulting assistant response.
 - Missing or malformed AA data, no compatible route, or low-confidence assessment uses the configured deep fallback when it is available and Host-valid; otherwise Auto reports an explicit resolution failure.
 - User choices, parent-agent proposals, and model self-reports are not treated as correct routing labels.
 - Parent agents may express task constraints but do not directly own concrete route selection.
@@ -66,7 +64,7 @@ The provider remains part of the executable DSH route and capability filtering e
 ### Current path
 
 - Versioned local AA snapshots, initially maintained manually and kept out of Git.
-- Normalized model-version/variant/effort matching without deployment-date identity.
+- Versioned Host route identities and explicit AA evidence bindings without exact-deployment claims.
 - AA-informed `light`/`standard`/`deep` catalog construction.
 - A fixed semantic Task Assessor plus deterministic level and route policy.
 - Transparent DSH Web UI, persistent decision facts, and Manual non-interference.
@@ -90,7 +88,7 @@ The provider remains part of the executable DSH route and capability filtering e
 
 ## Success criteria
 
-- Users can select Auto once and see the actual model and effort chosen for the current task.
+- Users can select Auto once and see the actual model and applicable execution configuration chosen for the current task.
 - Different task characteristics produce explainable differences in task-handling level and concrete route.
 - Within one level, the resolver deterministically prefers the lower AA-reported price and then lower AA-reported latency.
 - Persisted selection, displayed selection, and effective request configuration agree.
@@ -109,4 +107,4 @@ The provider remains part of the executable DSH route and capability filtering e
 
 ## Superseded requirements
 
-ADR-010 supersedes the former requirement that RouterBench admission, exact deployment fingerprints, an absolute baseline, candidate non-inferiority, and latency-before-cost optimization must precede a usable Auto product. RouterBench remains optional evaluation infrastructure and may inform future policy, but it is not on the critical path.
+ADR-011 retains ADR-010's removal of the former requirement that RouterBench admission, exact deployment fingerprints, an absolute baseline, candidate non-inferiority, and latency-before-cost optimization must precede a usable Auto product. RouterBench remains optional evaluation infrastructure and may inform future policy, but it is not on the critical path.

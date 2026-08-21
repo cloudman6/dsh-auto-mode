@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: ad73806b796c79e405cca13dec4341393e386978
+translation-source-blob: e46d6e081d0b40cae238ad26a0449b9f4faacb81
 translation-status: current
 -->
 
@@ -19,13 +19,13 @@ translation-status: current
 | 项目 | 当前状态 |
 |---|---|
 | 项目阶段 | 阶段 0P MVP 已接受，当前进入阶段 1 AA route catalog |
-| 已有成果 | 固定 A1/A2 的维护者 DSH fork 上的可运行 MVP、聚焦测试、真实 provider 证据和已接受 ADR-010 方向 |
+| 已有成果 | 固定 A1/A2 的维护者 DSH fork 上的可运行 MVP、聚焦测试、真实 provider 证据和已接受 ADR-011 方向 |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | 所需任务处理级别 → AA 报告价格 → AA 报告延迟 → 稳定 route identity |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 阶段 1A：用 fixture 证明规范化模型键匹配 |
+| 下一阶段入口 | 阶段 1A：用混合 provider fixture 证明 Host-route-to-AA evidence binding |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
@@ -66,12 +66,12 @@ translation-status: current
 
 ## 当前阶段约束
 
-维护者已于 2026-08-18 接受 ADR-010。MVP 后实施遵循以下约束：
+维护者已于 2026-08-21 接受 ADR-011。MVP 后实施遵循以下约束：
 
-- 已接受的规范和 ADR-010 是约束。ADR-002、ADR-006 和 ADR-008 对 MVP 后产品行为属于历史且已被取代。
+- 已接受的规范和 ADR-011 是约束。ADR-010 是已被取代、用于记录 AA 驱动和价格优先方向的历史来源；ADR-002、ADR-006 和 ADR-008 继续属于历史。
 - 已实现的 A1/A2 契约必须保持产品无关并固定到已验证 fork commit；DSH Core 不得理解 Auto Mode route 档位、Task Assessment 或 Policy Pack 语义。
 - AA 是 capability、price 和 latency 结论的外部来源；不得宣称本项目 Benchmark 质量或普遍最优。
-- AA 与 DSH 按模型家族、语义版本、变体和显式 effort 匹配。相等判断忽略 date/build revision，但绝不跨越 version、variant 或 effort。
+- 可执行 Host route identity 与 AA evidence identity 必须分离。一条实际 provider/model/request configuration 显式绑定到一条稳定 AA record；不得要求所有 provider 都有 variant 或 effort，不得模糊推断 binding、跨越已物化执行差异或静默替换更新 AA record。
 - 内部使用 `light`、`standard`、`deep`，用户界面使用 Light/Standard/Deep 与轻量/常规/深度。已完成 MVP 的旧标签在迁移前只属于历史实现。
 - 同一处理级别内，依次优先 AA 报告价格更低、AA 报告延迟更低和稳定 route identity。不得增加本地 token-cost estimator。
 - 固定 Task Assessor 只能返回结构化任务属性；确定性 Host policy 拥有级别和具体 route 决策权。
@@ -115,8 +115,8 @@ translation-status: current
 7. 父 Agent 约束只是提议。只有 Host 认可的要求或用户明确授权的 override 才成为硬约束；父 Agent 不得静默提高、降低或绕过 Routing Policy 指定任意 provider/model。
 8. Recovery Supervisor 核心通过形式化事件工作，不建立每 turn 注入 prompt 的自我报告协议。
 9. 不用裸 Git 回滚实现工作区恢复；Session checkpoint 与工作区 checkpoint 分别拥有明确语义和所有权。
-10. RouterBench 是可选评估设施，不是 route admission 或 release gate。必需正确性测试仍覆盖 normalization、catalog 编译、价格排序、assessor fallback、持久化、UI 一致和 Manual 不受影响。
-11. 普通用户只在 `Auto` 与手动 provider/model/reasoning selection 之间选择。默认值由维护者负责的带版本 AA snapshot、normalizer、band policy 和 fallback 承担；高级限制只是可选项。
+10. RouterBench 是可选评估设施，不是 route admission 或 release gate。必需正确性测试仍覆盖 Host route identity、evidence binding、catalog 编译、价格排序、assessor fallback、持久化、UI 一致和 Manual 不受影响。
+11. 普通用户只在 `Auto` 与手动 provider/model/reasoning selection 之间选择。默认值由维护者负责的带版本 AA snapshot、evidence binding、band policy 和 fallback 承担；高级限制只是可选项。
 12. 一个模型 step 的 route 必须在依赖 provider 的 prompt/tool 组装之前冻结，并在 `agent/request` 原样应用。
 13. AA 数据只支持启发式路由。不得把它表述成项目 Benchmark 证据、精确 deployment 证明或具体任务质量保证。
 14. ADR-009 把阶段 0P 可变工作限制为当前 Attempt 在干净隔离 worktree 内产生且可归属的未提交变更。具体 provider 设计和完整 production tool-entry inventory 必须另行接受；用户批准不能证明 Recovery Capability，也绝不授权外部 effect 或自动回滚。

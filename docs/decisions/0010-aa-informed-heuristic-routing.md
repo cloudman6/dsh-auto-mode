@@ -4,9 +4,9 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-011](0011-bind-host-routes-to-aa-evidence.md) for the post-MVP product direction. Retained as the historical decision that removed Benchmark admission and established AA-informed, price-first routing.
 
-Supersedes ADR-002 and ADR-006 for the post-MVP product direction, and supersedes ADR-008 as the forward-looking external-evidence policy. ADR-008 remains the historical authorization for Phase 0P.
+ADR-011 retains this ADR's AA-informed routing, task-handling levels, Host ownership, price-first resolution, optional RouterBench, and product-claim limits while replacing its mandatory four-field model-matching contract.
 
 ## Date
 

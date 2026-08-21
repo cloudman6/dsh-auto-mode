@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/spec.md
-translation-source-blob: 3cca3ef1bf31f5281937fec281d13e98283d22cc
+translation-source-blob: aa8ec29b98cec13cf60cd470aa2a3cd5923044eb
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-已由维护者接受。AA 驱动的 MVP 后方向已于 2026-08-18 通过 [ADR-010](decisions/0010-aa-informed-heuristic-routing.md) 接受。
+已由维护者接受。[ADR-011](decisions/0011-bind-host-routes-to-aa-evidence.md) 定义当前 AA 驱动的 MVP 后方向，并接替 ADR-010。
 
 ## 产品前提
 
@@ -39,15 +39,13 @@ AA 证据是有用的市场先验，不证明某条 route 对某位用户的具�
 
 ## AA route catalog
 
-具体 route 仍是 DSH 实际使用的完整 provider/model/reasoning selection。AA 能力匹配使用规范化模型键：
+具体 route 仍是 DSH 实际使用的完整 provider/model/request configuration。其稳定 Host route identity 包含所有可能改变执行语义且已由 Host 物化的选项；reasoning effort 是可选字段，不是行业通用必填字段。
 
-```text
-模型家族 + 语义版本 + 变体 + 显式 reasoning effort
-```
+版本化 AA evidence binding 把一条 Host route identity 显式映射到冻结 snapshot 中一条稳定 AA 模型／配置记录。Binding 记录 route configuration fingerprint、snapshot 和 AA record ID、binding-rule version、声明的 match basis、相关 AA release metadata 与已知限制。
 
-日期、发布日后缀、provider deployment revision 和隐藏 build fingerprint 不参与相等判断。同一规范化键在 AA 快照中有多条带日期记录时，catalog 使用快照中的最新记录。语义版本、变体或 effort 不同绝不匹配。未指定 effort 只有在单独声明的规范化规则能够明确物化实际 effort 时才能匹配。
+Binding 是维护数据，不是 runtime 名称推断。Family、version、variant、effort、date 和 provider metadata 在存在时都可以作为证据，但不存在跨 provider 的固定必填子集。Binding 绝不跨越 Host 已物化的执行差异。Snapshot 更新不得静默替换为更新的 AA 记录；每次新增、替换或移除都要显式评审。
 
-即使 AA 能力证据按规范化模型键共享，provider 仍属于可执行 DSH route 和 capability 过滤条件。
+Host route 继续作为执行与 capability 过滤的权威身份。AA record 只提供外部证据，绝不取代可执行 route identity。不匹配或有歧义的 route 以稳定原因排除。
 
 ## 路由所有权
 
@@ -61,8 +59,8 @@ AA 证据是有用的市场先验，不证明某条 route 对某位用户的具�
 ## 必需产品行为
 
 - Auto 和 Manual 仍是一次操作的二选一；Manual 不受 Auto 策略修改。
-- 每次自动决策显示任务处理级别、实际模型、实际 effort、来源快照和简短依据。
-- 模型和 effort 变化继续在 selector 与对话中显示，并位于触发它的用户消息和对应助手回复之间。
+- 每次自动决策显示任务处理级别、实际模型、适用执行配置、来源快照和简短依据。
+- 模型和适用配置变化继续在 selector 与对话中显示，并位于触发它的用户消息和对应助手回复之间。
 - AA 数据缺失或畸形、没有兼容 route 或判断置信度低时，在可用且通过 Host 验证的情况下使用配置的 Deep fallback；否则明确报告解析失败。
 - 用户选择、父 Agent 提议和模型自报都不是正确路由标签。
 - 父 Agent 可以表达任务约束，但不直接拥有具体 route 选择权。
@@ -72,7 +70,7 @@ AA 证据是有用的市场先验，不证明某条 route 对某位用户的具�
 ### 当前路径
 
 - 带版本的本地 AA 快照，初期手工维护并被 Git 忽略。
-- 不要求 deployment 日期 identity 的模型版本／变体／effort 规范化匹配。
+- 不宣称精确 deployment 的版本化 Host route identity 与显式 AA evidence binding。
 - AA 驱动的 `light`/`standard`/`deep` catalog 编译。
 - 固定语义 Task Assessor 加确定性的级别和 route 策略。
 - 透明的 DSH Web UI、持久决策事实和 Manual 不受影响。
@@ -96,7 +94,7 @@ AA 证据是有用的市场先验，不证明某条 route 对某位用户的具�
 
 ## 成功标准
 
-- 用户一次选择 Auto，就能看到当前任务实际选择的模型和 effort。
+- 用户一次选择 Auto，就能看到当前任务实际选择的模型和适用执行配置。
 - 不同任务属性产生可解释的任务处理级别和具体 route 差异。
 - 同一级别内，resolver 确定性地优先 AA 报告价格更低者，再比较 AA 报告延迟。
 - 持久化选择、界面显示和实际请求配置一致。
@@ -115,4 +113,4 @@ AA 证据是有用的市场先验，不证明某条 route 对某位用户的具�
 
 ## 被取代的要求
 
-ADR-010 取代以下旧要求：RouterBench admission、精确 deployment fingerprint、绝对 baseline、candidate 非劣性和延迟优先于成本必须先于可用 Auto 产品。RouterBench 保留为可选评估设施，可以影响未来策略，但不在关键路径上。
+ADR-011 保留 ADR-010 对以下旧要求的取消：RouterBench admission、精确 deployment fingerprint、绝对 baseline、candidate 非劣性和延迟优先于成本必须先于可用 Auto 产品。RouterBench 保留为可选评估设施，可以影响未来策略，但不在关键路径上。

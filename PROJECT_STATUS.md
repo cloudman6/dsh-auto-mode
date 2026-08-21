@@ -4,7 +4,7 @@
 
 ## Last updated
 
-2026-08-18
+2026-08-21
 
 ## Current stage
 
@@ -18,11 +18,11 @@ The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef59
 - DSH Auto Mode does not build or require an in-house model-quality benchmark.
 - User-facing task-handling levels are Light, Standard, and Deep; Chinese labels are 轻量、常规、深度.
 - A fixed semantic Task Assessor returns task attributes and confidence; deterministic Host policy chooses the level and retains final authority.
-- AA matching uses model family, semantic version, variant, and effort. Date/build/deployment revision is ignored for equality; the latest duplicate AA row in the snapshot is used.
+- Executable Host route identity is separate from AA evidence identity. A versioned explicit binding maps one effective provider/model/request configuration to one stable AA record; effort and variant are optional provider dimensions, not universal required fields.
 - Within one level, the resolver prefers lower AA-reported price, then lower AA-reported latency, then stable route identity.
 - Product claims remain explicitly AA-informed and do not claim project-benchmarked quality, safety, non-inferiority, or universal optimality.
 
-These decisions are recorded in [ADR-010](docs/decisions/0010-aa-informed-heuristic-routing.md), which supersedes ADR-002, ADR-006, and ADR-008 for post-MVP development.
+These decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-to-aa-evidence.md), which succeeds ADR-010 while retaining its AA-informed, price-first direction. ADR-010 remains the historical decision that superseded ADR-002, ADR-006, and ADR-008.
 
 ## Completed foundation
 
@@ -32,11 +32,12 @@ These decisions are recorded in [ADR-010](docs/decisions/0010-aa-informed-heuris
 - Built and accepted the Phase 0P MVP: Auto/manual control, task-dependent route changes, request/selection equality, persisted explanations, visible model/effort transitions, real-provider calls, and Manual non-interference.
 - Restored the complete GUI suite to 3,760 passing tests with four existing skips at the pinned fork commit.
 - Accepted the AA-informed post-MVP strategy and replaced Benchmark admission with an optional evaluation track.
+- Accepted the generic Host route identity and explicit AA evidence-binding architecture, replacing the mandatory family/version/variant/effort key.
 
 ## Current implementation plan
 
 1. Migrate route terminology and UI from `fast`/`standard`/`strong` to `light`/`standard`/`deep` and 轻量/常规/深度.
-2. Implement normalized AA model-key matching and duplicate-date resolution.
+2. Implement provider-neutral Host route identity and explicit AA evidence bindings with mixed-provider fixtures.
 3. Compile versioned AA capability bands and resolve same-band routes by price, latency, and stable identity.
 4. Replace keyword classification with a fixed structured semantic Task Assessor.
 5. Integrate the new decision path end to end while preserving the accepted UI behavior and Manual mode.
@@ -49,13 +50,13 @@ There is no blocker to starting Phase 1. Before its route catalog can be finaliz
 
 - the AA capability field and versioned boundaries for Light, Standard, and Deep;
 - the canonical AA price field and latency tie-break field;
-- initial normalization aliases for the DSH routes in the local seed.
+- initial reviewed AA evidence bindings for the DSH routes in the local seed.
 
 Stable AA acquisition, data distribution rights, within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later roadmap phases and do not block Phase 1.
 
 ## Next action
 
-Implement Phase 1A as one bounded change: introduce the normalized model key and fixture-backed matching rules while keeping the existing MVP behavior available until the full Phase 1 catalog path is ready.
+Implement Phase 1A as one bounded change: introduce Host route identity, effective-configuration fingerprints, explicit AA evidence bindings, and mixed-provider fixtures while keeping the existing MVP behavior available until the full Phase 1 catalog path is ready.
 
 ## Status maintenance rules
 

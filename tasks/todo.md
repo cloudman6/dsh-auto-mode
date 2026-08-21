@@ -2,17 +2,17 @@
 
 [简体中文](todo.zh-CN.md)
 
-## Task 1: Normalize model identity
+## Task 1: Bind Host route identity to AA evidence
 
 **Acceptance criteria:**
 
-- [ ] A versioned key contains family, semantic version, variant, and explicit effort.
-- [ ] Date/build suffixes do not affect equality; the latest duplicate AA row wins deterministically.
-- [ ] Version, variant, and effort mismatches are rejected.
+- [ ] A stable Host route identity contains provider, model, and a fingerprint of every Host-materialized execution option.
+- [ ] One versioned explicit binding maps an eligible Host route to one stable AA record in one frozen snapshot.
+- [ ] Effort and variant remain optional provider dimensions; ambiguous, stale, fuzzy, or configuration-crossing bindings are rejected.
 
 **Verification:**
 
-- [ ] Synthetic fixtures cover valid aliases, duplicate dates, mismatches, and unspecified effort.
+- [ ] Mixed-provider fixtures cover zero, one, and several execution controls, valid bindings, collisions, ambiguity, and AA-record replacement.
 - [ ] Existing MVP and Manual tests remain green.
 
 **Dependencies:** None
@@ -22,7 +22,7 @@
 **Acceptance criteria:**
 
 - [ ] The Git-ignored local seed joins only to valid DSH routes.
-- [ ] Every entry records snapshot, normalizer, AA record, concrete route, and capability facts.
+- [ ] Every entry records snapshot, binding-rule version, AA record, Host route identity, effective configuration fingerprint, and capability facts.
 - [ ] Invalid or unmatched rows are excluded with stable reasons and no secret is committed.
 
 **Verification:**
@@ -149,7 +149,7 @@
 
 **Verification:**
 
-- [ ] Offline fixtures cover update, rejection, rollback, addition, removal, rename, and duplicate resolution.
+- [ ] Offline fixtures cover update, rejection, rollback, binding addition, removal, replacement, and AA-record rename.
 - [ ] Credentials and raw redistributed datasets remain outside Git and the browser client.
 
 **Dependencies:** Checkpoint C and explicit authorization for any dependency or remote service

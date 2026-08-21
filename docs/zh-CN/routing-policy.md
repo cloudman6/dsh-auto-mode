@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routing-policy.md
-translation-source-blob: e6ae567ef1823f50ea625c85ddd3d307e6781790
+translation-source-blob: e355c92ccbf58584d6085996eaadff7f21c4780f
 translation-status: current
 -->
 
@@ -56,30 +56,40 @@ type TaskHandlingLevel = 'light' | 'standard' | 'deep'
 
 确定性 mapper 使用任何重要属性要求的最高级别。高风险、范围广或未知、不可验证或低置信度都会强制 `deep`，并记录所有贡献 reason code。
 
-## AA 匹配键
+## Host route identity 与 AA evidence binding
 
-AA 记录与 DSH 模型按以下键匹配：
+执行 identity 与证据 identity 相互独立：
 
 ```ts
-interface AAModelKey {
-  family: string
-  semanticVersion: string
-  variant: string
-  effort: string
+interface HostRouteIdentity {
+  routeId: string
+  provider: string
+  model: string
+  effectiveConfigFingerprint: string
+}
+
+interface AAEvidenceBinding {
+  bindingVersion: string
+  hostRouteId: string
+  effectiveConfigFingerprint: string
+  aaSnapshotId: string
+  aaRecordId: string
+  matchBasis: readonly string[]
+  limitations: readonly string[]
 }
 ```
 
-规范化规则显式且带版本。可以规范化大小写、标点和已知展示 alias；不得推断或跨越语义版本、模型变体和 effort。
+Host identity 覆盖每个会改变执行语义且已物化的请求选项。Effort 是某些 provider 拥有的可选选项，不是跨 provider 必填维度。Binding 必须显式、带版本且经过评审；runtime 不按名称或 slug 模糊匹配。Binding 不得跨越实际配置差异，snapshot 更新也不得静默替换另一条 AA 记录。
 
-日期后缀和 deployment/build revision 不参与相等判断。多条 AA 记录规范化为同一键时，快照中的最新记录作为代表。这是版本家族匹配，不是 DSH 命中 AA 实测精确 deployment 的证明。
+Family、version、variant、effort、date 和 provider metadata 在存在时都可以成为声明的 match evidence。无 revision alias 可以携带显式 semantic-match 限制，但绝不能表述成命中 AA 实测精确 deployment 的证明。
 
 ## Catalog 编译
 
 Catalog compiler：
 
 1. 读取 DSH 当前可用的具体 route；
-2. 物化 route 的模型家族、语义版本、变体和 effort；
-3. 与最新的匹配 AA 记录连接；
+2. 物化每条 route 的实际 Host request configuration 并生成 fingerprint；
+3. 通过一条已验证 AA evidence binding 连接 route；
 4. 排除未匹配、不可用、capability 不兼容或用户禁用的 route；
 5. 把每条剩余 route 分到带版本的 `light`、`standard` 或 `deep` AA 能力档；
 6. 为一次决策冻结 catalog 和来源快照 identity。
@@ -116,12 +126,12 @@ Fallback 是保守选择，但不代表经过认证的安全。解释使用“De
 每次决策持久化并显示：
 
 - 任务处理级别；
-- 实际 provider/model/effort；
-- AA 快照和规范化模型键；
+- 实际 provider/model 与适用执行配置；
+- Host route identity、AA 快照和 AA evidence binding；
 - 能力档依据；
 - 价格优先的 route 选择依据；
 - 必要时的 fallback 或升级依据；
-- policy、assessor、normalizer 和 catalog 版本。
+- policy、assessor、binding-rule 和 catalog 版本。
 
 界面摘要示例：
 

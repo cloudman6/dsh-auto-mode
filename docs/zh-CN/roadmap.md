@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: 15f6962fe914d51340ad1bee2d278d6846264cf1
+translation-source-blob: 43ac727a674a2e31812d6455f155529189afef3f
 translation-status: current
 -->
 
@@ -31,14 +31,14 @@ translation-status: current
 
 用第一版带版本 AA catalog 取代原型术语和硬编码 route 假设。
 
-### 1A. 规范化 route identity
+### 1A. 把 Host route 绑定到 AA 证据
 
-- 定义带版本的规范化键：模型家族、语义版本、变体和显式 effort。
-- 相等判断忽略日期/build/deployment revision。
-- 多条带日期 AA 记录共享同一规范化键时选择最新记录。
-- provider 与 capability 事实继续属于可执行 DSH route。
+- 定义 provider-neutral Host route identity，覆盖 provider、model 与实际 request-configuration fingerprint。
+- 定义从每条 eligible Host route 到一个 snapshot 中一条稳定 AA record 的显式版本化 binding。
+- 把 effort 和其他 provider 控制项视为可选执行维度，而不是通用 schema 字段。
+- 以稳定原因拒绝模糊、有歧义、陈旧或跨配置 binding。
 
-验收：合成 fixture 和当前本地 seed 能确定性证明有效匹配，并拒绝版本、变体和 effort 不一致。
+验收：混合 provider 与当前本地 seed fixture 覆盖零个、一个和多个执行控制项；有效 binding 能确定性解析，并拒绝配置 collision、歧义和静默 AA-record 替换。
 
 ### 1B. 编译能力档
 
@@ -87,7 +87,7 @@ translation-status: current
 
 - 定义稳定获取方式和数据权利边界。
 - 在 runtime 路径外生成带版本的最小快照。
-- 校验 schema、attribution、freshness、重复键解析和恢复上一有效快照。
+- 校验 schema、attribution、freshness、binding change 和恢复上一有效快照。
 - credential 和再分发的原始数据集不进入仓库或浏览器 client。
 
 验收：维护者可以可复现地更新快照、检查差异、拒绝畸形数据并恢复上一有效 catalog。
@@ -122,7 +122,7 @@ translation-status: current
 
 - 在明确同意下收集最小化客观信号，例如所选级别、route、延迟、失败、升级和 Manual takeover。
 - 用 dogfood 调整任务映射和 AA 档位边界，不把用户选择当正确标签。
-- 支持带版本和 provenance 的社区 normalization alias 与 policy profile。
+- 支持带版本和 provenance 的社区 evidence binding 与 policy profile。
 - 决定兼容官方 DSH 或基于 fork 的 release 载体。
 
 验收：更新可逆且可归属；真实活跃用户留存继续作为产品指标。

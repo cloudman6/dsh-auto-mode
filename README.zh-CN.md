@@ -1,6 +1,6 @@
 <!--
 translation-source: README.md
-translation-source-blob: 3b3ef22196946d0105286710dd3df5ad853b2080
+translation-source-blob: 3e5cc0fda95042ba75e166f6ccc382fc526f8f44
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 DSH Auto Mode 是面向个人重度 Agent 用户的 DeepSeek Harness 自适应路由插件。普通交互只有一个选择：使用 Auto，或者手动选择 provider/model/reasoning selection。Auto 根据任务上下文选择 `light`、`standard` 或 `deep` 处理级别，再在该级别的合格 route 中优先 Artificial Analysis 价格更低者，并用 AA 延迟打破平局。
 
-阶段 0P MVP 已在固定维护者 fork 上运行并被接受。它使用本地手工录入的 AA seed 和 A1/A2 Host seam，证明 Auto 选择、真实请求切换、持久解释、fallback 与 Manual 不受影响。MVP 后开发按 ADR-010 的 AA 驱动 roadmap 推进。AA 是主流模型能力、价格和延迟结论的外部来源；插件不宣称经过本项目 Benchmark 的质量、普遍最优性、安全或官方 DSH 兼容。
+阶段 0P MVP 已在固定维护者 fork 上运行并被接受。它使用本地手工录入的 AA seed 和 A1/A2 Host seam，证明 Auto 选择、真实请求切换、持久解释、fallback 与 Manual 不受影响。MVP 后开发按 ADR-011 的 AA 驱动 roadmap 推进。AA 是主流模型能力、价格和延迟结论的外部来源；插件不宣称经过本项目 Benchmark 的质量、普遍最优性、安全或官方 DSH 兼容。
 
 ## 产品边界
 
@@ -18,7 +18,7 @@ DSH Auto Mode 从 AA 驱动的模型选择开始。完整方向包括：
 
 - Adaptive Router：在模型请求前选择任务处理级别和具体 route，并解释原因。
 - Routing Policy：把结构化任务属性映射到 `light`、`standard` 或 `deep`。
-- AA Route Catalog：按模型家族、语义版本、变体和 effort 匹配，再用 AA 价格和延迟解析同档 candidate。
+- AA Route Catalog：把通用 Host route identity 绑定到稳定 AA evidence record，再用 AA 价格和延迟解析同档 candidate。
 - Recovery Supervisor：检测停滞，只在已声明恢复支持允许时执行升级、continue、salvage 或 restart。
 - Delegation Policy：约束父 Agent 对子 Agent 的路由控制权。
 - 可选评估：聚焦 fixture 与 scenario 可以研究策略行为，但不成为模型质量 admission gate。

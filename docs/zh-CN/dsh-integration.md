@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 26104306c713904b35c62f106721f7d91be18361
+translation-source-blob: 49f5ee1c3b61badc277c8083369a03431ed56272
 translation-status: current
 -->
 
@@ -20,9 +20,9 @@ translation-status: current
 
 产品无关 seam 与 fork 证据已于 2026-08-16 发布到 DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)，用于获取上游设计反馈。发布不代表维护者接受，也不代表兼容官方 DSH。
 
-每个 preview build 必须记录精确 fork remote 和包含 seam 实现的 commit。它只能标识 Host build，不能标识远程模型 deployment。依据 ADR-010，AA 匹配使用模型家族、语义版本、变体和 effort，而不要求 provider deployment fingerprint。公共兼容契约绝不包含本地 checkout 路径；fork 验证成功也不能表述成官方 DSH 支持。
+每个 preview build 必须记录精确 fork remote 和包含 seam 实现的 commit。它只能标识 Host build，不能标识远程模型 deployment。依据 ADR-011，实际 Host route 显式绑定到一条 AA evidence record，同时保留 semantic-match 限制；该 binding 不是 provider deployment fingerprint。公共兼容契约绝不包含本地 checkout 路径；fork 验证成功也不能表述成官方 DSH 支持。
 
-具体 MVP 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与 effort，以及持久化解释。决定变化时会携带前一条 route，使界面只把发生变化的模型和／或 effort 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，以呼吸灯方式平滑亮灭两次后恢复默认颜色，包括只切换 effort 的情况。聊天时间线会把前后模型与 effort，以及任务处理级别、原因代码和解释记录为路由事实，紧跟在触发它的用户消息之后、产生结果的助手回复之前。阶段 1 复用该载体，并把术语和策略迁移到 ADR-010；生产载体仍未决定。
+具体 MVP 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与 effort，以及持久化解释。决定变化时会携带前一条 route，使界面只把发生变化的模型和／或 effort 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，以呼吸灯方式平滑亮灭两次后恢复默认颜色，包括只切换 effort 的情况。聊天时间线会把前后模型与 effort，以及任务处理级别、原因代码和解释记录为路由事实，紧跟在触发它的用户消息之后、产生结果的助手回复之前。阶段 1 复用该载体，并把术语和策略迁移到 ADR-011；生产载体仍未决定。
 
 ### Fork 契约证据
 
@@ -50,9 +50,9 @@ Auto Mode 应复用或泛化该 snapshot 机制，不应建立第二条相互竞
 
 DSH 已经提供 provider-neutral runtime discovery：`listProviders()` 枚举 active adapter route，`listModels(provider)` 返回各 adapter 的建议性模型目录，`resolveModelInfo(provider, model)` 返回精确 route 元数据，并可能暴露 adapter 拥有的 reasoning effort；`llm/adapters-updated` 则通知 consumer 在 topology 变化后刷新。参见 [`LlmRuntime`](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/index.ts#L415-L421)、[catalog 与精确模型解析](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/index.ts#L575-L624)、[topology event](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/types.ts#L12-L24)，以及[可选 reasoning 元数据](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/types.ts#L252-L280)。
 
-Auto Mode 应通过这些 seam 填充具体 route 清单，并在 topology 变化时刷新。DSH 明确定义 catalog membership 只具有建议性，因此 discovery 只能证明当前可用性元数据，不能证明质量或完整性。ADR-010 按规范化模型家族、语义版本、变体和 effort 把已发现 route 连接到 AA，再应用 Host capability 与用户约束。
+Auto Mode 应通过这些 seam 填充具体 route 清单，并在 topology 变化时刷新。DSH 明确定义 catalog membership 只具有建议性，因此 discovery 只能证明当前可用性元数据，不能证明质量或完整性。ADR-011 为每条已发现 route 的实际配置生成 fingerprint，通过一条经过评审的 AA evidence binding 连接，再应用 Host capability 与用户约束。
 
-Reasoning 元数据是可选的。显式 effort 只有在精确 route 元数据列出该 effort 时才有资格。若 adapter 暴露 `defaultEffort`，调用方省略 effort 会产生 adapter 实体化的默认值，并记录其精确 effort。若没有 adapter default 被实体化，省略 effort 会保留 provider-default 行为。这些 request 语义仍是不同匹配输入；Auto 不能因为元数据缺失就虚构 effort。Provider-default route 只有在已声明 normalizer 能够物化 AA key 所需实际 effort 时才有资格。手动模式仍可在正常 DSH 校验下暴露显式输入的配置。
+Reasoning 元数据是可选的。显式 effort 只有在精确 route 元数据列出该 effort 时才有资格。若 adapter 暴露 `defaultEffort`，调用方省略 effort 会产生 adapter 实体化的默认值，并记录其精确 effort。若没有 adapter default 被实体化，省略 effort 会保留 provider-default 行为。这些 request 语义仍是不同 Host route identity；Auto 不能因为元数据缺失就虚构 effort。除非 Host 能可靠物化实际值，否则 provider-default route 不能绑定到 effort-specific AA record。手动模式仍可在正常 DSH 校验下暴露显式输入的配置。
 
 ### 进程内 child 执行
 
@@ -98,7 +98,7 @@ A1 与 A2 已在维护者 fork 解决。其他需求只在消费它们的 roadma
 |---|---|---|---|---|
 | A1 | 与 `agent/request` 共享的 pre-assembly step context | Session Static Auto | 已在固定 fork 实现并通过测试；上游缺失 | DSH 上游 |
 | A2 | 必需插件 Session 事件注册与兼容处理 | Session Static Auto | 已在固定 fork 实现并通过测试；上游缺失 | DSH 上游 |
-| A3p | 带版本的规范化模型键映射 | 阶段 1 AA catalog | DSH selection 清单存在；ADR-010 用 family/version/variant/effort 匹配取代 deployment binding | 插件 |
+| A3p | 带版本的 Host-route-to-AA evidence binding | 阶段 1 AA catalog | DSH selection 清单存在；ADR-011 把实际 Host route identity 与 AA evidence identity 分开 | 插件 |
 | A3 | 可选 resolved deployment fingerprint | 未来要求精确 deployment identity 的声明 | 需要专项审计；不在当前关键路径 | Provider adapter 或 DSH 上游 |
 | A4 | 固定辅助调用的可扩展 purpose 与审计分类 | Task Assessor 运行 | 需要专项审计 | 接口开放时由插件实现，否则 DSH 上游 |
 | A5p | Auto/manual 与持久解释所需的一个已验证载体 | 阶段 1–3 可用性 | MVP 载体已在固定 fork 验证；术语和 AA 详情仍需迁移 | Fork UI 加插件 Session projection 与命令 |
@@ -116,9 +116,9 @@ A1 与 A2 已在维护者 fork 解决。其他需求只在消费它们的 roadma
 2. **已完成：**为基线缺失行为增加 core contract test。
 3. **已完成：**实现并验证 seam，当前由 fork commit `2a2db7a6ec3ce9969857cc41de839f911ef5902e` 承载。
 4. **已完成：**在 Discussion #2281 发布产品无关契约与 fork 证据，获取上游反馈。
-5. **历史清单已完成：**[阶段 0P route 清单](evidence/phase-0p-route-inventory.md)记录旧 deployment-level 规则为何产生空精确交集。ADR-010 已取代 MVP 后的该规则。
+5. **历史清单已完成：**[阶段 0P route 清单](evidence/phase-0p-route-inventory.md)记录旧 deployment-level 规则为何产生空精确交集。ADR-010 取消该 release gate；ADR-011 定义当前显式 evidence-binding 契约。
 6. **MVP 已完成：**fork UI 与插件 projection/命令覆盖显式 opt-in、Auto/manual 选择、持久化选择、实际配置与解释读取。
-7. 增加阶段 1–3 纵向探针，证明语义判断、规范化 AA 匹配、价格优先解析、assembly/request selection identity、持久化和 Manual 不受影响。
+7. 增加阶段 1–3 纵向探针，证明语义判断、AA evidence binding、价格优先解析、assembly/request selection identity、持久化和 Manual 不受影响。
 8. 若维护者邀请外部改动，将 A1、A2 拆成两项上游贡献。
 9. 合并后把插件固定到首个兼容官方 DSH revision。上游不可用期间明确记录精确 fork，不宣称兼容官方版本。
 
@@ -128,7 +128,7 @@ A1 必须与产品无关：它携带已领取消息、稳定 step identity、取
 
 ### 后续 Track 的所有权边界
 
-DSH 应提供生命周期、持久化、capability 和 execution-world 契约。Auto Mode 保留 Task Assessment schema 与模型、AA catalog normalization、任务处理级别、Routing Policy、episode 策略和可选评估。这个边界使上游扩展可复用，也避免 DSH Core 内置某个路由产品的 taxonomy。
+DSH 应提供生命周期、持久化、capability 和 execution-world 契约。Auto Mode 保留 Task Assessment schema 与模型、Host-route-to-AA binding data、任务处理级别、Routing Policy、episode 策略和可选评估。这个边界使上游扩展可复用，也避免 DSH Core 内置某个路由产品的 taxonomy。
 
 ## 兼容策略
 
@@ -137,7 +137,7 @@ Auto Mode release 必须声明：
 - 精确测试过的 DSH 版本/commit 范围。
 - 必需事件注册与 pre-assembly 契约。
 - Contract test 版本与结果。
-- 规范化 AA 匹配语义和具体 route capability 要求。
+- Host route identity、AA evidence-binding 语义和具体 route capability 要求。
 - 声明 release surface 所使用且已验证的 Auto/manual 与解释载体。
 - 支持的进程内与外部 child provider。
 - 支持恢复的副作用类别。

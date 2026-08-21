@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0010-aa-informed-heuristic-routing.md
-translation-source-blob: c5786255c394434c1aa0c3348df98bafbd84deed
+translation-source-blob: 1f15c9b38bc2b68908d3490ddcb59ce814fb4286
 translation-status: current
 -->
 
@@ -10,9 +10,9 @@ translation-status: current
 
 ## 状态
 
-Accepted
+被 [ADR-011](0011-bind-host-routes-to-aa-evidence.md) 取代，后者定义 MVP 后产品方向。本文保留为取消 Benchmark admission 并确立 AA 驱动、价格优先路由的历史决策。
 
-取代 ADR-002 和 ADR-006 的 MVP 后产品方向，并取代 ADR-008 作为后续外部证据策略。ADR-008 保留为阶段 0P 的历史授权。
+ADR-011 保留本文的 AA 驱动路由、任务处理级别、Host 决策权、价格优先解析、可选 RouterBench 和产品声明限制，同时替换强制四字段模型匹配契约。
 
 ## 日期
 

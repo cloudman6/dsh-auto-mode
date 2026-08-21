@@ -4,7 +4,7 @@
 
 ## Status
 
-Deferred and optional under ADR-010. RouterBench is not required to admit routes or ship the AA-informed Auto path.
+Deferred and optional under ADR-011, which retains ADR-010's removal of the Benchmark admission gate. RouterBench is not required to admit routes or ship the AA-informed Auto path.
 
 ## Purpose
 
@@ -14,7 +14,7 @@ If project resources later permit, focused evaluation can answer narrower questi
 - Does the semantic assessor classify a fixed fixture set consistently?
 - Does escalation improve completion after observable failure?
 - Does within-session switching provide enough value to justify its complexity?
-- Did an AA snapshot or normalization change cause an obvious regression?
+- Did an AA snapshot or evidence-binding change cause an obvious regression?
 
 These suites evaluate this product's behavior. They do not replace AA as the maintained source of market-wide model capability, price, and latency comparisons.
 
@@ -22,8 +22,8 @@ These suites evaluate this product's behavior. They do not replace AA as the mai
 
 Normal product development still requires deterministic tests for:
 
-- model-key normalization and effort mismatch;
-- latest-record selection for duplicate dated AA rows;
+- Host route identity and effective-configuration collision rejection;
+- explicit AA evidence-binding validation and record-replacement review;
 - capability-band compilation;
 - price-first, latency-second stable ordering;
 - Task Assessor schema, timeout, low-confidence, and invalid-output fallback;
@@ -51,7 +51,7 @@ When a concrete product question justifies the cost, the project may run paired 
 
 - Keep fixtures versioned and free of secrets.
 - Separate task input from expected policy trace.
-- Record model, effort, policy, normalizer, AA snapshot, and environment versions.
+- Record Host route identity, applicable effort, policy, binding rule, AA snapshot, and environment versions.
 - Treat dogfood and user choice as observations, not correctness labels.
 - Never describe a small internal suite as an independent model leaderboard.
 

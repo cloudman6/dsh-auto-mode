@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 799c5f58098f8e4126da7a8c68a0e560b7580eca
+translation-source-blob: 4e7d690cbf45f71275314b02e844f11ebec83006
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-ADR-010 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
+ADR-011 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
 
 ## 原则
 
@@ -18,7 +18,7 @@ ADR-010 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录�
 2. Artificial Analysis 提供外部能力、价格和延迟数据；它看不到任务，也不输出最终 route。
 3. 固定 Task Assessor 输出结构化任务属性，不输出模型名。
 4. 面向用户的处理级别是 `light`、`standard` 和 `deep`；它们是启发式资源投入级别，不是质量保证。
-5. 具体 route 按模型家族、语义版本、变体和显式 effort 匹配。deployment 日期和隐藏 build 不是相等要求。
+5. 可执行 Host route identity 与 AA evidence identity 相互独立；显式版本化 binding 连接二者，不建立通用 variant/effort ontology。
 6. Host capability 与用户约束先过滤 candidate，再比较价格。
 7. 一次模型调用在依赖 provider 的组装与 `agent/request` 之间消费同一冻结选择。
 8. 持久化 Session 事实而非临时 UI 状态，是 Auto 选择和原因的 source of truth。
@@ -45,34 +45,52 @@ flowchart LR
 
 提供 catalog 使用的带版本、本地、最小化 AA 记录快照。首版由维护者手工维护并被 Git 忽略。后续获取工具可以在 runtime 路径外更新它；运行时路由不依赖实时 AA 请求。
 
-### Model Key Normalizer
+### Host Route Identity Builder
 
-把 AA 名称和 DSH 模型标识符转换为：
+在 catalog 匹配前物化每条 DSH route 的可执行 identity：
 
 ```ts
-interface NormalizedModelKey {
-  family: string
-  semanticVersion: string
-  variant: string
-  effort: string
+interface HostRouteIdentity {
+  routeId: string
+  provider: string
+  model: string
+  effectiveConfigFingerprint: string
 }
 ```
 
-可以规范化大小写、分隔符和已声明 alias；不得跨越语义版本、变体或 effort。日期和 build 后缀只是元数据，不参与相等判断。同一规范化键的重复 AA 记录解析为冻结快照中的最新记录。
+Fingerprint 覆盖每个会改变执行语义且已由 Host 物化的请求选项。Reasoning effort 是可选且由 provider 拥有。即使 model name 相同，实际配置不同的两条 route 也不能共享 identity。
+
+### AA Evidence Binding Registry
+
+提供从 Host route identity 到一个冻结 AA snapshot 中稳定记录的经过评审、带版本映射：
+
+```ts
+interface AAEvidenceBinding {
+  bindingVersion: string
+  hostRouteId: string
+  effectiveConfigFingerprint: string
+  aaSnapshotId: string
+  aaRecordId: string
+  matchBasis: readonly string[]
+  limitations: readonly string[]
+}
+```
+
+Binding 可以引用 family、version、variant、effort、date、provider 或其他 metadata，但不存在跨 provider 的固定必填子集。Runtime 名称相似性绝不创建 binding。Snapshot refresh 显式校验 binding 新增、替换与移除，不再自动选择最新重复记录。
 
 ### AA Route Catalog Compiler
 
-把当前 DSH route 清单与规范化 AA 记录连接。每条 catalog entry 包含：
+把当前 DSH route 清单与已验证 AA evidence binding 连接。每条 catalog entry 包含：
 
 ```ts
 interface AARouteCatalogEntry {
   routeId: string
   provider: string
   model: string
-  effort: string
-  normalizedModelKey: NormalizedModelKey
+  effort?: string
+  effectiveConfigFingerprint: string
+  evidenceBinding: AAEvidenceBinding
   handlingLevel: 'light' | 'standard' | 'deep'
-  aaRecordId: string
   aaPrice: number
   aaLatency?: number
   capabilityFacts: readonly string[]
@@ -97,7 +115,7 @@ Compiler 排除未匹配 route 和不能满足已声明 capability 的 route。�
 
 1. 所选任务处理级别；
 2. provider availability 和 credential；
-3. model context、modality、tool 和 effort support；
+3. model context、modality、tool 和适用执行配置 support；
 4. 用户 allow/deny 限制；
 5. Host security 要求。
 
@@ -115,10 +133,11 @@ interface FrozenRouteSelection {
   handlingLevel: 'light' | 'standard' | 'deep'
   provider: string
   model: string
-  effort: string
-  normalizedModelKey?: NormalizedModelKey
+  effort?: string
+  effectiveConfigFingerprint: string
   aaSnapshotId?: string
   aaRecordId?: string
+  evidenceBindingVersion?: string
   reasonCodes: readonly string[]
   explanation: string
   policyVersion: string
@@ -128,15 +147,15 @@ interface FrozenRouteSelection {
 }
 ```
 
-同一 provider/model/effort 到达 prompt assembly、`agent/request`、持久化 Session 事实和 Web UI。
+同一 provider/model/实际配置到达 prompt assembly、`agent/request`、持久化 Session 事实和 Web UI。
 
 ### Session Projection 与 UI
 
 Session 按因果顺序记录触发用户消息、冻结选择、实际 request header 和最终助手回复。UI 显示：
 
 - 处理级别；
-- 实际模型和 effort；
-- 模型／effort 变化动画；
+- 实际模型和适用执行配置；
+- 模型／配置变化动画；
 - AA 驱动或 fallback 解释；
 - 检查详情中的快照和策略版本。
 
@@ -152,7 +171,7 @@ Manual 模式绕过 Auto 决策逻辑，并保留正常 DSH 验证。
 5. Catalog compiler 或缓存的冻结 catalog 提供 AA 匹配 route。
 6. Resolver 排除 Host 无效 route。
 7. Resolver 选择 AA 价格更低者，再比较 AA 延迟和稳定 route ID。
-8. Coordinator 冻结具体 provider/model/effort 与解释。
+8. Coordinator 冻结具体 provider/model/实际配置与解释。
 9. 依赖 provider 的 prompt 和工具按该选择组装。
 10. agent/request 应用同一选择。
 11. Session 持久化选择和实际请求事实。

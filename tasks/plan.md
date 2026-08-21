@@ -4,22 +4,22 @@
 
 ## Objective
 
-Evolve the accepted Phase 0P MVP into an AA-informed Auto beta. The implementation will classify each task into Light, Standard, or Deep; match available DSH routes to AA by model family, semantic version, variant, and effort; and choose the lower AA price within the selected level, using AA latency and stable route identity as tie-breaks.
+Evolve the accepted Phase 0P MVP into an AA-informed Auto beta. The implementation will classify each task into Light, Standard, or Deep; bind each eligible effective DSH route explicitly to one stable AA evidence record; and choose the lower AA price within the selected level, using AA latency and stable Host route identity as tie-breaks.
 
 ## Accepted architecture decisions
 
-- ADR-010 supersedes Benchmark admission and latency-first optimization for the post-MVP path.
+- ADR-011 succeeds ADR-010, retaining its removal of Benchmark admission and latency-first optimization while replacing the mandatory four-field matching key.
 - AA is the external source for capability, price, and latency conclusions.
 - A fixed Task Assessor provides structured task attributes; deterministic Host policy owns the final level and route.
-- Date/build/deployment revision is not part of model equality.
+- Host route identity is independent of AA record identity; variant and effort are optional provider dimensions.
 - Manual mode and the accepted model/effort transition UX remain unchanged.
 
 ## Dependency graph
 
 ```text
-normalized model key and fixtures
+Host route identity, AA evidence binding, and fixtures
         ↓
-AA catalog schema and latest-row resolution
+AA catalog schema and binding validation
         ↓
 capability-band compiler and price-first resolver
         ↓
@@ -32,13 +32,13 @@ dogfood and snapshot-refresh workflow
 
 ## Phase 1: AA catalog foundation
 
-### Task 1: Normalize model identity
+### Task 1: Bind Host route identity to AA evidence
 
-Define the model family/version/variant/effort key, explicit aliases, and duplicate-date rule with synthetic fixtures. Do not change live routing yet.
+Define the effective Host route identity, stable configuration fingerprint, and explicit versioned binding to one AA record. Cover mixed-provider routes with zero, one, and several execution controls. Do not change live routing yet.
 
 ### Task 2: Compile the local AA catalog
 
-Load the Git-ignored seed, join it to DSH route inventory, exclude invalid matches, and persist snapshot plus normalizer versions.
+Load the Git-ignored seed, join it to DSH route inventory through validated bindings, exclude invalid matches, and persist snapshot plus binding-rule versions.
 
 ### Task 3: Assign levels and resolve price-first
 
@@ -90,10 +90,10 @@ Choose the stable AA acquisition method and rights boundary, validate and minimi
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| AA fields or naming change | Catalog stops matching or silently re-bands routes | Version schema and normalizer; reject unknown fields; keep previous valid snapshot |
+| AA fields or naming change | Catalog stops matching or silently re-bands routes | Version schema and bindings; reject unknown fields; keep previous valid snapshot |
 | Semantic assessor is inconsistent | Wrong level or unnecessary Deep fallback | Fixed configuration, bounded schema, fixture regression, deterministic fallback |
 | Price fields are incomparable | Wrong same-level winner | Select one canonical AA price field and reject missing/ambiguous comparisons |
-| DSH default effort is opaque | False AA match | Require explicit or reliably materialized effort; otherwise exclude |
+| Effective DSH configuration is opaque | False AA binding | Fingerprint Host-materialized options; exclude unresolved or ambiguous routes |
 | AA-informed wording is mistaken for proof | Overstated product claim | Persist snapshot and reason; use required AA-informed disclaimer |
 
 ## Current open decisions

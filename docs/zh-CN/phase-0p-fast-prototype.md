@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/phase-0p-fast-prototype.md
-translation-source-blob: 2f06918501172a5c203a2f20066b3b8481d6a194
+translation-source-blob: 0c8767bc5ba22c334436d94fa760e9e3db3293d6
 translation-status: current
 -->
 
@@ -12,7 +12,7 @@ translation-status: current
 
 已于 2026-08-18 基于维护者 DSH fork `2a2db7a6ec3ce9969857cc41de839f911ef5902e` 完成实施与验证，并由维护者接受为阶段 0P MVP。后续工作将按 roadmap 逐步迭代。
 
-本文按实际实现记录已完成 MVP。其中的 `fast`/`standard`/`strong` 名称、关键词策略和精确 deployment 研究都属于历史；ADR-010 定义 MVP 后的 `light`/`standard`/`deep`、语义 assessor、版本家族匹配与 AA 价格优先方向。
+本文按实际实现记录已完成 MVP。其中的 `fast`/`standard`/`strong` 名称、关键词策略和精确 deployment 研究都属于历史；ADR-011 定义 MVP 后的 `light`/`standard`/`deep`、语义 assessor、显式 AA evidence binding 与 AA 价格优先方向。
 
 这是仅限维护者的 `experimental-unadmitted` 原型，只证明 Auto 交互和请求路由闭环。它不宣称安全、质量提升、RouterBench 准入、不可变 deployment identity、公开支持或官方 DSH 兼容。
 

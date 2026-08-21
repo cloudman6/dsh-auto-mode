@@ -50,30 +50,40 @@ The display label is “Task handling level”, not “task difficulty”. Risk 
 
 The deterministic mapper uses the highest level required by any material attribute. High risk, broad or unknown scope, no verifiability, or low confidence forces `deep`. It records all contributing reason codes.
 
-## AA matching key
+## Host route identity and AA evidence binding
 
-AA records and DSH models are matched by:
+Execution identity and evidence identity are separate:
 
 ```ts
-interface AAModelKey {
-  family: string
-  semanticVersion: string
-  variant: string
-  effort: string
+interface HostRouteIdentity {
+  routeId: string
+  provider: string
+  model: string
+  effectiveConfigFingerprint: string
+}
+
+interface AAEvidenceBinding {
+  bindingVersion: string
+  hostRouteId: string
+  effectiveConfigFingerprint: string
+  aaSnapshotId: string
+  aaRecordId: string
+  matchBasis: readonly string[]
+  limitations: readonly string[]
 }
 ```
 
-Normalization is explicit and versioned. Case, punctuation, and known presentation aliases may be normalized. Semantic version, model variant, and effort may not be inferred or crossed.
+The Host identity covers every materialized request option that changes execution semantics. Effort is one optional provider-owned option, not a required cross-provider dimension. The binding is explicit, versioned, and reviewed; names and slugs are not matched fuzzily at runtime. A binding cannot cross an effective configuration difference, and a snapshot update cannot silently substitute a different AA record.
 
-Date suffixes and deployment/build revisions are ignored for equality. If several AA rows normalize to the same key, the latest row in the snapshot is the representative record. This is a version-family match, not proof that DSH reached the exact AA-tested deployment.
+Family, version, variant, effort, date, and provider metadata may be declared match evidence where they exist. A revisionless alias may carry an explicit semantic-match limitation, but it is never presented as proof of the exact AA-tested deployment.
 
 ## Catalog construction
 
 The catalog compiler:
 
 1. reads DSH's currently available concrete routes;
-2. materializes the route's model family, semantic version, variant, and effort;
-3. joins the route with the latest matching AA record;
+2. materializes and fingerprints each route's effective Host request configuration;
+3. joins the route through one validated AA evidence binding;
 4. excludes unmatched, unavailable, capability-incompatible, or user-disallowed routes;
 5. assigns each remaining route to one versioned AA capability band: `light`, `standard`, or `deep`;
 6. freezes the resulting catalog and source-snapshot identity for one decision.
@@ -110,12 +120,12 @@ A parent agent may propose task properties and constraints. Host policy validate
 Every decision persists and displays:
 
 - task-handling level;
-- actual provider/model/effort;
-- AA snapshot and normalized model key;
+- actual provider/model and applicable execution configuration;
+- Host route identity, AA snapshot, and AA evidence binding;
 - capability-band reason;
 - price-first route-selection reason;
 - fallback or escalation reason when applicable;
-- policy, assessor, normalizer, and catalog versions.
+- policy, assessor, binding-rule, and catalog versions.
 
 The UI may summarize this as:
 

@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted direction under ADR-010. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
+Accepted direction under ADR-011. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
 
 ## Principles
 
@@ -12,7 +12,7 @@ Accepted direction under ADR-010. Verified DSH seams and fork requirements remai
 2. Artificial Analysis supplies external capability, price, and latency data; it does not see the task or emit the final route.
 3. A fixed Task Assessor emits structured task properties, never a model name.
 4. User-facing handling levels are `light`, `standard`, and `deep`; they are heuristic allocation levels, not quality guarantees.
-5. Concrete route matching uses model family, semantic version, variant, and explicit effort. Deployment dates and hidden builds are not equality requirements.
+5. Executable Host route identity and AA evidence identity remain separate; explicit versioned bindings connect them without a universal variant/effort ontology.
 6. Host capability and user constraints filter candidates before price comparison.
 7. One model call consumes one frozen selection across provider-dependent assembly and `agent/request`.
 8. Persisted Session facts, not transient UI state, are the source of truth for what Auto selected and why.
@@ -39,34 +39,52 @@ flowchart LR
 
 Provides a versioned, local, minimized snapshot of AA records used by the catalog. The first implementation is maintained manually and Git-ignored. A later acquisition tool may refresh it outside the runtime path. Runtime routing never requires a live AA request.
 
-### Model Key Normalizer
+### Host Route Identity Builder
 
-Converts AA names and DSH model identifiers into:
+Materializes each DSH route's executable identity before catalog matching:
 
 ```ts
-interface NormalizedModelKey {
-  family: string
-  semanticVersion: string
-  variant: string
-  effort: string
+interface HostRouteIdentity {
+  routeId: string
+  provider: string
+  model: string
+  effectiveConfigFingerprint: string
 }
 ```
 
-It may normalize case, separators, and declared aliases. It may not cross semantic versions, variants, or efforts. Date and build suffixes are metadata, not equality fields. Duplicate normalized AA keys resolve to the latest record in the frozen snapshot.
+The fingerprint covers every Host-materialized request option that can change execution semantics. Reasoning effort is optional and provider-owned. Two routes with different effective configurations cannot share an identity even when their model names match.
+
+### AA Evidence Binding Registry
+
+Provides reviewed, versioned mappings from Host route identities to stable records in one frozen AA snapshot:
+
+```ts
+interface AAEvidenceBinding {
+  bindingVersion: string
+  hostRouteId: string
+  effectiveConfigFingerprint: string
+  aaSnapshotId: string
+  aaRecordId: string
+  matchBasis: readonly string[]
+  limitations: readonly string[]
+}
+```
+
+Bindings may cite family, version, variant, effort, date, provider, or other metadata, but no fixed subset is mandatory across providers. Runtime name similarity never creates a binding. Snapshot refresh validates binding additions, replacements, and removals explicitly rather than selecting a latest duplicate automatically.
 
 ### AA Route Catalog Compiler
 
-Joins the current DSH route inventory with normalized AA records. Each catalog entry carries:
+Joins the current DSH route inventory with validated AA evidence bindings. Each catalog entry carries:
 
 ```ts
 interface AARouteCatalogEntry {
   routeId: string
   provider: string
   model: string
-  effort: string
-  normalizedModelKey: NormalizedModelKey
+  effort?: string
+  effectiveConfigFingerprint: string
+  evidenceBinding: AAEvidenceBinding
   handlingLevel: 'light' | 'standard' | 'deep'
-  aaRecordId: string
   aaPrice: number
   aaLatency?: number
   capabilityFacts: readonly string[]
@@ -91,7 +109,7 @@ Filters the frozen catalog by:
 
 1. selected handling level;
 2. provider availability and credentials;
-3. model context, modality, tool, and effort support;
+3. model context, modality, tool, and applicable execution-configuration support;
 4. user allow/deny restrictions;
 5. Host security requirements.
 
@@ -109,10 +127,11 @@ interface FrozenRouteSelection {
   handlingLevel: 'light' | 'standard' | 'deep'
   provider: string
   model: string
-  effort: string
-  normalizedModelKey?: NormalizedModelKey
+  effort?: string
+  effectiveConfigFingerprint: string
   aaSnapshotId?: string
   aaRecordId?: string
+  evidenceBindingVersion?: string
   reasonCodes: readonly string[]
   explanation: string
   policyVersion: string
@@ -122,15 +141,15 @@ interface FrozenRouteSelection {
 }
 ```
 
-The same provider/model/effort reaches prompt assembly, `agent/request`, persisted Session facts, and the Web UI.
+The same provider/model/effective configuration reaches prompt assembly, `agent/request`, persisted Session facts, and the Web UI.
 
 ### Session Projection and UI
 
 The Session records the triggering user message, frozen selection, effective request header, and resulting assistant response in causal order. The UI renders:
 
 - handling level;
-- actual model and effort;
-- changed model/effort animation;
+- actual model and applicable execution configuration;
+- changed model/configuration animation;
 - AA-informed or fallback explanation;
 - snapshot and policy details on inspection.
 
@@ -146,7 +165,7 @@ Manual mode bypasses Auto decision logic and retains normal DSH validation.
 5. Catalog compiler or cached frozen catalog exposes eligible AA-matched routes.
 6. Resolver filters Host-invalid routes.
 7. Resolver chooses lower AA price, then lower AA latency, then stable route ID.
-8. Coordinator freezes the concrete provider/model/effort and explanation.
+8. Coordinator freezes the concrete provider/model/effective configuration and explanation.
 9. Provider-dependent prompt and tools assemble from that selection.
 10. agent/request applies the same selection.
 11. Session persists the selection and effective request facts.

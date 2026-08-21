@@ -25,14 +25,14 @@ Acceptance: completed and accepted by the maintainer on 2026-08-18.
 
 Replace prototype terminology and hard-coded route assumptions with the first versioned AA-informed catalog.
 
-### 1A. Normalize route identity
+### 1A. Bind Host routes to AA evidence
 
-- Define the versioned normalized key: model family, semantic version, variant, and explicit effort.
-- Ignore date/build/deployment revision for equality.
-- Choose the latest AA row when several dated rows share one normalized key.
-- Keep provider and capability facts on the executable DSH route.
+- Define a provider-neutral Host route identity over provider, model, and the effective request-configuration fingerprint.
+- Define an explicit, versioned binding from each eligible Host route to one stable AA record in one snapshot.
+- Treat effort and other provider controls as optional execution dimensions rather than universal schema fields.
+- Reject fuzzy, ambiguous, stale, or configuration-crossing bindings with stable reasons.
 
-Acceptance: synthetic and current local seed fixtures prove valid matches and reject version, variant, and effort mismatches deterministically.
+Acceptance: mixed-provider and current local-seed fixtures cover routes with zero, one, and several execution controls; valid bindings resolve deterministically and configuration collisions, ambiguity, and silent AA-record substitution are rejected.
 
 ### 1B. Compile capability bands
 
@@ -81,7 +81,7 @@ Make AA data maintenance reliable without coupling the runtime to a live remote 
 
 - Define a stable acquisition method and data-rights boundary.
 - Generate a versioned minimized snapshot outside the runtime path.
-- Validate schema, attribution, freshness, duplicate-key resolution, and rollback to the previous valid snapshot.
+- Validate schema, attribution, freshness, binding changes, and rollback to the previous valid snapshot.
 - Keep credentials and redistributed raw datasets out of the repository and browser client.
 
 Acceptance: a maintainer can update the snapshot reproducibly, inspect the diff, reject malformed data, and restore the previous valid catalog.
@@ -116,7 +116,7 @@ Acceptance: parent proposals cannot bypass user and Host constraints; child sele
 
 - With explicit consent, collect minimized objective signals such as selected level, route, latency, failure, escalation, and Manual takeover.
 - Use dogfood to tune task mapping and AA band boundaries without treating user choices as correct labels.
-- Support community-maintained normalization aliases and policy profiles with versioning and provenance.
+- Support community-maintained evidence bindings and policy profiles with versioning and provenance.
 - Decide the official DSH-compatible or fork-based release carrier.
 
 Acceptance: updates are reversible and attributable; real active-user retention remains the product metric.

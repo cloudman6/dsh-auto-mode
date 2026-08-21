@@ -4,7 +4,7 @@
 
 Current progress, blockers, and the next action are maintained in the repository-root [`PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
-The accepted MVP is documented in the [Phase 0P fast prototype](phase-0p-fast-prototype.md). Post-MVP implementation follows ADR-010 and the current roadmap.
+The accepted MVP is documented in the [Phase 0P fast prototype](phase-0p-fast-prototype.md). Post-MVP implementation follows ADR-011 and the current roadmap.
 
 ## Review order
 
@@ -24,7 +24,7 @@ The [architecture decision records](decisions/README.md) contain the accepted de
 ## Implementation evidence
 
 - [Phase 0P fast prototype](phase-0p-fast-prototype.md): runnable configuration, local-seed boundary, deterministic policy, acceptance criteria, and real-provider evidence.
-- [Historical Phase 0P exact route inventory and A3p evidence](evidence/phase-0p-route-inventory.md): the deployment-exact experiment that preceded ADR-010's normalized AA model-key policy.
+- [Historical Phase 0P exact route inventory and A3p evidence](evidence/phase-0p-route-inventory.md): the deployment-exact experiment that preceded the current explicit AA evidence-binding policy.
 
 ## Historical review evidence
 
@@ -36,4 +36,4 @@ The [architecture decision records](decisions/README.md) contain the accepted de
 
 ## Document state
 
-The specification and ADR-010 define the current AA-informed direction. ADR-002, ADR-006, and ADR-008 are superseded but retained as historical decisions; the other accepted ADRs remain in force for their stated boundaries. ADRs use `Proposed`, `Accepted`, `Superseded`, and `Deprecated` for their lifecycle.
+The specification and ADR-011 define the current AA-informed direction. ADR-010 and the earlier ADR-002, ADR-006, and ADR-008 are superseded but retained as historical decisions; the other accepted ADRs remain in force for their stated boundaries. ADRs use `Proposed`, `Accepted`, `Superseded`, and `Deprecated` for their lifecycle.

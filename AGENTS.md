@@ -13,13 +13,13 @@ DSH Auto Mode gives individual power users of coding agents an AA-informed Auto 
 | Item | Current state |
 |---|---|
 | Stage | Phase 1 AA route catalog after the accepted Phase 0P MVP |
-| Existing work | Runnable MVP on the A1/A2-pinned maintainer DSH fork, focused tests and real-provider evidence, plus accepted ADR-010 direction |
+| Existing work | Runnable MVP on the A1/A2-pinned maintainer DSH fork, focused tests and real-provider evidence, plus accepted ADR-011 direction |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Phase 1A normalized model-key matching with fixture evidence |
+| Next-stage gate | Phase 1A Host-route-to-AA evidence binding with mixed-provider fixture evidence |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
@@ -60,12 +60,12 @@ Load topic documents only when relevant; do not load the entire repository indis
 
 ## Current-stage constraints
 
-The maintainer accepted ADR-010 on 2026-08-18. Post-MVP implementation proceeds under these constraints:
+The maintainer accepted ADR-011 on 2026-08-21. Post-MVP implementation proceeds under these constraints:
 
-- Treat the accepted specification and ADR-010 as binding. ADR-002, ADR-006, and ADR-008 are historical and superseded for post-MVP product behavior.
+- Treat the accepted specification and ADR-011 as binding. ADR-010 is the superseded historical source for the AA-informed, price-first direction; ADR-002, ADR-006, and ADR-008 remain historical.
 - Keep the implemented A1 and A2 contracts product-neutral and pinned to the verified fork commit; DSH Core must not learn Auto Mode route tiers, Task Assessment, or Policy Pack semantics.
 - Use AA as the external source for capability, price, and latency conclusions; do not claim project-Benchmarked quality or universal optimality.
-- Match AA and DSH by model family, semantic version, variant, and explicit effort. Ignore date/build revisions for equality, but never cross version, variant, or effort.
+- Keep executable Host route identity separate from AA evidence identity. Bind one effective provider/model/request configuration explicitly to one stable AA record; do not require variant or effort across providers, infer bindings fuzzily, cross a materialized execution difference, or silently substitute a newer AA record.
 - Use `light`, `standard`, and `deep` internally and Light/Standard/Deep plus 轻量/常规/深度 in user-facing text. The completed MVP's old labels remain historical until migrated.
 - Within one handling level, prefer lower AA-reported price, then lower AA-reported latency, then stable route identity. Do not add a local token-cost estimator.
 - A fixed Task Assessor may return structured task attributes only; deterministic Host policy owns the level and concrete route decision.
@@ -109,8 +109,8 @@ English canonical documents and Chinese translations are governed by `docs/local
 7. Parent-agent constraints are proposals. Only Host-recognized requirements or explicitly user-authorized overrides become binding; a parent may not silently raise, lower, or bypass Routing Policy with an arbitrary provider/model.
 8. Recovery Supervisor operates on formal events and does not require a self-reporting prompt protocol on every turn.
 9. Never implement workspace recovery with raw Git rollback. Session checkpoints and workspace checkpoints have separate semantics and owners.
-10. RouterBench is optional evaluation infrastructure, not a route-admission or release gate. Required correctness tests still cover normalization, catalog compilation, price ordering, assessor fallback, persistence, UI equality, and Manual non-interference.
-11. Ordinary users choose only between `Auto` and manual provider/model/reasoning selection. Maintainer-owned versioned AA snapshots, normalizers, band policies, and fallbacks carry defaults; advanced restrictions are optional.
+10. RouterBench is optional evaluation infrastructure, not a route-admission or release gate. Required correctness tests still cover Host route identity, evidence binding, catalog compilation, price ordering, assessor fallback, persistence, UI equality, and Manual non-interference.
+11. Ordinary users choose only between `Auto` and manual provider/model/reasoning selection. Maintainer-owned versioned AA snapshots, evidence bindings, band policies, and fallbacks carry defaults; advanced restrictions are optional.
 12. A route for one model step must be frozen before provider-dependent prompt and tool assembly, then applied unchanged at `agent/request`.
 13. AA data supports heuristic routing only. It must not be presented as project Benchmark evidence, an exact deployment proof, or a task-specific quality guarantee.
 14. Phase 0P mutable work is limited by ADR-009 to attributable uncommitted changes created by the current Attempt in a clean isolated worktree. The concrete provider design and complete production tool-entry inventory require separate acceptance; user approval does not prove Recovery Capability and never authorizes external effects or automatic rollback.

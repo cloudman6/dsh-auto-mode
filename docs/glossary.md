@@ -26,9 +26,13 @@ Broad, uncertain, high-risk, weakly verifiable, or reasoning-intensive work. Chi
 
 The executable provider/model/reasoning selection sent through DSH. A handling level may contain multiple concrete routes.
 
-## Normalized model key
+## Host route identity
 
-The AA matching identity composed of model family, semantic version, variant, and effort. Date and hidden deployment/build revision are not equality fields.
+The executable DSH identity for one provider, model, and effective request configuration. It includes a stable fingerprint of every Host-materialized option that can change execution semantics; effort is optional.
+
+## AA evidence binding
+
+A reviewed, versioned mapping from one Host route identity to one stable AA model/configuration record in one frozen snapshot. It records the match basis and limitations but does not claim exact deployed weights.
 
 ## AA snapshot
 
@@ -36,7 +40,7 @@ A versioned local set of Artificial Analysis capability, price, and latency reco
 
 ## AA route catalog
 
-The frozen intersection of normalized AA records, DSH-available concrete routes, route capabilities, and user/Host constraints, with each route assigned to one handling level.
+The frozen intersection of AA evidence-bound Host routes, route capabilities, and user/Host constraints, with each route assigned to one handling level.
 
 ## Task Assessment
 

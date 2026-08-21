@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/README.md
-translation-source-blob: b623b069cf6265bcd085d7d9178489c4e2531f40
+translation-source-blob: 1f6fe260f0df2b59bc41b9d6d25627623ffeb77b
 translation-status: current
 -->
 
@@ -19,6 +19,7 @@ translation-status: current
 | [ADR-007](0007-recovery-capability-gates-recovery-claims.md) | Accepted | Recovery Capability 约束可修改路由与恢复主张 |
 | [ADR-008](0008-external-prior-experimental-auto.md) | 被 ADR-010 取代 | 已完成阶段 0P MVP 的历史授权 |
 | [ADR-009](0009-phase-0p-attributable-worktree-loss-bound.md) | Accepted | 阶段 0P 可变工作仅限干净隔离 worktree 中可归属的变更 |
-| [ADR-010](0010-aa-informed-heuristic-routing.md) | Accepted | 使用 AA 驱动任务级别和价格优先 route 解析，不要求 Benchmark admission gate |
+| [ADR-010](0010-aa-informed-heuristic-routing.md) | 被 ADR-011 取代 | 确立 AA 驱动任务级别和价格优先 route 解析，不要求 Benchmark admission gate |
+| [ADR-011](0011-bind-host-routes-to-aa-evidence.md) | Accepted | 把通用 Host route identity 绑定到 AA 证据，不建立通用 model/effort ontology |
 
 ADR 被取代时保留原文件，并把状态指向替代 ADR。

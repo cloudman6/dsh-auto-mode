@@ -7,9 +7,9 @@
 1. Which exact AA capability score or published rank defines the three initial band boundaries, and should boundaries use absolute score ranges or distance from the current leader?
 2. Which AA price field is the canonical within-band comparator, and what explicit rule applies when that field is missing?
 3. Which AA latency field breaks price ties?
-4. What normalization aliases map current DSH model identifiers to model family, semantic version, variant, and effort?
-5. When duplicate dated AA rows normalize to one key, which timestamp establishes “latest” and how is an absent date handled?
-6. Which DSH routes expose an unspecified/default effort, and can their effective effort be materialized reliably enough to match AA?
+4. Which initial reviewed bindings map the current DSH Host route identities to stable AA record IDs, and what match basis and limitation does each binding declare?
+5. Which DSH routes expose an unspecified/default effort or another opaque execution option, and can the Host materialize it reliably enough to produce a stable route identity?
+6. Which mixed-provider fixtures prove that routes with zero, one, and several execution controls cannot collide?
 
 ## Phase 2: Semantic assessor
 
@@ -45,5 +45,5 @@
 
 1. Is the long-term carrier the maintained DSH fork, an upstream extension, or a split package?
 2. Which minimized dogfood signals may be collected with consent, and for how long?
-3. How are community normalization aliases and policy profiles reviewed, versioned, and rolled back?
+3. How are community AA evidence bindings and policy profiles reviewed, versioned, and rolled back?
 4. Which Codex and Claude Code APIs expose model and effort control strongly enough for adapters?

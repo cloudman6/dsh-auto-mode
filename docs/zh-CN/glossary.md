@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/glossary.md
-translation-source-blob: a9f6bd5f9d0d2f65f99c2eb8e1277c1e463b4201
+translation-source-blob: 85ec0d7e96c272c6a23176751cae003670bb4882
 translation-status: current
 -->
 
@@ -32,9 +32,13 @@ Auto 为当前任务分配的推理能力。内置级别为 `light`、`standard`
 
 通过 DSH 执行的 provider/model/reasoning selection。一个处理级别可以包含多条具体 route。
 
-## 规范化模型键
+## Host route identity
 
-由模型家族、语义版本、变体和 effort 组成的 AA 匹配 identity。日期和隐藏 deployment/build revision 不参与相等判断。
+一个 provider、model 与实际 request configuration 的可执行 DSH identity。它包含每个会改变执行语义且已由 Host 物化选项的稳定 fingerprint；effort 是可选字段。
+
+## AA evidence binding
+
+从一条 Host route identity 到一个冻结 snapshot 中一条稳定 AA 模型／配置记录的经过评审、带版本映射。它记录 match basis 与限制，但不宣称精确部署权重。
 
 ## AA 快照
 
@@ -42,7 +46,7 @@ Auto 为当前任务分配的推理能力。内置级别为 `light`、`standard`
 
 ## AA route catalog
 
-规范化 AA 记录、DSH 可用具体 route、route capability 与用户/Host 约束的冻结交集，每条 route 被分配到一个任务处理级别。
+已绑定 AA 证据的 Host route、route capability 与用户/Host 约束的冻结交集，每条 route 被分配到一个任务处理级别。
 
 ## Task Assessment
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routerbench.md
-translation-source-blob: 2ba07bd48a8b61f0561ac1d912f943abe583b5db
+translation-source-blob: 3b5cfc47591451f74a761b7081c96acdfe325871
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-依据 ADR-010 推迟且为可选。RouterBench 不再是 route admission 或交付 AA 驱动 Auto 的必需条件。
+依据 ADR-011 推迟且为可选；ADR-011 保留 ADR-010 对 Benchmark admission gate 的取消。RouterBench 不再是 route admission 或交付 AA 驱动 Auto 的必需条件。
 
 ## 目的
 
@@ -20,7 +20,7 @@ translation-status: current
 - 语义 assessor 是否对固定 fixture 保持一致分类？
 - 可观察失败后的升级是否改善完成结果？
 - Session 内切换是否值得其复杂度？
-- AA 快照或 normalization 变化是否导致明显回归？
+- AA 快照或 evidence-binding 变化是否导致明显回归？
 
 这些套件评估本产品行为，不取代 AA 作为主流模型能力、价格和延迟比较的维护来源。
 
@@ -28,8 +28,8 @@ translation-status: current
 
 正常产品开发仍需以下确定性测试：
 
-- 模型键规范化和 effort mismatch；
-- 多条带日期 AA 记录的最新记录选择；
+- Host route identity 与实际配置 collision 拒绝；
+- 显式 AA evidence-binding validation 与 record-replacement review；
 - 能力档编译；
 - 价格优先、延迟第二的稳定排序；
 - Task Assessor schema、timeout、低置信度和无效输出 fallback；
@@ -57,7 +57,7 @@ translation-status: current
 
 - Fixture 带版本且不含 secret。
 - 任务输入与期望 policy trace 分离。
-- 记录 model、effort、policy、normalizer、AA snapshot 和环境版本。
+- 记录 Host route identity、适用 effort、policy、binding rule、AA snapshot 和环境版本。
 - Dogfood 和用户选择是观察值，不是正确标签。
 - 不把小型内部套件称为独立模型榜单。
 

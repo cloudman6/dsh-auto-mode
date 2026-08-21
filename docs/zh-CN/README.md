@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/README.md
-translation-source-blob: fbb87c0b9bc2d0155db8996d9137b8c951bfd5f2
+translation-source-blob: f4dd53112f959c2b39adeaac0ccc8de5c02f02ae
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 当前进展、阻塞和下一步统一维护在仓库根目录的 [`PROJECT_STATUS.zh-CN.md`](../../PROJECT_STATUS.zh-CN.md)。
 
-已接受 MVP 见[阶段 0P 快速原型](phase-0p-fast-prototype.md)。MVP 后实施按 ADR-010 和当前 roadmap 推进。
+已接受 MVP 见[阶段 0P 快速原型](phase-0p-fast-prototype.md)。MVP 后实施按 ADR-011 和当前 roadmap 推进。
 
 ## 评审顺序
 
@@ -30,7 +30,7 @@ translation-status: current
 ## 实施证据
 
 - [阶段 0P 快速原型](phase-0p-fast-prototype.md)：可运行配置、本地 seed 边界、确定性策略、验收标准和真实 provider 证据。
-- [历史阶段 0P 精确 route 清单与 A3p 证据](evidence/phase-0p-route-inventory.md)：ADR-010 采用归一化 AA 模型键之前的 deployment-exact 实验。
+- [历史阶段 0P 精确 route 清单与 A3p 证据](evidence/phase-0p-route-inventory.md)：当前显式 AA evidence-binding policy 之前的 deployment-exact 实验。
 
 ## 历史评审证据
 
@@ -42,4 +42,4 @@ translation-status: current
 
 ## 文档状态
 
-规范与 ADR-010 定义当前 AA 驱动方向。ADR-002、ADR-006 和 ADR-008 已被取代但保留为历史决策；其他已接受 ADR 在各自边界内继续有效。ADR 使用 `Proposed`、`Accepted`、`Superseded` 和 `Deprecated` 表示生命周期。
+规范与 ADR-011 定义当前 AA 驱动方向。ADR-010 以及更早的 ADR-002、ADR-006 和 ADR-008 已被取代但保留为历史决策；其他已接受 ADR 在各自边界内继续有效。ADR 使用 `Proposed`、`Accepted`、`Superseded` 和 `Deprecated` 表示生命周期。

@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: f28a0f2185f58da7ab1ec3f06b43ee77adef2708
+translation-source-blob: 98f3423de004d4321b76876ecaef5c4245c532f6
 translation-status: current
 -->
 
@@ -8,17 +8,17 @@ translation-status: current
 
 [English](todo.md)
 
-## Task 1：规范化模型 identity
+## Task 1：把 Host route identity 绑定到 AA 证据
 
 **验收标准：**
 
-- [ ] 带版本的键包含 family、semantic version、variant 和显式 effort。
-- [ ] 日期/build 后缀不影响相等判断；重复 AA 记录确定性选择最新一条。
-- [ ] version、variant 和 effort mismatch 被拒绝。
+- [ ] 稳定 Host route identity 包含 provider、model，以及每个 Host 物化执行选项的 fingerprint。
+- [ ] 一条版本化显式 binding 把 eligible Host route 映射到一个冻结 snapshot 中一条稳定 AA record。
+- [ ] Effort 和 variant 保持 provider 可选维度；模糊、陈旧、有歧义或跨配置 binding 被拒绝。
 
 **验证：**
 
-- [ ] 合成 fixture 覆盖有效 alias、重复日期、mismatch 和未指定 effort。
+- [ ] 混合 provider fixture 覆盖零个、一个和多个执行控制项、有效 binding、collision、歧义和 AA-record replacement。
 - [ ] 现有 MVP 与 Manual 测试继续通过。
 
 **依赖：**无
@@ -28,7 +28,7 @@ translation-status: current
 **验收标准：**
 
 - [ ] 被 Git 忽略的本地 seed 只连接到有效 DSH route。
-- [ ] 每条 entry 记录 snapshot、normalizer、AA record、具体 route 和 capability facts。
+- [ ] 每条 entry 记录 snapshot、binding-rule version、AA record、Host route identity、实际配置 fingerprint 和 capability facts。
 - [ ] 无效或未匹配 row 带稳定原因被排除，且不提交 secret。
 
 **验证：**
@@ -155,7 +155,7 @@ translation-status: current
 
 **验证：**
 
-- [ ] Offline fixture 覆盖更新、拒绝、rollback、新增、删除、rename 和重复解析。
+- [ ] Offline fixture 覆盖更新、拒绝、rollback、binding 新增、删除、替换和 AA-record rename。
 - [ ] Credential 和再分发原始数据集留在 Git 与浏览器 client 之外。
 
 **依赖：**Checkpoint C，以及新增依赖或远程服务的明确授权

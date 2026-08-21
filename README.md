@@ -4,7 +4,7 @@
 
 DSH Auto Mode is an adaptive routing plugin for DeepSeek Harness, designed for individual power users of coding agents. The normal interaction is one choice: use Auto, or manually select a provider/model/reasoning selection. Auto uses task context to choose a `light`, `standard`, or `deep` handling level, then prefers the lower Artificial Analysis price among eligible routes in that level and uses AA latency as a tie-break.
 
-The Phase 0P MVP is runnable on the pinned maintainer fork and has been accepted. It uses a local, manually entered AA seed and the A1/A2 Host seams to prove Auto selection, real request switching, persisted explanations, fallback, and Manual non-interference. Post-MVP development now follows the AA-informed roadmap in ADR-010. AA is the external source for market-wide capability, price, and latency conclusions; the plugin does not claim project-benchmarked quality, universal optimality, safety, or official DSH compatibility.
+The Phase 0P MVP is runnable on the pinned maintainer fork and has been accepted. It uses a local, manually entered AA seed and the A1/A2 Host seams to prove Auto selection, real request switching, persisted explanations, fallback, and Manual non-interference. Post-MVP development now follows the AA-informed roadmap in ADR-011. AA is the external source for market-wide capability, price, and latency conclusions; the plugin does not claim project-benchmarked quality, universal optimality, safety, or official DSH compatibility.
 
 ## Product boundary
 
@@ -12,7 +12,7 @@ DSH Auto Mode begins with AA-informed model selection. Its full direction includ
 
 - Adaptive Router: selects a task-handling level and concrete route before a model request and explains the decision.
 - Routing Policy: maps structured task attributes to `light`, `standard`, or `deep`.
-- AA Route Catalog: matches model family, semantic version, variant, and effort, then resolves same-level candidates by AA price and latency.
+- AA Route Catalog: binds generic Host route identities to stable AA evidence records, then resolves same-level candidates by AA price and latency.
 - Recovery Supervisor: detects stalled execution and performs escalation, continue, salvage, or restart only where declared recovery support permits it.
 - Delegation Policy: constrains how a parent agent can influence child-agent routing.
 - Optional evaluation: focused fixtures and scenarios may study policy behavior without becoming a model-quality admission gate.
