@@ -12,14 +12,14 @@ DSH Auto Mode gives individual power users of coding agents an AA-informed Auto 
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 2 Task 5 semantic-assessor implementation after the completed Task 4 contract |
-| Existing work | Runnable MVP, completed Phase 1 catalog pipeline, and the versioned bounded Task Assessor contract with deterministic environment-aware route resolution |
+| Stage | Phase 3 Task 6 frozen Auto-decision integration after completed Phases 1–2 |
+| Existing work | Runnable MVP plus completed Phase 1 catalog and Phase 2 one-shot assessor, deterministic level-policy, and fallback pipelines |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Implement the one-shot assessor call and deterministic level mapper for Phase 2 Task 5 |
+| Next-stage gate | Integrate assessment, catalog, level policy, and resolver at the verified pre-assembly boundary |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
@@ -300,7 +300,7 @@ Do not decide these items autonomously:
 
 ## Current hard blocker
 
-Phase 1 and Phase 2 Task 4 have no remaining blocker. Current Task 5 work and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
+Phases 1 and 2 have no remaining blocker. Current Phase 3 work and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
 ## Security boundaries
 

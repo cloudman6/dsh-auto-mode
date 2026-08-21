@@ -2,11 +2,6 @@
 
 [简体中文](zh-CN/open-questions.md)
 
-## Phase 2: Semantic assessor
-
-1. Which fixture prompts cover coding, debugging, research, writing, architecture, security, and ambiguous tasks?
-2. Which validated attribute combinations distinguish `light` from `standard` after the already-fixed high-risk, unknown-scope, unverifiable, and low-confidence Deep rules?
-
 ## Phase 3: Auto beta
 
 1. What constitutes a new task boundary for reassessment: every user message, a Session objective, or another Host-owned event?

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: b4c763f714f7be78154ae60d3eac84913fe73696
+translation-source-blob: 868b39d6cd32acc90cad754b7fcc2f3cb0a49031
 translation-status: current
 -->
 
@@ -68,7 +68,9 @@ translation-status: current
 - 用确定性 Host policy 把结构化属性映射到 `light`/`standard`/`deep`。
 - 超时、无效输出、低置信度、高风险或范围未知时使用 `deep`。
 
-Task 4 已于 2026-08-22 完成：route policy、有限输入、请求预算、严格 schema、置信度阈值以及 valid/invalid/timeout/low-confidence 契约 fixture 均已冻结。阶段验收仍需 Task 5 的代表性语义 fixture 和确定性级别 mapper；畸形或不确定判断回退到 `deep`。
+Task 4 已于 2026-08-22 完成：route policy、有限输入、请求预算、严格 schema、置信度阈值以及 valid/invalid/timeout/low-confidence 契约 fixture 均已冻结。
+
+Task 5 和阶段 2 已于 2026-08-22 完成。`task-handling-policy/v1` 确定性映射已校验属性与 reason code；一次直接、无工具、零重试 assessor 调用会独立于 stream 配合程度强制总 deadline。Fixture 覆盖编码、调试、研究、写作、架构、安全、模糊、route 不兼容、provider failure、截断、timeout 和 caller cancellation。在阶段 3 集成这条隔离路径前，可运行 MVP 保持不变。
 
 ## 阶段 3：AA 驱动 Auto Beta
 

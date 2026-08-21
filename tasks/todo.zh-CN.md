@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: 51200c7c9ece81ddd7a4b95069693c58e20b7911
+translation-source-blob: adb925cfc2e7e725511a05193f5836f80e432592
 translation-status: current
 -->
 
@@ -77,22 +77,22 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] Assessor 在 Auto 递归之外运行且没有工具。
-- [ ] 确定性策略把结构化属性映射到 Light、Standard 或 Deep，并记录 reason code。
-- [ ] 高风险、范围未知、无效输出、timeout 和低置信度选择 Deep。
+- [x] Assessor 在 Auto 递归之外运行且没有工具。
+- [x] 确定性策略把结构化属性映射到 Light、Standard 或 Deep，并记录 reason code。
+- [x] 高风险、范围未知、无效输出、timeout 和低置信度选择 Deep。
 
 **验证：**
 
-- [ ] Fixture 覆盖编码、调试、研究、写作、架构、安全和模糊任务。
-- [ ] 重复有效输入产生相同级别和解释。
+- [x] Fixture 覆盖编码、调试、研究、写作、架构、安全和模糊任务。
+- [x] 重复有效输入产生相同级别和解释。
 
 **依赖：**Task 3、4
 
 ## Checkpoint B：语义路由
 
-- [ ] Assessor 只提供证据；Host policy 拥有决策权。
-- [ ] Assessor 输出不包含具体 route。
-- [ ] 所有 fallback 路径确定且可见。
+- [x] Assessor 只提供证据；Host policy 拥有决策权。
+- [x] Assessor 输出不包含具体 route。
+- [x] 所有 fallback 路径确定且可见。
 
 ## Task 6：集成冻结 Auto 决策
 

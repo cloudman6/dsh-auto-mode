@@ -58,6 +58,15 @@ const FALLBACK_CODES = new Set([
   'assessor-timeout',
 ])
 const LEVELS = Object.freeze(['light', 'standard', 'deep'])
+const ASSESSOR_ROUTE_CONFIG_KEYS = new Set([
+  'maxTokens',
+  'model',
+  'provider',
+  'reasoningEffort',
+  'stop',
+  'temperature',
+  'tools',
+])
 
 function freezeTree(value) {
   if (value !== null && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -88,6 +97,32 @@ function exactKeys(value, keys) {
 
 function enumValue(value, values) {
   return typeof value === 'string' && values.includes(value)
+}
+
+function emptyArrayOrUndefined(value) {
+  return value === undefined || (Array.isArray(value) && value.length === 0)
+}
+
+/** Whether one catalog route can preserve the fixed v1 assessor request contract. */
+export function isTaskAssessorRouteCompatible(route) {
+  const config = route?.effectiveConfig
+  return isRecord(route)
+    && isRecord(config)
+    && typeof route.provider === 'string'
+    && route.provider.length > 0
+    && typeof route.model === 'string'
+    && route.model.length > 0
+    && config.provider === route.provider
+    && config.model === route.model
+    && Object.keys(config).every(key => ASSESSOR_ROUTE_CONFIG_KEYS.has(key))
+    && (config.reasoningEffort === undefined
+      || (typeof config.reasoningEffort === 'string' && config.reasoningEffort.length > 0))
+    && (config.temperature === undefined
+      || config.temperature === TASK_ASSESSOR_CONTRACT_V1.request.temperature)
+    && (config.maxTokens === undefined
+      || config.maxTokens === TASK_ASSESSOR_CONTRACT_V1.request.maxTokens)
+    && emptyArrayOrUndefined(config.stop)
+    && emptyArrayOrUndefined(config.tools)
 }
 
 function fallback(reasonCode) {
@@ -235,7 +270,8 @@ export function resolveTaskAssessorRoute(catalog) {
         fallback: fallback('assessor-catalog-invalid'),
       })
     }
-    const route = routes.find(candidate => Number.isFinite(candidate?.aaLatencySeconds)
+    const route = routes.find(candidate => isTaskAssessorRouteCompatible(candidate)
+      && Number.isFinite(candidate?.aaLatencySeconds)
       && candidate.aaLatencySeconds >= 0
       && candidate.aaLatencySeconds <= TASK_ASSESSOR_CONTRACT_V1.routePolicy.maximumMedianTtfaSeconds)
     if (route !== undefined) {

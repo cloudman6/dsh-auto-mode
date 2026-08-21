@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: eb79359e421fe893857e70902898009b3b6f4cd3
+translation-source-blob: 2e3611c4616704f4b5591b0f53f0bbf37b48b7b1
 translation-status: current
 -->
 
@@ -66,9 +66,13 @@ dogfood 与快照更新流程
 
 ### Task 5：实现已解析 assessor 与级别 mapper
 
+状态：已于 2026-08-22 完成。
+
 在 Auto 递归之外调用已解析并冻结的 assessor，把已校验输出映射到 Light/Standard/Deep 和确定性 reason code。覆盖代表性 fixture 与所有 fallback。
 
 ### Checkpoint B
+
+状态：已于 2026-08-22 完成。
 
 Assessor 不输出具体 route；重复结构化输入映射到相同级别；timeout、无效输出、不确定和高风险选择 Deep。
 

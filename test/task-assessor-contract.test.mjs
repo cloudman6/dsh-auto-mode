@@ -16,7 +16,7 @@ const fixtures = JSON.parse(readFileSync(
   'utf8',
 ))
 
-function evidenceEntry({ routeId, score, price, latency }) {
+function evidenceEntry({ routeId, score, price, latency, effectiveConfig = {} }) {
   return {
     routeId,
     provider: `provider-${routeId}`,
@@ -24,6 +24,7 @@ function evidenceEntry({ routeId, score, price, latency }) {
     effectiveConfig: {
       provider: `provider-${routeId}`,
       model: `model-${routeId}`,
+      ...effectiveConfig,
     },
     effectiveConfigFingerprint: `sha256:${routeId}`,
     aaSnapshotId: 'aa-task-assessor-fixture',
@@ -79,6 +80,30 @@ describe('Task Assessor route policy', () => {
     assert.equal(resolution.resolvedLevel, 'standard')
     assert.equal(resolution.route.routeId, 'standard-cheap')
     assert.equal(resolution.reasonCode, 'task-assessor-route-escalated')
+  })
+
+  it('skips route controls that conflict with the fixed assessor request contract', () => {
+    const catalog = compiledCatalog([
+      evidenceEntry({
+        routeId: 'light-conflicting-temperature',
+        score: 30,
+        price: 0.01,
+        latency: 1,
+        effectiveConfig: { temperature: 0.2 },
+      }),
+      evidenceEntry({
+        routeId: 'light-compatible',
+        score: 31,
+        price: 0.02,
+        latency: 2,
+        effectiveConfig: { temperature: 0, maxTokens: 512, tools: [] },
+      }),
+    ])
+
+    const resolution = resolveTaskAssessorRoute(catalog)
+
+    assert.equal(resolution.status, 'resolved')
+    assert.equal(resolution.route.routeId, 'light-compatible')
   })
 
   it('fails closed to Deep when no catalog route meets the assessor contract', () => {

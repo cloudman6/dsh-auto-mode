@@ -1,17 +1,12 @@
 <!--
 translation-source: docs/open-questions.md
-translation-source-blob: 78c757d46ad17d7fe4e0178fd72dc1749b7b015a
+translation-source-blob: db675fe7da11fb59ef6db22c165726909bd5c94c
 translation-status: current
 -->
 
 # 开放问题
 
 [English](../open-questions.md)
-
-## 阶段 2：语义 assessor
-
-1. 哪些 fixture prompt 覆盖编码、调试、研究、写作、架构、安全和模糊任务？
-2. 在已固定的高风险、范围未知、不可验证和低置信度 Deep 规则之外，哪些已校验属性组合区分 `light` 与 `standard`？
 
 ## 阶段 3：Auto Beta
 

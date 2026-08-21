@@ -36,6 +36,8 @@ interface TaskAssessment {
 
 The assessor never selects its own physical route. `task-assessor-route-policy/v1` deterministically resolves one route from the current frozen AA catalog without inspecting the user task: it requests Light, escalates through Standard and Deep, excludes routes with missing AA latency or median time to first answer token above 6 seconds, and keeps the first price/latency/stable-identity winner. That concrete Host route and effective configuration are frozen before the call, so environment differences are supported without Auto recursion or mid-call switching.
 
+A candidate must also preserve the fixed assessor request contract. A conflicting temperature or output limit, non-empty tool or stop configuration, or an unsupported materialized request control excludes that route from assessor use; resolution continues to the next price-ordered compatible route. The assessor never mutates a bound route into a different execution configuration.
+
 `task-assessor-contract/v1` uses one tool-free, zero-retry request with temperature `0`, a 512-token output cap, an 8 KiB response cap, and a 12-second total timeout. Model-visible input contains at most 16 KiB for the current user message plus 16 KiB for at most four preceding visible user/assistant messages and metadata for at most 16 attachments. It excludes system/developer prompts, hidden reasoning, tool traffic, terminal output, credentials, environment variables, private child context, and attachment contents.
 
 The response is untrusted. It must contain exactly the seven assessment fields, use closed enums, choose confidence from `0`, `0.5`, `0.8`, or `1`, and provide one to four allowlisted reason codes. The Host, not the model, attaches `task-assessor/v1`. Provider, model, effort, route, handling level, extra fields, malformed JSON, oversized input/output, provider failure, timeout, or confidence below `0.8` becomes an unknown assessment and selects `deep` with a stable failure code.
@@ -52,7 +54,13 @@ type TaskHandlingLevel = 'light' | 'standard' | 'deep'
 
 The display label is “Task handling level”, not “task difficulty”. Risk and uncertainty can justify `deep` even when the requested edit is small.
 
-The deterministic mapper uses the highest level required by any material attribute. High risk, broad or unknown scope, no verifiability, or low confidence forces `deep`. It records all contributing reason codes.
+`task-handling-policy/v1` uses the highest level required by any material attribute or assessor reason:
+
+- `deep` when the task kind is unknown; scope is broad or unknown; complexity is high or unknown; risk is high or unknown; verifiability is none or unknown; or the assessor reports open-ended scope, missing material context, ambiguous intent, security sensitivity, destructive or external effects, or a non-checkable result;
+- `light` only when scope is bounded, complexity and risk are low, the result is mechanically checkable, and the assessment does not report multiple dependent steps, a cross-file change, or partial verification;
+- `standard` for every other validated assessment.
+
+Timeout, invalid output, provider failure, unavailable assessor route, oversized input or output, and confidence below `0.8` bypass attribute mapping and produce a stable `deep` fallback code. The mapper records every contributing Host-policy reason in fixed order and builds explanations only from that versioned reason vocabulary, so repeated validated inputs produce the same level, reason codes, and explanation.
 
 ## Host route identity and AA evidence binding
 

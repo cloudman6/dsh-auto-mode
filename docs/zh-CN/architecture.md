@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 399b31139d0888fe6fa0cc72d0522c2da8199ded
+translation-source-blob: 990983a512c4c0028a00831bdc0f4f435eab0ea5
 translation-status: current
 -->
 
@@ -113,15 +113,17 @@ interface AAEvidenceCatalogExclusion {
 
 ### Task Assessor
 
-`task-assessor-route-policy/v1` 在不检查用户任务内容的情况下，把分类视为固定 Light 请求。它从当前冻结 AA catalog 中筛选 AA 报告的首次实际答案 token 中位时间不超过 6 秒的 route，依次尝试 Light、Standard、Deep，并在第一个存在合格项的级别中沿用价格、延迟和稳定 route identity 排序。它在一次调用前冻结选中的 Host route identity 和实际配置。Catalog 缺失或无效、或者没有合格 route 时，产生显式 Deep fallback，而不是硬编码或静默替换 provider/model/effort。
+`task-assessor-route-policy/v1` 在不检查用户任务内容的情况下，把分类视为固定 Light 请求。它从当前冻结 AA catalog 中筛选 AA 报告的首次实际答案 token 中位时间不超过 6 秒的 route，依次尝试 Light、Standard、Deep，并在第一个存在合格项的级别中沿用价格、延迟和稳定 route identity 排序。已物化 control 与固定 assessor temperature、输出、工具或 stop 契约冲突的 candidate 会被跳过，而不是被修改。它在一次调用前冻结选中的 Host route identity 和兼容实际配置。Catalog 缺失或无效、或者没有合格 route 时，产生显式 Deep fallback，而不是硬编码或静默替换 provider/model/effort。
 
 `task-assessor-contract/v1` 只发送当前可见用户消息、有限的可见用户／助手文本尾部和有限附件 metadata。它排除 system/developer prompt、隐藏推理、tool 流量、terminal 输出、credential、环境变量和附件内容。调用不带工具、不重试，temperature 为 `0`，输出最多 512 token，response 上限 8 KiB，总 deadline 为 12 秒。
 
 不可信 response 必须是一个严格 JSON object，包含 task kind、scope、complexity、risk、verifiability，置信度只能是 `0`、`0.5`、`0.8` 或 `1`，并带 1–4 个 allowlist reason code。Host 附加 `task-assessor/v1`；provider、model、effort、route、handling level、额外字段、JSON 外 prose 或畸形 JSON 都会使结果无效。置信度低于 `0.8`、timeout、provider failure、结构无效、input/output 超限或 route 不可用时，返回映射到 `deep` 的 unknown assessment。
 
+Task 5 通过一次直接 `ctx.llm.stream()` 调用执行冻结 route。它不传工具，不进入 agent loop 或 retry plugin，转发 caller cancellation，并让每次 stream pull 独立与总 deadline 竞争，因此不配合的 stream 也不能延长契约。只有 text delta 加成功 stop 才进入判断；tool call、截断、运行失败或不支持的终止状态都会 fail closed。
+
 ### 确定性级别策略
 
-把 Task Assessment 与 Host 认可的约束映射到一个处理级别。同一结构化输入和 policy version 始终产生相同级别与 reason code。
+`task-handling-policy/v1` 把一个已校验 Task Assessment 映射到处理级别。未知 task kind、广泛或未知 scope、高或未知 complexity、高或未知 risk、none 或未知 verifiability，以及保守语义 reason code 选择 Deep。只有有界、低复杂度、低风险、可机械验证，且不存在多步骤、跨文件或部分验证证据的工作选择 Light。其他所有有效形态选择 Standard。同一结构化输入和 policy version 始终产生相同级别、有序 reason code 与解释。
 
 ### Route Resolver
 

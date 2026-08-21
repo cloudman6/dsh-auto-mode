@@ -107,17 +107,17 @@ The completed Phase 1 policy compiler emits frozen entries with `handlingLevel`,
 
 ### Task Assessor
 
-`task-assessor-route-policy/v1` treats classification as a fixed Light request without inspecting the user task. It filters the current frozen AA catalog to routes with measured median time to first answer token at or below 6 seconds, tries Light then Standard then Deep, and uses the existing price, latency, and stable-route ordering inside the first eligible level. It freezes the selected Host route identity and effective configuration before one call. A missing or invalid catalog, or no eligible route, produces an explicit Deep fallback instead of hard-coding or silently substituting a provider/model/effort.
+`task-assessor-route-policy/v1` treats classification as a fixed Light request without inspecting the user task. It filters the current frozen AA catalog to routes with measured median time to first answer token at or below 6 seconds, tries Light then Standard then Deep, and uses the existing price, latency, and stable-route ordering inside the first eligible level. A candidate whose materialized controls conflict with the fixed assessor temperature, output, tool, or stop contract is skipped rather than mutated. It freezes the selected Host route identity and compatible effective configuration before one call. A missing or invalid catalog, or no eligible route, produces an explicit Deep fallback instead of hard-coding or silently substituting a provider/model/effort.
 
 `task-assessor-contract/v1` sends only the current visible user message, a bounded tail of visible user/assistant text, and bounded attachment metadata. It excludes system/developer prompts, hidden reasoning, tool traffic, terminal output, credentials, environment variables, and attachment contents. The call uses no tools, no retries, temperature `0`, at most 512 output tokens, an 8 KiB response cap, and a 12-second total deadline.
 
 The untrusted response must be one strict JSON object containing task kind, scope, complexity, risk, verifiability, one of the discrete confidence values `0`, `0.5`, `0.8`, or `1`, and one to four allowlisted reason codes. The Host attaches `task-assessor/v1`; provider, model, effort, route, handling level, extra fields, prose, or malformed JSON invalidates the result. Confidence below `0.8`, timeout, provider failure, invalid structure, oversized input/output, or unavailable route returns an unknown assessment that maps to `deep`.
 
-Timeout, failure, invalid structure, or low confidence returns an unknown assessment that maps to `deep`.
+Task 5 executes the frozen route through one direct `ctx.llm.stream()` call. It passes no tools, never enters the agent loop or retry plugin, forwards caller cancellation, and independently races every stream pull against the total deadline so a non-cooperative stream cannot extend the contract. Only text deltas followed by a successful stop are evaluated; tool calls, truncation, operational failure, or an unsupported terminal state fail closed.
 
 ### Deterministic Level Policy
 
-Maps Task Assessment plus Host-recognized constraints to one handling level. The same structured input and policy version always produce the same level and reason codes.
+`task-handling-policy/v1` maps one validated Task Assessment to a handling level. Unknown task kind, broad or unknown scope, high or unknown complexity, high or unknown risk, none or unknown verifiability, and conservative semantic reason codes select Deep. Only bounded, low-complexity, low-risk, mechanically verifiable work without multi-step, cross-file, or partial-verification evidence selects Light. Every other valid shape selects Standard. The same structured input and policy version always produce the same level, ordered reason codes, and explanation.
 
 ### Route Resolver
 

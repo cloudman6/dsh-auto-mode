@@ -8,9 +8,9 @@
 
 ## Current stage
 
-Phase 0P MVP, Phase 1, and Phase 2 Task 4 are complete. The project is ready for Task 5: execute the bounded semantic Task Assessor through the approved environment-aware route policy and map its validated attributes through deterministic Host policy.
+Phase 0P MVP, Phase 1, and Phase 2 are complete. The project is ready for Phase 3 Task 6: integrate the completed AA catalog, semantic assessor, deterministic handling-level policy, and price-first resolver into one frozen Auto decision before provider-dependent assembly.
 
-The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. Phase 1 Tasks 1–3 provide the provider-neutral AA catalog pipeline. Task 4 adds `task-assessor-contract/v1` and `task-assessor-route-policy/v1`: bounded visible input, strict untrusted-output validation, discrete confidence, deterministic Deep fallback, and one concrete assessor route resolved from the current catalog and frozen before the call. The current runnable plugin still uses the prototype `fast`/`standard`/`strong` implementation until Phase 3 integrates the new catalog and assessor path.
+The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. Phase 1 Tasks 1–3 provide the provider-neutral AA catalog pipeline. Phase 2 Tasks 4–5 provide the resolved-and-frozen one-shot assessor plus `task-handling-policy/v1`: bounded visible input, strict untrusted-output validation, deterministic Light/Standard/Deep mapping, and visible Deep fallback. The current runnable plugin still uses the prototype `fast`/`standard`/`strong` implementation until Phase 3 integrates the new catalog and assessor path.
 
 ## Accepted post-MVP direction
 
@@ -38,6 +38,7 @@ The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-
 - Completed Phase 1 Task 3 and Checkpoint A without changing live routing: `aa-route-policy/v1` pins AA Intelligence Index `v4.1.1`, Light `<35`, Standard `35–<50`, Deep `>=50`, AA 7:2:1 blended price, and median time to first answer token. Missing capability or price excludes a route; missing latency sorts after measured latency for equal-price routes.
 - Finalized the Git-ignored local seed with the three approved current bindings: DeepSeek Pro/off in Light, Pro/high in Standard, and Flash/max in Deep. Flash/off, Flash/high, and Pro/max remain excluded rather than receiving unsupported or ambiguous evidence.
 - Completed Phase 2 Task 4: `task-assessor-route-policy/v1` requests Light, escalates through Standard and Deep, excludes missing or over-budget AA latency, and freezes the price-first winner from the current catalog. `task-assessor-contract/v1` fixes the bounded input, one-shot request budget, strict output schema, discrete confidence threshold, and deterministic Deep fallback fixtures without calling a live provider or changing the runnable MVP.
+- Completed Phase 2 Task 5 and Checkpoint B without changing live routing: compatible assessor routes run through exactly one direct, tool-free `ctx.llm.stream()` call with a hard total deadline; validated attributes map through `task-handling-policy/v1`; representative semantic and failure fixtures prove deterministic Light, Standard, Deep, and fallback explanations.
 
 ## Current implementation plan
 
@@ -45,8 +46,8 @@ The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-
 2. Completed: compile the Git-ignored local AA seed through validated bindings and stable exclusion reasons.
 3. Completed: compile versioned AA capability bands and resolve same-band routes by price, latency, and stable identity.
 4. Completed: freeze the bounded Task Assessor contract and deterministic environment-aware assessor route policy.
-5. Next: call the resolved-and-frozen assessor outside Auto recursion and implement deterministic level mapping.
-6. Later: integrate the new decision path and terminology end to end while preserving the accepted UI behavior and Manual mode.
+5. Completed: call the resolved-and-frozen assessor outside Auto recursion and implement deterministic level mapping.
+6. Next: integrate the new frozen decision path end to end while preserving the accepted UI behavior and Manual mode.
 
 Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md), [implementation plan](tasks/plan.md), and [task checklist](tasks/todo.md).
 
@@ -54,13 +55,13 @@ Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md
 
 Phase 1 has no remaining blocker. Its field choices, boundaries, missing-data policy, and initial bindings are frozen and verified offline.
 
-Phase 2 Task 4 has no remaining blocker. The maintainer approved dynamic environment-aware assessor route resolution rather than a globally hard-coded provider/model/effort, together with the bounded input, 12-second timeout, discrete confidence threshold, and strict Deep fallback contract.
+Phase 2 has no remaining blocker. Tasks 4–5 freeze dynamic environment-aware assessor route resolution, bounded input, a hard 12-second timeout, discrete confidence, deterministic level mapping, and strict Deep fallbacks.
 
-Stable AA acquisition, data distribution rights, within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later roadmap phases and do not block Phase 1.
+Stable AA acquisition, data distribution rights, within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later roadmap phases and do not block Phase 3 Task 6.
 
 ## Next action
 
-Implement Task 5: make one tool-free call through the resolved-and-frozen assessor route outside Auto recursion, validate the result through `task-assessor-contract/v1`, and map accepted attributes to Light, Standard, or Deep with deterministic reason codes.
+Implement Phase 3 Task 6: compose assessment, Host constraints, the frozen AA catalog, handling-level policy, and price-first route resolution at the verified pre-assembly boundary, then prove assembly, `agent/request`, and persisted Session facts consume one identical frozen selection.
 
 ## Status maintenance rules
 

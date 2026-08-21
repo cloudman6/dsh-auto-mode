@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "tasks": [
+    {
+      "name": "bounded coding",
+      "currentMessage": "Rename the local variable count to itemCount in this function.",
+      "output": {
+        "taskKind": "coding",
+        "scope": "bounded",
+        "complexity": "low",
+        "risk": "low",
+        "verifiability": "mechanical",
+        "confidence": 1,
+        "reasons": ["explicit-single-step", "mechanically-checkable"]
+      },
+      "expectedLevel": "light"
+    },
+    {
+      "name": "debugging",
+      "currentMessage": "Find why the parser rejects valid escaped input and add a regression test.",
+      "output": {
+        "taskKind": "debugging",
+        "scope": "bounded",
+        "complexity": "medium",
+        "risk": "low",
+        "verifiability": "partial",
+        "confidence": 0.8,
+        "reasons": ["multiple-dependent-steps", "partially-checkable"]
+      },
+      "expectedLevel": "standard"
+    },
+    {
+      "name": "research",
+      "currentMessage": "Compare the documented cancellation behavior of the two supported adapters.",
+      "output": {
+        "taskKind": "research",
+        "scope": "normal",
+        "complexity": "medium",
+        "risk": "low",
+        "verifiability": "partial",
+        "confidence": 0.8,
+        "reasons": ["multiple-dependent-steps", "partially-checkable"]
+      },
+      "expectedLevel": "standard"
+    },
+    {
+      "name": "bounded writing",
+      "currentMessage": "Fix the grammar in this one error message.",
+      "output": {
+        "taskKind": "writing",
+        "scope": "bounded",
+        "complexity": "low",
+        "risk": "low",
+        "verifiability": "mechanical",
+        "confidence": 1,
+        "reasons": ["explicit-single-step", "mechanically-checkable"]
+      },
+      "expectedLevel": "light"
+    },
+    {
+      "name": "architecture",
+      "currentMessage": "Redesign the persistence boundary across the host, session, and plugin packages.",
+      "output": {
+        "taskKind": "architecture",
+        "scope": "broad",
+        "complexity": "high",
+        "risk": "medium",
+        "verifiability": "partial",
+        "confidence": 0.8,
+        "reasons": ["cross-file-change", "open-ended-scope", "partially-checkable"]
+      },
+      "expectedLevel": "deep"
+    },
+    {
+      "name": "security",
+      "currentMessage": "Change credential forwarding and verify secrets cannot cross provider boundaries.",
+      "output": {
+        "taskKind": "security",
+        "scope": "normal",
+        "complexity": "medium",
+        "risk": "high",
+        "verifiability": "partial",
+        "confidence": 0.8,
+        "reasons": ["security-sensitive", "multiple-dependent-steps", "partially-checkable"]
+      },
+      "expectedLevel": "deep"
+    },
+    {
+      "name": "ambiguous request",
+      "currentMessage": "Make it better.",
+      "output": {
+        "taskKind": "unknown",
+        "scope": "unknown",
+        "complexity": "unknown",
+        "risk": "unknown",
+        "verifiability": "unknown",
+        "confidence": 0.5,
+        "reasons": ["ambiguous-intent", "missing-material-context"]
+      },
+      "expectedLevel": "deep",
+      "expectedFallback": "assessor-low-confidence"
+    }
+  ]
+}

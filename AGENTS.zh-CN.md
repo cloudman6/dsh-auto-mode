@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 255700ebce588f742ef9b06ab5d1229044e358da
+translation-source-blob: 1c7b7ef33921a7faa100ddfd832f55123f556fcd
 translation-status: current
 -->
 
@@ -18,14 +18,14 @@ translation-status: current
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 阶段 2 Task 4 契约已完成，当前实施 Task 5 语义 assessor |
-| 已有成果 | 可运行 MVP、已完成的阶段 1 catalog pipeline，以及带确定性环境感知 route 解析的版本化有限 Task Assessor 契约 |
+| 项目阶段 | 阶段 1–2 已完成，当前实施阶段 3 Task 6 冻结 Auto 决策集成 |
+| 已有成果 | 可运行 MVP，以及已完成的阶段 1 catalog、阶段 2 单次 assessor、确定性级别 policy 与 fallback pipeline |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | 所需任务处理级别 → AA 报告价格 → AA 报告延迟 → 稳定 route identity |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 实施阶段 2 Task 5 的单次 assessor 调用和确定性级别 mapper |
+| 下一阶段入口 | 在已验证 pre-assembly 边界集成 assessment、catalog、级别 policy 和 resolver |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
@@ -306,7 +306,7 @@ rmdir "$main_worktree/.worktrees/<task-slug>"
 
 ## 当前硬阻塞
 
-阶段 1 和阶段 2 Task 4 已无剩余阻塞。当前 Task 5 工作及后续阶段问题维护在 `PROJECT_STATUS.md` 和 `docs/open-questions.md`；不要在这里复制完整清单。
+阶段 1 和阶段 2 已无剩余阻塞。当前阶段 3 工作及后续阶段问题维护在 `PROJECT_STATUS.md` 和 `docs/open-questions.md`；不要在这里复制完整清单。
 
 ## 安全边界
 

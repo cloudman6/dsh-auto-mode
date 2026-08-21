@@ -62,7 +62,9 @@ Replace keyword routing with a bounded LLM classifier whose versioned selection 
 - Map structured attributes to `light`/`standard`/`deep` with deterministic Host policy.
 - Use `deep` on timeout, invalid output, low confidence, high risk, or unknown scope.
 
-Task 4 completed on 2026-08-22: the route policy, bounded input, request budget, strict schema, confidence threshold, and valid/invalid/timeout/low-confidence contract fixtures are frozen. Phase acceptance still requires Task 5 representative semantic fixtures and the deterministic level mapper; malformed or uncertain assessments fall back to `deep`.
+Task 4 completed on 2026-08-22: the route policy, bounded input, request budget, strict schema, confidence threshold, and valid/invalid/timeout/low-confidence contract fixtures are frozen.
+
+Task 5 and Phase 2 completed on 2026-08-22. `task-handling-policy/v1` maps validated attributes and reason codes deterministically; one direct, tool-free, zero-retry assessor call enforces the total deadline independently of stream cooperation. Fixtures cover coding, debugging, research, writing, architecture, security, ambiguity, route incompatibility, provider failure, truncation, timeout, and caller cancellation. The runnable MVP is unchanged until Phase 3 integrates this isolated path.
 
 ## Phase 3: AA-informed Auto beta
 

@@ -71,22 +71,22 @@
 
 **Acceptance criteria:**
 
-- [ ] The assessor runs outside Auto recursion and uses no tools.
-- [ ] Deterministic policy maps structured attributes to Light, Standard, or Deep with reason codes.
-- [ ] High risk, unknown scope, invalid output, timeout, and low confidence select Deep.
+- [x] The assessor runs outside Auto recursion and uses no tools.
+- [x] Deterministic policy maps structured attributes to Light, Standard, or Deep with reason codes.
+- [x] High risk, unknown scope, invalid output, timeout, and low confidence select Deep.
 
 **Verification:**
 
-- [ ] Fixture tasks cover coding, debugging, research, writing, architecture, security, and ambiguity.
-- [ ] Repeated validated inputs produce the same level and explanation.
+- [x] Fixture tasks cover coding, debugging, research, writing, architecture, security, and ambiguity.
+- [x] Repeated validated inputs produce the same level and explanation.
 
 **Dependencies:** Tasks 3 and 4
 
 ## Checkpoint B: Semantic routing
 
-- [ ] The assessor supplies evidence only; Host policy owns the decision.
-- [ ] No concrete route appears in assessor output.
-- [ ] All fallback paths are deterministic and visible.
+- [x] The assessor supplies evidence only; Host policy owns the decision.
+- [x] No concrete route appears in assessor output.
+- [x] All fallback paths are deterministic and visible.
 
 ## Task 6: Integrate the frozen Auto decision
 

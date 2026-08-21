@@ -60,9 +60,13 @@ Define structured attributes, bounded input, a versioned environment-aware route
 
 ### Task 5: Implement the resolved assessor and level mapper
 
+Status: complete on 2026-08-22.
+
 Call the resolved-and-frozen assessor outside Auto recursion and map validated output to Light/Standard/Deep with deterministic reason codes. Cover representative fixture tasks and all fallback paths.
 
 ### Checkpoint B
+
+Status: complete on 2026-08-22.
 
 The assessor never emits a concrete route; repeated structured inputs map to the same level; timeout, invalid output, uncertainty, and high risk select Deep.
 
