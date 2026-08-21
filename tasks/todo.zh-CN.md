@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: 98f3423de004d4321b76876ecaef5c4245c532f6
+translation-source-blob: b3c7072026016de4c550bf5907bc14136bfea213
 translation-status: current
 -->
 
@@ -12,14 +12,14 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] 稳定 Host route identity 包含 provider、model，以及每个 Host 物化执行选项的 fingerprint。
-- [ ] 一条版本化显式 binding 把 eligible Host route 映射到一个冻结 snapshot 中一条稳定 AA record。
-- [ ] Effort 和 variant 保持 provider 可选维度；模糊、陈旧、有歧义或跨配置 binding 被拒绝。
+- [x] 稳定 Host route identity 包含 provider、model，以及每个 Host 物化执行选项的 fingerprint。
+- [x] 一条版本化显式 binding 把 eligible Host route 映射到一个冻结 snapshot 中一条稳定 AA record。
+- [x] Effort 和 variant 保持 provider 可选维度；模糊、陈旧、有歧义或跨配置 binding 被拒绝。
 
 **验证：**
 
-- [ ] 混合 provider fixture 覆盖零个、一个和多个执行控制项、有效 binding、collision、歧义和 AA-record replacement。
-- [ ] 现有 MVP 与 Manual 测试继续通过。
+- [x] 混合 provider fixture 覆盖零个、一个和多个执行控制项、有效 binding、collision、歧义和 AA-record replacement。
+- [x] 现有 MVP 与 Manual 测试继续通过。
 
 **依赖：**无
 

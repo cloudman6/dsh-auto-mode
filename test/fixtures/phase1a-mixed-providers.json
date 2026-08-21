@@ -1,0 +1,90 @@
+{
+  "bindingVersion": "aa-evidence-binding/v1",
+  "snapshot": {
+    "snapshotId": "aa-fixture-2026-08-21",
+    "records": [
+      {
+        "recordId": "aa-record-no-controls",
+        "label": "Fixture model without execution controls",
+        "release": {
+          "date": "2026-08-01"
+        }
+      },
+      {
+        "recordId": "aa-record-flash-off",
+        "label": "DeepSeek V4 Flash off"
+      },
+      {
+        "recordId": "aa-record-flash-max",
+        "label": "DeepSeek V4 Flash max"
+      },
+      {
+        "recordId": "aa-record-pro-max",
+        "label": "DeepSeek V4 Pro max"
+      },
+      {
+        "recordId": "aa-record-several-controls",
+        "label": "Fixture model with several controls"
+      }
+    ]
+  },
+  "routes": [
+    {
+      "fixtureId": "zero-controls",
+      "effectiveConfig": {
+        "provider": "fixture-anthropic",
+        "model": "fixture-sonnet"
+      },
+      "aaRecordId": "aa-record-no-controls",
+      "matchBasis": ["provider", "model"],
+      "limitations": ["fixture-only"]
+    },
+    {
+      "fixtureId": "local-seed-flash-off",
+      "effectiveConfig": {
+        "provider": "deepseek-official",
+        "model": "deepseek-v4-flash",
+        "reasoningEffort": "off"
+      },
+      "aaRecordId": "aa-record-flash-off",
+      "matchBasis": ["provider", "model", "reasoning-effort"],
+      "limitations": ["revisionless-provider-alias"]
+    },
+    {
+      "fixtureId": "local-seed-flash-max",
+      "effectiveConfig": {
+        "provider": "deepseek-official",
+        "model": "deepseek-v4-flash",
+        "reasoningEffort": "max"
+      },
+      "aaRecordId": "aa-record-flash-max",
+      "matchBasis": ["provider", "model", "reasoning-effort"],
+      "limitations": ["revisionless-provider-alias"]
+    },
+    {
+      "fixtureId": "local-seed-pro-max",
+      "effectiveConfig": {
+        "provider": "deepseek-official",
+        "model": "deepseek-v4-pro",
+        "reasoningEffort": "max"
+      },
+      "aaRecordId": "aa-record-pro-max",
+      "matchBasis": ["provider", "model", "reasoning-effort"],
+      "limitations": ["revisionless-provider-alias"]
+    },
+    {
+      "fixtureId": "several-controls",
+      "effectiveConfig": {
+        "provider": "fixture-openai",
+        "model": "fixture-reasoning-model",
+        "reasoningEffort": "high",
+        "temperature": 0.2,
+        "maxTokens": 4096,
+        "stop": ["END", "DONE"]
+      },
+      "aaRecordId": "aa-record-several-controls",
+      "matchBasis": ["provider", "model", "reasoning-effort", "request-controls"],
+      "limitations": ["fixture-only"]
+    }
+  ]
+}

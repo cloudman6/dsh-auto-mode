@@ -6,14 +6,14 @@
 
 **Acceptance criteria:**
 
-- [ ] A stable Host route identity contains provider, model, and a fingerprint of every Host-materialized execution option.
-- [ ] One versioned explicit binding maps an eligible Host route to one stable AA record in one frozen snapshot.
-- [ ] Effort and variant remain optional provider dimensions; ambiguous, stale, fuzzy, or configuration-crossing bindings are rejected.
+- [x] A stable Host route identity contains provider, model, and a fingerprint of every Host-materialized execution option.
+- [x] One versioned explicit binding maps an eligible Host route to one stable AA record in one frozen snapshot.
+- [x] Effort and variant remain optional provider dimensions; ambiguous, stale, fuzzy, or configuration-crossing bindings are rejected.
 
 **Verification:**
 
-- [ ] Mixed-provider fixtures cover zero, one, and several execution controls, valid bindings, collisions, ambiguity, and AA-record replacement.
-- [ ] Existing MVP and Manual tests remain green.
+- [x] Mixed-provider fixtures cover zero, one, and several execution controls, valid bindings, collisions, ambiguity, and AA-record replacement.
+- [x] Existing MVP and Manual tests remain green.
 
 **Dependencies:** None
 

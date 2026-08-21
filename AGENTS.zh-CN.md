@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: e46d6e081d0b40cae238ad26a0449b9f4faacb81
+translation-source-blob: 5a2bc05a1eadea25137f65840f598a35025a59bd
 translation-status: current
 -->
 
@@ -19,13 +19,13 @@ translation-status: current
 | 项目 | 当前状态 |
 |---|---|
 | 项目阶段 | 阶段 0P MVP 已接受，当前进入阶段 1 AA route catalog |
-| 已有成果 | 固定 A1/A2 的维护者 DSH fork 上的可运行 MVP、聚焦测试、真实 provider 证据和已接受 ADR-011 方向 |
+| 已有成果 | 固定 A1/A2 的维护者 DSH fork 上的可运行 MVP、聚焦测试、真实 provider 证据、已接受 ADR-011 方向和已完成阶段 1A route/evidence-binding 契约 |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | 所需任务处理级别 → AA 报告价格 → AA 报告延迟 → 稳定 route identity |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 阶段 1A：用混合 provider fixture 证明 Host-route-to-AA evidence binding |
+| 下一阶段入口 | 阶段 1 Task 2：通过已验证 binding 编译本地 AA catalog |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
@@ -306,7 +306,7 @@ rmdir "$main_worktree/.worktrees/<task-slug>"
 
 ## 当前硬阻塞
 
-阶段 1A 当前没有实现层面阻塞。当前 field/边界选择和后续阶段问题由 `PROJECT_STATUS.md` 与 `docs/open-questions.md` 维护。不要在这里复制完整清单。
+开始阶段 1 Task 2 当前没有实现层面阻塞。最终 catalog 数据与后续能力档解析仍需要维护者在 `PROJECT_STATUS.md` 与 `docs/open-questions.md` 中记录的选择。不要在这里复制完整清单。
 
 ## 安全边界
 

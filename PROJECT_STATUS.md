@@ -10,7 +10,7 @@
 
 Phase 0P MVP is accepted. The project has entered Phase 1 of the post-MVP roadmap: replace prototype route assumptions with a versioned AA-informed catalog and the user-facing task-handling levels `light`, `standard`, and `deep`.
 
-The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. The current runnable plugin still uses the prototype `fast`/`standard`/`strong` implementation until Phase 1 migrates code and UI; documentation now distinguishes that historical implementation from the accepted forward direction.
+The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. Phase 1A is complete: the repository now has a provider-neutral effective-configuration fingerprint, stable Host route identity, explicit versioned AA evidence-binding resolver, stable rejection reasons, and mixed-provider fixtures. The current runnable plugin still uses the prototype `fast`/`standard`/`strong` implementation until later Phase 1 tasks integrate the new catalog path.
 
 ## Accepted post-MVP direction
 
@@ -33,20 +33,21 @@ These decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-t
 - Restored the complete GUI suite to 3,760 passing tests with four existing skips at the pinned fork commit.
 - Accepted the AA-informed post-MVP strategy and replaced Benchmark admission with an optional evaluation track.
 - Accepted the generic Host route identity and explicit AA evidence-binding architecture, replacing the mandatory family/version/variant/effort key.
+- Implemented Phase 1A without changing live routing: zero-, one-, and several-control routes resolve only through exact Host fingerprints, snapshot IDs, and stable AA record IDs; ambiguous, stale, fuzzy, configuration-crossing, colliding, and silent-record-replacement cases fail with stable reasons.
 
 ## Current implementation plan
 
-1. Migrate route terminology and UI from `fast`/`standard`/`strong` to `light`/`standard`/`deep` and 轻量/常规/深度.
-2. Implement provider-neutral Host route identity and explicit AA evidence bindings with mixed-provider fixtures.
+1. Completed: provider-neutral Host route identity and explicit AA evidence bindings with mixed-provider fixtures.
+2. Compile the Git-ignored local AA seed through validated bindings and stable exclusion reasons.
 3. Compile versioned AA capability bands and resolve same-band routes by price, latency, and stable identity.
 4. Replace keyword classification with a fixed structured semantic Task Assessor.
-5. Integrate the new decision path end to end while preserving the accepted UI behavior and Manual mode.
+5. Integrate the new decision path and terminology end to end while preserving the accepted UI behavior and Manual mode.
 
 Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md), [implementation plan](tasks/plan.md), and [task checklist](tasks/todo.md).
 
 ## Current blockers and open decisions
 
-There is no blocker to starting Phase 1. Before its route catalog can be finalized, the maintainer must select:
+There is no implementation-level blocker to starting Task 2. Before the catalog and band resolver can be finalized, the maintainer must review or select:
 
 - the AA capability field and versioned boundaries for Light, Standard, and Deep;
 - the canonical AA price field and latency tie-break field;
@@ -56,7 +57,7 @@ Stable AA acquisition, data distribution rights, within-session adaptation, reco
 
 ## Next action
 
-Implement Phase 1A as one bounded change: introduce Host route identity, effective-configuration fingerprints, explicit AA evidence bindings, and mixed-provider fixtures while keeping the existing MVP behavior available until the full Phase 1 catalog path is ready.
+Implement Task 2 as one bounded change: compile the Git-ignored local seed through validated Phase 1A bindings, exclude invalid or unmatched rows with stable reasons, and keep the existing MVP behavior available until the full Phase 1 catalog path is ready.
 
 ## Status maintenance rules
 
