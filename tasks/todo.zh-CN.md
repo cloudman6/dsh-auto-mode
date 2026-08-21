@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: 20febb41351d079dcf063639190f2a62eaabee8f
+translation-source-blob: 7d7f767c027b2f7a6e7641b24326831ea20aacda
 translation-status: current
 -->
 
@@ -42,22 +42,22 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] 每条合格 route 恰好属于一个带版本 Light、Standard 或 Deep 档位。
-- [ ] 同档排序使用 AA price、AA latency、稳定 route ID。
-- [ ] 缺失字段遵循一条显式规则，discovery 顺序不会改变 winner。
+- [x] 每条合格 route 恰好属于一个带版本 Light、Standard 或 Deep 档位。
+- [x] 同档排序使用 AA price、AA latency、稳定 route ID。
+- [x] 缺失字段遵循一条显式规则，discovery 顺序不会改变 winner。
 
 **验证：**
 
-- [ ] 边界与 permutation 测试覆盖所有档位和 tie-break。
-- [ ] 解释指出档位与价格优先依据。
+- [x] 边界与 permutation 测试覆盖所有档位和 tie-break。
+- [x] 解释指出档位与价格优先依据。
 
 **依赖：**Task 2，以及维护者选择 AA field/边界
 
 ## Checkpoint A：Catalog 基础
 
-- [ ] Task 1–3 无需 DSH provider credential 或实时 AA access 即可通过。
-- [ ] Manual 行为不变。
-- [ ] 不要求项目 Benchmark 或精确 deployment fingerprint。
+- [x] Task 1–3 无需 DSH provider credential 或实时 AA access 即可通过。
+- [x] Manual 行为不变。
+- [x] 不要求项目 Benchmark 或精确 deployment fingerprint。
 
 ## Task 4：冻结 Task Assessor 契约
 

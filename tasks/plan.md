@@ -32,6 +32,8 @@ dogfood and snapshot-refresh workflow
 
 ## Phase 1: AA catalog foundation
 
+Status: complete on 2026-08-21.
+
 ### Task 1: Bind Host route identity to AA evidence
 
 Define the effective Host route identity, stable configuration fingerprint, and explicit versioned binding to one AA record. Cover mixed-provider routes with zero, one, and several execution controls. Do not change live routing yet.
@@ -92,13 +94,11 @@ Choose the stable AA acquisition method and rights boundary, validate and minimi
 |---|---|---|
 | AA fields or naming change | Catalog stops matching or silently re-bands routes | Version schema and bindings; reject unknown fields; keep previous valid snapshot |
 | Semantic assessor is inconsistent | Wrong level or unnecessary Deep fallback | Fixed configuration, bounded schema, fixture regression, deterministic fallback |
-| Price fields are incomparable | Wrong same-level winner | Select one canonical AA price field and reject missing/ambiguous comparisons |
+| Comparison fields are incomplete | Wrong same-level winner | Exclude missing capability or price; sort missing latency after measured latency for equal-price routes |
 | Effective DSH configuration is opaque | False AA binding | Fingerprint Host-materialized options; exclude unresolved or ambiguous routes |
 | AA-informed wording is mistaken for proof | Overstated product claim | Persist snapshot and reason; use required AA-informed disclaimer |
 
 ## Current open decisions
 
-- AA capability field and initial band boundaries.
-- Canonical AA price and latency fields.
 - Fixed Task Assessor provider/model/effort and confidence threshold.
 - Stable AA acquisition and distribution mechanism for Phase 4.

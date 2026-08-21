@@ -90,6 +90,16 @@ The catalog compiler:
 
 Band boundaries are maintainer-owned policy data derived from AA scores. They are heuristics and must be visible and versioned; changing them changes the policy version.
 
+The initial `aa-route-policy/v1` uses Artificial Analysis Intelligence Index methodology `v4.1.1` and the exact field `evaluations.artificial_analysis_intelligence_index`:
+
+| Level | Score range |
+|---|---|
+| `light` | `< 35` |
+| `standard` | `>= 35` and `< 50` |
+| `deep` | `>= 50` |
+
+The same policy reads price from `pricing.price_1m_blended_7_to_2_to_1` and latency from `performance.median_time_to_first_answer_token_seconds`. The snapshot stores the full methodology version separately because the AA API's numeric index-version field may omit a patch version.
+
 ## Resolution inside one level
 
 After a level is selected, the resolver orders eligible routes by:
@@ -99,6 +109,8 @@ After a level is selected, the resolver orders eligible routes by:
 3. stable concrete route identity.
 
 No estimated input/output token calculation is performed. If AA lacks the required price field for a route, that route does not win a price comparison by accident; the policy either applies an explicit missing-data rule or excludes it.
+
+`aa-route-policy/v1` excludes a route when capability or price is missing or invalid. Missing or invalid latency remains represented as `null`; among equal-price routes it sorts after measured latency and then by stable route identity. This preserves a valid price comparison without allowing unknown latency to beat measured latency.
 
 ## Fallback and escalation
 

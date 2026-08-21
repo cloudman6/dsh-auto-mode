@@ -2,15 +2,6 @@
 
 [简体中文](zh-CN/open-questions.md)
 
-## Phase 1: AA catalog
-
-1. Which exact AA capability score or published rank defines the three initial band boundaries, and should boundaries use absolute score ranges or distance from the current leader?
-2. Which AA price field is the canonical within-band comparator, and what explicit rule applies when that field is missing?
-3. Which AA latency field breaks price ties?
-4. Which initial reviewed bindings map the current DSH Host route identities to stable AA record IDs, and what match basis and limitation does each binding declare?
-5. Which DSH routes expose an unspecified/default effort or another opaque execution option, and can the Host materialize it reliably enough to produce a stable route identity?
-6. Which mixed-provider fixtures prove that routes with zero, one, and several execution controls cannot collide?
-
 ## Phase 2: Semantic assessor
 
 1. Which fixed provider/model/effort runs the assessor without entering Auto recursion?

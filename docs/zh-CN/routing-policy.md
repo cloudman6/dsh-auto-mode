@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routing-policy.md
-translation-source-blob: e355c92ccbf58584d6085996eaadff7f21c4780f
+translation-source-blob: c1bbd74eeef90a9968e6fb44e905095f66c39a1e
 translation-status: current
 -->
 
@@ -96,6 +96,16 @@ Catalog compiler：
 
 档位边界是维护者管理、从 AA 分数推导的策略数据。它们是启发式规则，必须可见且带版本；改变边界就要改变 policy version。
 
+首版 `aa-route-policy/v1` 使用 Artificial Analysis Intelligence Index 方法版本 `v4.1.1` 和精确字段 `evaluations.artificial_analysis_intelligence_index`：
+
+| 级别 | 分数范围 |
+|---|---|
+| `light` | `< 35` |
+| `standard` | `>= 35` 且 `< 50` |
+| `deep` | `>= 50` |
+
+同一 policy 从 `pricing.price_1m_blended_7_to_2_to_1` 读取价格，从 `performance.median_time_to_first_answer_token_seconds` 读取延迟。由于 AA API 的数字 index-version 字段可能省略 patch version，snapshot 单独保存完整方法版本。
+
 ## 同一级别内解析
 
 选择级别后，resolver 按以下顺序排列合格 route：
@@ -105,6 +115,8 @@ Catalog compiler：
 3. 稳定的具体 route identity。
 
 不估算输入/输出 token。如果某条 route 缺少必需价格字段，它不能意外赢得价格比较；策略必须显式处理缺失数据或排除该 route。
+
+`aa-route-policy/v1` 在 capability 或 price 缺失或无效时排除 route。延迟缺失或无效时保留为 `null`；在同价 route 中排在有延迟数据者之后，再按稳定 route identity 排序。这样既保留有效价格比较，也不允许未知延迟胜过已测延迟。
 
 ## Fallback 与升级
 

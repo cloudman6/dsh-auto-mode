@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: 43ac727a674a2e31812d6455f155529189afef3f
+translation-source-blob: d2fe04af9dbe76a21867662638bb0a078a53364e
 translation-status: current
 -->
 
@@ -27,7 +27,7 @@ translation-status: current
 
 验收：已于 2026-08-18 完成并由维护者接受。
 
-## 阶段 1：AA route catalog 与用户级别
+## 阶段 1：AA route catalog 与处理级别策略——已完成
 
 用第一版带版本 AA catalog 取代原型术语和硬编码 route 假设。
 
@@ -42,7 +42,7 @@ translation-status: current
 
 ### 1B. 编译能力档
 
-- 内部把 `fast`/`standard`/`strong` 替换为 `light`/`standard`/`deep`，中文 UI 使用“轻量/常规/深度”。
+- 新 catalog 使用 `light`/`standard`/`deep`，并为阶段 3 live plugin 与 UI 迁移保留 Light/Standard/Deep 和“轻量/常规/深度”标签。
 - 为三档定义带版本的 AA 分数边界。
 - 精确 AA 快照、档位策略和匹配 route 记录可检查。
 
@@ -55,6 +55,8 @@ translation-status: current
 - 排除或显式处理缺失比较字段，绝不依赖 discovery 顺序。
 
 验收：排列测试对同一冻结 catalog 产生相同 winner 和解释。
+
+阶段验收：2026-08-21 完成。Task 1–3 离线编译本地 evidence catalog，通过 `aa-route-policy/v1` 为每条 eligible route 分档，并按 AA price、AA latency、稳定 route identity 解析一个级别，同时不改变 Manual 模式。
 
 ## 阶段 2：语义 Task Assessor
 

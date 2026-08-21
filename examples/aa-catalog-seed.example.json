@@ -14,7 +14,16 @@
         "label": "Example only",
         "capabilityFacts": [
           "replace-with-versioned-capability-fact"
-        ]
+        ],
+        "evaluations": {
+          "artificial_analysis_intelligence_index": 45
+        },
+        "pricing": {
+          "price_1m_blended_7_to_2_to_1": 0.5
+        },
+        "performance": {
+          "median_time_to_first_answer_token_seconds": 10
+        }
       }
     ]
   },

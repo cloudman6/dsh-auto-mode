@@ -1,21 +1,12 @@
 <!--
 translation-source: docs/open-questions.md
-translation-source-blob: 5b3f9eb041f3a348b2659195ed1d3891b0fa2cd4
+translation-source-blob: d5db831f47d892eb5c212fbe784cb84b11408ae6
 translation-status: current
 -->
 
 # 开放问题
 
 [English](../open-questions.md)
-
-## 阶段 1：AA catalog
-
-1. 哪个 AA capability score 或已发布排名定义初始三档边界；边界使用绝对分数还是与当前第一名的差值？
-2. 哪个 AA price field 是同档比较的权威字段；字段缺失时采用什么显式规则？
-3. 用哪个 AA latency field 打破价格平局？
-4. 哪些初始已评审 binding 把当前 DSH Host route identity 映射到稳定 AA record ID，每条 binding 声明什么 match basis 与限制？
-5. 哪些 DSH route 暴露未指定/default effort 或其他不透明执行选项，Host 能否可靠物化它们以形成稳定 route identity？
-6. 哪些混合 provider fixture 能证明零个、一个和多个执行控制项的 route 不会发生 collision？
 
 ## 阶段 2：语义 assessor
 

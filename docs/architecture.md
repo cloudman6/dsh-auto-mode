@@ -103,6 +103,8 @@ interface AAEvidenceCatalogExclusion {
 
 Malformed or unmatched rows are excluded with stable reason codes. Entries and exclusions are deterministically sorted, valid-route results do not depend on Host or seed discovery order, and no network request is part of compilation. Task 3 consumes this evidence catalog, assigns each eligible route to one versioned handling level, and adds the selected AA price and latency facts used by the resolver.
 
+The completed Phase 1 policy compiler emits frozen entries with `handlingLevel`, `aaCapabilityScore`, `aaPrice`, and nullable `aaLatencySeconds`. `aa-route-policy/v1` pins Intelligence Index methodology `v4.1.1`, Light `<35`, Standard `35–<50`, Deep `>=50`, the AA 7:2:1 blended-price field, and median time to first answer token. Missing capability or price excludes a route; missing latency sorts after measured latency within an equal-price group.
+
 ### Task Assessor
 
 Uses a fixed model configuration outside Auto recursion. It receives a bounded description of the current task and returns task kind, scope, complexity, risk, verifiability, confidence, and concise reasons. It has no tools and cannot select a concrete model.

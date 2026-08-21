@@ -12,20 +12,20 @@ DSH Auto Mode gives individual power users of coding agents an AA-informed Auto 
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 1 AA route catalog after the accepted Phase 0P MVP |
-| Existing work | Runnable MVP on the A1/A2-pinned maintainer DSH fork, focused tests and real-provider evidence, accepted ADR-011 direction, and completed Phase 1 Tasks 1–2 route binding and local evidence-catalog contracts |
+| Stage | Phase 2 semantic Task Assessor after completed Phase 1 AA route catalog |
+| Existing work | Runnable MVP plus the completed offline Phase 1 Host identity, AA evidence binding, catalog, capability-band, and price-first resolver pipeline |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Phase 1 Task 3 capability bands and price-first resolution after maintainer field selection |
+| Next-stage gate | Freeze the fixed Task Assessor configuration and structured contract for Phase 2 Task 4 |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
 ## Required reading for a new session
 
-While `PROJECT_STATUS.md` identifies Phase 1 as active, read only these files before implementation or review:
+While `PROJECT_STATUS.md` identifies Phases 1–3 as active, read only these files before implementation or review:
 
 1. `PROJECT_STATUS.md`.
 2. `docs/spec.md`.
@@ -300,7 +300,7 @@ Do not decide these items autonomously:
 
 ## Current hard blocker
 
-Task 2 has no remaining implementation blocker. Task 3 policy and final production catalog data require the maintainer choices recorded in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
+Phase 1 has no remaining blocker. The current Phase 2 decision required before Task 4 and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
 ## Security boundaries
 

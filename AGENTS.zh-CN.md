@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 1bce23add1e6de11203e45bb651e2d2b8bc5bf12
+translation-source-blob: d7d559d1c71a0568b8daf21cbcb5e65605698a7e
 translation-status: current
 -->
 
@@ -18,20 +18,20 @@ translation-status: current
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 阶段 0P MVP 已接受，当前进入阶段 1 AA route catalog |
-| 已有成果 | 固定 A1/A2 的维护者 DSH fork 上的可运行 MVP、聚焦测试、真实 provider 证据、已接受 ADR-011 方向，以及已完成阶段 1 Task 1–2 route binding 与本地 evidence-catalog 契约 |
+| 项目阶段 | 阶段 1 AA route catalog 已完成，当前进入阶段 2 语义 Task Assessor |
+| 已有成果 | 可运行 MVP，以及已完成的阶段 1 离线 Host identity、AA evidence binding、catalog、能力档和价格优先 resolver pipeline |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | 所需任务处理级别 → AA 报告价格 → AA 报告延迟 → 稳定 route identity |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 维护者选择 field 后实施阶段 1 Task 3 能力档和价格优先解析 |
+| 下一阶段入口 | 冻结阶段 2 Task 4 的固定 Task Assessor 配置和结构化契约 |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
 ## 新会话必读
 
-当 `PROJECT_STATUS.md` 把阶段 1 列为当前阶段时，在实施或评审前只读取：
+当 `PROJECT_STATUS.md` 把阶段 1–3 列为当前阶段时，在实施或评审前只读取：
 
 1. `PROJECT_STATUS.md`。
 2. `docs/zh-CN/spec.md`。
@@ -306,7 +306,7 @@ rmdir "$main_worktree/.worktrees/<task-slug>"
 
 ## 当前硬阻塞
 
-Task 2 已无剩余实现阻塞。Task 3 policy 与最终生产 catalog 数据仍需要维护者在 `PROJECT_STATUS.md` 与 `docs/open-questions.md` 中记录的选择。不要在这里复制完整清单。
+阶段 1 已无剩余阻塞。Task 4 所需的当前阶段 2 决策及后续阶段问题维护在 `PROJECT_STATUS.md` 和 `docs/open-questions.md`；不要在这里复制完整清单。
 
 ## 安全边界
 

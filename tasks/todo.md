@@ -36,22 +36,22 @@
 
 **Acceptance criteria:**
 
-- [ ] Every eligible route belongs to exactly one versioned Light, Standard, or Deep band.
-- [ ] Same-level ordering uses AA price, then AA latency, then stable route ID.
-- [ ] Missing comparison fields follow one explicit rule and discovery order never changes the winner.
+- [x] Every eligible route belongs to exactly one versioned Light, Standard, or Deep band.
+- [x] Same-level ordering uses AA price, then AA latency, then stable route ID.
+- [x] Missing comparison fields follow one explicit rule and discovery order never changes the winner.
 
 **Verification:**
 
-- [ ] Boundary and permutation tests cover all bands and tie-breaks.
-- [ ] Explanations identify the band and price-first reason.
+- [x] Boundary and permutation tests cover all bands and tie-breaks.
+- [x] Explanations identify the band and price-first reason.
 
 **Dependencies:** Task 2 and maintainer selection of AA fields/boundaries
 
 ## Checkpoint A: Catalog foundation
 
-- [ ] Tasks 1–3 pass without DSH provider credentials or live AA access.
-- [ ] Manual mode behavior is unchanged.
-- [ ] No project Benchmark or exact deployment fingerprint is required.
+- [x] Tasks 1–3 pass without DSH provider credentials or live AA access.
+- [x] Manual mode behavior is unchanged.
+- [x] No project Benchmark or exact deployment fingerprint is required.
 
 ## Task 4: Freeze the Task Assessor contract
 

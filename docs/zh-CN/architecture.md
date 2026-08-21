@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 871023fda656d4ee729a700e1fc7bebaf6a6fe86
+translation-source-blob: 2adb10e31a386e8f194fd317a7d1a4527c9f1794
 translation-status: current
 -->
 
@@ -108,6 +108,8 @@ interface AAEvidenceCatalogExclusion {
 ```
 
 格式错误或未匹配 row 以稳定 reason code 排除。Entry 与 exclusion 确定性排序，有效 route 结果不受 Host 或 seed discovery 顺序影响，且编译过程不发起网络请求。Task 3 消费该 evidence catalog，把每条合格 route 分配到一个带版本处理级别，并加入 resolver 使用的所选 AA price 与 latency facts。
+
+已完成的阶段 1 policy compiler 输出冻结 entry，其中包含 `handlingLevel`、`aaCapabilityScore`、`aaPrice` 和可为 null 的 `aaLatencySeconds`。`aa-route-policy/v1` 固定 Intelligence Index 方法版本 `v4.1.1`、Light `<35`、Standard `35–<50`、Deep `>=50`、AA 7:2:1 混合价格字段和首次实际答案 token 中位时间。Capability 或 price 缺失时排除 route；同价时，缺失 latency 排在有测量值之后。
 
 ### Task Assessor
 

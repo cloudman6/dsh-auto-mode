@@ -8,9 +8,9 @@
 
 ## Current stage
 
-Phase 0P MVP is accepted. The project has entered Phase 1 of the post-MVP roadmap: replace prototype route assumptions with a versioned AA-informed catalog and the user-facing task-handling levels `light`, `standard`, and `deep`.
+Phase 0P MVP and Phase 1 are complete. The project is ready for Phase 2 of the post-MVP roadmap: freeze and implement the fixed semantic Task Assessor that supplies structured task attributes to deterministic Host policy.
 
-The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. Phase 1 Tasks 1 and 2 are complete: the repository now has a provider-neutral effective-configuration fingerprint, stable Host route identity, explicit versioned AA evidence-binding resolver, and deterministic local evidence-catalog compiler with stable exclusions and mixed-provider fixtures. The current runnable plugin still uses the prototype `fast`/`standard`/`strong` implementation until later Phase 1 tasks integrate the new catalog path.
+The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. Phase 1 Tasks 1–3 now provide a provider-neutral effective-configuration fingerprint, stable Host route identity, explicit versioned AA evidence-binding resolver, deterministic local evidence-catalog compiler, and `aa-route-policy/v1` capability bands plus price-first route resolution. The current runnable plugin still uses the prototype `fast`/`standard`/`strong` implementation until Phase 3 integrates the new catalog and assessor path.
 
 ## Accepted post-MVP direction
 
@@ -35,31 +35,30 @@ These decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-t
 - Accepted the generic Host route identity and explicit AA evidence-binding architecture, replacing the mandatory family/version/variant/effort key.
 - Implemented Phase 1A without changing live routing: zero-, one-, and several-control routes resolve only through exact Host fingerprints, snapshot IDs, and stable AA record IDs; ambiguous, stale, fuzzy, configuration-crossing, colliding, and silent-record-replacement cases fail with stable reasons.
 - Implemented Task 2 without changing live routing: a maintainer-selected Git-ignored JSON seed compiles against the current Host route inventory into frozen, sorted evidence entries and stable exclusions; malformed, unmatched, ambiguous, stale, configuration-crossing, and invalid-capability rows remain out of the catalog.
+- Completed Phase 1 Task 3 and Checkpoint A without changing live routing: `aa-route-policy/v1` pins AA Intelligence Index `v4.1.1`, Light `<35`, Standard `35–<50`, Deep `>=50`, AA 7:2:1 blended price, and median time to first answer token. Missing capability or price excludes a route; missing latency sorts after measured latency for equal-price routes.
+- Finalized the Git-ignored local seed with the three approved current bindings: DeepSeek Pro/off in Light, Pro/high in Standard, and Flash/max in Deep. Flash/off, Flash/high, and Pro/max remain excluded rather than receiving unsupported or ambiguous evidence.
 
 ## Current implementation plan
 
 1. Completed: provider-neutral Host route identity and explicit AA evidence bindings with mixed-provider fixtures.
 2. Completed: compile the Git-ignored local AA seed through validated bindings and stable exclusion reasons.
-3. Compile versioned AA capability bands and resolve same-band routes by price, latency, and stable identity.
-4. Replace keyword classification with a fixed structured semantic Task Assessor.
-5. Integrate the new decision path and terminology end to end while preserving the accepted UI behavior and Manual mode.
+3. Completed: compile versioned AA capability bands and resolve same-band routes by price, latency, and stable identity.
+4. Next: replace keyword classification with a fixed structured semantic Task Assessor.
+5. Later: integrate the new decision path and terminology end to end while preserving the accepted UI behavior and Manual mode.
 
 Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md), [implementation plan](tasks/plan.md), and [task checklist](tasks/todo.md).
 
 ## Current blockers and open decisions
 
-Task 2 has no remaining implementation blocker. Before Task 3 can freeze the band and resolver policy, the maintainer must select:
+Phase 1 has no remaining blocker. Its field choices, boundaries, missing-data policy, and initial bindings are frozen and verified offline.
 
-- the AA capability field and versioned boundaries for Light, Standard, and Deep;
-- the canonical AA price field and latency tie-break field;
-
-The production local catalog also requires the maintainer to approve the initial AA evidence bindings for current DSH routes. That data review does not block the deterministic Task 3 implementation against fixtures, but it blocks claiming the real local catalog is finalized.
+Phase 2 requires maintainer selection of the fixed Task Assessor provider/model/effort, bounded input contract, timeout, and confidence threshold before Task 4 can be accepted.
 
 Stable AA acquisition, data distribution rights, within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later roadmap phases and do not block Phase 1.
 
 ## Next action
 
-Review and approve the Task 3 AA capability field and Light/Standard/Deep boundaries, canonical AA price field, latency tie-break field, and initial production bindings. Then implement Task 3 against the completed evidence-catalog boundary.
+Review and freeze the Task 4 Task Assessor configuration and structured contract, then implement the fixed assessor outside Auto recursion.
 
 ## Status maintenance rules
 

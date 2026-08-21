@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 49f5ee1c3b61badc277c8083369a03431ed56272
+translation-source-blob: 6a3e39be664f2dbd32dcec01725d4835667b866e
 translation-status: current
 -->
 
@@ -22,7 +22,7 @@ translation-status: current
 
 每个 preview build 必须记录精确 fork remote 和包含 seam 实现的 commit。它只能标识 Host build，不能标识远程模型 deployment。依据 ADR-011，实际 Host route 显式绑定到一条 AA evidence record，同时保留 semantic-match 限制；该 binding 不是 provider deployment fingerprint。公共兼容契约绝不包含本地 checkout 路径；fork 验证成功也不能表述成官方 DSH 支持。
 
-具体 MVP 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与 effort，以及持久化解释。决定变化时会携带前一条 route，使界面只把发生变化的模型和／或 effort 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，以呼吸灯方式平滑亮灭两次后恢复默认颜色，包括只切换 effort 的情况。聊天时间线会把前后模型与 effort，以及任务处理级别、原因代码和解释记录为路由事实，紧跟在触发它的用户消息之后、产生结果的助手回复之前。阶段 1 复用该载体，并把术语和策略迁移到 ADR-011；生产载体仍未决定。
+具体 MVP 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与 effort，以及持久化解释。决定变化时会携带前一条 route，使界面只把发生变化的模型和／或 effort 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，以呼吸灯方式平滑亮灭两次后恢复默认颜色，包括只切换 effort 的情况。聊天时间线会把前后模型与 effort，以及任务处理级别、原因代码和解释记录为路由事实，紧跟在触发它的用户消息之后、产生结果的助手回复之前。阶段 3 在已完成的阶段 1 离线 catalog 与阶段 2 assessor 之后复用该载体，并把术语和策略迁移到 ADR-011；生产载体仍未决定。
 
 ### Fork 契约证据
 

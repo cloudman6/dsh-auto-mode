@@ -21,7 +21,7 @@ Delivered on the pinned DSH fork:
 
 Acceptance: completed and accepted by the maintainer on 2026-08-18.
 
-## Phase 1: AA route catalog and user-facing levels
+## Phase 1: AA route catalog and handling-level policy — complete
 
 Replace prototype terminology and hard-coded route assumptions with the first versioned AA-informed catalog.
 
@@ -36,7 +36,7 @@ Acceptance: mixed-provider and current local-seed fixtures cover routes with zer
 
 ### 1B. Compile capability bands
 
-- Replace `fast`/`standard`/`strong` with `light`/`standard`/`deep` internally and “轻量/常规/深度” in Chinese UI.
+- Use `light`/`standard`/`deep` in the new catalog and reserve Light/Standard/Deep plus “轻量/常规/深度” for the Phase 3 live plugin and UI migration.
 - Define versioned AA score boundaries for the three bands.
 - Keep the exact AA snapshot, band policy, and matched route records inspectable.
 
@@ -49,6 +49,8 @@ Acceptance: every eligible route belongs to exactly one band and the same snapsh
 - Exclude or explicitly handle missing comparison fields; never depend on discovery order.
 
 Acceptance: permutation tests produce the same winner and explanation for the same frozen catalog.
+
+Phase acceptance: completed on 2026-08-21. Tasks 1–3 compile the local evidence catalog offline, assign every eligible route through `aa-route-policy/v1`, and resolve one level by AA price, AA latency, and stable route identity without changing Manual mode.
 
 ## Phase 2: Semantic Task Assessor
 
