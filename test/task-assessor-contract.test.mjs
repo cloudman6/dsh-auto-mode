@@ -8,6 +8,7 @@ import {
   buildTaskAssessorInput,
   evaluateTaskAssessorResult,
   resolveTaskAssessorRoute,
+  taskAssessorFallback,
 } from '../src/task-assessor-contract.mjs'
 
 const fixtures = JSON.parse(readFileSync(
@@ -122,12 +123,17 @@ describe('Task Assessor bounded input', () => {
   })
 
   it('rejects an oversized current message before any model call', () => {
-    assert.throws(
-      () => buildTaskAssessorInput({
+    let failure
+    try {
+      buildTaskAssessorInput({
         currentMessage: 'x'.repeat(TASK_ASSESSOR_CONTRACT_V1.input.currentMessageMaxBytes + 1),
-      }),
-      error => error?.code === 'assessor-input-too-large',
-    )
+      })
+    } catch (error) {
+      failure = taskAssessorFallback(error.code)
+    }
+
+    assert.equal(failure.handlingLevel, 'deep')
+    assert.equal(failure.reasonCode, 'assessor-input-too-large')
   })
 })
 

@@ -210,6 +210,11 @@ export const TASK_ASSESSOR_CONTRACT_V1 = freezeTree({
   },
 })
 
+/** Normalize a stable pre-call or provider failure to the contract's Deep fallback. */
+export function taskAssessorFallback(reasonCode) {
+  return fallback(reasonCode)
+}
+
 /** Resolve one concrete assessor route from the current frozen AA catalog. */
 export function resolveTaskAssessorRoute(catalog) {
   if (!isRecord(catalog) || catalog.policyVersion !== AA_ROUTE_POLICY_VERSION
