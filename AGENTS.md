@@ -6,20 +6,20 @@
 
 ## Project in one sentence
 
-DSH Auto Mode gives individual power users of coding agents an AA-informed Auto mode for DeepSeek Harness: a fixed semantic assessor describes the task, deterministic Host policy chooses Light, Standard, or Deep, and the resolver prefers lower AA price then lower AA latency among eligible routes in that level.
+DSH Auto Mode gives individual power users of coding agents an AA-informed Auto mode for DeepSeek Harness: a versioned assessor policy resolves and freezes one environment-valid classifier route, the semantic assessor describes the task, deterministic Host policy chooses Light, Standard, or Deep, and the resolver prefers lower AA price then lower AA latency among eligible routes in that level.
 
 ## Project snapshot
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 2 semantic Task Assessor after completed Phase 1 AA route catalog |
-| Existing work | Runnable MVP plus the completed offline Phase 1 Host identity, AA evidence binding, catalog, capability-band, and price-first resolver pipeline |
+| Stage | Phase 2 Task 5 semantic-assessor implementation after the completed Task 4 contract |
+| Existing work | Runnable MVP, completed Phase 1 catalog pipeline, and the versioned bounded Task Assessor contract with deterministic environment-aware route resolution |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Freeze the fixed Task Assessor configuration and structured contract for Phase 2 Task 4 |
+| Next-stage gate | Implement the one-shot assessor call and deterministic level mapper for Phase 2 Task 5 |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
@@ -60,15 +60,15 @@ Load topic documents only when relevant; do not load the entire repository indis
 
 ## Current-stage constraints
 
-The maintainer accepted ADR-011 on 2026-08-21. Post-MVP implementation proceeds under these constraints:
+The maintainer accepted ADR-011 on 2026-08-21 and ADR-012 on 2026-08-22. Post-MVP implementation proceeds under these constraints:
 
-- Treat the accepted specification and ADR-011 as binding. ADR-010 is the superseded historical source for the AA-informed, price-first direction; ADR-002, ADR-006, and ADR-008 remain historical.
+- Treat the accepted specification, ADR-011, and ADR-012 as binding. ADR-010 is the superseded historical source for the AA-informed, price-first direction; ADR-002, ADR-006, and ADR-008 remain historical.
 - Keep the implemented A1 and A2 contracts product-neutral and pinned to the verified fork commit; DSH Core must not learn Auto Mode route tiers, Task Assessment, or Policy Pack semantics.
 - Use AA as the external source for capability, price, and latency conclusions; do not claim project-Benchmarked quality or universal optimality.
 - Keep executable Host route identity separate from AA evidence identity. Bind one effective provider/model/request configuration explicitly to one stable AA record; do not require variant or effort across providers, infer bindings fuzzily, cross a materialized execution difference, or silently substitute a newer AA record.
 - Use `light`, `standard`, and `deep` internally and Light/Standard/Deep plus 轻量/常规/深度 in user-facing text. The completed MVP's old labels remain historical until migrated.
 - Within one handling level, prefer lower AA-reported price, then lower AA-reported latency, then stable route identity. Do not add a local token-cost estimator.
-- A fixed Task Assessor may return structured task attributes only; deterministic Host policy owns the level and concrete route decision.
+- A versioned Task Assessor policy resolves one eligible route from the current frozen catalog without inspecting the task, freezes that route before the call, and never enters Auto recursion. The assessor may return structured task attributes only; deterministic Host policy owns the level and user-task route decision.
 - Treat ADR-009 as risk authorization, not capability evidence. Mutable Experimental Auto remains disabled until a separately accepted concrete provider design freezes every production tool entry and a versioned Host provider proves a clean isolated worktree, durable Attempt-scoped file attribution and containment, process and credential isolation, and `externalSideEffects: 'none'`; uncovered or unsupported entries fail closed.
 - Keep the implementation fork-pinned and do not claim official DSH compatibility until the corresponding roadmap gate passes.
 
@@ -300,7 +300,7 @@ Do not decide these items autonomously:
 
 ## Current hard blocker
 
-Phase 1 has no remaining blocker. The current Phase 2 decision required before Task 4 and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
+Phase 1 and Phase 2 Task 4 have no remaining blocker. Current Task 5 work and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
 ## Security boundaries
 

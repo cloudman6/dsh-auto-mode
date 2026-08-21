@@ -4,11 +4,8 @@
 
 ## Phase 2: Semantic assessor
 
-1. Which fixed provider/model/effort runs the assessor without entering Auto recursion?
-2. What bounded task context is necessary without exposing excessive prompt, code, or tool history?
-3. What schema, timeout, and confidence threshold trigger `deep` fallback?
-4. Which fixture prompts cover coding, debugging, research, writing, architecture, security, and ambiguous tasks?
-5. Which attributes independently force `deep`, and which combinations distinguish `light` from `standard`?
+1. Which fixture prompts cover coding, debugging, research, writing, architecture, security, and ambiguous tasks?
+2. Which validated attribute combinations distinguish `light` from `standard` after the already-fixed high-risk, unknown-scope, unverifiable, and low-confidence Deep rules?
 
 ## Phase 3: Auto beta
 

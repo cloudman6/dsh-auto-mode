@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: d2fe04af9dbe76a21867662638bb0a078a53364e
+translation-source-blob: b4c763f714f7be78154ae60d3eac84913fe73696
 translation-status: current
 -->
 
@@ -60,15 +60,15 @@ translation-status: current
 
 ## 阶段 2：语义 Task Assessor
 
-用固定、有限的 LLM classifier 替换关键词路由。
+用有限 LLM classifier 替换关键词路由；其版本化选择 policy 在每次调用前解析并冻结一条适合当前环境的 route。
 
 - 返回 task kind、scope、complexity、risk、verifiability、confidence 和 reasons。
 - 绝不返回具体 provider、model 或 effort。
-- 使用 Auto 无法递归路由的固定配置。
+- 在不检查任务的情况下从当前冻结 catalog 解析具体 route，再冻结它，确保 Auto 不能递归或在调用中重新路由。
 - 用确定性 Host policy 把结构化属性映射到 `light`/`standard`/`deep`。
 - 超时、无效输出、低置信度、高风险或范围未知时使用 `deep`。
 
-验收：带版本 fixture 覆盖代表性的编码、研究、写作、架构、安全和模糊任务；畸形或不确定判断确定性回退到 `deep`。
+Task 4 已于 2026-08-22 完成：route policy、有限输入、请求预算、严格 schema、置信度阈值以及 valid/invalid/timeout/low-confidence 契约 fixture 均已冻结。阶段验收仍需 Task 5 的代表性语义 fixture 和确定性级别 mapper；畸形或不确定判断回退到 `deep`。
 
 ## 阶段 3：AA 驱动 Auto Beta
 

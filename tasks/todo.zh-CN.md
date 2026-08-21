@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: 7d7f767c027b2f7a6e7641b24326831ea20aacda
+translation-source-blob: 51200c7c9ece81ddd7a4b95069693c58e20b7911
 translation-status: current
 -->
 
@@ -63,15 +63,15 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] Schema 覆盖 task kind、scope、complexity、risk、verifiability、confidence 和 reasons。
-- [ ] 输入上下文、固定 route、timeout、validation 和 confidence threshold 明确。
-- [ ] 契约禁止输出 provider/model/effort，并把失败映射到 Deep。
+- [x] Schema 覆盖 task kind、scope、complexity、risk、verifiability、confidence 和 reasons。
+- [x] 输入上下文、环境感知 route 解析及逐次调用冻结、timeout、validation 和 confidence threshold 明确。
+- [x] 契约禁止输出 provider/model/effort，并把失败映射到 Deep。
 
 **验证：**
 
-- [ ] 契约 fixture 覆盖有效、无效、timeout 和低置信度输出。
+- [x] 契约 fixture 覆盖有效、无效、timeout 和低置信度输出。
 
-**依赖：**维护者选择固定 assessor 配置
+**依赖：**Task 1–3，以及维护者批准 `task-assessor-route-policy/v1` 与 `task-assessor-contract/v1`
 
 ## Task 5：实现语义判断与确定性级别映射
 

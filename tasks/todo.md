@@ -57,15 +57,15 @@
 
 **Acceptance criteria:**
 
-- [ ] Schema covers task kind, scope, complexity, risk, verifiability, confidence, and reasons.
-- [ ] Input context, fixed route, timeout, validation, and confidence threshold are explicit.
-- [ ] The contract forbids provider/model/effort output and maps failure to Deep.
+- [x] Schema covers task kind, scope, complexity, risk, verifiability, confidence, and reasons.
+- [x] Input context, environment-aware route resolution plus per-call freezing, timeout, validation, and confidence threshold are explicit.
+- [x] The contract forbids provider/model/effort output and maps failure to Deep.
 
 **Verification:**
 
-- [ ] Contract fixtures cover valid, invalid, timeout, and low-confidence output.
+- [x] Contract fixtures cover valid, invalid, timeout, and low-confidence output.
 
-**Dependencies:** Maintainer selection of the fixed assessor configuration
+**Dependencies:** Tasks 1–3 and maintainer approval of `task-assessor-route-policy/v1` and `task-assessor-contract/v1`
 
 ## Task 5: Implement semantic assessment and deterministic level mapping
 

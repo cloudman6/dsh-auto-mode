@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routing-policy.md
-translation-source-blob: c1bbd74eeef90a9968e6fb44e905095f66c39a1e
+translation-source-blob: dac64cc2c085a1c69a1d8c15c7ff2d8309a9b9c7
 translation-status: current
 -->
 
@@ -25,7 +25,7 @@ Routing Policy 实现一条简单且确定性的规则：
 
 ## 任务判断
 
-固定 Task Assessor 返回与 provider 无关的属性：
+版本化 Task Assessor 契约返回与 provider 无关的属性：
 
 ```ts
 interface TaskAssessment {
@@ -40,7 +40,11 @@ interface TaskAssessment {
 }
 ```
 
-Assessor 使用 Auto 路由之外的固定配置，没有工具，只返回通过校验的结构化数据。它绝不输出模型名或 effort。失败、超时、无效输出或低于策略阈值的置信度都变成 `unknown` 并选择 `deep`。
+Assessor 绝不选择自己的物理 route。`task-assessor-route-policy/v1` 在不检查用户任务的情况下，从当前冻结 AA catalog 中确定性解析一条 route：请求 Light，依次升级到 Standard 和 Deep，排除 AA latency 缺失或首次实际答案 token 中位时间超过 6 秒的 route，并保留第一个按价格／延迟／稳定 identity 排序的 winner。该具体 Host route 和实际配置在调用前冻结，因此可以适配不同环境，同时不进入 Auto 递归，也不在调用中切换。
+
+`task-assessor-contract/v1` 发起一次无工具、零重试请求，temperature 为 `0`，输出上限 512 token，response 上限 8 KiB，总 timeout 为 12 秒。模型可见输入中，当前用户消息最多 16 KiB，最多四条此前可见用户／助手消息和最多 16 个附件 metadata 共用另一个 16 KiB。它排除 system/developer prompt、隐藏推理、tool 流量、terminal 输出、credential、环境变量、子 Agent 私有上下文和附件内容。
+
+Response 是不可信输入。它必须只含七个 assessment 字段，使用封闭 enum，置信度只能从 `0`、`0.5`、`0.8`、`1` 中选择，并提供 1–4 个 allowlist reason code。由 Host 而不是模型附加 `task-assessor/v1`。Provider、model、effort、route、handling level、额外字段、畸形 JSON、input/output 超限、provider failure、timeout 或置信度低于 `0.8`，都会变成 unknown assessment，并用稳定失败码选择 `deep`。
 
 ## 级别语义
 

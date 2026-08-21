@@ -10,7 +10,7 @@ Evolve the accepted Phase 0P MVP into an AA-informed Auto beta. The implementati
 
 - ADR-011 succeeds ADR-010, retaining its removal of Benchmark admission and latency-first optimization while replacing the mandatory four-field matching key.
 - AA is the external source for capability, price, and latency conclusions.
-- A fixed Task Assessor provides structured task attributes; deterministic Host policy owns the final level and route.
+- A versioned assessor policy resolves and freezes one environment-valid classifier route; the Task Assessor provides structured task attributes and deterministic Host policy owns the final level and user-task route.
 - Host route identity is independent of AA record identity; variant and effort are optional provider dimensions.
 - Manual mode and the accepted model/effort transition UX remain unchanged.
 
@@ -23,7 +23,7 @@ AA catalog schema and binding validation
         ↓
 capability-band compiler and price-first resolver
         ↓
-fixed semantic Task Assessor
+resolved-and-frozen semantic Task Assessor
         ↓
 end-to-end Auto integration and UI terminology
         ↓
@@ -54,11 +54,13 @@ The pure catalog pipeline is deterministic, secret-free, independent of live AA 
 
 ### Task 4: Freeze the Task Assessor contract
 
-Define structured attributes, bounded input, fixed model configuration, timeout, validation, confidence threshold, and Deep fallback.
+Status: complete on 2026-08-22.
 
-### Task 5: Implement the fixed assessor and level mapper
+Define structured attributes, bounded input, a versioned environment-aware route policy, per-call route freezing, timeout, validation, confidence threshold, and Deep fallback.
 
-Call the fixed assessor outside Auto recursion and map validated output to Light/Standard/Deep with deterministic reason codes. Cover representative fixture tasks and all fallback paths.
+### Task 5: Implement the resolved assessor and level mapper
+
+Call the resolved-and-frozen assessor outside Auto recursion and map validated output to Light/Standard/Deep with deterministic reason codes. Cover representative fixture tasks and all fallback paths.
 
 ### Checkpoint B
 
@@ -93,12 +95,11 @@ Choose the stable AA acquisition method and rights boundary, validate and minimi
 | Risk | Impact | Mitigation |
 |---|---|---|
 | AA fields or naming change | Catalog stops matching or silently re-bands routes | Version schema and bindings; reject unknown fields; keep previous valid snapshot |
-| Semantic assessor is inconsistent | Wrong level or unnecessary Deep fallback | Fixed configuration, bounded schema, fixture regression, deterministic fallback |
+| Semantic assessor is inconsistent | Wrong level or unnecessary Deep fallback | Versioned route policy, per-call freezing, bounded schema, fixture regression, deterministic fallback |
 | Comparison fields are incomplete | Wrong same-level winner | Exclude missing capability or price; sort missing latency after measured latency for equal-price routes |
 | Effective DSH configuration is opaque | False AA binding | Fingerprint Host-materialized options; exclude unresolved or ambiguous routes |
 | AA-informed wording is mistaken for proof | Overstated product claim | Persist snapshot and reason; use required AA-informed disclaimer |
 
 ## Current open decisions
 
-- Fixed Task Assessor provider/model/effort and confidence threshold.
 - Stable AA acquisition and distribution mechanism for Phase 4.

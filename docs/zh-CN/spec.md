@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/spec.md
-translation-source-blob: aa8ec29b98cec13cf60cd470aa2a3cd5923044eb
+translation-source-blob: e173733a12b236f72edac140fac61c55bbf21198
 translation-status: current
 -->
 
@@ -49,7 +49,7 @@ Host route 继续作为执行与 capability 过滤的权威身份。AA record �
 
 ## 路由所有权
 
-- 一个固定且不受 Auto 递归路由的 Task Assessor 可以判断任务属性和置信度。
+- 版本化 assessor policy 从当前冻结 catalog 中确定性解析一条合格 route，不检查任务内容，在调用前冻结，并且绝不进入 Auto 递归。Task Assessor 只能判断任务属性和置信度。
 - Assessor 只返回结构化任务属性，不返回 provider、model 或 effort。
 - 确定性的 Routing Policy 把属性映射到 `light`、`standard` 或 `deep`。
 - Route Resolver 排除不可用或不兼容 route，并在所选级别内按 AA 价格优先排序。
@@ -72,7 +72,7 @@ Host route 继续作为执行与 capability 过滤的权威身份。AA record �
 - 带版本的本地 AA 快照，初期手工维护并被 Git 忽略。
 - 不宣称精确 deployment 的版本化 Host route identity 与显式 AA evidence binding。
 - AA 驱动的 `light`/`standard`/`deep` catalog 编译。
-- 固定语义 Task Assessor 加确定性的级别和 route 策略。
+- 有限语义 Task Assessor，其具体执行 route 由版本化 policy 从当前环境解析并在每次调用前冻结；另加确定性的级别和用户任务 route 策略。
 - 透明的 DSH Web UI、持久决策事实和 Manual 不受影响。
 
 ### 后续路径

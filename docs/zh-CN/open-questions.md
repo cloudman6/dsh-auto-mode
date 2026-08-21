@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/open-questions.md
-translation-source-blob: d5db831f47d892eb5c212fbe784cb84b11408ae6
+translation-source-blob: 78c757d46ad17d7fe4e0178fd72dc1749b7b015a
 translation-status: current
 -->
 
@@ -10,11 +10,8 @@ translation-status: current
 
 ## 阶段 2：语义 assessor
 
-1. 哪个固定 provider/model/effort 运行 assessor 且不进入 Auto 递归？
-2. 哪些有限任务上下文是必需的，同时不暴露过多 prompt、代码或工具历史？
-3. 哪个 schema、timeout 和 confidence threshold 触发 `deep` fallback？
-4. 哪些 fixture prompt 覆盖编码、调试、研究、写作、架构、安全和模糊任务？
-5. 哪些属性单独强制 `deep`，哪些组合区分 `light` 与 `standard`？
+1. 哪些 fixture prompt 覆盖编码、调试、研究、写作、架构、安全和模糊任务？
+2. 在已固定的高风险、范围未知、不可验证和低置信度 Deep 规则之外，哪些已校验属性组合区分 `light` 与 `standard`？
 
 ## 阶段 3：Auto Beta
 

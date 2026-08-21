@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: b95e87bf980ffc80139eed9dffaf36ecdcfcdfb0
+translation-source-blob: eb79359e421fe893857e70902898009b3b6f4cd3
 translation-status: current
 -->
 
@@ -16,7 +16,7 @@ translation-status: current
 
 - ADR-011 接替 ADR-010，保留其对 Benchmark admission 与延迟优先优化的取消，同时替换强制四字段匹配键。
 - AA 是能力、价格和延迟结论的外部来源。
-- 固定 Task Assessor 提供结构化任务属性；确定性 Host policy 拥有最终级别和 route。
+- 版本化 assessor policy 解析并冻结一条适合当前环境的 classifier route；Task Assessor 提供结构化任务属性，确定性 Host policy 拥有最终级别和用户任务 route。
 - Host route identity 独立于 AA record identity；variant 和 effort 是 provider 可选维度。
 - Manual 模式和已接受的 model/effort 变化 UX 保持不变。
 
@@ -29,7 +29,7 @@ AA catalog schema 与 binding validation
         ↓
 能力档 compiler 与价格优先 resolver
         ↓
-固定语义 Task Assessor
+已解析并冻结的语义 Task Assessor
         ↓
 端到端 Auto 集成与 UI 术语
         ↓
@@ -60,11 +60,13 @@ dogfood 与快照更新流程
 
 ### Task 4：冻结 Task Assessor 契约
 
-定义结构化属性、有限输入、固定模型配置、timeout、validation、confidence threshold 和 Deep fallback。
+状态：已于 2026-08-22 完成。
 
-### Task 5：实现固定 assessor 与级别 mapper
+定义结构化属性、有限输入、版本化环境感知 route policy、逐次调用 route 冻结、timeout、validation、confidence threshold 和 Deep fallback。
 
-在 Auto 递归之外调用固定 assessor，把已校验输出映射到 Light/Standard/Deep 和确定性 reason code。覆盖代表性 fixture 与所有 fallback。
+### Task 5：实现已解析 assessor 与级别 mapper
+
+在 Auto 递归之外调用已解析并冻结的 assessor，把已校验输出映射到 Light/Standard/Deep 和确定性 reason code。覆盖代表性 fixture 与所有 fallback。
 
 ### Checkpoint B
 
@@ -99,12 +101,11 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 | 风险 | 影响 | 缓解 |
 |---|---|---|
 | AA field 或命名变化 | Catalog 停止匹配或静默改档 | 版本化 schema 与 binding；拒绝未知 field；保留上一有效快照 |
-| 语义 assessor 不稳定 | 级别错误或不必要 Deep fallback | 固定配置、有限 schema、fixture 回归、确定性 fallback |
+| 语义 assessor 不稳定 | 级别错误或不必要 Deep fallback | 版本化 route policy、逐次调用冻结、有限 schema、fixture 回归、确定性 fallback |
 | 比较字段不完整 | 同档 winner 错误 | Capability 或 price 缺失时排除；同价时，缺失 latency 排在有测量值之后 |
 | 实际 DSH 配置不透明 | 错误 AA binding | 对 Host 物化选项生成 fingerprint；排除未解析或有歧义 route |
 | AA 驱动被误解为证明 | 产品声明过度 | 持久化 snapshot 与 reason；强制 AA 驱动限定语 |
 
 ## 当前开放决策
 
-- 固定 Task Assessor provider/model/effort 和 confidence threshold。
 - 阶段 4 的稳定 AA 获取与分发机制。

@@ -19,7 +19,7 @@ The policy does not estimate token counts or build a private cost model. Capabil
 
 ## Task assessment
 
-The fixed Task Assessor returns provider-independent attributes:
+The versioned Task Assessor contract returns provider-independent attributes:
 
 ```ts
 interface TaskAssessment {
@@ -34,7 +34,11 @@ interface TaskAssessment {
 }
 ```
 
-The assessor uses one fixed configuration outside Auto routing, has no tools, and returns validated structured data. It never emits a model name or effort. Failure, timeout, invalid output, or confidence below policy threshold becomes `unknown` and selects `deep`.
+The assessor never selects its own physical route. `task-assessor-route-policy/v1` deterministically resolves one route from the current frozen AA catalog without inspecting the user task: it requests Light, escalates through Standard and Deep, excludes routes with missing AA latency or median time to first answer token above 6 seconds, and keeps the first price/latency/stable-identity winner. That concrete Host route and effective configuration are frozen before the call, so environment differences are supported without Auto recursion or mid-call switching.
+
+`task-assessor-contract/v1` uses one tool-free, zero-retry request with temperature `0`, a 512-token output cap, an 8 KiB response cap, and a 12-second total timeout. Model-visible input contains at most 16 KiB for the current user message plus 16 KiB for at most four preceding visible user/assistant messages and metadata for at most 16 attachments. It excludes system/developer prompts, hidden reasoning, tool traffic, terminal output, credentials, environment variables, private child context, and attachment contents.
+
+The response is untrusted. It must contain exactly the seven assessment fields, use closed enums, choose confidence from `0`, `0.5`, `0.8`, or `1`, and provide one to four allowlisted reason codes. The Host, not the model, attaches `task-assessor/v1`. Provider, model, effort, route, handling level, extra fields, malformed JSON, oversized input/output, provider failure, timeout, or confidence below `0.8` becomes an unknown assessment and selects `deep` with a stable failure code.
 
 ## Level semantics
 

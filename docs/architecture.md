@@ -4,13 +4,13 @@
 
 ## Status
 
-Accepted direction under ADR-011. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
+Accepted direction under ADR-011 and ADR-012. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
 
 ## Principles
 
 1. Deterministic policy in the DSH Host owns normal route decisions.
 2. Artificial Analysis supplies external capability, price, and latency data; it does not see the task or emit the final route.
-3. A fixed Task Assessor emits structured task properties, never a model name.
+3. A versioned assessor policy resolves and freezes one environment-valid classifier route; that Task Assessor emits structured task properties, never a model name.
 4. User-facing handling levels are `light`, `standard`, and `deep`; they are heuristic allocation levels, not quality guarantees.
 5. Executable Host route identity and AA evidence identity remain separate; explicit versioned bindings connect them without a universal variant/effort ontology.
 6. Host capability and user constraints filter candidates before price comparison.
@@ -22,7 +22,7 @@ Accepted direction under ADR-011. Verified DSH seams and fork requirements remai
 ```mermaid
 flowchart LR
     U["User task\nAuto or Manual"] --> X["Execution Context"]
-    X --> A["Fixed Task Assessor"]
+    X --> A["Resolved + frozen Task Assessor"]
     A --> P["Deterministic Level Policy"]
     S["Versioned local AA snapshot"] --> C["AA Route Catalog Compiler"]
     D["DSH available routes\nand capabilities"] --> C
@@ -107,7 +107,11 @@ The completed Phase 1 policy compiler emits frozen entries with `handlingLevel`,
 
 ### Task Assessor
 
-Uses a fixed model configuration outside Auto recursion. It receives a bounded description of the current task and returns task kind, scope, complexity, risk, verifiability, confidence, and concise reasons. It has no tools and cannot select a concrete model.
+`task-assessor-route-policy/v1` treats classification as a fixed Light request without inspecting the user task. It filters the current frozen AA catalog to routes with measured median time to first answer token at or below 6 seconds, tries Light then Standard then Deep, and uses the existing price, latency, and stable-route ordering inside the first eligible level. It freezes the selected Host route identity and effective configuration before one call. A missing or invalid catalog, or no eligible route, produces an explicit Deep fallback instead of hard-coding or silently substituting a provider/model/effort.
+
+`task-assessor-contract/v1` sends only the current visible user message, a bounded tail of visible user/assistant text, and bounded attachment metadata. It excludes system/developer prompts, hidden reasoning, tool traffic, terminal output, credentials, environment variables, and attachment contents. The call uses no tools, no retries, temperature `0`, at most 512 output tokens, an 8 KiB response cap, and a 12-second total deadline.
+
+The untrusted response must be one strict JSON object containing task kind, scope, complexity, risk, verifiability, one of the discrete confidence values `0`, `0.5`, `0.8`, or `1`, and one to four allowlisted reason codes. The Host attaches `task-assessor/v1`; provider, model, effort, route, handling level, extra fields, prose, or malformed JSON invalidates the result. Confidence below `0.8`, timeout, provider failure, invalid structure, oversized input/output, or unavailable route returns an unknown assessment that maps to `deep`.
 
 Timeout, failure, invalid structure, or low confidence returns an unknown assessment that maps to `deep`.
 
@@ -172,7 +176,7 @@ Manual mode bypasses Auto decision logic and retains normal DSH validation.
 ```text
 1. User submits a task in Auto mode.
 2. Host collects the bounded task context.
-3. Fixed Task Assessor returns structured attributes.
+3. The versioned assessor policy resolves and freezes one eligible route; the Task Assessor returns structured attributes.
 4. Deterministic policy chooses Light, Standard, or Deep.
 5. Catalog compiler or cached frozen catalog exposes eligible AA-matched routes.
 6. Resolver filters Host-invalid routes.

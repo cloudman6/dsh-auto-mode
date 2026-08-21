@@ -4,25 +4,25 @@
 
 ## Last updated
 
-2026-08-21
+2026-08-22
 
 ## Current stage
 
-Phase 0P MVP and Phase 1 are complete. The project is ready for Phase 2 of the post-MVP roadmap: freeze and implement the fixed semantic Task Assessor that supplies structured task attributes to deterministic Host policy.
+Phase 0P MVP, Phase 1, and Phase 2 Task 4 are complete. The project is ready for Task 5: execute the bounded semantic Task Assessor through the approved environment-aware route policy and map its validated attributes through deterministic Host policy.
 
-The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. Phase 1 Tasks 1–3 now provide a provider-neutral effective-configuration fingerprint, stable Host route identity, explicit versioned AA evidence-binding resolver, deterministic local evidence-catalog compiler, and `aa-route-policy/v1` capability bands plus price-first route resolution. The current runnable plugin still uses the prototype `fast`/`standard`/`strong` implementation until Phase 3 integrates the new catalog and assessor path.
+The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. Phase 1 Tasks 1–3 provide the provider-neutral AA catalog pipeline. Task 4 adds `task-assessor-contract/v1` and `task-assessor-route-policy/v1`: bounded visible input, strict untrusted-output validation, discrete confidence, deterministic Deep fallback, and one concrete assessor route resolved from the current catalog and frozen before the call. The current runnable plugin still uses the prototype `fast`/`standard`/`strong` implementation until Phase 3 integrates the new catalog and assessor path.
 
 ## Accepted post-MVP direction
 
 - Artificial Analysis is the maintained external source for model capability, price, and latency conclusions.
 - DSH Auto Mode does not build or require an in-house model-quality benchmark.
 - User-facing task-handling levels are Light, Standard, and Deep; Chinese labels are 轻量、常规、深度.
-- A fixed semantic Task Assessor returns task attributes and confidence; deterministic Host policy chooses the level and retains final authority.
+- A versioned assessor route policy resolves one environment-valid classifier route without inspecting the task and freezes it before the call. The semantic assessor returns task attributes and confidence; deterministic Host policy chooses the level and retains final authority.
 - Executable Host route identity is separate from AA evidence identity. A versioned explicit binding maps one effective provider/model/request configuration to one stable AA record; effort and variant are optional provider dimensions, not universal required fields.
 - Within one level, the resolver prefers lower AA-reported price, then lower AA-reported latency, then stable route identity.
 - Product claims remain explicitly AA-informed and do not claim project-benchmarked quality, safety, non-inferiority, or universal optimality.
 
-These decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-to-aa-evidence.md), which succeeds ADR-010 while retaining its AA-informed, price-first direction. ADR-010 remains the historical decision that superseded ADR-002, ADR-006, and ADR-008.
+The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-to-aa-evidence.md), which succeeds ADR-010 while retaining its AA-informed, price-first direction. The environment-aware assessor-route decision is recorded in [ADR-012](docs/decisions/0012-resolve-and-freeze-task-assessor-routes.md). ADR-010 remains the historical decision that superseded ADR-002, ADR-006, and ADR-008.
 
 ## Completed foundation
 
@@ -37,14 +37,16 @@ These decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-t
 - Implemented Task 2 without changing live routing: a maintainer-selected Git-ignored JSON seed compiles against the current Host route inventory into frozen, sorted evidence entries and stable exclusions; malformed, unmatched, ambiguous, stale, configuration-crossing, and invalid-capability rows remain out of the catalog.
 - Completed Phase 1 Task 3 and Checkpoint A without changing live routing: `aa-route-policy/v1` pins AA Intelligence Index `v4.1.1`, Light `<35`, Standard `35–<50`, Deep `>=50`, AA 7:2:1 blended price, and median time to first answer token. Missing capability or price excludes a route; missing latency sorts after measured latency for equal-price routes.
 - Finalized the Git-ignored local seed with the three approved current bindings: DeepSeek Pro/off in Light, Pro/high in Standard, and Flash/max in Deep. Flash/off, Flash/high, and Pro/max remain excluded rather than receiving unsupported or ambiguous evidence.
+- Completed Phase 2 Task 4: `task-assessor-route-policy/v1` requests Light, escalates through Standard and Deep, excludes missing or over-budget AA latency, and freezes the price-first winner from the current catalog. `task-assessor-contract/v1` fixes the bounded input, one-shot request budget, strict output schema, discrete confidence threshold, and deterministic Deep fallback fixtures without calling a live provider or changing the runnable MVP.
 
 ## Current implementation plan
 
 1. Completed: provider-neutral Host route identity and explicit AA evidence bindings with mixed-provider fixtures.
 2. Completed: compile the Git-ignored local AA seed through validated bindings and stable exclusion reasons.
 3. Completed: compile versioned AA capability bands and resolve same-band routes by price, latency, and stable identity.
-4. Next: replace keyword classification with a fixed structured semantic Task Assessor.
-5. Later: integrate the new decision path and terminology end to end while preserving the accepted UI behavior and Manual mode.
+4. Completed: freeze the bounded Task Assessor contract and deterministic environment-aware assessor route policy.
+5. Next: call the resolved-and-frozen assessor outside Auto recursion and implement deterministic level mapping.
+6. Later: integrate the new decision path and terminology end to end while preserving the accepted UI behavior and Manual mode.
 
 Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md), [implementation plan](tasks/plan.md), and [task checklist](tasks/todo.md).
 
@@ -52,13 +54,13 @@ Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md
 
 Phase 1 has no remaining blocker. Its field choices, boundaries, missing-data policy, and initial bindings are frozen and verified offline.
 
-Phase 2 requires maintainer selection of the fixed Task Assessor provider/model/effort, bounded input contract, timeout, and confidence threshold before Task 4 can be accepted.
+Phase 2 Task 4 has no remaining blocker. The maintainer approved dynamic environment-aware assessor route resolution rather than a globally hard-coded provider/model/effort, together with the bounded input, 12-second timeout, discrete confidence threshold, and strict Deep fallback contract.
 
 Stable AA acquisition, data distribution rights, within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later roadmap phases and do not block Phase 1.
 
 ## Next action
 
-Review and freeze the Task 4 Task Assessor configuration and structured contract, then implement the fixed assessor outside Auto recursion.
+Implement Task 5: make one tool-free call through the resolved-and-frozen assessor route outside Auto recursion, validate the result through `task-assessor-contract/v1`, and map accepted attributes to Light, Standard, or Deep with deterministic reason codes.
 
 ## Status maintenance rules
 

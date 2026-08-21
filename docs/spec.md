@@ -43,7 +43,7 @@ The Host route remains authoritative for execution and capability filtering. The
 
 ## Routing ownership
 
-- A fixed, non-recursively-routed Task Assessor may classify task attributes and confidence.
+- A versioned assessor policy deterministically resolves one eligible route from the current frozen catalog without inspecting the task, freezes it before the call, and never enters Auto recursion. The Task Assessor may classify task attributes and confidence only.
 - The assessor returns structured task properties, never a provider, model, or effort.
 - Deterministic Routing Policy maps those attributes to `light`, `standard`, or `deep`.
 - Route Resolver filters unavailable or incompatible routes and applies AA price-first ordering inside the selected level.
@@ -66,7 +66,7 @@ The Host route remains authoritative for execution and capability filtering. The
 - Versioned local AA snapshots, initially maintained manually and kept out of Git.
 - Versioned Host route identities and explicit AA evidence bindings without exact-deployment claims.
 - AA-informed `light`/`standard`/`deep` catalog construction.
-- A fixed semantic Task Assessor plus deterministic level and route policy.
+- A bounded semantic Task Assessor whose concrete execution route is resolved from the current environment by a versioned policy and frozen before each call, plus deterministic level and user-task route policy.
 - Transparent DSH Web UI, persistent decision facts, and Manual non-interference.
 
 ### Later path

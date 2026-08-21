@@ -54,15 +54,15 @@ Phase acceptance: completed on 2026-08-21. Tasks 1–3 compile the local evidenc
 
 ## Phase 2: Semantic Task Assessor
 
-Replace keyword routing with a fixed, bounded LLM classifier.
+Replace keyword routing with a bounded LLM classifier whose versioned selection policy resolves one environment-valid route and freezes it before each call.
 
 - Return task kind, scope, complexity, risk, verifiability, confidence, and reasons.
 - Never return a concrete provider, model, or effort.
-- Run on a fixed configuration that Auto cannot recursively route.
+- Resolve a concrete route from the current frozen catalog without inspecting the task, then freeze it so Auto cannot recursively or mid-call reroute it.
 - Map structured attributes to `light`/`standard`/`deep` with deterministic Host policy.
 - Use `deep` on timeout, invalid output, low confidence, high risk, or unknown scope.
 
-Acceptance: a versioned fixture suite covers representative coding, research, writing, architecture, security, and ambiguous tasks; malformed or uncertain assessments deterministically fall back to `deep`.
+Task 4 completed on 2026-08-22: the route policy, bounded input, request budget, strict schema, confidence threshold, and valid/invalid/timeout/low-confidence contract fixtures are frozen. Phase acceptance still requires Task 5 representative semantic fixtures and the deterministic level mapper; malformed or uncertain assessments fall back to `deep`.
 
 ## Phase 3: AA-informed Auto beta
 

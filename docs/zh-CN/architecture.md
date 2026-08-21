@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 2adb10e31a386e8f194fd317a7d1a4527c9f1794
+translation-source-blob: 399b31139d0888fe6fa0cc72d0522c2da8199ded
 translation-status: current
 -->
 
@@ -10,13 +10,13 @@ translation-status: current
 
 ## 状态
 
-ADR-011 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
+ADR-011 与 ADR-012 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
 
 ## 原则
 
 1. 正常 route 决策由 DSH Host 中的确定性策略拥有。
 2. Artificial Analysis 提供外部能力、价格和延迟数据；它看不到任务，也不输出最终 route。
-3. 固定 Task Assessor 输出结构化任务属性，不输出模型名。
+3. 版本化 assessor policy 解析并冻结一条适合当前环境的 classifier route；该 Task Assessor 输出结构化任务属性，不输出模型名。
 4. 面向用户的处理级别是 `light`、`standard` 和 `deep`；它们是启发式资源投入级别，不是质量保证。
 5. 可执行 Host route identity 与 AA evidence identity 相互独立；显式版本化 binding 连接二者，不建立通用 variant/effort ontology。
 6. Host capability 与用户约束先过滤 candidate，再比较价格。
@@ -28,7 +28,7 @@ ADR-011 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录�
 ```mermaid
 flowchart LR
     U["用户任务\nAuto 或 Manual"] --> X["执行上下文"]
-    X --> A["固定 Task Assessor"]
+    X --> A["已解析并冻结的 Task Assessor"]
     A --> P["确定性级别策略"]
     S["带版本本地 AA 快照"] --> C["AA Route Catalog Compiler"]
     D["DSH 可用 route\n与 capability"] --> C
@@ -113,9 +113,11 @@ interface AAEvidenceCatalogExclusion {
 
 ### Task Assessor
 
-使用 Auto 递归之外的固定模型配置。它接收当前任务的有限描述，返回 task kind、scope、complexity、risk、verifiability、confidence 和简短 reasons。它没有工具，也不能选择具体模型。
+`task-assessor-route-policy/v1` 在不检查用户任务内容的情况下，把分类视为固定 Light 请求。它从当前冻结 AA catalog 中筛选 AA 报告的首次实际答案 token 中位时间不超过 6 秒的 route，依次尝试 Light、Standard、Deep，并在第一个存在合格项的级别中沿用价格、延迟和稳定 route identity 排序。它在一次调用前冻结选中的 Host route identity 和实际配置。Catalog 缺失或无效、或者没有合格 route 时，产生显式 Deep fallback，而不是硬编码或静默替换 provider/model/effort。
 
-超时、失败、结构无效或低置信度产生 unknown assessment，并映射到 `deep`。
+`task-assessor-contract/v1` 只发送当前可见用户消息、有限的可见用户／助手文本尾部和有限附件 metadata。它排除 system/developer prompt、隐藏推理、tool 流量、terminal 输出、credential、环境变量和附件内容。调用不带工具、不重试，temperature 为 `0`，输出最多 512 token，response 上限 8 KiB，总 deadline 为 12 秒。
+
+不可信 response 必须是一个严格 JSON object，包含 task kind、scope、complexity、risk、verifiability，置信度只能是 `0`、`0.5`、`0.8` 或 `1`，并带 1–4 个 allowlist reason code。Host 附加 `task-assessor/v1`；provider、model、effort、route、handling level、额外字段、JSON 外 prose 或畸形 JSON 都会使结果无效。置信度低于 `0.8`、timeout、provider failure、结构无效、input/output 超限或 route 不可用时，返回映射到 `deep` 的 unknown assessment。
 
 ### 确定性级别策略
 
@@ -178,7 +180,7 @@ Manual 模式绕过 Auto 决策逻辑，并保留正常 DSH 验证。
 ```text
 1. 用户在 Auto 模式提交任务。
 2. Host 收集有限任务上下文。
-3. 固定 Task Assessor 返回结构化属性。
+3. 版本化 assessor policy 解析并冻结一条合格 route；Task Assessor 返回结构化属性。
 4. 确定性策略选择 Light、Standard 或 Deep。
 5. Catalog compiler 或缓存的冻结 catalog 提供 AA 匹配 route。
 6. Resolver 排除 Host 无效 route。

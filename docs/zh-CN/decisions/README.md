@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/README.md
-translation-source-blob: 1f6fe260f0df2b59bc41b9d6d25627623ffeb77b
+translation-source-blob: 9992d0f1de55882b98e5867555bba1989ba0afc8
 translation-status: current
 -->
 
@@ -21,5 +21,6 @@ translation-status: current
 | [ADR-009](0009-phase-0p-attributable-worktree-loss-bound.md) | Accepted | 阶段 0P 可变工作仅限干净隔离 worktree 中可归属的变更 |
 | [ADR-010](0010-aa-informed-heuristic-routing.md) | 被 ADR-011 取代 | 确立 AA 驱动任务级别和价格优先 route 解析，不要求 Benchmark admission gate |
 | [ADR-011](0011-bind-host-routes-to-aa-evidence.md) | Accepted | 把通用 Host route identity 绑定到 AA 证据，不建立通用 model/effort ontology |
+| [ADR-012](0012-resolve-and-freeze-task-assessor-routes.md) | Accepted | 通过固定 policy 解析一条适合当前环境的 assessor route，并在调用前冻结 |
 
 ADR 被取代时保留原文件，并把状态指向替代 ADR。
