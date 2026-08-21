@@ -118,6 +118,31 @@ describe('compileAARoutePolicyCatalog()', () => {
       { hostRouteId: 'missing-price', reasonCode: 'aa-price-missing' },
     ])
   })
+
+  it('excludes invalid numeric capability and price with stable reasons', () => {
+    const invalidCapability = evidenceEntry({ routeId: 'invalid-capability', score: -1 })
+    const invalidPrice = evidenceEntry({ routeId: 'invalid-price', score: 40, price: -1 })
+
+    const catalog = compileAARoutePolicyCatalog(evidenceCatalog([
+      invalidPrice,
+      invalidCapability,
+    ]))
+
+    assert.deepEqual(catalog.exclusions, [
+      { hostRouteId: 'invalid-capability', reasonCode: 'aa-capability-invalid' },
+      { hostRouteId: 'invalid-price', reasonCode: 'aa-price-invalid' },
+    ])
+  })
+
+  it('rejects an unsupported evidence-catalog contract', () => {
+    const stale = evidenceCatalog([])
+    stale.catalogVersion = 'aa-evidence-catalog/v0'
+
+    assert.throws(
+      () => compileAARoutePolicyCatalog(stale),
+      error => error.code === 'aa-route-policy-invalid',
+    )
+  })
 })
 
 describe('resolveAARoute()', () => {

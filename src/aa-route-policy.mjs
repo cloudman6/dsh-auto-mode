@@ -1,3 +1,8 @@
+import {
+  AA_EVIDENCE_CATALOG_SCHEMA_VERSION,
+  AA_EVIDENCE_CATALOG_VERSION,
+} from './aa-catalog.mjs'
+
 export const AA_ROUTE_POLICY_VERSION = 'aa-route-policy/v1'
 
 const LEVEL_LABELS = Object.freeze({
@@ -76,19 +81,25 @@ function compareExclusions(left, right) {
 }
 
 function handlingLevel(score) {
-  if (score < 35) return 'light'
-  if (score < 50) return 'standard'
+  if (score < AA_ROUTE_POLICY_V1.bandPolicy.light.maximumExclusive) return 'light'
+  if (score < AA_ROUTE_POLICY_V1.bandPolicy.standard.maximumExclusive) return 'standard'
   return 'deep'
 }
 
 function comparisonFacts(entry) {
   const evaluations = entry.aaRecord?.evaluations
   const capability = evaluations?.artificial_analysis_intelligence_index
-  if (!finiteNumber(capability)) return { exclusion: 'aa-capability-missing' }
+  if (capability === undefined || capability === null) {
+    return { exclusion: 'aa-capability-missing' }
+  }
+  if (!finiteNumber(capability) || capability < 0) {
+    return { exclusion: 'aa-capability-invalid' }
+  }
 
   const pricing = entry.aaRecord?.pricing
   const price = pricing?.price_1m_blended_7_to_2_to_1
-  if (!finiteNumber(price) || price < 0) return { exclusion: 'aa-price-missing' }
+  if (price === undefined || price === null) return { exclusion: 'aa-price-missing' }
+  if (!finiteNumber(price) || price < 0) return { exclusion: 'aa-price-invalid' }
 
   const performance = entry.aaRecord?.performance
   const latency = performance?.median_time_to_first_answer_token_seconds
@@ -103,7 +114,10 @@ function comparisonFacts(entry) {
 export function compileAARoutePolicyCatalog(evidenceCatalog) {
   if (!isRecord(evidenceCatalog) || !Array.isArray(evidenceCatalog.entries)
     || !Array.isArray(evidenceCatalog.exclusions)
-    || typeof evidenceCatalog.aaSnapshotId !== 'string') {
+    || evidenceCatalog.schemaVersion !== AA_EVIDENCE_CATALOG_SCHEMA_VERSION
+    || evidenceCatalog.catalogVersion !== AA_EVIDENCE_CATALOG_VERSION
+    || typeof evidenceCatalog.aaSnapshotId !== 'string'
+    || evidenceCatalog.aaSnapshotId.trim() === '') {
     invalid('aa-route-policy-invalid', 'evidence catalog must be a compiled AA catalog')
   }
 
