@@ -13,27 +13,42 @@
         {
           "recordId": "aa-record-no-controls",
           "label": "Fixture model without execution controls",
-          "capabilityFacts": ["intelligence-index-v4.1.1=45.0"]
+          "capabilityFacts": ["intelligence-index-v4.1.1=45.0"],
+          "evaluations": { "artificial_analysis_intelligence_index": 45 },
+          "pricing": { "price_1m_blended_7_to_2_to_1": 0.9 },
+          "performance": { "median_time_to_first_answer_token_seconds": 3 }
         },
         {
           "recordId": "deepseek-v4-flash-non-reasoning",
           "label": "DeepSeek V4 Flash 0420 non-reasoning",
-          "capabilityFacts": ["intelligence-index-v4.1.1=29.3"]
+          "capabilityFacts": ["intelligence-index-v4.1.1=29.3"],
+          "evaluations": { "artificial_analysis_intelligence_index": 29.3 },
+          "pricing": { "price_1m_blended_7_to_2_to_1": 0.1 },
+          "performance": { "median_time_to_first_answer_token_seconds": 1 }
         },
         {
           "recordId": "deepseek-v4-flash",
           "label": "DeepSeek V4 Flash 0731 max",
-          "capabilityFacts": ["intelligence-index-v4.1.1=51.8"]
+          "capabilityFacts": ["intelligence-index-v4.1.1=51.8"],
+          "evaluations": { "artificial_analysis_intelligence_index": 51.8 },
+          "pricing": { "price_1m_blended_7_to_2_to_1": 0.2 },
+          "performance": { "median_time_to_first_answer_token_seconds": 4 }
         },
         {
           "recordId": "deepseek-v4-pro",
           "label": "DeepSeek V4 Pro 0813 max",
-          "capabilityFacts": ["intelligence-index-v4.1.1=53.2"]
+          "capabilityFacts": ["intelligence-index-v4.1.1=53.2"],
+          "evaluations": { "artificial_analysis_intelligence_index": 53.2 },
+          "pricing": { "price_1m_blended_7_to_2_to_1": 0.3 },
+          "performance": { "median_time_to_first_answer_token_seconds": 2 }
         },
         {
           "recordId": "aa-record-several-controls",
           "label": "Fixture model with several controls",
-          "capabilityFacts": ["intelligence-index-v4.1.1=48.0"]
+          "capabilityFacts": ["intelligence-index-v4.1.1=48.0"],
+          "evaluations": { "artificial_analysis_intelligence_index": 48 },
+          "pricing": { "price_1m_blended_7_to_2_to_1": 0.8 },
+          "performance": { "median_time_to_first_answer_token_seconds": 5 }
         }
       ]
     },
