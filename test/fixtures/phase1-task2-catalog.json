@@ -1,0 +1,117 @@
+{
+  "seed": {
+    "schemaVersion": 1,
+    "catalogVersion": "aa-evidence-catalog/v1",
+    "bindingVersion": "aa-evidence-binding/v1",
+    "snapshot": {
+      "snapshotId": "aa-fixture-2026-08-21",
+      "source": {
+        "name": "Artificial Analysis fixture",
+        "capturedAt": "2026-08-21T00:00:00.000Z"
+      },
+      "records": [
+        {
+          "recordId": "aa-record-no-controls",
+          "label": "Fixture model without execution controls",
+          "capabilityFacts": ["intelligence-index-v4.1.1=45.0"]
+        },
+        {
+          "recordId": "deepseek-v4-flash-non-reasoning",
+          "label": "DeepSeek V4 Flash 0420 non-reasoning",
+          "capabilityFacts": ["intelligence-index-v4.1.1=29.3"]
+        },
+        {
+          "recordId": "deepseek-v4-flash",
+          "label": "DeepSeek V4 Flash 0731 max",
+          "capabilityFacts": ["intelligence-index-v4.1.1=51.8"]
+        },
+        {
+          "recordId": "deepseek-v4-pro",
+          "label": "DeepSeek V4 Pro 0813 max",
+          "capabilityFacts": ["intelligence-index-v4.1.1=53.2"]
+        },
+        {
+          "recordId": "aa-record-several-controls",
+          "label": "Fixture model with several controls",
+          "capabilityFacts": ["intelligence-index-v4.1.1=48.0"]
+        }
+      ]
+    },
+    "bindings": [
+      {
+        "bindingVersion": "aa-evidence-binding/v1",
+        "hostRouteId": "host-route:v1:acb76f7acef522d7ba55454727389d0f0ec3499b40125d0f86751104fd4bf8c0",
+        "effectiveConfigFingerprint": "sha256:fbc7da9e3e106a5c65e4b51ccb38ed224954bd841a39aac025a854e3f400f865",
+        "aaSnapshotId": "aa-fixture-2026-08-21",
+        "aaRecordId": "aa-record-no-controls",
+        "matchBasis": ["provider=fixture-anthropic", "model=fixture-sonnet"],
+        "limitations": ["fixture-only"]
+      },
+      {
+        "bindingVersion": "aa-evidence-binding/v1",
+        "hostRouteId": "host-route:v1:31fc3aac1c732ca36be6a419d263bf6a16a1095966a55c01a406345652f168c7",
+        "effectiveConfigFingerprint": "sha256:8cf103f5e1094cac908f5c5bb495d68c7d59dddcbf486d5c783b1c0eee51dae1",
+        "aaSnapshotId": "aa-fixture-2026-08-21",
+        "aaRecordId": "deepseek-v4-flash-non-reasoning",
+        "matchBasis": ["provider=deepseek-official", "model=deepseek-v4-flash", "reasoningEffort=off", "aa-release=0420"],
+        "limitations": ["revisionless-provider-alias"]
+      },
+      {
+        "bindingVersion": "aa-evidence-binding/v1",
+        "hostRouteId": "host-route:v1:75a4c3e1e14e987fea763e25cba04f9eefbdf547234cbbe9feff6c932e31e57a",
+        "effectiveConfigFingerprint": "sha256:bbd21a84ced17e538150b663e66566443189ffd281c64bb515c42d6ddc9e9ada",
+        "aaSnapshotId": "aa-fixture-2026-08-21",
+        "aaRecordId": "deepseek-v4-flash",
+        "matchBasis": ["provider=deepseek-official", "model=deepseek-v4-flash", "reasoningEffort=max", "aa-release=0731"],
+        "limitations": ["revisionless-provider-alias"]
+      },
+      {
+        "bindingVersion": "aa-evidence-binding/v1",
+        "hostRouteId": "host-route:v1:1600c34210330a12871d981b4e47ae9feef555563ac07c555562c35b44ade19a",
+        "effectiveConfigFingerprint": "sha256:cc292ab39eafd68693799f1c28769eb70b24517b15225b84d5a6e994301e6ca8",
+        "aaSnapshotId": "aa-fixture-2026-08-21",
+        "aaRecordId": "deepseek-v4-pro",
+        "matchBasis": ["provider=deepseek-official", "model=deepseek-v4-pro", "reasoningEffort=max", "aa-release=0813"],
+        "limitations": ["revisionless-provider-alias"]
+      },
+      {
+        "bindingVersion": "aa-evidence-binding/v1",
+        "hostRouteId": "host-route:v1:967e23675cb24fdd58cf18bfa3ad54b4d22ff18e1e77d22fa090bd561d7ef7c5",
+        "effectiveConfigFingerprint": "sha256:11cda81f4dc413ee7d89437abb0814080bd3e16a1d4d6d5ae1c301bead1c3ef0",
+        "aaSnapshotId": "aa-fixture-2026-08-21",
+        "aaRecordId": "aa-record-several-controls",
+        "matchBasis": ["provider=fixture-openai", "model=fixture-reasoning-model", "reasoningEffort=high", "request-controls=temperature,maxTokens,stop"],
+        "limitations": ["fixture-only"]
+      }
+    ]
+  },
+  "hostRoutes": [
+    {
+      "provider": "fixture-anthropic",
+      "model": "fixture-sonnet"
+    },
+    {
+      "provider": "deepseek-official",
+      "model": "deepseek-v4-flash",
+      "reasoningEffort": "off"
+    },
+    {
+      "provider": "deepseek-official",
+      "model": "deepseek-v4-flash",
+      "reasoningEffort": "max"
+    },
+    {
+      "provider": "deepseek-official",
+      "model": "deepseek-v4-pro",
+      "reasoningEffort": "max"
+    },
+    {
+      "provider": "fixture-openai",
+      "model": "fixture-reasoning-model",
+      "reasoningEffort": "high",
+      "temperature": 0.2,
+      "maxTokens": 4096,
+      "stop": ["END", "DONE"]
+    }
+  ]
+}

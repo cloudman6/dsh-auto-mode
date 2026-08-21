@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 4e7d690cbf45f71275314b02e844f11ebec83006
+translation-source-blob: 871023fda656d4ee729a700e1fc7bebaf6a6fe86
 translation-status: current
 -->
 
@@ -45,6 +45,8 @@ flowchart LR
 
 提供 catalog 使用的带版本、本地、最小化 AA 记录快照。首版由维护者手工维护并被 Git 忽略。后续获取工具可以在 runtime 路径外更新它；运行时路由不依赖实时 AA 请求。
 
+维护 seed 的结构见 [`examples/aa-catalog-seed.example.json`](../../examples/aa-catalog-seed.example.json)。真实 snapshot 和已评审 binding 保存在被 Git 忽略的 `local/` 目录；仓库只跟踪最小化 fixture 与 placeholder 示例。本地 loader 拒绝大于 1 MiB 的文件。
+
 ### Host Route Identity Builder
 
 在 catalog 匹配前物化每条 DSH route 的可执行 identity：
@@ -80,24 +82,32 @@ Binding 可以引用 family、version、variant、effort、date、provider 或�
 
 ### AA Route Catalog Compiler
 
-把当前 DSH route 清单与已验证 AA evidence binding 连接。每条 catalog entry 包含：
+加载维护者指定的本地 seed，把当前 DSH route 清单与已验证 AA evidence binding 连接。Task 2 在选择能力边界或 price/latency field 前，输出确定且冻结的 evidence catalog：
 
 ```ts
-interface AARouteCatalogEntry {
+interface AAEvidenceCatalogEntry {
   routeId: string
   provider: string
   model: string
-  effort?: string
+  effectiveConfig: Readonly<Record<string, unknown>>
   effectiveConfigFingerprint: string
+  aaSnapshotId: string
+  aaRecordId: string
+  bindingVersion: string
   evidenceBinding: AAEvidenceBinding
-  handlingLevel: 'light' | 'standard' | 'deep'
-  aaPrice: number
-  aaLatency?: number
+  aaRecord: Readonly<Record<string, unknown>>
   capabilityFacts: readonly string[]
+}
+
+interface AAEvidenceCatalogExclusion {
+  source: 'host-route' | 'binding'
+  hostRouteId?: string
+  bindingIndex?: number
+  reasonCode: string
 }
 ```
 
-Compiler 排除未匹配 route 和不能满足已声明 capability 的 route。档位分配是从 AA 能力分数推导、带版本的 policy data。
+格式错误或未匹配 row 以稳定 reason code 排除。Entry 与 exclusion 确定性排序，有效 route 结果不受 Host 或 seed discovery 顺序影响，且编译过程不发起网络请求。Task 3 消费该 evidence catalog，把每条合格 route 分配到一个带版本处理级别，并加入 resolver 使用的所选 AA price 与 latency facts。
 
 ### Task Assessor
 

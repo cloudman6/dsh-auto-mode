@@ -21,14 +21,14 @@
 
 **Acceptance criteria:**
 
-- [ ] The Git-ignored local seed joins only to valid DSH routes.
-- [ ] Every entry records snapshot, binding-rule version, AA record, Host route identity, effective configuration fingerprint, and capability facts.
-- [ ] Invalid or unmatched rows are excluded with stable reasons and no secret is committed.
+- [x] The Git-ignored local seed joins only to valid DSH routes.
+- [x] Every entry records snapshot, binding-rule version, AA record, Host route identity, effective configuration fingerprint, and capability facts.
+- [x] Invalid or unmatched rows are excluded with stable reasons and no secret is committed.
 
 **Verification:**
 
-- [ ] Catalog fixtures are deterministic without network access.
-- [ ] Secret and tracked-dataset checks pass.
+- [x] Catalog fixtures are deterministic without network access.
+- [x] Secret and tracked-dataset checks pass.
 
 **Dependencies:** Task 1
 

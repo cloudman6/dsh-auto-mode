@@ -13,13 +13,13 @@ DSH Auto Mode gives individual power users of coding agents an AA-informed Auto 
 | Item | Current state |
 |---|---|
 | Stage | Phase 1 AA route catalog after the accepted Phase 0P MVP |
-| Existing work | Runnable MVP on the A1/A2-pinned maintainer DSH fork, focused tests and real-provider evidence, accepted ADR-011 direction, and completed Phase 1A route/evidence-binding contracts |
+| Existing work | Runnable MVP on the A1/A2-pinned maintainer DSH fork, focused tests and real-provider evidence, accepted ADR-011 direction, and completed Phase 1 Tasks 1–2 route binding and local evidence-catalog contracts |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Phase 1 Task 2 local AA catalog compilation through validated bindings |
+| Next-stage gate | Phase 1 Task 3 capability bands and price-first resolution after maintainer field selection |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
@@ -300,7 +300,7 @@ Do not decide these items autonomously:
 
 ## Current hard blocker
 
-There is no implementation-level blocker to starting Phase 1 Task 2. Final catalog data and later band resolution still require the maintainer choices recorded in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
+Task 2 has no remaining implementation blocker. Task 3 policy and final production catalog data require the maintainer choices recorded in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
 ## Security boundaries
 

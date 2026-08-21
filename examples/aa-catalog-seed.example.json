@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "aa-evidence-catalog/v1",
+  "bindingVersion": "aa-evidence-binding/v1",
+  "snapshot": {
+    "snapshotId": "replace-with-reviewed-snapshot-id",
+    "source": {
+      "name": "Artificial Analysis",
+      "capturedAt": "replace-with-ISO-8601-time"
+    },
+    "records": [
+      {
+        "recordId": "replace-with-stable-aa-record-id",
+        "label": "Example only",
+        "capabilityFacts": [
+          "replace-with-versioned-capability-fact"
+        ]
+      }
+    ]
+  },
+  "bindings": [
+    {
+      "bindingVersion": "aa-evidence-binding/v1",
+      "hostRouteId": "host-route:v1:replace-with-64-lowercase-hex-characters",
+      "effectiveConfigFingerprint": "sha256:replace-with-64-lowercase-hex-characters",
+      "aaSnapshotId": "replace-with-reviewed-snapshot-id",
+      "aaRecordId": "replace-with-stable-aa-record-id",
+      "matchBasis": [
+        "replace-with-reviewed-match-evidence"
+      ],
+      "limitations": []
+    }
+  ]
+}

@@ -39,6 +39,8 @@ flowchart LR
 
 Provides a versioned, local, minimized snapshot of AA records used by the catalog. The first implementation is maintained manually and Git-ignored. A later acquisition tool may refresh it outside the runtime path. Runtime routing never requires a live AA request.
 
+The maintained seed shape is illustrated by [`examples/aa-catalog-seed.example.json`](../examples/aa-catalog-seed.example.json). Real snapshots and reviewed bindings stay under the Git-ignored `local/` directory; the repository tracks only minimized fixtures and the placeholder example. The local loader rejects files larger than 1 MiB.
+
 ### Host Route Identity Builder
 
 Materializes each DSH route's executable identity before catalog matching:
@@ -74,24 +76,32 @@ Bindings may cite family, version, variant, effort, date, provider, or other met
 
 ### AA Route Catalog Compiler
 
-Joins the current DSH route inventory with validated AA evidence bindings. Each catalog entry carries:
+Loads a maintainer-selected local seed and joins the current DSH route inventory with validated AA evidence bindings. Task 2 emits a deterministic, frozen evidence catalog before any capability boundary or price/latency field is selected:
 
 ```ts
-interface AARouteCatalogEntry {
+interface AAEvidenceCatalogEntry {
   routeId: string
   provider: string
   model: string
-  effort?: string
+  effectiveConfig: Readonly<Record<string, unknown>>
   effectiveConfigFingerprint: string
+  aaSnapshotId: string
+  aaRecordId: string
+  bindingVersion: string
   evidenceBinding: AAEvidenceBinding
-  handlingLevel: 'light' | 'standard' | 'deep'
-  aaPrice: number
-  aaLatency?: number
+  aaRecord: Readonly<Record<string, unknown>>
   capabilityFacts: readonly string[]
+}
+
+interface AAEvidenceCatalogExclusion {
+  source: 'host-route' | 'binding'
+  hostRouteId?: string
+  bindingIndex?: number
+  reasonCode: string
 }
 ```
 
-The compiler excludes unmatched routes and routes that cannot satisfy declared capabilities. Band assignment is versioned policy data derived from AA capability scores.
+Malformed or unmatched rows are excluded with stable reason codes. Entries and exclusions are deterministically sorted, valid-route results do not depend on Host or seed discovery order, and no network request is part of compilation. Task 3 consumes this evidence catalog, assigns each eligible route to one versioned handling level, and adds the selected AA price and latency facts used by the resolver.
 
 ### Task Assessor
 

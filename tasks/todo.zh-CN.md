@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: b3c7072026016de4c550bf5907bc14136bfea213
+translation-source-blob: 20febb41351d079dcf063639190f2a62eaabee8f
 translation-status: current
 -->
 
@@ -27,14 +27,14 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] 被 Git 忽略的本地 seed 只连接到有效 DSH route。
-- [ ] 每条 entry 记录 snapshot、binding-rule version、AA record、Host route identity、实际配置 fingerprint 和 capability facts。
-- [ ] 无效或未匹配 row 带稳定原因被排除，且不提交 secret。
+- [x] 被 Git 忽略的本地 seed 只连接到有效 DSH route。
+- [x] 每条 entry 记录 snapshot、binding-rule version、AA record、Host route identity、实际配置 fingerprint 和 capability facts。
+- [x] 无效或未匹配 row 带稳定原因被排除，且不提交 secret。
 
 **验证：**
 
-- [ ] Catalog fixture 无需网络即可确定性运行。
-- [ ] Secret 和 tracked-dataset 检查通过。
+- [x] Catalog fixture 无需网络即可确定性运行。
+- [x] Secret 和 tracked-dataset 检查通过。
 
 **依赖：**Task 1
 

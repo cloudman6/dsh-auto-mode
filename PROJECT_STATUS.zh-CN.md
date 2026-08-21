@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: 4c43f86d2f9050d0e69179a0f10447441a7b793e
+translation-source-blob: a13126820645ad708707b78d8424d4130e327a06
 translation-status: current
 -->
 
@@ -16,7 +16,7 @@ translation-status: current
 
 阶段 0P MVP 已接受。项目进入 MVP 后 roadmap 的阶段 1：用带版本 AA 驱动 catalog 和面向用户的 `light`、`standard`、`deep` 任务处理级别，取代原型 route 假设。
 
-维护者 DSH fork 仍固定在 `2a2db7a6ec3ce9969857cc41de839f911ef5902e`。阶段 1A 已完成：仓库现已具备 provider-neutral 实际配置 fingerprint、稳定 Host route identity、显式版本化 AA evidence-binding resolver、稳定拒绝原因和混合 provider fixture。当前可运行插件在阶段 1 后续任务集成新 catalog 路径前仍使用原型 `fast`/`standard`/`strong` 实现。
+维护者 DSH fork 仍固定在 `2a2db7a6ec3ce9969857cc41de839f911ef5902e`。阶段 1 Task 1 和 Task 2 已完成：仓库现已具备 provider-neutral 实际配置 fingerprint、稳定 Host route identity、显式版本化 AA evidence-binding resolver，以及带稳定排除原因和混合 provider fixture 的确定性本地 evidence-catalog compiler。当前可运行插件在阶段 1 后续任务集成新 catalog 路径前仍使用原型 `fast`/`standard`/`strong` 实现。
 
 ## 已接受的 MVP 后方向
 
@@ -40,11 +40,12 @@ translation-status: current
 - 接受 AA 驱动 MVP 后策略，并把 Benchmark admission 改为可选评估轨道。
 - 接受通用 Host route identity 与显式 AA evidence-binding 架构，取代强制 family/version/variant/effort 键。
 - 在不改变 live routing 的前提下实现阶段 1A：零个、一个和多个控制项的 route 只能通过精确 Host fingerprint、snapshot ID 与稳定 AA record ID 解析；歧义、陈旧、模糊、跨配置、collision 和静默 record replacement 均以稳定原因失败。
+- 在不改变 live routing 的前提下实现 Task 2：维护者指定且被 Git 忽略的 JSON seed 针对当前 Host route inventory 编译为冻结、排序后的 evidence entry 和稳定 exclusion；格式错误、未匹配、有歧义、陈旧、跨配置及 capability 无效的 row 不会进入 catalog。
 
 ## 当前实施计划
 
 1. 已完成：用混合 provider fixture 实现 provider-neutral Host route identity 与显式 AA evidence binding。
-2. 通过已验证 binding 和稳定排除原因编译被 Git 忽略的本地 AA seed。
+2. 已完成：通过已验证 binding 和稳定排除原因编译被 Git 忽略的本地 AA seed。
 3. 编译带版本 AA 能力档，并按 price、latency 和稳定 identity 解析同档 route。
 4. 用固定结构化语义 Task Assessor 取代关键词分类。
 5. 端到端集成新决策路径和术语，同时保留已接受 UI 行为和 Manual 模式。
@@ -53,17 +54,18 @@ translation-status: current
 
 ## 当前阻塞与开放决策
 
-开始 Task 2 没有实现层面阻塞。最终确定 catalog 和能力档 resolver 前，维护者需要评审或选择：
+Task 2 已无剩余实现阻塞。Task 3 冻结能力档和 resolver policy 前，维护者必须选择：
 
 - Light、Standard、Deep 使用的 AA capability field 与带版本边界；
 - 权威 AA price field 和 latency tie-break field；
-- 本地 seed 中 DSH route 的初始已评审 AA evidence binding。
+
+生产本地 catalog 还需要维护者批准当前 DSH route 的初始 AA evidence binding。该数据评审不阻塞使用 fixture 确定性实现 Task 3，但会阻塞宣称真实本地 catalog 已最终确定。
 
 稳定 AA 获取、数据分发权利、Session 内自适应、恢复、子 Agent 路由和官方 DSH 兼容属于后续阶段，不阻塞阶段 1。
 
 ## 下一步
 
-把 Task 2 作为一个有边界变更实施：通过阶段 1A 已验证 binding 编译被 Git 忽略的本地 seed，以稳定原因排除无效或未匹配 row；完整阶段 1 catalog 路径就绪前，保留现有 MVP 行为。
+评审并批准 Task 3 使用的 AA capability field、Light/Standard/Deep 边界、权威 AA price field、latency tie-break field 和初始生产 binding；随后基于已完成的 evidence-catalog 边界实现 Task 3。
 
 ## 状态维护规则
 
