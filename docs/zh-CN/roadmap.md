@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: 9da3d8614b30bb7de050955cc4fc50522b0adfa4
+translation-source-blob: 3dd96e41557a1b12e14aa58014cabfccc5d11940
 translation-status: current
 -->
 
@@ -104,7 +104,7 @@ Task 8 与 Checkpoint C 已于 2026-08-22 完成。无密钥跨仓库浏览器 f
 
 Task 9 与阶段 4 已于 2026-08-22 完成。ADR-013 固定官方 Pro language-model endpoint、服务端 credential boundary、默认 internal-only rights mode、written-license 分发 gate、attribution、retention、freshness 与固定 methodology。离线维护工作流推导不含凭据值的 Host identity，只最小化已评审 binding，展示 source、record、binding、band 和排序变化，要求精确 digest 批准，原子替换 active seed，并验证 rollback checksum。合成 fixture 覆盖 acquisition、拒绝、更新、binding 新增／删除／替换、rename、tamper detection 与 rollback；runtime routing 不引入 live AA 依赖。
 
-## 阶段 4.1：可复用 Evidence Pack — 设计 gate
+## 阶段 4.1：可复用 Evidence Pack
 
 在自适应执行建立在 catalog 之上前，修正已完成 catalog 对当前 Host 和完整 effective configuration 的耦合。
 
@@ -117,7 +117,7 @@ Task 9 与阶段 4 已于 2026-08-22 完成。ADR-013 固定官方 Pro language-
 
 验收：常规 AA metric 更新无需人工动作；新配置 route 在存在有效 dormant binding 时自动激活；仅执行默认值不使 evidence 失效；决定 evidence 的 control 不能 collision；migration、rollback、Loader、Session、UI 与 Manual 非干扰检查通过。没有 ADR-013 written-license gate 时，公开真实数据分发保持禁用。
 
-状态：ADR-014 与 Tasks 10–19 已规划。ADR-014 仍为 Proposed，开始不兼容实施前必须被显式接受。
+状态：实施中。ADR-014 已 Accepted；Task 10 已完成，Tasks 11–19 正在阶段 5 开始前实施。
 
 ## 阶段 5：自适应执行
 

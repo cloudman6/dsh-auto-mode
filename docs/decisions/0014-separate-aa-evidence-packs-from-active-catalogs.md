@@ -4,9 +4,9 @@
 
 ## Status
 
-Proposed
+Accepted
 
-If accepted, this decision supersedes only ADR-011's full-effective-configuration binding key and snapshot-scoped binding contract, plus ADR-013's current-Host-only minimization and mandatory human approval for every valid metric refresh. ADR-011's separation of execution and evidence identity, and ADR-013's acquisition, rights, credential, validation, atomicity, and rollback boundaries, remain in force.
+This decision supersedes only ADR-011's full-effective-configuration binding key and snapshot-scoped binding contract, plus ADR-013's current-Host-only minimization and mandatory human approval for every valid metric refresh. ADR-011's separation of execution and evidence identity, and ADR-013's acquisition, rights, credential, validation, atomicity, and rollback boundaries, remain in force.
 
 ## Date
 

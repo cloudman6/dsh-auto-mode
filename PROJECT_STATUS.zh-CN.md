@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: d23cbdf061aa21fbbd1faae78f405eb62c54b656
+translation-source-blob: c99fe01a701711e70289fbd369c6eb02232193ab
 translation-status: current
 -->
 
@@ -14,7 +14,7 @@ translation-status: current
 
 ## 当前阶段
 
-阶段 0P MVP 与阶段 1–4 均已完成。阶段 5 之前现进入阶段 4.1 可复用 Evidence Pack 设计 gate：ADR-014 为 Proposed，十项实施任务已规划，不兼容 runtime 工作等待显式接受 ADR。
+阶段 0P MVP 与阶段 1–4 均已完成。阶段 5 之前现进入阶段 4.1 可复用 Evidence Pack 实施：ADR-014 已 Accepted，Task 10 已完成，Tasks 11–19 正在进行。
 
 维护者 DSH fork 固定在 `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`。可运行插件在 `agent/prepare-step` 组合阶段 1 AA catalog 与阶段 2 assessor，为每个 DSH 用户 turn 冻结一项 `auto-decision/v1`，并在该 turn 的 assembly 与每个 `agent/request` step 中复用其完整实际配置。必需 Session 事件保留 route、assessment、evidence basis、版本、reason code 与解释，供 cold reconstruction 使用。Schema v2 决策不再发布原型 tier；维护 UI 显示准确 model、可选 effort、任务处理级别、证据依据及适用时的准确 AA 快照。现有 schema v1 Session 仍通过明确的仅旧版 mapping 可读。
 
@@ -31,7 +31,7 @@ translation-status: current
 
 Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-routes-to-aa-evidence.md)，它接替 ADR-010，同时保留 AA 驱动、价格优先方向。环境感知 assessor-route 决策记录在 [ADR-012](docs/zh-CN/decisions/0012-resolve-and-freeze-task-assessor-routes.md)。离线获取、权利、评审、发布与 rollback 边界记录在 [ADR-013](docs/zh-CN/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md)。ADR-010 保留为取代 ADR-002、ADR-006 和 ADR-008 的历史决策。
 
-ADR-014 提议分离全量 policy-eligible AA Snapshot、长期 Binding Registry 和运行时派生 Active Catalog；分离 EvidenceRouteKey 与完整 ExecutionFingerprint；并按 GREEN/AMBER/RED exception class 自动化结构有效的 refresh。在它被接受前，ADR-011 与 ADR-013 仍是不作修改的约束性实施契约。
+ADR-014 已 Accepted。它分离全量 policy-eligible AA Snapshot、长期 Binding Registry 和运行时派生 Active Catalog；分离 EvidenceRouteKey 与完整 ExecutionFingerprint；并按 GREEN/AMBER/RED exception class 自动化结构有效的 refresh。其有限取代仍保留 ADR-011 的执行/证据分离，以及 ADR-013 的权利、获取、凭据、校验、原子性和 rollback 边界。
 
 ## 已完成基础
 
@@ -64,8 +64,9 @@ ADR-014 提议分离全量 policy-eligible AA Snapshot、长期 Binding Registry
 7. 已完成：迁移 live UI 术语、evidence basis、可选 effort 展示和过渡解释。
 8. 已完成：跨浏览器、Loader、Session 与实际请求边界端到端证明全部 Beta 路径。
 9. 已完成：定义并实现版本化 AA snapshot refresh 工作流与权利边界。
-10. Active design gate：在实施不兼容的阶段 4.1 Evidence Pack 契约前，显式接受或拒绝 ADR-014。
-11. 阶段 4.1 之后：为阶段 5 单调自适应执行定义形式化 runtime evidence 与重新判断边界。
+10. 已完成：接受 ADR-014 并冻结阶段 4.1 Evidence Pack 契约。
+11. 进行中：实施 Tasks 11–19，完成可复用 Evidence Pack 基础。
+12. 阶段 4.1 之后：为阶段 5 单调自适应执行定义形式化 runtime evidence 与重新判断边界。
 
 详细依赖和验收在 [roadmap](docs/zh-CN/roadmap.md)、[实施计划](tasks/plan.zh-CN.md)和[任务清单](tasks/todo.zh-CN.md)中。
 
@@ -79,13 +80,13 @@ ADR-014 提议分离全量 policy-eligible AA Snapshot、长期 Binding Registry
 
 阶段 4 已无剩余实施阻塞。ADR-013 已解决稳定 AA 获取、attribution、retention、freshness、minimization、评审、原子替换与 rollback。只有外部 AA 书面 grant 同时覆盖分发和本 model-selection 产品后，才能公开分发真实机器可读 AA metric；该外部限制不阻碍已完成的默认 `internal-only` 工作流。
 
-阶段 4.1 没有已识别的技术阻碍。其不兼容 identity、refresh-approval 和 packaging 变化需要先显式接受 Proposed ADR-014，才能实施 runtime。真实 Evidence Pack 的公开分发仍被现有 ADR-013 written-license gate 单独阻碍；internal-only 实施与合成验证不依赖该 grant。
+阶段 4.1 没有已识别的技术阻碍。ADR-014 已 Accepted，因此其 internal-only identity、refresh 与 packaging 工作可以继续。真实 Evidence Pack 的公开分发仍被现有 ADR-013 written-license gate 单独阻碍；internal-only 实施与合成验证不依赖该 grant。
 
 阶段 5 必须定义哪些形式化 runtime signal 支持升级、允许在哪些边界重新判断，以及如何强制单调性和持久解释。Recovery、子 Agent 路由和官方 DSH 兼容仍属于后续阶段。
 
 ## 下一步
 
-评审并显式接受或拒绝 ADR-014。若接受，则按依赖顺序实施 Tasks 11–19，并在开始阶段 5 自适应执行前完成阶段 4.1。
+按依赖顺序实施 Tasks 11–19，并在开始阶段 5 自适应执行前完成阶段 4.1。
 
 ## 状态维护规则
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 367c76032b00026910ad302bea03f08671350722
+translation-source-blob: 3f4d221a1f50b16441dcc395cc99503ab816d9e5
 translation-status: current
 -->
 
@@ -112,7 +112,7 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 ## 阶段 4.1：可复用 Evidence Pack
 
-状态：处于 active design gate。ADR-014 仍为 Proposed；其不兼容契约取代已接受的 ADR-011/ADR-013 行为前，必须获得显式接受。
+状态：实施中。ADR-014 已 Accepted；在阶段 5 开始前由 Tasks 11–19 实施其契约。
 
 ### Capability map
 
@@ -132,7 +132,7 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 ### Task 10：接受 Evidence Pack 决策
 
-冻结 ADR-014 的组件 owner、精确 identity rule、exception class、分发边界与迁移后果。ADR 仍为 Proposed 时不开始不兼容 runtime 工作。
+已完成。ADR-014 已固定组件 owner、精确 identity rule、exception class、分发边界与迁移后果。
 
 ### Task 11：实现 Evidence Pack 契约
 

@@ -8,7 +8,7 @@
 
 ## Current stage
 
-Phase 0P MVP and Phases 1–4 are complete. Phase 4.1 reusable Evidence Packs are now at the design gate before Phase 5: ADR-014 is Proposed, the ten implementation tasks are planned, and incompatible runtime work awaits explicit ADR acceptance.
+Phase 0P MVP and Phases 1–4 are complete. Phase 4.1 reusable Evidence Packs are now in implementation before Phase 5: ADR-014 is Accepted, Task 10 is complete, and Tasks 11–19 are active.
 
 The maintained DSH fork is pinned at `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`. The runnable plugin composes the Phase 1 AA catalog and Phase 2 assessor at `agent/prepare-step`, freezes one `auto-decision/v1` for each DSH user turn, and reuses its complete effective configuration through assembly and every `agent/request` step in that turn. Required Session events preserve the route, assessment, evidence basis, versions, reason codes, and explanation for cold reconstruction. Schema-v2 decisions publish Light/Standard/Deep semantics without a prototype tier; the maintained UI shows the exact model, optional effort, handling level, evidence basis, and exact AA snapshot when applicable. Existing schema-v1 Sessions remain readable through an explicit legacy-only mapping.
 
@@ -25,7 +25,7 @@ The maintained DSH fork is pinned at `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`.
 
 The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-to-aa-evidence.md), which succeeds ADR-010 while retaining its AA-informed, price-first direction. The environment-aware assessor-route decision is recorded in [ADR-012](docs/decisions/0012-resolve-and-freeze-task-assessor-routes.md). The offline acquisition, rights, review, publication, and rollback boundary is recorded in [ADR-013](docs/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md). ADR-010 remains the historical decision that superseded ADR-002, ADR-006, and ADR-008.
 
-ADR-014 is Proposed to separate full policy-eligible AA Snapshots, long-lived Binding Registries, and runtime-derived Active Catalogs; separate EvidenceRouteKeys from complete ExecutionFingerprints; and automate structurally valid refreshes by GREEN/AMBER/RED exception class. Until accepted, ADR-011 and ADR-013 remain the binding implementation contracts without modification.
+ADR-014 is Accepted. It separates full policy-eligible AA Snapshots, long-lived Binding Registries, and runtime-derived Active Catalogs; separates EvidenceRouteKeys from complete ExecutionFingerprints; and automates structurally valid refreshes by GREEN/AMBER/RED exception class. Its narrow supersession leaves ADR-011's execution/evidence separation and ADR-013's rights, acquisition, credential, validation, atomicity, and rollback boundaries in force.
 
 ## Completed foundation
 
@@ -58,8 +58,9 @@ ADR-014 is Proposed to separate full policy-eligible AA Snapshots, long-lived Bi
 7. Completed: migrate the live UI terminology, evidence basis, optional-effort display, and transition explanations.
 8. Completed: prove all beta paths end to end across the browser, Loader, Session, and effective request boundary.
 9. Completed: define and implement the versioned AA snapshot refresh workflow and rights boundary.
-10. Active design gate: explicitly accept or reject ADR-014 before implementing the incompatible Phase 4.1 Evidence Pack contracts.
-11. After Phase 4.1: define formal runtime evidence and reassessment boundaries for Phase 5 monotonic adaptive execution.
+10. Completed: accept ADR-014 and freeze the Phase 4.1 Evidence Pack contracts.
+11. Active: implement Tasks 11–19 and complete the reusable Evidence Pack foundation.
+12. After Phase 4.1: define formal runtime evidence and reassessment boundaries for Phase 5 monotonic adaptive execution.
 
 Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md), [implementation plan](tasks/plan.md), and [task checklist](tasks/todo.md).
 
@@ -73,13 +74,13 @@ Phase 3 has no remaining blocker. Task 8 found no provider credential in the ver
 
 Phase 4 has no remaining implementation blocker. ADR-013 resolves stable AA acquisition, attribution, retention, freshness, minimization, review, atomic replacement, and rollback. Public distribution of real machine-readable AA metrics remains unavailable until an external written AA grant covers both distribution and this model-selection product; that external restriction does not block the completed default `internal-only` workflow.
 
-Phase 4.1 has no identified technical blocker. Its incompatible identity, refresh-approval, and packaging changes require explicit acceptance of Proposed ADR-014 before runtime implementation. Public distribution of a real Evidence Pack remains separately blocked by the existing ADR-013 written-license gate; internal-only implementation and synthetic verification do not depend on that grant.
+Phase 4.1 has no identified technical blocker. ADR-014 is Accepted, so its internal-only identity, refresh, and packaging work can proceed. Public distribution of a real Evidence Pack remains separately blocked by the existing ADR-013 written-license gate; internal-only implementation and synthetic verification do not depend on that grant.
 
 Phase 5 must define which formal runtime signals justify escalation, where reassessment may occur, and how monotonicity and persisted explanation are enforced. Recovery, child-agent routing, and official DSH compatibility remain later phases.
 
 ## Next action
 
-Review and explicitly accept or reject ADR-014. If accepted, implement Tasks 11–19 in dependency order and complete Phase 4.1 before beginning Phase 5 adaptive execution.
+Implement Tasks 11–19 in dependency order and complete Phase 4.1 before beginning Phase 5 adaptive execution.
 
 ## Status maintenance rules
 

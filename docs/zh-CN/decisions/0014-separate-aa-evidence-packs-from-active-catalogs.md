@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0014-separate-aa-evidence-packs-from-active-catalogs.md
-translation-source-blob: 1e53744d5a71b70bb12fdce80bb0ee92980d8efa
+translation-source-blob: 42c781d88567cfc89c1de16c840e4a3e8c8b11c0
 translation-status: current
 -->
 
@@ -10,9 +10,9 @@ translation-status: current
 
 ## 状态
 
-Proposed
+Accepted
 
-如果被接受，本决策只取代 ADR-011 的完整 effective configuration binding key 和 snapshot-scoped binding 契约，以及 ADR-013 的仅保留当前 Host 记录和每次有效 metric refresh 都必须人工批准的规则。ADR-011 对执行 identity 与证据 identity 的分离，以及 ADR-013 的获取、权利、凭据、校验、原子性和 rollback 边界继续有效。
+本决策只取代 ADR-011 的完整 effective configuration binding key 和 snapshot-scoped binding 契约，以及 ADR-013 的仅保留当前 Host 记录和每次有效 metric refresh 都必须人工批准的规则。ADR-011 对执行 identity 与证据 identity 的分离，以及 ADR-013 的获取、权利、凭据、校验、原子性和 rollback 边界继续有效。
 
 ## 日期
 

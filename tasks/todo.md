@@ -160,14 +160,14 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 
 **Acceptance criteria:**
 
-- [ ] ADR-014 fixes independent Snapshot, Binding Registry, Route Policy, Manifest, EvidenceRouteKey, ExecutionFingerprint, Active Catalog, and GREEN/AMBER/RED semantics.
-- [ ] The decision states exactly which ADR-011 and ADR-013 clauses it supersedes and preserves all remaining rights and runtime-offline boundaries.
-- [ ] The maintainer explicitly changes ADR-014 from Proposed to Accepted before incompatible runtime implementation begins.
+- [x] ADR-014 fixes independent Snapshot, Binding Registry, Route Policy, Manifest, EvidenceRouteKey, ExecutionFingerprint, Active Catalog, and GREEN/AMBER/RED semantics.
+- [x] The decision states exactly which ADR-011 and ADR-013 clauses it supersedes and preserves all remaining rights and runtime-offline boundaries.
+- [x] The maintainer explicitly changes ADR-014 from Proposed to Accepted before incompatible runtime implementation begins.
 
 **Verification:**
 
-- [ ] English and Chinese ADRs and decision indexes are current and link-valid.
-- [ ] `git diff --check` and conflict-marker checks pass.
+- [x] English and Chinese ADRs and decision indexes are current and link-valid.
+- [x] `git diff --check` and conflict-marker checks pass.
 
 **Dependencies:** Task 9 and explicit maintainer approval
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: ca34f2327090fbb1b4c32a05580ee8ac13ae8952
+translation-source-blob: 6ef8dcd3fcc09f108d318f131f97429eb95ab2da
 translation-status: current
 -->
 
@@ -166,14 +166,14 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] ADR-014 固定独立 Snapshot、Binding Registry、Route Policy、Manifest、EvidenceRouteKey、ExecutionFingerprint、Active Catalog 与 GREEN/AMBER/RED 语义。
-- [ ] 决策准确说明取代 ADR-011 和 ADR-013 的哪些条款，并保留其余 rights 与 runtime-offline 边界。
-- [ ] 在不兼容 runtime 实施开始前，维护者显式把 ADR-014 从 Proposed 改为 Accepted。
+- [x] ADR-014 固定独立 Snapshot、Binding Registry、Route Policy、Manifest、EvidenceRouteKey、ExecutionFingerprint、Active Catalog 与 GREEN/AMBER/RED 语义。
+- [x] 决策准确说明取代 ADR-011 和 ADR-013 的哪些条款，并保留其余 rights 与 runtime-offline 边界。
+- [x] 在不兼容 runtime 实施开始前，维护者显式把 ADR-014 从 Proposed 改为 Accepted。
 
 **验证：**
 
-- [ ] 中英文 ADR 与 decision index 保持 current 且链接有效。
-- [ ] `git diff --check` 与 conflict-marker 检查通过。
+- [x] 中英文 ADR 与 decision index 保持 current 且链接有效。
+- [x] `git diff --check` 与 conflict-marker 检查通过。
 
 **依赖：** Task 9 与维护者显式批准
 

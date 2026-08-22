@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/README.md
-translation-source-blob: 0bd9b34bb04d5d5b1ac8b2a0a291d360f067fd7c
+translation-source-blob: f771b98447d2514fa3168c0eadd7b11e157d5496
 translation-status: current
 -->
 
@@ -23,6 +23,6 @@ translation-status: current
 | [ADR-011](0011-bind-host-routes-to-aa-evidence.md) | Accepted | 把通用 Host route identity 绑定到 AA 证据，不建立通用 model/effort ontology |
 | [ADR-012](0012-resolve-and-freeze-task-assessor-routes.md) | Accepted | 通过固定 policy 解析一条适合当前环境的 assessor route，并在调用前冻结 |
 | [ADR-013](0013-refresh-aa-snapshots-behind-a-rights-gate.md) | Accepted | 在显式评审、rollback 与数据权利 gate 后离线更新最小化 AA snapshot |
-| [ADR-014](0014-separate-aa-evidence-packs-from-active-catalogs.md) | Proposed | 将可复用 evidence binding 和全量 eligible AA snapshot 与运行时派生的 Active Catalog 分离 |
+| [ADR-014](0014-separate-aa-evidence-packs-from-active-catalogs.md) | Accepted | 将可复用 evidence binding 和全量 eligible AA snapshot 与运行时派生的 Active Catalog 分离 |
 
 ADR 被取代时保留原文件，并把状态指向替代 ADR。

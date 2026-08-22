@@ -106,7 +106,7 @@ Status: complete on 2026-08-22. ADR-013 accepts an offline `aa-snapshot-refresh/
 
 ## Phase 4.1: Reusable Evidence Packs
 
-Status: active design gate. ADR-014 is Proposed and must be explicitly accepted before its incompatible contract replaces the accepted ADR-011/ADR-013 behavior.
+Status: implementation active. ADR-014 is Accepted; Tasks 11–19 implement its contracts before Phase 5 begins.
 
 ### Capability map
 
@@ -126,7 +126,7 @@ Build order: contract → identity and snapshot → registry → active catalog 
 
 ### Task 10: Accept the Evidence Pack decision
 
-Freeze ADR-014's component ownership, exact identity rules, exception classes, distribution boundary, and migration consequences. No incompatible runtime work begins while the ADR remains Proposed.
+Completed. ADR-014 freezes component ownership, exact identity rules, exception classes, distribution boundary, and migration consequences.
 
 ### Task 11: Implement Evidence Pack contracts
 

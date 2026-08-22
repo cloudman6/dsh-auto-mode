@@ -98,7 +98,7 @@ Acceptance: a maintainer can update the snapshot reproducibly, inspect the diff,
 
 Task 9 and Phase 4 completed on 2026-08-22. ADR-013 fixes the official Pro language-model endpoint, server-side credential boundary, default internal-only rights mode, written-license distribution gate, attribution, retention, freshness, and pinned methodology. The offline maintainer workflow derives Host identities without credential values, minimizes only reviewed bindings, exposes source, record, binding, band, and ordering changes, requires exact digest approval, atomically replaces the active seed, and verifies the rollback checksum. Synthetic fixtures cover acquisition, rejection, update, binding addition/removal/replacement, rename, tamper detection, and rollback; no live AA dependency enters runtime routing.
 
-## Phase 4.1: Reusable Evidence Packs — design gate
+## Phase 4.1: Reusable Evidence Packs
 
 Correct the completed catalog's current-Host and full-effective-configuration coupling before adaptive execution builds on it.
 
@@ -111,7 +111,7 @@ Correct the completed catalog's current-Host and full-effective-configuration co
 
 Acceptance: routine AA metric updates require no human action; a newly configured route automatically activates when a valid dormant binding exists; execution-only defaults do not invalidate evidence; evidence-defining controls cannot collide; migration, rollback, Loader, Session, UI, and Manual non-interference checks pass. Public real-data distribution remains disabled without the ADR-013 written-license gate.
 
-Status: ADR-014 and Tasks 10–19 are planned. ADR-014 remains Proposed and must be explicitly accepted before incompatible implementation begins.
+Status: active. ADR-014 is Accepted; Task 10 is complete and Tasks 11–19 are being implemented before Phase 5 begins.
 
 ## Phase 5: Adaptive execution
 
