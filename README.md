@@ -4,7 +4,7 @@
 
 DSH Auto Mode is an adaptive routing plugin for DeepSeek Harness, designed for individual power users of coding agents. The normal interaction is one choice: use Auto, or manually select a provider/model/reasoning selection. Auto uses task context to choose a `light`, `standard`, or `deep` handling level, then prefers the lower Artificial Analysis price among eligible routes in that level and uses AA latency as a tie-break.
 
-The Phase 0P MVP is runnable on the pinned maintainer fork and has been accepted. It uses a local, manually entered AA seed and the A1/A2 Host seams to prove Auto selection, real request switching, persisted explanations, fallback, and Manual non-interference. Post-MVP development now follows the AA-informed roadmap in ADR-011. AA is the external source for market-wide capability, price, and latency conclusions; the plugin does not claim project-benchmarked quality, universal optimality, safety, or official DSH compatibility.
+The accepted Phase 0P MVP and the Phase 1–2 offline pipeline now meet in the runnable Phase 3 decision path on the pinned maintainer fork. For each DSH user turn, the plugin resolves a bounded semantic assessment, applies deterministic Host policy and current route constraints, selects from the local AA evidence catalog by level and price, and freezes one effective configuration through assembly, request, persistence, and cold reconstruction. The live UI still carries prototype labels until Task 7. AA is the external source for market-wide capability, price, and latency conclusions; the plugin does not claim project-benchmarked quality, universal optimality, safety, or official DSH compatibility.
 
 ## Product boundary
 
@@ -44,7 +44,7 @@ Actual task scheduling—concurrency limits, priorities, queues, preemption, and
 
 ## Current commands
 
-The repository contains a dependency-free prototype plus the accepted design documents.
+The repository contains the dependency-free implementation and accepted design documents.
 
 ```bash
 # Run dependency-free unit tests

@@ -1,6 +1,6 @@
 <!--
 translation-source: README.md
-translation-source-blob: 3e5cc0fda95042ba75e166f6ccc382fc526f8f44
+translation-source-blob: e77758dabe9a87fbbf5e9d0ec3c6537a0130a93f
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 DSH Auto Mode 是面向个人重度 Agent 用户的 DeepSeek Harness 自适应路由插件。普通交互只有一个选择：使用 Auto，或者手动选择 provider/model/reasoning selection。Auto 根据任务上下文选择 `light`、`standard` 或 `deep` 处理级别，再在该级别的合格 route 中优先 Artificial Analysis 价格更低者，并用 AA 延迟打破平局。
 
-阶段 0P MVP 已在固定维护者 fork 上运行并被接受。它使用本地手工录入的 AA seed 和 A1/A2 Host seam，证明 Auto 选择、真实请求切换、持久解释、fallback 与 Manual 不受影响。MVP 后开发按 ADR-011 的 AA 驱动 roadmap 推进。AA 是主流模型能力、价格和延迟结论的外部来源；插件不宣称经过本项目 Benchmark 的质量、普遍最优性、安全或官方 DSH 兼容。
+已接受的阶段 0P MVP 与阶段 1–2 离线 pipeline 现在已在固定维护者 fork 上汇入可运行的阶段 3 决策路径。对于每个 DSH 用户 turn，插件会解析有限语义 assessment，应用确定性 Host policy 与当前 route constraint，按级别和价格从本地 AA evidence catalog 选择，并把一项实际配置冻结到 assembly、request、persistence 与 cold reconstruction。Task 7 完成前，live UI 仍携带原型标签。AA 是主流模型能力、价格和延迟结论的外部来源；插件不宣称经过本项目 Benchmark 的质量、普遍最优性、安全或官方 DSH 兼容。
 
 ## 产品边界
 
@@ -50,7 +50,7 @@ DSH Auto Mode 从 AA 驱动的模型选择开始。完整方向包括：
 
 ## 当前命令
 
-当前仓库包含零依赖原型和已接受的设计文档。
+当前仓库包含零依赖实现和已接受的设计文档。
 
 ```bash
 # 运行零依赖单元测试

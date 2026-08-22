@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 6a3e39be664f2dbd32dcec01725d4835667b866e
+translation-source-blob: 7cdbc0418bce8b85fb21ba8c8c85be9ed3c8f379
 translation-status: current
 -->
 
@@ -24,11 +24,15 @@ translation-status: current
 
 具体 MVP 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与 effort，以及持久化解释。决定变化时会携带前一条 route，使界面只把发生变化的模型和／或 effort 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，以呼吸灯方式平滑亮灭两次后恢复默认颜色，包括只切换 effort 的情况。聊天时间线会把前后模型与 effort，以及任务处理级别、原因代码和解释记录为路由事实，紧跟在触发它的用户消息之后、产生结果的助手回复之前。阶段 3 在已完成的阶段 1 离线 catalog 与阶段 2 assessor 之后复用该载体，并把术语和策略迁移到 ADR-011；生产载体仍未决定。
 
+Task 6 插件契约中，`mode: auto` 要求提供 inline `seed` 或 `seedPath`。`aa-evidence-catalog/v1` seed 会启用阶段 3 pipeline。可选 `hostRoutes` 是提议 request configuration 的明确 allowlist；省略时，插件从当前 DSH discovery 派生 candidate。每个 candidate 仍必须经过 `resolveCallConfig()` 物化。可选 `deepFallback` 提议一条精确配置 fallback，只有其物化 identity 仍属于合格 Host 集合时才能使用。插件不定义这些配置值属于全局、项目还是 Session；该 carrier scope 仍是开放产品决策。历史阶段 0P seed shape 仅作为兼容路径保留，直到 UI migration 移除原型契约。
+
 ### Fork 契约证据
 
 固定 fork commit 在 inbox claim 后、prompt assembly 前增加 agent-scoped `agent/prepare-step` waterfall，同时保留现有 assembly 后的 `agent/pre-step`。它还在 `SessionStore` 中增加 effect-scoped required-event namespace 注册、不可变 namespace/version envelope identity、append-time 校验，以及 Session 冷重建前的精确 registration 校验。
 
 组合 JSONL 探针在 `agent/prepare-step` 中修改所选模型，验证 prompt assembly 与 `agent/request` 使用同一模型，持久化必需插件决策事件，在 registration 缺失时拒绝冷加载，并在恢复精确 registration 后成功加载。2026-08-15 的验证通过 402 项相关测试、`pnpm typecheck`、`pnpm lint` 与 `pnpm doc-sync` 全部 28 项 gate。
+
+阶段 3 Task 6 在不改变 A1 或 A2 的情况下增加插件侧 composition 证据。针对同一固定 commit，78 项项目测试覆盖动态 route discovery 与精确物化、三档、同一决策跨 tool step 复用、单调升级、配置 fallback、dispatch 前明确 failure、Manual 不受影响，以及使用相同 route 与解释的真实持久 Session cold reconstruction。`resume()` 读取 Session 前必须已经存在必需 namespace registration；已验证 cold 路径会先激活插件，再以编程方式 resume。在更早 composition layer 内、Auto 插件注册前就 resume 的 declarative root 不属于已测试 ordering，不能声明支持。
 
 该证据只关闭固定 fork 的 A1/A2 与限定范围的 MVP 载体。它不代表兼容官方 DSH，也不决定生产载体。
 

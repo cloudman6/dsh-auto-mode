@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 990983a512c4c0028a00831bdc0f4f435eab0ea5
+translation-source-blob: d13729f93c47fabf6580ce4cec25bdd40061f634
 translation-status: current
 -->
 
@@ -130,7 +130,7 @@ Task 5 通过一次直接 `ctx.llm.stream()` 调用执行冻结 route。它不�
 按以下条件过滤冻结 catalog：
 
 1. 所选任务处理级别；
-2. provider availability 和 credential；
+2. 当前 Host route inventory 与精确配置物化；
 3. model context、modality、tool 和适用执行配置 support；
 4. 用户 allow/deny 限制；
 5. Host security 要求。
@@ -165,9 +165,15 @@ interface FrozenRouteSelection {
 
 同一 provider/model/实际配置到达 prompt assembly、`agent/request`、持久化 Session 事实和 Web UI。
 
+Task 6 把该边界实现为 `auto-decision/v1`。在每个 DSH 用户 turn 的首次 `agent/prepare-step`，插件会枚举当前 provider/model/effort inventory，或应用明确配置的 Host-route allowlist，再让 `ctx.llm.resolveCallConfig()` 物化每个 candidate。只有精确物化 route identity 才能连接离线 AA catalog；畸形、无法解析、未匹配或不允许的 route 均不能进入 resolution。Runtime discovery 只具有建议性，配置校验不宣称远程 authentication 或 transport 必然成功。
+
+Coordinator 只运行一次 one-shot assessor 与 resolver，之后在同一 turn 的后续所有 step 中复用深度冻结结果。Resolution 从请求档位开始，只能向上移动。配置的 Deep fallback 只有在其精确物化 identity 仍属于 Host-valid 集合时才有资格；它不携带 AA snapshot 或 record 声明。既没有 AA match 也没有有效 fallback 时，coordinator 持久化结构化 failure，并在 provider dispatch 前拒绝该 step。
+
+已解析决策使用必需 `dsh-auto-mode/selection` schema version 2；失败使用必需 `dsh-auto-mode/resolution-failure` schema version 1。Selection payload 把完整实际配置绑定到 route ID 与 fingerprint，并记录 assessment audit、请求和实际级别、AA 与 fallback 依据、evidence 和 policy 版本、reason code 与解释。Append-time parser 会拒绝 identity、tier、evidence basis 不一致或 reason 重复的事件。Session projection 在 warm 与 cold reconstruction 中折叠同一组事实。兼容的 `fast`/`standard`/`strong` projection 字段在 Task 7 前仍作为临时 carrier 数据存在，但不控制路由。
+
 ### Session Projection 与 UI
 
-Session 按因果顺序记录触发用户消息、冻结选择、实际 request header 和最终助手回复。UI 显示：
+Session 按因果顺序记录触发用户消息、冻结选择或明确 failure、发生 dispatch 时的实际 request header，以及最终助手回复。UI 显示：
 
 - 处理级别；
 - 实际模型和适用执行配置；

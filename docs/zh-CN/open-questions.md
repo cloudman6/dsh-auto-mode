@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/open-questions.md
-translation-source-blob: db675fe7da11fb59ef6db22c165726909bd5c94c
+translation-source-blob: 0b6b91232b92bbad9a2fa3ae4b54c880a5e23e91
 translation-status: current
 -->
 
@@ -10,11 +10,10 @@ translation-status: current
 
 ## 阶段 3：Auto Beta
 
-1. 什么构成重新判断的新任务边界：每条用户消息、Session objective 还是其他 Host-owned event？
-2. 配置的 Deep fallback 属于全局、项目还是 Session？
-3. 哪些解释默认显示，哪些留在检查详情中？
-4. 哪种用户措辞区分 AA 匹配 route 与配置 fallback？
-5. 哪个 fork commit 和 plugin version 定义首个 Beta support matrix？
+1. 配置的 Deep fallback 属于全局、项目还是 Session？
+2. 哪些解释默认显示，哪些留在检查详情中？
+3. 哪种用户措辞区分 AA 匹配 route 与配置 fallback？
+4. 哪个 fork commit 和 plugin version 定义首个 Beta support matrix？
 
 ## 阶段 4：AA 更新
 

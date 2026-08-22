@@ -124,7 +124,7 @@ Task 5 executes the frozen route through one direct `ctx.llm.stream()` call. It 
 Filters the frozen catalog by:
 
 1. selected handling level;
-2. provider availability and credentials;
+2. the current Host route inventory and exact configuration materialization;
 3. model context, modality, tool, and applicable execution-configuration support;
 4. user allow/deny restrictions;
 5. Host security requirements.
@@ -159,9 +159,15 @@ interface FrozenRouteSelection {
 
 The same provider/model/effective configuration reaches prompt assembly, `agent/request`, persisted Session facts, and the Web UI.
 
+Task 6 implements this boundary as `auto-decision/v1`. On the first `agent/prepare-step` of each DSH user turn, the plugin either enumerates the current provider/model/effort inventory or applies an explicit configured Host-route allowlist, then asks `ctx.llm.resolveCallConfig()` to materialize each candidate. Exact materialized route identities are joined to the offline AA catalog; malformed, unresolved, unmatched, or disallowed routes cannot enter resolution. Runtime discovery is advisory and configuration validation does not claim that remote authentication or transport will succeed.
+
+The coordinator runs the one-shot assessor and resolver once, then reuses the deeply frozen result for every later step in the same turn. Resolution starts at the requested level and can only move upward. A configured Deep fallback is eligible only when its exact materialized identity remains in the Host-valid set; it carries no AA snapshot or record claim. Without an AA match or valid fallback, the coordinator persists a structured failure and rejects the step before provider dispatch.
+
+Resolved decisions use required `dsh-auto-mode/selection` schema version 2; failures use required `dsh-auto-mode/resolution-failure` schema version 1. The selection payload binds the complete effective configuration to its route ID and fingerprint and records the assessment audit, requested and resolved levels, AA-versus-fallback basis, evidence and policy versions, reason codes, and explanation. Append-time parsing rejects incoherent identities, tiers, evidence bases, or duplicate reasons. The Session projection folds the same facts on warm and cold reconstruction. Compatibility `fast`/`standard`/`strong` projection fields remain temporary carrier data until Task 7; they do not control routing.
+
 ### Session Projection and UI
 
-The Session records the triggering user message, frozen selection, effective request header, and resulting assistant response in causal order. The UI renders:
+The Session records the triggering user message, frozen selection or explicit failure, effective request header when dispatch occurs, and resulting assistant response in causal order. The UI renders:
 
 - handling level;
 - actual model and applicable execution configuration;

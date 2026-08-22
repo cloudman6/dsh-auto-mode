@@ -133,6 +133,8 @@ No estimated input/output token calculation is performed. If AA lacks the requir
 
 The fallback is conservative but not certified safe. Explanations say “deep fallback” and the triggering reason, not “safe baseline”.
 
+`auto-decision/v1` evaluates this policy once on the first preparation step of each DSH user turn and freezes the result for all later steps in that turn. The eligible set is serialized from exact configurations materialized by the current Host, after an optional explicit route allowlist; AA price ordering never selects outside that set. Escalation scans only `light → standard → deep`, never downward. A configured fallback must resolve to the exact identity of one eligible Host route and is persisted with `routeBasis: configured-deep-fallback` and no AA record. With neither an AA-matched candidate nor a valid fallback, Auto persists `auto-route-unavailable` and stops before provider dispatch.
+
 ## User and parent authority
 
 The user can choose Auto or an exact Manual configuration. Manual exits Auto for that scope and is never a correctness label.

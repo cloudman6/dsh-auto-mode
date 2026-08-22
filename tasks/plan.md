@@ -76,6 +76,8 @@ The assessor never emits a concrete route; repeated structured inputs map to the
 
 At the verified pre-assembly boundary, combine assessment, catalog, constraints, and resolver. Apply the same selection to assembly, `agent/request`, Session facts, and UI projection.
 
+Status: complete on 2026-08-22. `auto-decision/v1` refreshes once per DSH user turn, revalidates current Host routes, escalates monotonically, distinguishes AA evidence from configured fallback, fails explicitly without a valid route, and survives required-event cold reconstruction.
+
 ### Task 7: Migrate user-facing terminology and explanations
 
 Replace prototype labels with Light/Standard/Deep and 轻量/常规/深度. Show AA-matched versus configured-fallback reasons while preserving rolling/breathing animations and conversation placement.

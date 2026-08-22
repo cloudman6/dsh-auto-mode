@@ -92,14 +92,14 @@
 
 **Acceptance criteria:**
 
-- [ ] One decision combines assessment, constraints, catalog, and route resolution before assembly.
-- [ ] Assembly, `agent/request`, Session facts, and UI projection consume the same provider/model/effort.
-- [ ] No eligible route escalates levels or uses the configured Deep fallback with an explicit reason; no valid fallback fails visibly.
+- [x] One decision combines assessment, constraints, catalog, and route resolution before assembly.
+- [x] Assembly, `agent/request`, Session facts, and UI projection consume the same provider/model/effort.
+- [x] No eligible route escalates levels or uses the configured Deep fallback with an explicit reason; no valid fallback fails visibly.
 
 **Verification:**
 
-- [ ] Pinned-fork composition covers Light, Standard, Deep, escalation, fallback, and failure.
-- [ ] Cold reconstruction preserves the effective route and explanation.
+- [x] Pinned-fork composition covers Light, Standard, Deep, escalation, fallback, and failure.
+- [x] Cold reconstruction preserves the effective route and explanation.
 
 **Dependencies:** Tasks 3 and 5
 

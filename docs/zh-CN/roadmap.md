@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: 868b39d6cd32acc90cad754b7fcc2f3cb0a49031
+translation-source-blob: c5b22e25f6daa0014dbe2939814e0fb775dca245
 translation-status: current
 -->
 
@@ -84,6 +84,8 @@ Task 5 和阶段 2 已于 2026-08-22 完成。`task-handling-policy/v1` 确定�
 - 所有声明明确为 AA 驱动，不宣称经过本项目 Benchmark 的质量。
 
 验收：浏览器和真实 provider 场景证明 Light、Standard、Deep、fallback、failure 与 Manual 路径；显示、持久化和实际请求配置一致。
+
+Task 6 已于 2026-08-22 完成。`auto-decision/v1` 现在会在 Host 拥有的 DSH 用户 turn 边界刷新，并在该 turn 的所有 step 中保持冻结。固定 fork composition 证明三档、单调升级、明确配置的 Deep fallback、dispatch 前 no-route failure、assembly/request/Session 精确一致、cold reconstruction 和 Manual 不受影响。Task 7 仍负责 live UI 术语与解释迁移；Task 8 仍负责浏览器与可用真实 provider 的 Beta 证明。
 
 ## 阶段 4：Catalog 更新与分发
 

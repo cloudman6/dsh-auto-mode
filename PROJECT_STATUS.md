@@ -8,9 +8,9 @@
 
 ## Current stage
 
-Phase 0P MVP, Phase 1, and Phase 2 are complete. The project is ready for Phase 3 Task 6: integrate the completed AA catalog, semantic assessor, deterministic handling-level policy, and price-first resolver into one frozen Auto decision before provider-dependent assembly.
+Phase 0P MVP, Phase 1, Phase 2, and Phase 3 Task 6 are complete. The project is ready for Task 7: migrate the live carrier from prototype `fast`/`standard`/`strong` presentation to Light/Standard/Deep while preserving its transition behavior.
 
-The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. Phase 1 Tasks 1–3 provide the provider-neutral AA catalog pipeline. Phase 2 Tasks 4–5 provide the resolved-and-frozen one-shot assessor plus `task-handling-policy/v1`: bounded visible input, strict untrusted-output validation, deterministic Light/Standard/Deep mapping, and visible Deep fallback. The current runnable plugin still uses the prototype `fast`/`standard`/`strong` implementation until Phase 3 integrates the new catalog and assessor path.
+The maintained DSH fork remains pinned at `2a2db7a6ec3ce9969857cc41de839f911ef5902e`. The runnable plugin now composes the Phase 1 AA catalog and Phase 2 assessor at `agent/prepare-step`, freezes one `auto-decision/v1` for each DSH user turn, and reuses its complete effective configuration through assembly and every `agent/request` step in that turn. Required Session events preserve the route, assessment, evidence basis, versions, reason codes, and explanation for cold reconstruction. The existing carrier still projects compatibility `fast`/`standard`/`strong` fields until Task 7 migrates the UI.
 
 ## Accepted post-MVP direction
 
@@ -39,6 +39,7 @@ The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-
 - Finalized the Git-ignored local seed with the three approved current bindings: DeepSeek Pro/off in Light, Pro/high in Standard, and Flash/max in Deep. Flash/off, Flash/high, and Pro/max remain excluded rather than receiving unsupported or ambiguous evidence.
 - Completed Phase 2 Task 4: `task-assessor-route-policy/v1` requests Light, escalates through Standard and Deep, excludes missing or over-budget AA latency, and freezes the price-first winner from the current catalog. `task-assessor-contract/v1` fixes the bounded input, one-shot request budget, strict output schema, discrete confidence threshold, and deterministic Deep fallback fixtures without calling a live provider or changing the runnable MVP.
 - Completed Phase 2 Task 5 and Checkpoint B without changing live routing: compatible assessor routes run through exactly one direct, tool-free `ctx.llm.stream()` call with a hard total deadline; validated attributes map through `task-handling-policy/v1`; representative semantic and failure fixtures prove deterministic Light, Standard, Deep, and fallback explanations.
+- Completed Phase 3 Task 6: current Host routes are re-materialized before each new user turn, exact AA matches are filtered before price-first resolution, and one frozen decision drives assembly, requests, persisted facts, and cold projection. The pinned-fork suite covers all three levels, monotonic escalation, configured Host-valid Deep fallback without false AA evidence, explicit no-route failure before dispatch, and Manual non-interference.
 
 ## Current implementation plan
 
@@ -47,7 +48,8 @@ The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-
 3. Completed: compile versioned AA capability bands and resolve same-band routes by price, latency, and stable identity.
 4. Completed: freeze the bounded Task Assessor contract and deterministic environment-aware assessor route policy.
 5. Completed: call the resolved-and-frozen assessor outside Auto recursion and implement deterministic level mapping.
-6. Next: integrate the new frozen decision path end to end while preserving the accepted UI behavior and Manual mode.
+6. Completed: integrate one frozen decision path through assembly, request, Session persistence, and cold projection.
+7. Next: migrate the live UI terminology and explanations while preserving its rolling and breathing transitions.
 
 Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md), [implementation plan](tasks/plan.md), and [task checklist](tasks/todo.md).
 
@@ -57,11 +59,11 @@ Phase 1 has no remaining blocker. Its field choices, boundaries, missing-data po
 
 Phase 2 has no remaining blocker. Tasks 4–5 freeze dynamic environment-aware assessor route resolution, bounded input, a hard 12-second timeout, discrete confidence, deterministic level mapping, and strict Deep fallbacks.
 
-Stable AA acquisition, data distribution rights, within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later roadmap phases and do not block Phase 3 Task 6.
+Phase 3 Task 6 has no remaining blocker. Stable AA acquisition, data distribution rights, within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later roadmap phases and do not block Task 7.
 
 ## Next action
 
-Implement Phase 3 Task 6: compose assessment, Host constraints, the frozen AA catalog, handling-level policy, and price-first route resolution at the verified pre-assembly boundary, then prove assembly, `agent/request`, and persisted Session facts consume one identical frozen selection.
+Implement Phase 3 Task 7: replace prototype level labels in the selector, conversation facts, and projection contract with Light/Standard/Deep and the maintained Chinese labels, while preserving actual model/effort display, AA-versus-fallback explanations, animation behavior, and Manual non-interference.
 
 ## Status maintenance rules
 

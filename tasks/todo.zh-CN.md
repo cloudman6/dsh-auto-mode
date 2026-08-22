@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: adb925cfc2e7e725511a05193f5836f80e432592
+translation-source-blob: 09ed6c5a55ac6ff4d6b2fa155ec40315f1327a63
 translation-status: current
 -->
 
@@ -98,14 +98,14 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] 一项决策在 assembly 前组合 assessment、constraints、catalog 和 route resolution。
-- [ ] Assembly、`agent/request`、Session 事实和 UI projection 使用同一 provider/model/effort。
-- [ ] 无合格 route 时升级级别或带明确原因使用配置的 Deep fallback；没有有效 fallback 时明确失败。
+- [x] 一项决策在 assembly 前组合 assessment、constraints、catalog 和 route resolution。
+- [x] Assembly、`agent/request`、Session 事实和 UI projection 使用同一 provider/model/effort。
+- [x] 无合格 route 时升级级别或带明确原因使用配置的 Deep fallback；没有有效 fallback 时明确失败。
 
 **验证：**
 
-- [ ] 固定 fork composition 覆盖 Light、Standard、Deep、升级、fallback 和 failure。
-- [ ] Cold reconstruction 保留实际 route 和解释。
+- [x] 固定 fork composition 覆盖 Light、Standard、Deep、升级、fallback 和 failure。
+- [x] Cold reconstruction 保留实际 route 和解释。
 
 **依赖：**Task 3、5
 

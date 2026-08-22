@@ -79,6 +79,8 @@ Combine the catalog and semantic assessor into the user-facing product loop.
 
 Acceptance: browser and real-provider scenarios prove Light, Standard, Deep, fallback, failure, and Manual paths; displayed, persisted, and effective request configurations agree.
 
+Task 6 completed on 2026-08-22. `auto-decision/v1` now refreshes at the Host-owned DSH user-turn boundary and remains frozen across every step in that turn. The pinned-fork composition proves all three levels, monotonic escalation, explicit configured Deep fallback, no-route failure before dispatch, exact assembly/request/Session equality, cold reconstruction, and Manual non-interference. Task 7 remains the live UI terminology and explanation migration; Task 8 remains the browser and available real-provider beta proof.
+
 ## Phase 4: Catalog refresh and distribution
 
 Make AA data maintenance reliable without coupling the runtime to a live remote dependency.

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routing-policy.md
-translation-source-blob: 59b492e5c58ec706bb5a2d7b892b2f07933c3f11
+translation-source-blob: 61eb633681792b39995f9aa64b2f1c65c8618970
 translation-status: current
 -->
 
@@ -138,6 +138,8 @@ Catalog compiler：
 - 没有有效 fallback 时，Auto 明确失败，不能静默复用过期 route。
 
 Fallback 是保守选择，但不代表经过认证的安全。解释使用“Deep fallback”及其触发原因，不使用“安全 baseline”。
+
+`auto-decision/v1` 在每个 DSH 用户 turn 的首次 preparation step 对该策略求值一次，并为该 turn 的所有后续 step 冻结结果。Eligible set 来自当前 Host 物化的精确配置，并经过可选的明确 route allowlist；AA 价格排序不能选择集合外 route。升级只扫描 `light → standard → deep`，绝不向下。配置 fallback 必须解析成一条合格 Host route 的精确 identity，并以 `routeBasis: configured-deep-fallback` 持久化，且不附带 AA record。既没有 AA 匹配 candidate 也没有有效 fallback 时，Auto 持久化 `auto-route-unavailable`，并在 provider dispatch 前停止。
 
 ## 用户与父 Agent 权限
 

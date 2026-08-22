@@ -4,11 +4,10 @@
 
 ## Phase 3: Auto beta
 
-1. What constitutes a new task boundary for reassessment: every user message, a Session objective, or another Host-owned event?
-2. Is the configured deep fallback global, project-local, or Session-local?
-3. Which explanation details are shown by default and which remain behind inspection?
-4. What user-visible wording distinguishes an AA-matched route from a configured fallback?
-5. Which fork commit and plugin version define the first beta support matrix?
+1. Is the configured deep fallback global, project-local, or Session-local?
+2. Which explanation details are shown by default and which remain behind inspection?
+3. What user-visible wording distinguishes an AA-matched route from a configured fallback?
+4. Which fork commit and plugin version define the first beta support matrix?
 
 ## Phase 4: AA refresh
 

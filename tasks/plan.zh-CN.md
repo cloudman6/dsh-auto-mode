@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 2e3611c4616704f4b5591b0f53f0bbf37b48b7b1
+translation-source-blob: 1cc520edc98a92d9b6be343c34db7e139df9cdf6
 translation-status: current
 -->
 
@@ -81,6 +81,8 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 ### Task 6：集成单一冻结决策路径
 
 在已验证 pre-assembly 边界组合 assessment、catalog、constraints 与 resolver。把同一选择应用到 assembly、`agent/request`、Session 事实和 UI projection。
+
+状态：已于 2026-08-22 完成。`auto-decision/v1` 为每个 DSH 用户 turn 刷新一次，重新验证当前 Host route，单调升级，区分 AA evidence 与配置 fallback，在没有有效 route 时明确失败，并可通过必需事件 cold reconstruction 恢复。
 
 ### Task 7：迁移用户术语与解释
 

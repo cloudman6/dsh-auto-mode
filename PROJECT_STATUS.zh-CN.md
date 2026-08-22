@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: c09ea7b7bb0d68b2945ec43879f96a13c9b09049
+translation-source-blob: 58a5e031267b2fe135c75c0daf730ca576a7aa22
 translation-status: current
 -->
 
@@ -14,9 +14,9 @@ translation-status: current
 
 ## 当前阶段
 
-阶段 0P MVP、阶段 1 和阶段 2 均已完成。项目已准备进入阶段 3 Task 6：在依赖 provider 的组装前，把已完成的 AA catalog、语义 assessor、确定性 handling-level policy 和价格优先 resolver 集成为一项冻结 Auto 决策。
+阶段 0P MVP、阶段 1、阶段 2 和阶段 3 Task 6 均已完成。项目已准备进入 Task 7：把 live carrier 的原型 `fast`/`standard`/`strong` 展示迁移为 Light/Standard/Deep，同时保留现有过渡行为。
 
-维护者 DSH fork 仍固定在 `2a2db7a6ec3ce9969857cc41de839f911ef5902e`。阶段 1 Task 1–3 提供 provider-neutral AA catalog pipeline。阶段 2 Task 4–5 提供已解析并冻结的一次性 assessor 与 `task-handling-policy/v1`：有限可见输入、严格不可信输出校验、确定性 Light/Standard/Deep 映射和可见 Deep fallback。当前可运行插件在阶段 3 集成新 catalog 与 assessor 路径前仍使用原型 `fast`/`standard`/`strong` 实现。
+维护者 DSH fork 仍固定在 `2a2db7a6ec3ce9969857cc41de839f911ef5902e`。可运行插件现在会在 `agent/prepare-step` 组合阶段 1 AA catalog 与阶段 2 assessor，为每个 DSH 用户 turn 冻结一项 `auto-decision/v1`，并在该 turn 的 assembly 与每个 `agent/request` step 中复用其完整实际配置。必需 Session 事件保留 route、assessment、evidence basis、版本、reason code 与解释，供 cold reconstruction 使用。现有 carrier 在 Task 7 迁移 UI 前仍投影兼容的 `fast`/`standard`/`strong` 字段。
 
 ## 已接受的 MVP 后方向
 
@@ -45,6 +45,7 @@ Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-rou
 - 最终确定被 Git 忽略的本地 seed 和三条已批准当前 binding：DeepSeek Pro/off 属于 Light、Pro/high 属于 Standard、Flash/max 属于 Deep。Flash/off、Flash/high 和 Pro/max 保持排除，不给它们附加缺乏依据或有歧义的证据。
 - 完成阶段 2 Task 4：`task-assessor-route-policy/v1` 请求 Light，依次升级到 Standard 和 Deep，排除 AA latency 缺失或超过预算的 route，并冻结当前 catalog 中价格优先的 winner。`task-assessor-contract/v1` 固定有限输入、单次请求预算、严格输出 schema、离散置信度阈值和确定性 Deep fallback fixture；它不调用 live provider，也不改变可运行 MVP。
 - 完成阶段 2 Task 5 和 Checkpoint B，且不改变 live routing：兼容 assessor route 通过恰好一次直接、无工具 `ctx.llm.stream()` 调用执行，并带硬总 deadline；已校验属性通过 `task-handling-policy/v1` 映射；代表性语义和失败 fixture 证明 Light、Standard、Deep 与 fallback 解释均为确定结果。
+- 完成阶段 3 Task 6：每个新用户 turn 前重新物化当前 Host route，在价格优先解析前筛选精确 AA match，并让一项冻结决策驱动 assembly、request、持久事实与 cold projection。固定 fork suite 覆盖三档、单调升级、无虚假 AA evidence 的配置 Host-valid Deep fallback、dispatch 前明确 no-route failure，以及 Manual 不受影响。
 
 ## 当前实施计划
 
@@ -53,7 +54,8 @@ Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-rou
 3. 已完成：编译带版本 AA 能力档，并按 price、latency 和稳定 identity 解析同档 route。
 4. 已完成：冻结有限 Task Assessor 契约和确定性环境感知 assessor route policy。
 5. 已完成：在 Auto 递归之外调用已解析并冻结的 assessor，并实现确定性级别 mapping。
-6. 下一步：端到端集成新的冻结决策路径，同时保留已接受 UI 行为和 Manual 模式。
+6. 已完成：把单一冻结决策路径集成到 assembly、request、Session persistence 与 cold projection。
+7. 下一步：迁移 live UI 术语与解释，同时保留滚动和呼吸过渡。
 
 详细依赖和验收在 [roadmap](docs/zh-CN/roadmap.md)、[实施计划](tasks/plan.zh-CN.md)和[任务清单](tasks/todo.zh-CN.md)中。
 
@@ -63,11 +65,11 @@ Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-rou
 
 阶段 2 已无剩余阻塞。Task 4–5 冻结动态环境感知 assessor route 解析、有限输入、硬 12 秒 timeout、离散 confidence、确定性级别映射和严格 Deep fallback。
 
-稳定 AA 获取、数据分发权利、Session 内自适应、恢复、子 Agent 路由和官方 DSH 兼容属于后续阶段，不阻塞阶段 3 Task 6。
+阶段 3 Task 6 已无剩余阻塞。稳定 AA 获取、数据分发权利、Session 内自适应、恢复、子 Agent 路由和官方 DSH 兼容属于后续阶段，不阻塞 Task 7。
 
 ## 下一步
 
-实施阶段 3 Task 6：在已验证 pre-assembly 边界组合 assessment、Host constraint、冻结 AA catalog、handling-level policy 和价格优先 route resolution，再证明 assembly、`agent/request` 与持久 Session 事实消费同一项冻结选择。
+实施阶段 3 Task 7：把 selector、conversation fact 与 projection contract 中的原型级别标签替换为 Light/Standard/Deep 及维护中的中文标签，同时保留实际 model/effort 展示、AA 与 fallback 解释区别、动画行为和 Manual 不受影响。
 
 ## 状态维护规则
 
