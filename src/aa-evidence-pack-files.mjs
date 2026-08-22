@@ -5,9 +5,9 @@ import {
 } from './aa-snapshot-files.mjs'
 import {
   evidenceComponentDigest,
-  validateAAEvidencePack,
 } from './aa-evidence-pack.mjs'
 import { validatePreparedAAEvidencePackRefresh } from './aa-evidence-pack-refresh.mjs'
+import { normalizeAAEvidencePackForRuntime } from './aa-evidence-pack-migration.mjs'
 
 export const AA_EVIDENCE_PACK_ROLLBACK_VERSION = 'aa-evidence-pack-rollback/v1'
 
@@ -30,7 +30,7 @@ function validateRollback(value) {
     invalid('aa-evidence-pack-rollback-invalid', 'rollback artifact is invalid')
   }
   try {
-    validateAAEvidencePack(value.pack)
+    normalizeAAEvidencePackForRuntime(value.pack)
   } catch {
     invalid('aa-evidence-pack-rollback-invalid', 'rollback Evidence Pack is invalid')
   }
@@ -59,7 +59,7 @@ export function applyPreparedEvidencePackFiles({
   }
   const current = readPrivateJSONFile({ allowedRoot, filePath: currentPath })
   try {
-    validateAAEvidencePack(current)
+    normalizeAAEvidencePackForRuntime(current)
   } catch (error) {
     invalid(error.code ?? 'aa-evidence-pack-update-invalid', error.message)
   }

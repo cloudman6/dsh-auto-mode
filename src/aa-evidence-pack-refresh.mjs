@@ -7,6 +7,7 @@ import {
 } from './aa-evidence-pack.mjs'
 import { compileActiveAACatalog } from './aa-active-catalog.mjs'
 import { deriveStructuredBindingCandidates } from './aa-binding-candidates.mjs'
+import { normalizeAAEvidencePackForRuntime } from './aa-evidence-pack-migration.mjs'
 
 export const AA_EVIDENCE_PACK_REFRESH_VERSION = 'aa-evidence-pack-refresh/v1'
 
@@ -129,8 +130,8 @@ export function prepareAAEvidencePackRefresh({
   now,
   maximumAgeDays = 30,
 } = {}) {
-  validateAAEvidencePack(previousPack)
-  if (evidenceComponentDigest(rights) !== evidenceComponentDigest(previousPack.manifest.rights)) {
+  const compatiblePreviousPack = normalizeAAEvidencePackForRuntime(previousPack)
+  if (evidenceComponentDigest(rights) !== evidenceComponentDigest(compatiblePreviousPack.manifest.rights)) {
     return red('aa-refresh-rights-contract-changed', 'rights changes require explicit external review')
   }
   let snapshotResult
@@ -147,15 +148,15 @@ export function prepareAAEvidencePackRefresh({
   try {
     candidateUpdate = deriveStructuredBindingCandidates({
       snapshot: snapshotResult.snapshot,
-      normalizationRules: previousPack.bindingRegistry.normalizationRules,
-      existingBindings: previousPack.bindingRegistry.bindings,
+      normalizationRules: compatiblePreviousPack.bindingRegistry.normalizationRules,
+      existingBindings: compatiblePreviousPack.bindingRegistry.bindings,
     })
   } catch (error) {
     return red(error.code ?? 'aa-binding-candidate-invalid', error.message)
   }
   const bindingUpdate = quarantineMissingBindings({
-    ...previousPack.bindingRegistry,
-    bindings: [...previousPack.bindingRegistry.bindings, ...candidateUpdate.generated],
+    ...compatiblePreviousPack.bindingRegistry,
+    bindings: [...compatiblePreviousPack.bindingRegistry.bindings, ...candidateUpdate.generated],
   }, snapshotResult.snapshot)
   let evidencePack
   let hostImpact
@@ -164,8 +165,8 @@ export function prepareAAEvidencePackRefresh({
       packId,
       snapshot: snapshotResult.snapshot,
       bindingRegistry: bindingUpdate.registry,
-      routePolicy: previousPack.routePolicy,
-      runtimeCompatibility: previousPack.manifest.runtimeCompatibility,
+      routePolicy: compatiblePreviousPack.routePolicy,
+      runtimeCompatibility: compatiblePreviousPack.manifest.runtimeCompatibility,
       rights,
     })
     hostImpact = compileActiveAACatalog({ evidencePack, hostRoutes })
@@ -198,7 +199,7 @@ export function prepareAAEvidencePackRefresh({
     previousPackDigest: evidenceComponentDigest(previousPack),
     evidencePack,
     report: {
-      records: recordDiff(previousPack.snapshot, evidencePack.snapshot),
+      records: recordDiff(compatiblePreviousPack.snapshot, evidencePack.snapshot),
       eligibilityExclusions: snapshotResult.exclusions,
       bindings: {
         generated: candidateUpdate.generated.map(binding => binding.aaRecordId),

@@ -1,10 +1,6 @@
 import { createHostRouteIdentity } from './aa-evidence-binding.mjs'
-import {
-  AA_BINDING_REGISTRY_VERSION,
-  AA_SNAPSHOT_VERSION,
-  validateAAEvidencePack,
-} from './aa-evidence-pack.mjs'
-import { migrateAAEvidencePackV1ToV2 } from './aa-evidence-pack-migration.mjs'
+import { AA_BINDING_REGISTRY_VERSION } from './aa-evidence-pack.mjs'
+import { normalizeAAEvidencePackForRuntime } from './aa-evidence-pack-migration.mjs'
 import {
   createEvidenceRouteKey,
   evidenceRouteKeyId,
@@ -57,9 +53,7 @@ function exclusionSortKey(value) {
  * Host-materialized routes. No AA access or fuzzy identity inference occurs.
  */
 export function compileActiveAACatalog({ evidencePack, hostRoutes } = {}) {
-  const compatiblePack = evidencePack?.snapshot?.snapshotVersion === AA_SNAPSHOT_VERSION
-    ? validateAAEvidencePack(evidencePack)
-    : migrateAAEvidencePackV1ToV2(evidencePack)
+  const compatiblePack = normalizeAAEvidencePackForRuntime(evidencePack)
   if (!Array.isArray(hostRoutes)) invalid('aa-active-catalog-invalid', 'hostRoutes must be an array')
 
   const registry = compatiblePack.bindingRegistry

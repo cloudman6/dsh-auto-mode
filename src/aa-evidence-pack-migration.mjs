@@ -197,3 +197,9 @@ export function migrateAAEvidencePackV1ToV2(pack) {
     rights: clone(pack.manifest.rights),
   }))
 }
+
+/** Return the current Pack generation, adapting only the one supported predecessor. */
+export function normalizeAAEvidencePackForRuntime(pack) {
+  if (pack?.snapshot?.snapshotVersion === AA_SNAPSHOT_VERSION) return validateAAEvidencePack(pack)
+  return migrateAAEvidencePackV1ToV2(pack)
+}
