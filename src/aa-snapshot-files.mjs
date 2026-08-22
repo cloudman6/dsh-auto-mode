@@ -92,7 +92,8 @@ function atomicWrite(target, text) {
   }
 }
 
-function readPrivateJSON({ allowedRoot, filePath }) {
+/** Read one bounded JSON artifact from inside the caller's private root. */
+export function readPrivateJSONFile({ allowedRoot, filePath }) {
   const target = privatePath(allowedRoot, filePath)
   let bytes
   try {
@@ -131,7 +132,7 @@ export function applyPreparedAASnapshotFiles({
   if (new Set([preparedTarget, currentTarget, rollbackTarget]).size !== 3) {
     invalid('aa-refresh-path-invalid', 'candidate, active, and rollback paths must be distinct')
   }
-  const prepared = readPrivateJSON({ allowedRoot, filePath: preparedTarget })
+  const prepared = readPrivateJSONFile({ allowedRoot, filePath: preparedTarget })
   try {
     validatePreparedAASnapshotRefresh(prepared)
   } catch (error) {
@@ -140,7 +141,7 @@ export function applyPreparedAASnapshotFiles({
   if (approvalDigest !== prepared.digest) {
     invalid('aa-refresh-approval-mismatch', 'approval digest does not match the reviewed candidate')
   }
-  const currentSeed = readPrivateJSON({ allowedRoot, filePath: currentTarget })
+  const currentSeed = readPrivateJSONFile({ allowedRoot, filePath: currentTarget })
   let currentDigest
   try {
     currentDigest = snapshotSeedDigest(currentSeed)
@@ -168,7 +169,7 @@ export function rollbackAASnapshotFiles({ currentSeedPath, rollbackSeedPath, all
   if (currentTarget === rollbackTarget) {
     invalid('aa-refresh-path-invalid', 'active and rollback paths must be distinct')
   }
-  const rollbackSeed = readPrivateJSON({ allowedRoot, filePath: rollbackTarget })
+  const rollbackSeed = readPrivateJSONFile({ allowedRoot, filePath: rollbackTarget })
   try {
     snapshotSeedDigest(rollbackSeed)
   } catch (error) {

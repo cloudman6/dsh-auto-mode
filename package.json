@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "aa:snapshot": "node scripts/aa-snapshot-refresh.mjs",
     "test": "node --test"
   },
   "engines": {

@@ -14,6 +14,7 @@ import {
   applyPreparedAASnapshotFiles,
   AASnapshotFileError,
   rollbackAASnapshotFiles,
+  readPrivateJSONFile,
   writePrivateJSONFile,
 } from '../src/aa-snapshot-files.mjs'
 import {
@@ -41,6 +42,15 @@ function fileFixture() {
 }
 
 describe('AA snapshot private files', () => {
+  it('reads only bounded JSON files inside the private root', () => {
+    const paths = fileFixture()
+
+    assert.deepEqual(
+      readPrivateJSONFile({ allowedRoot: paths.root, filePath: paths.currentSeedPath }),
+      paths.input.previousSeed,
+    )
+  })
+
   it('applies an approved candidate atomically and preserves the previous valid seed', () => {
     const paths = fileFixture()
 
