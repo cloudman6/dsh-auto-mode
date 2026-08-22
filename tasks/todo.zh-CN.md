@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: fcb46213c7511017ea8aa84c8fdbfff99d450ed7
+translation-source-blob: 4008b2b35456de483d36359e352d9653aaedaec0
 translation-status: current
 -->
 
@@ -401,5 +401,5 @@ translation-status: current
 ## Checkpoint D4：阶段 4.2 完成
 
 - [x] Tasks 20–24 完成。
-- [x] 用户自有 Free key 可以填充并激活私有全市场 Evidence Pack。
+- [x] 用户自有 Free key 可以填充并激活一个包含 Free 端点返回的全部 policy-eligible record 的私有 Evidence Pack。
 - [x] Runtime 继续离线，公开真实 Evidence Pack 分发继续禁用。

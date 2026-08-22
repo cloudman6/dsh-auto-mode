@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 8edc43e3ac0592ebeda7c69702570800eba723af
+translation-source-blob: e72ba7817297d16648e53ea95ededb2951a7f1dd
 translation-status: current
 -->
 
@@ -222,7 +222,7 @@ Runtime v2 compatibility migration
 
 ### Checkpoint D4
 
-Tasks 20–24 通过聚焦与完整验证。用户自有 Free key 可以创建并激活私有全市场 Evidence Pack；Runtime 继续离线，公开真实数据分发继续禁用。
+Tasks 20–24 通过聚焦与完整验证。用户自有 Free key 可以创建并激活一个包含 Free 端点返回的全部 policy-eligible record 的私有 Evidence Pack；Runtime 继续离线，公开真实数据分发继续禁用。
 
 ## 风险
 

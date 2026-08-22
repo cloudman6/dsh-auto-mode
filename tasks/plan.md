@@ -216,7 +216,7 @@ Cover acquisition, eligibility, price derivation, ordering, binding activation, 
 
 ### Checkpoint D4
 
-Tasks 20–24 pass focused and full verification. A user-owned Free key can create and activate a private full-market Evidence Pack; Runtime remains offline and public real-data distribution remains disabled.
+Tasks 20–24 pass focused and full verification. A user-owned Free key can create and activate a private Evidence Pack containing every policy-eligible record returned by the Free endpoint; Runtime remains offline and public real-data distribution remains disabled.
 
 ## Risks
 

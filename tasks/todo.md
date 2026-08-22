@@ -395,5 +395,5 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 ## Checkpoint D4: Phase 4.2 complete
 
 - [x] Tasks 20–24 are complete.
-- [x] A user-owned Free key can populate and activate a private full-market Evidence Pack.
+- [x] A user-owned Free key can populate and activate a private Evidence Pack containing every policy-eligible record returned by the Free endpoint.
 - [x] Runtime remains offline and public real Evidence Pack distribution remains disabled.
