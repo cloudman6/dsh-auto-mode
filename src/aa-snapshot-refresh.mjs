@@ -444,6 +444,157 @@ function normalizedPreviousSeed(previousSeed) {
   return freezeTree(clone)
 }
 
+function validateCandidateSeed(seed, hostRoutes) {
+  const normalized = normalizedPreviousSeed(seed)
+  exactKeys(
+    normalized,
+    ['schemaVersion', 'catalogVersion', 'bindingVersion', 'snapshot', 'bindings'],
+    'prepared.seed',
+    'aa-refresh-candidate-invalid',
+  )
+  if (normalized.schemaVersion !== AA_EVIDENCE_CATALOG_SCHEMA_VERSION
+    || normalized.catalogVersion !== AA_EVIDENCE_CATALOG_VERSION
+    || normalized.bindingVersion !== AA_EVIDENCE_BINDING_VERSION) {
+    invalid('aa-refresh-candidate-invalid', 'prepared seed uses an unsupported catalog schema')
+  }
+  exactKeys(
+    normalized.snapshot,
+    ['snapshotId', 'source', 'records'],
+    'prepared.seed.snapshot',
+    'aa-refresh-candidate-invalid',
+  )
+  requiredString(
+    normalized.snapshot.snapshotId,
+    'prepared.seed.snapshot.snapshotId',
+    'aa-refresh-candidate-invalid',
+    128,
+  )
+  exactKeys(normalized.snapshot.source, [
+    'name',
+    'endpoint',
+    'promptType',
+    'capturedAt',
+    'apiIntelligenceIndexVersion',
+    'capabilityMethodologyVersion',
+    'maximumAgeDays',
+    'terms',
+    'attribution',
+    'rights',
+  ], 'prepared.seed.snapshot.source', 'aa-refresh-candidate-invalid')
+  const source = normalized.snapshot.source
+  if (source.name !== 'Artificial Analysis'
+    || source.endpoint !== AA_LANGUAGE_MODELS_ENDPOINT
+    || source.promptType !== 'medium'
+    || !finiteNonNegative(source.apiIntelligenceIndexVersion)
+    || source.capabilityMethodologyVersion !== AA_ROUTE_POLICY_V1.capabilityMethodologyVersion
+    || !Number.isInteger(source.maximumAgeDays)
+    || source.maximumAgeDays < 1 || source.maximumAgeDays > 366
+    || source.attribution !== AA_ATTRIBUTION) {
+    invalid('aa-refresh-candidate-invalid', 'prepared seed contains invalid pinned source metadata')
+  }
+  parseTimestamp(
+    source.capturedAt,
+    'prepared.seed.snapshot.source.capturedAt',
+    'aa-refresh-candidate-invalid',
+  )
+  exactKeys(source.terms, ['version', 'revisedAt', 'url'], 'prepared seed terms', 'aa-refresh-candidate-invalid')
+  if (source.terms.version !== AA_DATA_TERMS_VERSION
+    || source.terms.revisedAt !== AA_DATA_TERMS_REVISED_AT
+    || source.terms.url !== AA_DATA_TERMS_URL) {
+    invalid('aa-refresh-candidate-invalid', 'prepared seed terms do not match the reviewed version')
+  }
+  try {
+    validateRights(source.rights)
+  } catch (error) {
+    invalid('aa-refresh-candidate-invalid', error.message)
+  }
+
+  const recordIds = new Set()
+  for (const record of normalized.snapshot.records) {
+    exactKeys(record, [
+      'recordId',
+      'label',
+      'creator',
+      'releaseDate',
+      'capabilityFacts',
+      'evaluations',
+      'pricing',
+      'performance',
+    ], 'prepared seed record', 'aa-refresh-candidate-invalid')
+    const recordId = requiredString(
+      record.recordId,
+      'prepared seed record ID',
+      'aa-refresh-candidate-invalid',
+      128,
+    )
+    requiredString(record.label, `prepared seed record ${recordId} label`, 'aa-refresh-candidate-invalid', 256)
+    exactKeys(record.creator, ['recordId', 'label'], 'prepared seed creator', 'aa-refresh-candidate-invalid')
+    requiredString(record.creator.recordId, 'prepared seed creator ID', 'aa-refresh-candidate-invalid', 128)
+    requiredString(record.creator.label, 'prepared seed creator label', 'aa-refresh-candidate-invalid', 256)
+    if (record.releaseDate !== null) {
+      requiredString(record.releaseDate, 'prepared seed release date', 'aa-refresh-candidate-invalid', 32)
+    }
+    exactKeys(record.evaluations, ['artificial_analysis_intelligence_index'], 'prepared seed evaluations', 'aa-refresh-candidate-invalid')
+    exactKeys(record.pricing, ['price_1m_blended_7_to_2_to_1'], 'prepared seed pricing', 'aa-refresh-candidate-invalid')
+    exactKeys(record.performance, ['median_time_to_first_answer_token_seconds'], 'prepared seed performance', 'aa-refresh-candidate-invalid')
+    const score = record.evaluations.artificial_analysis_intelligence_index
+    const price = record.pricing.price_1m_blended_7_to_2_to_1
+    const latency = record.performance.median_time_to_first_answer_token_seconds
+    if (!finiteNonNegative(score) || !finiteNonNegative(price)
+      || (latency !== null && !finiteNonNegative(latency))
+      || !Array.isArray(record.capabilityFacts) || record.capabilityFacts.length !== 1
+      || record.capabilityFacts[0] !== `intelligence-index-${source.capabilityMethodologyVersion}=${score}`) {
+      invalid('aa-refresh-candidate-invalid', `prepared seed record ${recordId} has invalid policy facts`)
+    }
+    recordIds.add(recordId)
+  }
+
+  const boundRecordIds = new Set()
+  for (const binding of normalized.bindings) {
+    exactKeys(binding, [
+      'bindingVersion',
+      'hostRouteId',
+      'effectiveConfigFingerprint',
+      'aaSnapshotId',
+      'aaRecordId',
+      'matchBasis',
+      'limitations',
+    ], 'prepared seed binding', 'aa-refresh-candidate-invalid')
+    if (binding.bindingVersion !== AA_EVIDENCE_BINDING_VERSION
+      || !HOST_ROUTE_PATTERN.test(binding.hostRouteId)
+      || !CONFIG_FINGERPRINT_PATTERN.test(binding.effectiveConfigFingerprint)
+      || binding.aaSnapshotId !== normalized.snapshot.snapshotId
+      || !recordIds.has(binding.aaRecordId)) {
+      invalid('aa-refresh-candidate-invalid', 'prepared seed contains an invalid evidence binding')
+    }
+    for (const [field, allowEmpty] of [['matchBasis', false], ['limitations', true]]) {
+      if (!Array.isArray(binding[field]) || (!allowEmpty && binding[field].length === 0)
+        || binding[field].some(value => typeof value !== 'string' || value.trim() === '' || value.length > 256)
+        || new Set(binding[field]).size !== binding[field].length) {
+        invalid('aa-refresh-candidate-invalid', `prepared seed binding ${field} is invalid`)
+      }
+    }
+    boundRecordIds.add(binding.aaRecordId)
+  }
+  if (recordIds.size !== boundRecordIds.size
+    || [...recordIds].some(recordId => !boundRecordIds.has(recordId))) {
+    invalid('aa-refresh-candidate-invalid', 'prepared seed must contain exactly its bound AA records')
+  }
+
+  let compiled
+  try {
+    compiled = compileLocalAACatalog({ seed: normalized, hostRoutes })
+    compileAARoutePolicyCatalog(compiled)
+  } catch (error) {
+    invalid('aa-refresh-candidate-invalid', error.message)
+  }
+  const compiledRouteIds = new Set(compiled.entries.map(entry => entry.routeId))
+  if (normalized.bindings.some(binding => !compiledRouteIds.has(binding.hostRouteId))) {
+    invalid('aa-refresh-candidate-invalid', 'prepared seed contains a binding that does not compile')
+  }
+  return normalized
+}
+
 /** Return the deterministic digest used to guard a reviewed seed predecessor. */
 export function snapshotSeedDigest(seed) {
   return sha256Json(normalizedPreviousSeed(seed))
@@ -523,21 +674,58 @@ function digestPayload(prepared) {
     refreshVersion: prepared.refreshVersion,
     previousSeedDigest: prepared.previousSeedDigest,
     sourceDigest: prepared.sourceDigest,
+    hostRoutes: prepared.hostRoutes,
     seed: prepared.seed,
     report: prepared.report,
   }
 }
 
-/** Validate the immutable digest over one prepared refresh candidate. */
-export function validatePreparedAASnapshotRefresh(prepared) {
-  if (!isRecord(prepared) || prepared.schemaVersion !== AA_SNAPSHOT_REFRESH_SCHEMA_VERSION
-    || prepared.refreshVersion !== AA_SNAPSHOT_REFRESH_VERSION
-    || typeof prepared.digest !== 'string') {
+/** Return the immutable digest over one prepared refresh candidate. */
+export function preparedSnapshotDigest(prepared) {
+  return sha256Json(digestPayload(prepared))
+}
+
+/** Validate one reviewed candidate, optionally against its exact predecessor. */
+export function validatePreparedAASnapshotRefresh(prepared, { previousSeed } = {}) {
+  if (!isRecord(prepared)) {
     invalid('aa-refresh-candidate-invalid', 'prepared refresh must use aa-snapshot-refresh/v1')
   }
-  const expected = sha256Json(digestPayload(prepared))
+  exactKeys(prepared, [
+    'schemaVersion',
+    'refreshVersion',
+    'previousSeedDigest',
+    'sourceDigest',
+    'hostRoutes',
+    'seed',
+    'report',
+    'digest',
+  ], 'prepared refresh', 'aa-refresh-candidate-invalid')
+  if (prepared.schemaVersion !== AA_SNAPSHOT_REFRESH_SCHEMA_VERSION
+    || prepared.refreshVersion !== AA_SNAPSHOT_REFRESH_VERSION
+    || !CONFIG_FINGERPRINT_PATTERN.test(prepared.previousSeedDigest)
+    || !CONFIG_FINGERPRINT_PATTERN.test(prepared.sourceDigest)
+    || !CONFIG_FINGERPRINT_PATTERN.test(prepared.digest)
+    || !Array.isArray(prepared.hostRoutes) || !isRecord(prepared.report)) {
+    invalid('aa-refresh-candidate-invalid', 'prepared refresh must use aa-snapshot-refresh/v1')
+  }
+  const expected = preparedSnapshotDigest(prepared)
   if (prepared.digest !== expected) {
     invalid('aa-refresh-digest-mismatch', 'prepared refresh content does not match its digest')
+  }
+  const currentHostRoutes = validateHostRoutes(prepared.hostRoutes)
+  validateCandidateSeed(
+    prepared.seed,
+    [...currentHostRoutes.values()].map(route => route.effectiveConfig),
+  )
+  if (previousSeed !== undefined) {
+    const normalizedPrevious = normalizedPreviousSeed(previousSeed)
+    if (snapshotSeedDigest(normalizedPrevious) !== prepared.previousSeedDigest) {
+      invalid('aa-refresh-predecessor-mismatch', 'prepared refresh predecessor does not match')
+    }
+    const expectedReport = buildReport(normalizedPrevious, prepared.seed, prepared.sourceDigest)
+    if (canonicalJson(expectedReport) !== canonicalJson(prepared.report)) {
+      invalid('aa-refresh-report-mismatch', 'prepared refresh report does not match its predecessor and seed')
+    }
   }
   freezeTree(prepared)
   return prepared
@@ -555,6 +743,9 @@ export function prepareAASnapshotRefresh({
   const normalizedManifest = validateManifest(manifest)
   const normalizedPrevious = normalizedPreviousSeed(previousSeed)
   const currentHostRoutes = validateHostRoutes(hostRoutes)
+  const normalizedHostRoutes = [...currentHostRoutes.values()]
+    .sort((left, right) => compareText(left.identity.routeId, right.identity.routeId))
+    .map(route => JSON.parse(canonicalJson(route.effectiveConfig)))
   const plannedBindings = validateBindingPlan(bindingPlan, currentHostRoutes)
   const source = validateAcquisition(acquisition, normalizedManifest, now)
 
@@ -621,9 +812,10 @@ export function prepareAASnapshotRefresh({
     refreshVersion: AA_SNAPSHOT_REFRESH_VERSION,
     previousSeedDigest: snapshotSeedDigest(normalizedPrevious),
     sourceDigest,
+    hostRoutes: normalizedHostRoutes,
     seed,
     report: buildReport(normalizedPrevious, seed, sourceDigest),
   }
-  prepared.digest = sha256Json(digestPayload(prepared))
-  return validatePreparedAASnapshotRefresh(freezeTree(prepared))
+  prepared.digest = preparedSnapshotDigest(prepared)
+  return validatePreparedAASnapshotRefresh(freezeTree(prepared), { previousSeed: normalizedPrevious })
 }

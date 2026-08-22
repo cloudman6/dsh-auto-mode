@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
+import { createHostRouteIdentity } from '../src/aa-evidence-binding.mjs'
 import {
   AASnapshotRefreshError,
+  preparedSnapshotDigest,
   prepareAASnapshotRefresh,
   validatePreparedAASnapshotRefresh,
 } from '../src/aa-snapshot-refresh.mjs'
@@ -24,6 +26,10 @@ describe('prepareAASnapshotRefresh()', () => {
     assert.deepEqual(second, first)
     assert.match(first.digest, /^sha256:[a-f0-9]{64}$/)
     assert.equal(first.refreshVersion, 'aa-snapshot-refresh/v1')
+    assert.deepEqual(
+      new Set(first.hostRoutes.map(route => createHostRouteIdentity(route).routeId)),
+      new Set(input.hostRoutes.map(route => createHostRouteIdentity(route).routeId)),
+    )
     assert.deepEqual(
       first.seed.snapshot.records.map(record => record.recordId),
       ['aa-deep', 'aa-light', 'aa-standard-new'],
@@ -138,6 +144,29 @@ describe('prepareAASnapshotRefresh()', () => {
     assert.throws(
       () => validatePreparedAASnapshotRefresh(prepared),
       error => error.code === 'aa-refresh-digest-mismatch',
+    )
+  })
+
+  it('rejects a structurally invalid seed even when its digest is recomputed', () => {
+    const prepared = structuredClone(prepareAASnapshotRefresh({ ...fixture(), now: NOW }))
+    prepared.seed.snapshot.records[0].pricing.price_1m_blended_7_to_2_to_1 = -1
+    prepared.digest = preparedSnapshotDigest(prepared)
+
+    assert.throws(
+      () => validatePreparedAASnapshotRefresh(prepared),
+      error => error.code === 'aa-refresh-candidate-invalid',
+    )
+  })
+
+  it('recomputes the reviewed report against the exact predecessor', () => {
+    const input = fixture()
+    const prepared = structuredClone(prepareAASnapshotRefresh({ ...input, now: NOW }))
+    prepared.report.records.added = []
+    prepared.digest = preparedSnapshotDigest(prepared)
+
+    assert.throws(
+      () => validatePreparedAASnapshotRefresh(prepared, { previousSeed: input.previousSeed }),
+      error => error.code === 'aa-refresh-report-mismatch',
     )
   })
 })

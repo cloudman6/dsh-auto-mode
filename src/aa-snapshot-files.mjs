@@ -133,19 +133,14 @@ export function applyPreparedAASnapshotFiles({
     invalid('aa-refresh-path-invalid', 'candidate, active, and rollback paths must be distinct')
   }
   const prepared = readPrivateJSONFile({ allowedRoot, filePath: preparedTarget })
-  try {
-    validatePreparedAASnapshotRefresh(prepared)
-  } catch (error) {
-    invalid(error.code ?? 'aa-refresh-candidate-invalid', error.message)
-  }
   if (approvalDigest !== prepared.digest) {
     invalid('aa-refresh-approval-mismatch', 'approval digest does not match the reviewed candidate')
   }
   const currentSeed = readPrivateJSONFile({ allowedRoot, filePath: currentTarget })
   let currentDigest
   try {
+    validatePreparedAASnapshotRefresh(prepared, { previousSeed: currentSeed })
     currentDigest = snapshotSeedDigest(currentSeed)
-    snapshotSeedDigest(prepared.seed)
   } catch (error) {
     invalid(error.code ?? 'aa-refresh-file-invalid', error.message)
   }
