@@ -4,6 +4,7 @@ import {
 } from './aa-catalog.mjs'
 
 export const AA_ROUTE_POLICY_VERSION = 'aa-route-policy/v1'
+const ACTIVE_CATALOG_VERSION = 'aa-active-catalog/v1'
 
 const LEVEL_LABELS = Object.freeze({
   light: 'Light',
@@ -115,7 +116,7 @@ export function compileAARoutePolicyCatalog(evidenceCatalog) {
   if (!isRecord(evidenceCatalog) || !Array.isArray(evidenceCatalog.entries)
     || !Array.isArray(evidenceCatalog.exclusions)
     || evidenceCatalog.schemaVersion !== AA_EVIDENCE_CATALOG_SCHEMA_VERSION
-    || evidenceCatalog.catalogVersion !== AA_EVIDENCE_CATALOG_VERSION
+    || ![AA_EVIDENCE_CATALOG_VERSION, ACTIVE_CATALOG_VERSION].includes(evidenceCatalog.catalogVersion)
     || typeof evidenceCatalog.aaSnapshotId !== 'string'
     || evidenceCatalog.aaSnapshotId.trim() === '') {
     invalid('aa-route-policy-invalid', 'evidence catalog must be a compiled AA catalog')
