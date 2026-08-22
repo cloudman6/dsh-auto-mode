@@ -35,7 +35,7 @@ cp examples/host-routes.example.json local/host-routes.json
 
 Replace every placeholder. `host-routes.json` is the exact current Host-materialized route inventory. Each binding must use the route ID and effective-configuration fingerprint derived from that exact configuration and must point to one stable AA record ID. A different effort or any other material request control is a different Host route and cannot reuse the binding silently.
 
-All CLI inputs and outputs must be inside `--private-root`. Target parents must already exist. Symlink targets, out-of-root paths, files larger than 16 MiB, malformed JSON, duplicate options, and unknown options fail closed. Private outputs are atomically replaced with mode `0600`.
+All CLI inputs and outputs must be inside `--private-root`. Target parents must already exist. Symlink targets, out-of-root paths, files larger than 16 MiB, excessive JSON depth or node counts, malformed JSON, duplicate options, and unknown options fail closed. Private outputs are atomically replaced with mode `0600`.
 
 ## Refresh sequence
 
@@ -49,7 +49,7 @@ npm run aa:snapshot -- fetch \
   --output local/aa-acquisition.json
 ```
 
-The request rejects redirects, non-JSON or non-200 responses, pages over 16 MiB, more than 100 pages, malformed pagination, and non-Pro/non-Commercial tiers. Errors do not include the key or response body.
+The request rejects redirects, non-JSON or non-200 responses, pages over 16 MiB, excessive JSON depth or node counts, more than 100 pages, malformed pagination, and non-Pro/non-Commercial tiers. Errors do not include the key or response body.
 
 ### 2. Prepare without mutation
 

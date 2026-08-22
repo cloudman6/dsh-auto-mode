@@ -102,4 +102,20 @@ describe('acquireAASnapshot()', () => {
         && !error.message.includes('secret'),
     )
   })
+
+  it('rejects a bounded-size JSON depth bomb before recursive consumers see it', async () => {
+    const nested = `${'['.repeat(65)}null${']'.repeat(65)}`
+    const body = `{"tier":"pro","intelligence_index_version":4.1,"pagination":{"page":1,"page_size":1,"total_pages":1,"has_more":false},"data":[{"ignored":${nested}}]}`
+
+    await assert.rejects(
+      acquireAASnapshot({
+        env: { AA_API_KEY: 'secret' },
+        capturedAt: '2026-08-22T10:00:00.000Z',
+        fetchImpl: async () => new Response(body, {
+          headers: { 'content-type': 'application/json' },
+        }),
+      }),
+      error => error.code === 'aa-acquisition-response-invalid',
+    )
+  })
 })

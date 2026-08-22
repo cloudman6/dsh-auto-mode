@@ -49,6 +49,13 @@ describe('AA snapshot private files', () => {
       readPrivateJSONFile({ allowedRoot: paths.root, filePath: paths.currentSeedPath }),
       paths.input.previousSeed,
     )
+
+    const depthBombPath = join(paths.root, 'depth-bomb.json')
+    writeFileSync(depthBombPath, `${'['.repeat(65)}null${']'.repeat(65)}`, { mode: 0o600 })
+    assert.throws(
+      () => readPrivateJSONFile({ allowedRoot: paths.root, filePath: depthBombPath }),
+      error => error.code === 'aa-refresh-file-invalid',
+    )
   })
 
   it('applies an approved candidate atomically and preserves the previous valid seed', () => {

@@ -5,6 +5,8 @@ import {
 
 const MAX_PAGE_BYTES = 16 * 1024 * 1024
 const MAX_PAGES = 100
+const MAX_JSON_DEPTH = 64
+const MAX_JSON_NODES = 250_000
 const REQUEST_TIMEOUT_MILLISECONDS = 30_000
 
 export class AASnapshotAcquisitionError extends Error {
@@ -39,6 +41,24 @@ function validateCapturedAt(value) {
   return value
 }
 
+function validateJSONComplexity(value) {
+  const pending = [{ value, depth: 0 }]
+  let nodes = 0
+  while (pending.length > 0) {
+    const current = pending.pop()
+    nodes += 1
+    if (nodes > MAX_JSON_NODES || current.depth > MAX_JSON_DEPTH) {
+      invalid('aa-acquisition-response-invalid', 'AA API response JSON is too complex')
+    }
+    if (current.value !== null && typeof current.value === 'object') {
+      for (const child of Object.values(current.value)) {
+        pending.push({ value: child, depth: current.depth + 1 })
+      }
+    }
+  }
+  return value
+}
+
 async function readBoundedJSON(response) {
   const contentLength = response.headers.get('content-length')
   if (contentLength !== null) {
@@ -67,11 +87,13 @@ async function readBoundedJSON(response) {
     chunks.push(value)
   }
   const body = Buffer.concat(chunks.map(chunk => Buffer.from(chunk)), bytes).toString('utf8')
+  let parsed
   try {
-    return JSON.parse(body)
+    parsed = JSON.parse(body)
   } catch {
     invalid('aa-acquisition-response-invalid', 'AA API response contains invalid JSON')
   }
+  return validateJSONComplexity(parsed)
 }
 
 function validatePage(page, expectedPage) {

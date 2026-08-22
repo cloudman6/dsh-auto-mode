@@ -19,6 +19,8 @@ import {
 } from './aa-snapshot-refresh.mjs'
 
 const MAX_PRIVATE_JSON_BYTES = 16 * 1024 * 1024
+const MAX_PRIVATE_JSON_DEPTH = 64
+const MAX_PRIVATE_JSON_NODES = 250_000
 export const AA_SNAPSHOT_ROLLBACK_VERSION = 'aa-snapshot-rollback/v1'
 const DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/
 
@@ -74,6 +76,24 @@ function serializedJSON(value) {
   return text
 }
 
+function validateJSONComplexity(value) {
+  const pending = [{ value, depth: 0 }]
+  let nodes = 0
+  while (pending.length > 0) {
+    const current = pending.pop()
+    nodes += 1
+    if (nodes > MAX_PRIVATE_JSON_NODES || current.depth > MAX_PRIVATE_JSON_DEPTH) {
+      invalid('aa-refresh-file-invalid', 'snapshot JSON is too complex')
+    }
+    if (current.value !== null && typeof current.value === 'object') {
+      for (const child of Object.values(current.value)) {
+        pending.push({ value: child, depth: current.depth + 1 })
+      }
+    }
+  }
+  return value
+}
+
 function atomicWrite(target, text) {
   const temporary = join(dirname(target), `.${basename(target)}.${randomUUID()}.tmp`)
   let descriptor
@@ -104,11 +124,13 @@ export function readPrivateJSONFile({ allowedRoot, filePath }) {
   if (bytes.byteLength > MAX_PRIVATE_JSON_BYTES) {
     invalid('aa-refresh-file-too-large', 'snapshot file exceeds the 16 MiB private-file limit')
   }
+  let parsed
   try {
-    return JSON.parse(bytes.toString('utf8'))
+    parsed = JSON.parse(bytes.toString('utf8'))
   } catch {
     invalid('aa-refresh-file-invalid', 'snapshot file must be readable JSON')
   }
+  return validateJSONComplexity(parsed)
 }
 
 /** Atomically write one mode-0600 JSON artifact inside the caller's private root. */
