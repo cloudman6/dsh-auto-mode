@@ -1,6 +1,7 @@
 import { acquireAASnapshot } from './aa-snapshot-acquisition.mjs'
 import {
   applyPreparedAASnapshotFiles,
+  assertDistinctPrivateJSONPaths,
   readPrivateJSONFile,
   rollbackAASnapshotFiles,
   writePrivateJSONFile,
@@ -103,6 +104,17 @@ export async function runAASnapshotCLI({
   }
 
   if (command === 'prepare') {
+    assertDistinctPrivateJSONPaths({
+      allowedRoot,
+      filePaths: [
+        flags.acquisition,
+        flags.manifest,
+        flags['binding-plan'],
+        flags['host-routes'],
+        flags.current,
+        flags.candidate,
+      ],
+    })
     const prepared = prepareAASnapshotRefresh({
       acquisition: readPrivateJSONFile({ allowedRoot, filePath: flags.acquisition }),
       manifest: readPrivateJSONFile({ allowedRoot, filePath: flags.manifest }),

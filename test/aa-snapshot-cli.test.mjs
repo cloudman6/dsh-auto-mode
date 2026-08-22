@@ -126,6 +126,30 @@ describe('AA snapshot maintainer CLI', () => {
     })
   })
 
+  it('does not let prepare overwrite any of its reviewed inputs', async () => {
+    const fixture = cliFixture()
+    const currentBefore = readFileSync(fixture.paths.current, 'utf8')
+
+    await assert.rejects(
+      runAASnapshotCLI({
+        argv: [
+          'prepare',
+          '--private-root', fixture.root,
+          '--acquisition', fixture.paths.acquisition,
+          '--manifest', fixture.paths.manifest,
+          '--binding-plan', fixture.paths['binding-plan'],
+          '--host-routes', fixture.paths['host-routes'],
+          '--current', fixture.paths.current,
+          '--candidate', join(fixture.root, '.', 'current.json'),
+          '--now', SNAPSHOT_REFRESH_NOW,
+        ],
+        stdout: () => {},
+      }),
+      error => error.code === 'aa-refresh-path-invalid',
+    )
+    assert.equal(readFileSync(fixture.paths.current, 'utf8'), currentBefore)
+  })
+
   it('rejects unknown commands, missing values, duplicate flags, and unrecognized flags', async () => {
     for (const argv of [
       ['unknown'],

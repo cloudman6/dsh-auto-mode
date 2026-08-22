@@ -140,6 +140,18 @@ export function writePrivateJSONFile({ allowedRoot, filePath, value }) {
   return target
 }
 
+/** Require every supplied private JSON path to resolve to a different target. */
+export function assertDistinctPrivateJSONPaths({ allowedRoot, filePaths }) {
+  if (!Array.isArray(filePaths) || filePaths.length < 2) {
+    invalid('aa-refresh-path-invalid', 'at least two private file paths are required')
+  }
+  const targets = filePaths.map(filePath => privatePath(allowedRoot, filePath))
+  if (new Set(targets).size !== targets.length) {
+    invalid('aa-refresh-path-invalid', 'private input and output paths must be distinct')
+  }
+  return Object.freeze(targets)
+}
+
 function rollbackEnvelope(seed) {
   return {
     schemaVersion: 1,

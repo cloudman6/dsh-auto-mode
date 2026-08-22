@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/aa-snapshot-maintenance.md
-translation-source-blob: d8182c406b9ca0a2f86df3eefc5359c7fa45d435
+translation-source-blob: 5418b63f1a9e65c6fe9c7510bd3ba935c73b472c
 translation-status: current
 -->
 
@@ -41,7 +41,7 @@ cp examples/host-routes.example.json local/host-routes.json
 
 替换所有 placeholder。`host-routes.json` 是当前 Host 实际 materialize 的完整 route inventory。每条 binding 必须使用由该精确配置派生的 route ID 和 effective-configuration fingerprint，并指向一个稳定 AA record ID。不同 effort 或任何其他实质 request control 都属于另一条 Host route，不能静默复用 binding。
 
-所有 CLI 输入输出都必须位于 `--private-root` 内，目标的父目录必须已经存在。Symlink target、越界路径、大于 16 MiB 的文件、过深或节点过多的 JSON、畸形 JSON、重复 option 和未知 option 都会 fail closed。私有输出以 mode `0600` 原子替换。
+所有 CLI 输入输出都必须位于 `--private-root` 内，目标的父目录必须已经存在。Prepare 的每个输入及其 candidate 输出必须解析为不同的真实路径；apply 的 candidate、active 和 rollback 路径也必须互不相同。Symlink target、越界路径、大于 16 MiB 的文件、过深或节点过多的 JSON、畸形 JSON、重复 option 和未知 option 都会 fail closed。私有输出以 mode `0600` 原子替换。
 
 ## 更新流程
 
