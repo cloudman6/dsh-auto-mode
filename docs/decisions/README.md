@@ -17,5 +17,6 @@
 | [ADR-011](0011-bind-host-routes-to-aa-evidence.md) | Accepted | Bind generic Host route identities to AA evidence without a universal model/effort ontology |
 | [ADR-012](0012-resolve-and-freeze-task-assessor-routes.md) | Accepted | Resolve one environment-valid assessor route through fixed policy and freeze it before the call |
 | [ADR-013](0013-refresh-aa-snapshots-behind-a-rights-gate.md) | Accepted | Refresh minimized AA snapshots offline behind explicit review, rollback, and data-rights gates |
+| [ADR-014](0014-separate-aa-evidence-packs-from-active-catalogs.md) | Proposed | Separate reusable evidence bindings and full eligible AA snapshots from runtime-derived Active Catalogs |
 
 When an ADR is superseded, retain the original file and point its status to the replacement ADR.
