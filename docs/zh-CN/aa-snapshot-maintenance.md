@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/aa-snapshot-maintenance.md
-translation-source-blob: 77be8c732ed95ea39fab6f61cb343a4e64111281
+translation-source-blob: a50c28a5302c512274f205939ee43f0a11da421b
 translation-status: current
 -->
 
@@ -80,6 +80,7 @@ Prepare 会固定已评审 terms、attribution、API Intelligence Index version�
 
 Prepare 命令会输出 candidate digest 和结构化报告。同时检查 stdout 报告与 `local/aa-candidate.json`。报告覆盖：
 
+- source-policy metadata 的 before/after，包括 terms、attribution、methodology、freshness 和 rights mode；
 - record 新增、删除、改名和 metric 变化；
 - binding 新增、删除和稳定 record 替换；
 - Light/Standard/Deep 档位变化；

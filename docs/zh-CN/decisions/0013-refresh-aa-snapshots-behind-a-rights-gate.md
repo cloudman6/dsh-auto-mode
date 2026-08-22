@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md
-translation-source-blob: 14123022d371f0fd2c36712b0ff49352171065da
+translation-source-blob: 9a51a67208f14cce220d02531052e3d5a03a01d6
 translation-status: current
 -->
 
@@ -46,7 +46,7 @@ Artificial Analysis 已发布版本化 Data API。官方文档把 model ID 和 c
 
 候选 snapshot 只包含已评审 binding plan 引用的稳定 AA record，以及当前 policy 实际消费的字段：稳定 record identity、展示 metadata、固定 Intelligence Index score、固定 blended price 和 median time to first answer token。Name 和 slug 不得替代稳定 ID。已绑定 record 不完整会使 candidate 失效；未绑定且不完整的 source record 不会被复制。
 
-相同 acquisition bundle、manifest、binding plan、Host route 和 previous seed 必须确定性地产生相同结果。输出包含 content digest 和 review report，覆盖 record 新增、删除、改名、指标变化，binding 新增、删除、替换，capability band 变化和每档排序变化。Prepare 阶段绝不修改 active seed。
+相同 acquisition bundle、manifest、binding plan、Host route 和 previous seed 必须确定性地产生相同结果。输出包含 content digest 和 review report，覆盖 source-policy metadata 的 before/after、record 新增、删除、改名、指标变化，binding 新增、删除、替换，capability band 变化和每档排序变化。Prepare 阶段绝不修改 active seed。
 
 应用 candidate 时必须提供 review report 显示的准确 digest，并验证 active seed 仍与 candidate 记录的 predecessor 一致。文件工作流再次验证 candidate，把上一份有效 seed 及其确定性 digest 写入版本化 rollback envelope，然后原子替换 active seed。Rollback 会先验证 envelope 与 seed digest，再原子恢复 seed。中断、拒绝或 checksum 无效的更新必须保留原 active seed 可用。
 

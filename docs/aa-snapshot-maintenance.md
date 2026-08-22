@@ -74,6 +74,7 @@ For identical acquisition, manifest, binding plan, Host routes, and predecessor 
 
 The prepare command prints the candidate digest and a structured report. Review both the stdout report and `local/aa-candidate.json`. The report covers:
 
+- source-policy metadata before and after, including terms, attribution, methodology, freshness, and rights mode;
 - record additions, removals, renames, and metric changes;
 - binding additions, removals, and stable-record replacements;
 - Light/Standard/Deep band changes;

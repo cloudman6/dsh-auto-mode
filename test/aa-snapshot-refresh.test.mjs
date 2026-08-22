@@ -36,6 +36,12 @@ describe('prepareAASnapshotRefresh()', () => {
     )
     assert.equal('ignored_upstream_field' in first.seed.snapshot.records[0], false)
     assert.equal(first.seed.snapshot.source.rights.mode, 'internal-only')
+    assert.deepEqual(first.report.source.before, input.previousSeed.snapshot.source)
+    assert.equal(first.report.source.after.rights.mode, 'internal-only')
+    assert.equal(
+      first.report.source.after.attribution,
+      'Source: Artificial Analysis (artificialanalysis.ai)',
+    )
     assert.deepEqual(first.report.records.added, ['aa-deep', 'aa-standard-new'])
     assert.deepEqual(first.report.records.removed, ['aa-standard-old'])
     assert.deepEqual(first.report.records.renamed, [{

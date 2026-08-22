@@ -661,6 +661,10 @@ function buildReport(previousSeed, nextSeed, sourceDigest) {
     previousSnapshotId: previousSeed.snapshot.snapshotId,
     nextSnapshotId: nextSeed.snapshot.snapshotId,
     sourceDigest,
+    source: {
+      before: previousSeed.snapshot.source,
+      after: nextSeed.snapshot.source,
+    },
     records,
     bindings,
     bandChanges,
