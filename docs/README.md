@@ -24,6 +24,7 @@ The [architecture decision records](decisions/README.md) contain the accepted de
 ## Implementation evidence
 
 - [Phase 0P fast prototype](phase-0p-fast-prototype.md): runnable configuration, local-seed boundary, deterministic policy, acceptance criteria, and real-provider evidence.
+- [AA snapshot maintenance](aa-snapshot-maintenance.md): maintainer-only acquisition, rights gate, deterministic candidate review, atomic apply, and rollback workflow.
 - [Historical Phase 0P exact route inventory and A3p evidence](evidence/phase-0p-route-inventory.md): the deployment-exact experiment that preceded the current explicit AA evidence-binding policy.
 
 ## Historical review evidence

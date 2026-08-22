@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "bindingPlanVersion": "aa-binding-plan/v1",
+  "bindings": [
+    {
+      "hostRouteId": "host-route:v1:replace-with-64-lowercase-hex-characters",
+      "effectiveConfigFingerprint": "sha256:replace-with-64-lowercase-hex-characters",
+      "aaRecordId": "replace-with-stable-aa-record-id",
+      "matchBasis": [
+        "replace-with-reviewed-match-evidence"
+      ],
+      "limitations": []
+    }
+  ]
+}
