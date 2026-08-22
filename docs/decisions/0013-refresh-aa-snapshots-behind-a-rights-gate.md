@@ -42,7 +42,7 @@ Candidate snapshots contain only stable AA records referenced by the reviewed bi
 
 Preparation is deterministic for the same acquisition bundle, manifest, binding plan, Host routes, and previous seed. It produces a content digest plus a review report covering record additions, removals, renames, metric changes, binding additions, removals and replacements, capability-band moves, and per-band ordering changes. Preparation never mutates the active seed.
 
-Applying a candidate requires the exact digest shown in the review report and verifies that the active seed still matches the candidate's recorded predecessor. The file workflow validates the candidate again, writes the previous valid seed to a rollback slot, and atomically replaces the active seed. Rollback validates the saved seed and atomically restores it. Interrupted or rejected updates leave the prior active seed usable.
+Applying a candidate requires the exact digest shown in the review report and verifies that the active seed still matches the candidate's recorded predecessor. The file workflow validates the candidate again, writes the previous valid seed plus its deterministic digest to a versioned rollback envelope, and atomically replaces the active seed. Rollback verifies the envelope and seed digest before atomically restoring the seed. Interrupted, rejected, or checksum-invalid updates leave the prior active seed usable.
 
 Synthetic offline fixtures are the only AA-shaped dataset committed to Git. No real AA snapshot, raw API response, credential, or confidential license grant is committed or bundled into the DSH browser client.
 

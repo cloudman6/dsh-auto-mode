@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md
-translation-source-blob: 84236954205b162076e037587339349e1747ea7f
+translation-source-blob: 8193bc6066dc03a7d96862561e21e563ba38aacf
 translation-status: current
 -->
 
@@ -48,7 +48,7 @@ Artificial Analysis 已发布版本化 Data API。官方文档把 model ID 和 c
 
 相同 acquisition bundle、manifest、binding plan、Host route 和 previous seed 必须确定性地产生相同结果。输出包含 content digest 和 review report，覆盖 record 新增、删除、改名、指标变化，binding 新增、删除、替换，capability band 变化和每档排序变化。Prepare 阶段绝不修改 active seed。
 
-应用 candidate 时必须提供 review report 显示的准确 digest，并验证 active seed 仍与 candidate 记录的 predecessor 一致。文件工作流再次验证 candidate，把上一份有效 seed 写入 rollback slot，然后原子替换 active seed。Rollback 会校验保存的 seed 并原子恢复。中断或拒绝的更新必须保留原 active seed 可用。
+应用 candidate 时必须提供 review report 显示的准确 digest，并验证 active seed 仍与 candidate 记录的 predecessor 一致。文件工作流再次验证 candidate，把上一份有效 seed 及其确定性 digest 写入版本化 rollback envelope，然后原子替换 active seed。Rollback 会先验证 envelope 与 seed digest，再原子恢复 seed。中断、拒绝或 checksum 无效的更新必须保留原 active seed 可用。
 
 Git 中只提交合成的离线 AA-shaped fixture。真实 AA snapshot、原始 API 响应、credential 或保密 license grant 均不得提交，也不得打包进入 DSH browser client。
 

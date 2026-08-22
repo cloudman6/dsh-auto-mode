@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/aa-snapshot-maintenance.md
-translation-source-blob: ab38af925038cebcb2099b51cbbeddd3cc89fc2f
+translation-source-blob: 5946927a0d8affcf85c0e573b557fb24359f2755
 translation-status: current
 -->
 
@@ -100,7 +100,7 @@ npm run aa:snapshot -- apply \
   --approve sha256:replace-with-reviewed-digest
 ```
 
-Apply 会重新校验 candidate 和 digest，验证 active seed 仍然是已评审的准确 predecessor，把 predecessor 原子保存到 rollback slot，再原子替换 active seed。Predecessor 已变化、candidate 被修改、digest 错误或 seed 无效，都不会修改 active seed。
+Apply 会重新校验 candidate 和 digest，验证 active seed 仍然是已评审的准确 predecessor，把 predecessor 及其确定性 digest 原子保存到版本化 rollback envelope，再原子替换 active seed。Predecessor 已变化、candidate 被修改、digest 错误或 seed 无效，都不会修改 active seed。
 
 ### 5. 回滚
 
@@ -113,7 +113,7 @@ npm run aa:snapshot -- rollback \
   --rollback local/aa-catalog-seed.previous.json
 ```
 
-Rollback 校验已保存 seed 并原子恢复，且不删除 rollback copy。无论是应用还是恢复 seed，都必须重新运行 catalog、policy、plugin、Session 与 UI 检查后才能视为可用。
+Rollback 会验证 envelope 和已保存 seed 的 digest，再原子恢复 seed，且不删除 rollback copy。格式错误或 checksum 不匹配的 rollback 文件不会修改 active seed。无论是应用还是恢复 seed，都必须重新运行 catalog、policy、plugin、Session 与 UI 检查后才能视为可用。
 
 ## 版本与 schema 停止条件
 

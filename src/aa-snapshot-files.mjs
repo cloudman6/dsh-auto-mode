@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto'
 import {
-  chmodSync,
   closeSync,
   existsSync,
   fsyncSync,
@@ -20,6 +19,8 @@ import {
 } from './aa-snapshot-refresh.mjs'
 
 const MAX_PRIVATE_JSON_BYTES = 16 * 1024 * 1024
+export const AA_SNAPSHOT_ROLLBACK_VERSION = 'aa-snapshot-rollback/v1'
+const DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/
 
 export class AASnapshotFileError extends Error {
   constructor(code, message) {
@@ -83,7 +84,6 @@ function atomicWrite(target, text) {
     closeSync(descriptor)
     descriptor = undefined
     renameSync(temporary, target)
-    chmodSync(target, 0o600)
   } catch (error) {
     if (descriptor !== undefined) closeSync(descriptor)
     if (existsSync(temporary)) unlinkSync(temporary)
@@ -118,6 +118,36 @@ export function writePrivateJSONFile({ allowedRoot, filePath, value }) {
   return target
 }
 
+function rollbackEnvelope(seed) {
+  return {
+    schemaVersion: 1,
+    rollbackVersion: AA_SNAPSHOT_ROLLBACK_VERSION,
+    seedDigest: snapshotSeedDigest(seed),
+    seed,
+  }
+}
+
+function validatedRollbackSeed(value) {
+  const expectedKeys = ['rollbackVersion', 'schemaVersion', 'seed', 'seedDigest']
+  if (value === null || typeof value !== 'object' || Array.isArray(value)
+    || Object.keys(value).sort().join('\u0000') !== expectedKeys.join('\u0000')
+    || value.schemaVersion !== 1
+    || value.rollbackVersion !== AA_SNAPSHOT_ROLLBACK_VERSION
+    || !DIGEST_PATTERN.test(value.seedDigest)) {
+    invalid('aa-refresh-rollback-invalid', 'rollback file must use aa-snapshot-rollback/v1')
+  }
+  let actualDigest
+  try {
+    actualDigest = snapshotSeedDigest(value.seed)
+  } catch {
+    invalid('aa-refresh-rollback-invalid', 'rollback file contains an invalid seed')
+  }
+  if (actualDigest !== value.seedDigest) {
+    invalid('aa-refresh-rollback-invalid', 'rollback seed does not match its saved digest')
+  }
+  return value.seed
+}
+
 /** Apply exactly the candidate digest reviewed by the maintainer. */
 export function applyPreparedAASnapshotFiles({
   preparedPath,
@@ -148,7 +178,7 @@ export function applyPreparedAASnapshotFiles({
     invalid('aa-refresh-predecessor-mismatch', 'active seed changed after candidate review')
   }
 
-  atomicWrite(rollbackTarget, serializedJSON(currentSeed))
+  atomicWrite(rollbackTarget, serializedJSON(rollbackEnvelope(currentSeed)))
   atomicWrite(currentTarget, serializedJSON(prepared.seed))
   return Object.freeze({
     digest: prepared.digest,
@@ -164,12 +194,9 @@ export function rollbackAASnapshotFiles({ currentSeedPath, rollbackSeedPath, all
   if (currentTarget === rollbackTarget) {
     invalid('aa-refresh-path-invalid', 'active and rollback paths must be distinct')
   }
-  const rollbackSeed = readPrivateJSONFile({ allowedRoot, filePath: rollbackTarget })
-  try {
-    snapshotSeedDigest(rollbackSeed)
-  } catch (error) {
-    invalid(error.code ?? 'aa-refresh-file-invalid', error.message)
-  }
+  const rollbackSeed = validatedRollbackSeed(
+    readPrivateJSONFile({ allowedRoot, filePath: rollbackTarget }),
+  )
   atomicWrite(currentTarget, serializedJSON(rollbackSeed))
   return Object.freeze({ snapshotId: rollbackSeed.snapshot.snapshotId })
 }

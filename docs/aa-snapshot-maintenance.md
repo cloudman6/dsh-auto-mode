@@ -94,7 +94,7 @@ npm run aa:snapshot -- apply \
   --approve sha256:replace-with-reviewed-digest
 ```
 
-Apply revalidates the candidate and digest, verifies that the active seed is still the exact reviewed predecessor, atomically saves that predecessor to the rollback slot, and atomically replaces the active seed. A stale predecessor, altered candidate, wrong digest, or invalid seed leaves the active seed unchanged.
+Apply revalidates the candidate and digest, verifies that the active seed is still the exact reviewed predecessor, atomically saves that predecessor and its deterministic digest in a versioned rollback envelope, and atomically replaces the active seed. A stale predecessor, altered candidate, wrong digest, or invalid seed leaves the active seed unchanged.
 
 ### 5. Roll back
 
@@ -107,7 +107,7 @@ npm run aa:snapshot -- rollback \
   --rollback local/aa-catalog-seed.previous.json
 ```
 
-Rollback validates the saved seed and atomically restores it without deleting the rollback copy. Re-run the catalog, policy, plugin, Session, and UI checks before treating either an applied or restored seed as usable.
+Rollback validates the envelope and saved-seed digest, then atomically restores the seed without deleting the rollback copy. A malformed or checksum-mismatched rollback file leaves the active seed unchanged. Re-run the catalog, policy, plugin, Session, and UI checks before treating either an applied or restored seed as usable.
 
 ## Version and schema stops
 

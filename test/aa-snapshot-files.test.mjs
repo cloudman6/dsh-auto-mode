@@ -62,7 +62,8 @@ describe('AA snapshot private files', () => {
 
     assert.equal(result.snapshotId, paths.prepared.seed.snapshot.snapshotId)
     assert.deepEqual(readJSON(paths.currentSeedPath), paths.prepared.seed)
-    assert.deepEqual(readJSON(paths.rollbackSeedPath), paths.input.previousSeed)
+    assert.equal(readJSON(paths.rollbackSeedPath).rollbackVersion, 'aa-snapshot-rollback/v1')
+    assert.deepEqual(readJSON(paths.rollbackSeedPath).seed, paths.input.previousSeed)
     assert.equal(statSync(paths.currentSeedPath).mode & 0o777, 0o600)
     assert.equal(statSync(paths.rollbackSeedPath).mode & 0o777, 0o600)
   })
@@ -83,7 +84,7 @@ describe('AA snapshot private files', () => {
 
     assert.equal(result.snapshotId, paths.input.previousSeed.snapshot.snapshotId)
     assert.deepEqual(readJSON(paths.currentSeedPath), paths.input.previousSeed)
-    assert.deepEqual(readJSON(paths.rollbackSeedPath), paths.input.previousSeed)
+    assert.deepEqual(readJSON(paths.rollbackSeedPath).seed, paths.input.previousSeed)
   })
 
   it('does not change the active seed when approval or predecessor checks fail', () => {
@@ -136,5 +137,28 @@ describe('AA snapshot private files', () => {
       error => error.code === 'aa-refresh-path-outside-private-root',
     )
     assert.equal(existsSync(outside), false)
+  })
+
+  it('does not replace the active seed from a tampered rollback envelope', () => {
+    const paths = fileFixture()
+    applyPreparedAASnapshotFiles({
+      ...paths,
+      allowedRoot: paths.root,
+      approvalDigest: paths.prepared.digest,
+    })
+    const active = readFileSync(paths.currentSeedPath, 'utf8')
+    const rollback = readJSON(paths.rollbackSeedPath)
+    rollback.seed.snapshot.snapshotId = 'tampered-rollback'
+    writeFileSync(paths.rollbackSeedPath, `${JSON.stringify(rollback)}\n`, { mode: 0o600 })
+
+    assert.throws(
+      () => rollbackAASnapshotFiles({
+        currentSeedPath: paths.currentSeedPath,
+        rollbackSeedPath: paths.rollbackSeedPath,
+        allowedRoot: paths.root,
+      }),
+      error => error.code === 'aa-refresh-rollback-invalid',
+    )
+    assert.equal(readFileSync(paths.currentSeedPath, 'utf8'), active)
   })
 })
