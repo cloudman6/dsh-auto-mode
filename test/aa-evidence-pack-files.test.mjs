@@ -14,12 +14,12 @@ import {
   buildPolicyEligibleAASnapshot,
 } from '../src/aa-evidence-pack.mjs'
 import { prepareAAEvidencePackRefresh } from '../src/aa-evidence-pack-refresh.mjs'
-import { AA_ROUTE_POLICY_V1 } from '../src/aa-route-policy.mjs'
+import { AA_ROUTE_POLICY_V2 } from '../src/aa-route-policy.mjs'
 
 const rights = { mode: 'internal-only' }
 const source = {
   methodologyVersion: 'v4.1.1',
-  terms: { version: '1.1', revisedAt: '2026-08-19', url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf' },
+  terms: { version: '1.0', revisedAt: '2024-04-28', url: 'https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf' },
   attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
 }
 const rule = {
@@ -29,16 +29,16 @@ const rule = {
 
 function acquisition(score) {
   return {
-    schemaVersion: 1, acquisitionVersion: 'aa-api-acquisition/v1',
-    endpoint: 'https://artificialanalysis.ai/api/v2/language/models', promptType: 'medium',
+    schemaVersion: 2, acquisitionVersion: 'aa-api-acquisition/v2',
+    endpoint: 'https://artificialanalysis.ai/api/v2/language/models/free', responseShape: 'free',
     capturedAt: '2026-08-22T10:00:00.000Z',
     pages: [{
-      tier: 'pro', intelligence_index_version: 4.1,
+      tier: 'free', intelligence_index_version: 4.1,
       pagination: { page: 1, page_size: 200, total_pages: 1, has_more: false },
       data: [{
         id: 'a', name: 'A', slug: 'a', model_creator: { id: 'c', name: 'C' },
         evaluations: { artificial_analysis_intelligence_index: score },
-        pricing: { price_1m_blended_7_to_2_to_1: 1 },
+        pricing: { price_1m_input_tokens: 1, price_1m_output_tokens: 1 },
         performance: { median_time_to_first_answer_token_seconds: 1 },
       }],
     }],
@@ -54,9 +54,9 @@ function initialPack() {
     bindingRegistry: {
       schemaVersion: 1, registryVersion: 'aa-binding-registry/v1', normalizationRules: [rule], bindings: [],
     },
-    routePolicy: AA_ROUTE_POLICY_V1,
+    routePolicy: AA_ROUTE_POLICY_V2,
     runtimeCompatibility: {
-      contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT, minimumVersion: 1, maximumVersion: 1,
+      contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT, minimumVersion: 2, maximumVersion: 2,
     },
     rights,
   })

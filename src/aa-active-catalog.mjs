@@ -1,8 +1,10 @@
 import { createHostRouteIdentity } from './aa-evidence-binding.mjs'
 import {
   AA_BINDING_REGISTRY_VERSION,
+  AA_SNAPSHOT_VERSION,
   validateAAEvidencePack,
 } from './aa-evidence-pack.mjs'
+import { migrateAAEvidencePackV1ToV2 } from './aa-evidence-pack-migration.mjs'
 import {
   createEvidenceRouteKey,
   evidenceRouteKeyId,
@@ -55,11 +57,13 @@ function exclusionSortKey(value) {
  * Host-materialized routes. No AA access or fuzzy identity inference occurs.
  */
 export function compileActiveAACatalog({ evidencePack, hostRoutes } = {}) {
-  validateAAEvidencePack(evidencePack)
+  const compatiblePack = evidencePack?.snapshot?.snapshotVersion === AA_SNAPSHOT_VERSION
+    ? validateAAEvidencePack(evidencePack)
+    : migrateAAEvidencePackV1ToV2(evidencePack)
   if (!Array.isArray(hostRoutes)) invalid('aa-active-catalog-invalid', 'hostRoutes must be an array')
 
-  const registry = evidencePack.bindingRegistry
-  const snapshot = evidencePack.snapshot
+  const registry = compatiblePack.bindingRegistry
+  const snapshot = compatiblePack.snapshot
   const records = new Map(snapshot.records.map(record => [record.recordId, record]))
   const bindings = new Map()
   for (const binding of registry.bindings) {
@@ -157,7 +161,7 @@ export function compileActiveAACatalog({ evidencePack, hostRoutes } = {}) {
       aaRecordId: binding.aaRecordId,
       bindingVersion: registry.registryVersion,
       bindingRegistryVersion: registry.registryVersion,
-      manifestVersion: evidencePack.manifest.manifestVersion,
+      manifestVersion: compatiblePack.manifest.manifestVersion,
       evidenceBinding: binding,
       aaRecord,
     })
@@ -182,12 +186,12 @@ export function compileActiveAACatalog({ evidencePack, hostRoutes } = {}) {
   return freezeTree({
     schemaVersion: AA_ACTIVE_CATALOG_SCHEMA_VERSION,
     catalogVersion: AA_ACTIVE_CATALOG_VERSION,
-    packId: evidencePack.manifest.packId,
-    manifestVersion: evidencePack.manifest.manifestVersion,
+    packId: compatiblePack.manifest.packId,
+    manifestVersion: compatiblePack.manifest.manifestVersion,
     aaSnapshotId: snapshot.snapshotId,
     bindingVersion: AA_BINDING_REGISTRY_VERSION,
     bindingRegistryVersion: registry.registryVersion,
-    routePolicyVersion: evidencePack.routePolicy.policyVersion,
+    routePolicyVersion: compatiblePack.routePolicy.policyVersion,
     entries,
     bindingStates,
     exclusions,

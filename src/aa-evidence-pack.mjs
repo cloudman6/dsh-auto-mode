@@ -1,24 +1,37 @@
 import { createHash } from 'node:crypto'
 
-import { AA_ROUTE_POLICY_VERSION } from './aa-route-policy.mjs'
+import {
+  AA_ROUTE_POLICY_V1,
+  AA_ROUTE_POLICY_V2,
+  AA_ROUTE_POLICY_VERSION,
+} from './aa-route-policy.mjs'
 import {
   evidenceRouteKeyId,
   validateProviderNormalizationRule,
 } from './evidence-route-key.mjs'
 
 export const AA_SNAPSHOT_SCHEMA_VERSION = 1
-export const AA_SNAPSHOT_VERSION = 'aa-snapshot/v2'
+export const AA_SNAPSHOT_VERSION = 'aa-snapshot/v3'
 export const AA_BINDING_REGISTRY_SCHEMA_VERSION = 1
 export const AA_BINDING_REGISTRY_VERSION = 'aa-binding-registry/v1'
 export const AA_EVIDENCE_PACK_MANIFEST_VERSION = 'aa-evidence-pack-manifest/v1'
-export const AA_EVIDENCE_PACK_RUNTIME_CONTRACT = 'aa-evidence-pack-runtime/v1'
-export const AA_EVIDENCE_PACK_RUNTIME_VERSION = 1
-export const AA_EVIDENCE_PACK_TERMS_VERSION = '1.1'
-export const AA_EVIDENCE_PACK_TERMS_REVISED_AT = '2026-08-19'
-export const AA_EVIDENCE_PACK_TERMS_URL = 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf'
+export const AA_EVIDENCE_PACK_RUNTIME_CONTRACT = 'aa-evidence-pack-runtime/v2'
+export const AA_EVIDENCE_PACK_RUNTIME_VERSION = 2
+export const AA_EVIDENCE_PACK_TERMS_VERSION = '1.0'
+export const AA_EVIDENCE_PACK_TERMS_REVISED_AT = '2024-04-28'
+export const AA_EVIDENCE_PACK_TERMS_URL = 'https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf'
 export const AA_EVIDENCE_PACK_ATTRIBUTION = 'Source: Artificial Analysis (artificialanalysis.ai)'
+export const AA_PRICE_NORMALIZATION_VERSION = 'aa-price-normalization/v1'
 
-const AA_ENDPOINT = 'https://artificialanalysis.ai/api/v2/language/models'
+export const LEGACY_AA_SNAPSHOT_VERSION = 'aa-snapshot/v2'
+export const LEGACY_AA_EVIDENCE_PACK_RUNTIME_CONTRACT = 'aa-evidence-pack-runtime/v1'
+export const LEGACY_AA_EVIDENCE_PACK_TERMS = freezeTree({
+  version: '1.1',
+  revisedAt: '2026-08-19',
+  url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf',
+})
+
+const AA_ENDPOINT = 'https://artificialanalysis.ai/api/v2/language/models/free'
 const MAX_RECORDS = 10_000
 const MAX_PAGES = 1_000
 const MAX_COMPONENT_BYTES = 16 * 1024 * 1024
@@ -151,18 +164,76 @@ function numericField(value, path, { nullable = false } = {}) {
   return value
 }
 
+function sourceProfile(source) {
+  if (!isRecord(source) || source.methodologyVersion !== 'v4.1.1'
+    || source.attribution !== AA_EVIDENCE_PACK_ATTRIBUTION || !isRecord(source.terms)) return null
+  if (source.terms.version === AA_EVIDENCE_PACK_TERMS_VERSION
+    && source.terms.revisedAt === AA_EVIDENCE_PACK_TERMS_REVISED_AT
+    && source.terms.url === AA_EVIDENCE_PACK_TERMS_URL) return 'free'
+  if (source.terms.version === LEGACY_AA_EVIDENCE_PACK_TERMS.version
+    && source.terms.revisedAt === LEGACY_AA_EVIDENCE_PACK_TERMS.revisedAt
+    && source.terms.url === LEGACY_AA_EVIDENCE_PACK_TERMS.url) return 'legacy-pro'
+  return null
+}
+
+function validateNormalizedPricing(pricing) {
+  const normalizedPrice = numericField(
+    pricing?.price_1m_normalized_7_to_2_to_1,
+    'record normalized price',
+  )
+  const normalization = pricing?.normalization
+  if (!isRecord(normalization) || normalization.version !== AA_PRICE_NORMALIZATION_VERSION
+    || !['derived-free-prices', 'legacy-aa-blended'].includes(normalization.basis)) {
+    invalid('aa-snapshot-record-invalid', 'record price normalization is incompatible')
+  }
+  if (normalization.basis === 'legacy-aa-blended') {
+    if (Object.keys(normalization).sort().join('\0') !== ['basis', 'version'].join('\0')) {
+      invalid('aa-snapshot-record-invalid', 'legacy normalized price must not invent component prices')
+    }
+    return normalization.basis
+  }
+  if (!['cache-hit', 'input-substitution'].includes(normalization.cachePriceBasis)) {
+    invalid('aa-snapshot-record-invalid', 'record cache price basis is invalid')
+  }
+  const inputPrice = numericField(normalization.price_1m_input_tokens, 'record input price')
+  const outputPrice = numericField(normalization.price_1m_output_tokens, 'record output price')
+  const cacheHitPrice = numericField(
+    normalization.price_1m_cache_hit_tokens,
+    'record cache-hit price',
+    { nullable: true },
+  )
+  if ((cacheHitPrice === null) !== (normalization.cachePriceBasis === 'input-substitution')) {
+    invalid('aa-snapshot-record-invalid', 'record cache price basis does not match the retained component')
+  }
+  const expectedPrice = (7 * (cacheHitPrice ?? inputPrice) + 2 * inputPrice + outputPrice) / 10
+  if (normalizedPrice !== expectedPrice) {
+    invalid('aa-snapshot-record-invalid', 'record normalized price does not match retained components')
+  }
+  return normalization.basis
+}
+
 function minimizeAARecord(record) {
   const recordId = requiredString(record.id, 'record.id', 'aa-snapshot-record-invalid', 128)
   const score = record.evaluations?.artificial_analysis_intelligence_index
-  const price = record.pricing?.price_1m_blended_7_to_2_to_1
+  const inputPrice = record.pricing?.price_1m_input_tokens
+  const outputPrice = record.pricing?.price_1m_output_tokens
+  const cacheHitValue = record.pricing?.price_1m_cache_hit_tokens
   if (score === undefined || score === null) return { exclusion: { recordId, reasonCode: 'aa-capability-missing' } }
-  if (price === undefined || price === null) return { exclusion: { recordId, reasonCode: 'aa-price-missing' } }
+  if (inputPrice === undefined || inputPrice === null || outputPrice === undefined || outputPrice === null) {
+    return { exclusion: { recordId, reasonCode: 'aa-price-missing' } }
+  }
   if (typeof score !== 'number' || !Number.isFinite(score) || score < 0) {
     return { exclusion: { recordId, reasonCode: 'aa-capability-invalid' } }
   }
-  if (typeof price !== 'number' || !Number.isFinite(price) || price < 0) {
+  if (typeof inputPrice !== 'number' || !Number.isFinite(inputPrice) || inputPrice < 0
+    || typeof outputPrice !== 'number' || !Number.isFinite(outputPrice) || outputPrice < 0
+    || (cacheHitValue !== undefined && cacheHitValue !== null
+      && (typeof cacheHitValue !== 'number' || !Number.isFinite(cacheHitValue) || cacheHitValue < 0))) {
     return { exclusion: { recordId, reasonCode: 'aa-price-invalid' } }
   }
+  const cacheHitPrice = cacheHitValue ?? null
+  const effectiveCachePrice = cacheHitPrice ?? inputPrice
+  const normalizedPrice = (7 * effectiveCachePrice + 2 * inputPrice + outputPrice) / 10
   const latencyValue = record.performance?.median_time_to_first_answer_token_seconds
   const latency = typeof latencyValue === 'number' && Number.isFinite(latencyValue) && latencyValue >= 0
     ? latencyValue
@@ -180,15 +251,25 @@ function minimizeAARecord(record) {
       ? record.release_date
       : null,
     evaluations: { artificial_analysis_intelligence_index: score },
-    pricing: { price_1m_blended_7_to_2_to_1: price },
+    pricing: {
+      price_1m_normalized_7_to_2_to_1: normalizedPrice,
+      normalization: {
+        version: AA_PRICE_NORMALIZATION_VERSION,
+        basis: 'derived-free-prices',
+        price_1m_input_tokens: inputPrice,
+        price_1m_output_tokens: outputPrice,
+        price_1m_cache_hit_tokens: cacheHitPrice,
+        cachePriceBasis: cacheHitPrice === null ? 'input-substitution' : 'cache-hit',
+      },
+    },
     performance: { median_time_to_first_answer_token_seconds: latency },
   } }
 }
 
 function validateAcquisition(acquisition) {
-  if (!isRecord(acquisition) || acquisition.schemaVersion !== 1
-    || acquisition.acquisitionVersion !== 'aa-api-acquisition/v1'
-    || acquisition.endpoint !== AA_ENDPOINT || acquisition.promptType !== 'medium'
+  if (!isRecord(acquisition) || acquisition.schemaVersion !== 2
+    || acquisition.acquisitionVersion !== 'aa-api-acquisition/v2'
+    || acquisition.endpoint !== AA_ENDPOINT || acquisition.responseShape !== 'free'
     || !Array.isArray(acquisition.pages) || acquisition.pages.length === 0
     || acquisition.pages.length > MAX_PAGES) {
     invalid('aa-snapshot-source-invalid', 'acquisition must be one bounded pinned AA API bundle')
@@ -197,7 +278,7 @@ function validateAcquisition(acquisition) {
   const records = new Map()
   for (let index = 0; index < acquisition.pages.length; index += 1) {
     const page = acquisition.pages[index]
-    if (!isRecord(page) || !['pro', 'commercial'].includes(page.tier)
+    if (!isRecord(page) || !['free', 'pro', 'commercial'].includes(page.tier)
       || page.intelligence_index_version !== 4.1 || !Array.isArray(page.data)
       || !isRecord(page.pagination)) {
       invalid('aa-snapshot-methodology-mismatch', 'AA tier or Intelligence Index version changed')
@@ -223,22 +304,17 @@ function validateSnapshot(snapshot) {
   if (!isRecord(snapshot) || snapshot.schemaVersion !== AA_SNAPSHOT_SCHEMA_VERSION
     || snapshot.snapshotVersion !== AA_SNAPSHOT_VERSION
     || !Array.isArray(snapshot.records) || !isRecord(snapshot.source)) {
-    invalid('aa-snapshot-invalid', 'snapshot must use aa-snapshot/v2')
+    invalid('aa-snapshot-invalid', 'snapshot must use aa-snapshot/v3')
   }
   requiredString(snapshot.snapshotId, 'snapshot.snapshotId', 'aa-snapshot-invalid', 128)
   canonicalTimestamp(snapshot.capturedAt, 'snapshot.capturedAt', 'aa-snapshot-invalid')
   validateRights(snapshot.rights)
-  if (snapshot.source.methodologyVersion !== 'v4.1.1') {
-    invalid('aa-snapshot-methodology-mismatch', 'snapshot methodology must remain v4.1.1')
-  }
-  if (snapshot.source.attribution !== AA_EVIDENCE_PACK_ATTRIBUTION
-    || !isRecord(snapshot.source.terms)
-    || snapshot.source.terms.version !== AA_EVIDENCE_PACK_TERMS_VERSION
-    || snapshot.source.terms.revisedAt !== AA_EVIDENCE_PACK_TERMS_REVISED_AT
-    || snapshot.source.terms.url !== AA_EVIDENCE_PACK_TERMS_URL) {
+  const profile = sourceProfile(snapshot.source)
+  if (profile === null) {
     invalid('aa-evidence-pack-rights-invalid', 'snapshot must retain the reviewed AA terms and attribution')
   }
   const ids = new Set()
+  const pricingBases = new Set()
   let previous = null
   for (const record of snapshot.records) {
     if (!isRecord(record)) invalid('aa-snapshot-record-invalid', 'snapshot record must be an object')
@@ -250,8 +326,12 @@ function validateSnapshot(snapshot) {
     ids.add(record.recordId)
     previous = record.recordId
     numericField(record.evaluations?.artificial_analysis_intelligence_index, 'record capability')
-    numericField(record.pricing?.price_1m_blended_7_to_2_to_1, 'record price')
+    pricingBases.add(validateNormalizedPricing(record.pricing))
     numericField(record.performance?.median_time_to_first_answer_token_seconds, 'record latency', { nullable: true })
+  }
+  const expectedBasis = profile === 'free' ? 'derived-free-prices' : 'legacy-aa-blended'
+  if ([...pricingBases].some(basis => basis !== expectedBasis)) {
+    invalid('aa-evidence-pack-rights-invalid', 'snapshot source profile does not match its price evidence basis')
   }
   serializeEvidenceComponent(snapshot)
 }
@@ -370,7 +450,8 @@ export function validateBindingRegistry(registry, { requireCanonicalOrder = true
 
 function validateRoutePolicy(policy) {
   if (!isRecord(policy) || policy.policyVersion !== AA_ROUTE_POLICY_VERSION
-    || policy.capabilityMethodologyVersion !== 'v4.1.1') {
+    || policy.capabilityMethodologyVersion !== 'v4.1.1'
+    || canonicalJson(policy) !== canonicalJson(AA_ROUTE_POLICY_V2)) {
     invalid('aa-evidence-pack-policy-invalid', 'route policy is incompatible')
   }
   serializeEvidenceComponent(policy)
@@ -399,13 +480,99 @@ function validateManifest(manifest, components) {
   }
   for (const [name, component] of Object.entries(components)) {
     const descriptor = manifest.components?.[name]
-    if (!isRecord(descriptor) || !DIGEST_PATTERN.test(descriptor.digest)) {
+    const expectedVersion = name === 'snapshot'
+      ? AA_SNAPSHOT_VERSION
+      : name === 'bindingRegistry'
+        ? AA_BINDING_REGISTRY_VERSION
+        : AA_ROUTE_POLICY_VERSION
+    if (!isRecord(descriptor) || descriptor.version !== expectedVersion
+      || !DIGEST_PATTERN.test(descriptor.digest)) {
       invalid('aa-evidence-pack-manifest-invalid', `manifest component ${name} is invalid`)
     }
     if (descriptor.digest !== evidenceComponentDigest(component)) {
       invalid('aa-evidence-pack-digest-mismatch', `Evidence Pack component ${name} digest does not match`)
     }
   }
+}
+
+function validateLegacySnapshot(snapshot) {
+  if (!isRecord(snapshot) || snapshot.schemaVersion !== 1
+    || snapshot.snapshotVersion !== LEGACY_AA_SNAPSHOT_VERSION
+    || !Array.isArray(snapshot.records) || sourceProfile(snapshot.source) !== 'legacy-pro') {
+    invalid('aa-evidence-pack-legacy-invalid', 'legacy snapshot must use the reviewed aa-snapshot/v2 contract')
+  }
+  requiredString(snapshot.snapshotId, 'snapshot.snapshotId', 'aa-evidence-pack-legacy-invalid', 128)
+  canonicalTimestamp(snapshot.capturedAt, 'snapshot.capturedAt', 'aa-evidence-pack-legacy-invalid')
+  validateRights(snapshot.rights)
+  let previous = null
+  const ids = new Set()
+  for (const record of snapshot.records) {
+    if (!isRecord(record)) invalid('aa-evidence-pack-legacy-invalid', 'legacy snapshot record must be an object')
+    requiredString(record.recordId, 'record.recordId', 'aa-evidence-pack-legacy-invalid', 128)
+    requiredString(record.label, 'record.label', 'aa-evidence-pack-legacy-invalid')
+    if (ids.has(record.recordId) || (previous !== null && previous >= record.recordId)) {
+      invalid('aa-evidence-pack-legacy-invalid', 'legacy snapshot records must have unique sorted stable IDs')
+    }
+    ids.add(record.recordId)
+    previous = record.recordId
+    numericField(record.evaluations?.artificial_analysis_intelligence_index, 'legacy record capability')
+    numericField(record.pricing?.price_1m_blended_7_to_2_to_1, 'legacy record blended price')
+    numericField(
+      record.performance?.median_time_to_first_answer_token_seconds,
+      'legacy record latency',
+      { nullable: true },
+    )
+  }
+  serializeEvidenceComponent(snapshot)
+}
+
+/** Validate the exact previous Pack generation before an explicit in-memory migration. */
+export function validateLegacyAAEvidencePackV1(pack) {
+  if (!isRecord(pack) || !isRecord(pack.snapshot) || !isRecord(pack.bindingRegistry)
+    || !isRecord(pack.routePolicy) || !isRecord(pack.manifest)) {
+    invalid('aa-evidence-pack-legacy-invalid', 'legacy Evidence Pack must contain four components')
+  }
+  validateLegacySnapshot(pack.snapshot)
+  validateBindingRegistry(pack.bindingRegistry)
+  if (canonicalJson(pack.routePolicy) !== canonicalJson(AA_ROUTE_POLICY_V1)) {
+    invalid('aa-evidence-pack-legacy-invalid', 'legacy route policy must be the pinned v1 policy')
+  }
+  const manifest = pack.manifest
+  if (manifest.schemaVersion !== 1 || manifest.manifestVersion !== AA_EVIDENCE_PACK_MANIFEST_VERSION
+    || manifest.runtimeCompatibility?.contract !== LEGACY_AA_EVIDENCE_PACK_RUNTIME_CONTRACT
+    || !Number.isInteger(manifest.runtimeCompatibility.minimumVersion)
+    || !Number.isInteger(manifest.runtimeCompatibility.maximumVersion)
+    || manifest.runtimeCompatibility.minimumVersion > 1
+    || manifest.runtimeCompatibility.maximumVersion < 1) {
+    invalid('aa-evidence-pack-legacy-invalid', 'legacy manifest is incompatible')
+  }
+  requiredString(manifest.packId, 'manifest.packId', 'aa-evidence-pack-legacy-invalid', 128)
+  validateRights(manifest.rights)
+  if (!isRecord(manifest.components)
+    || Object.keys(manifest.components).sort().join('\0') !== ['bindingRegistry', 'routePolicy', 'snapshot'].join('\0')) {
+    invalid('aa-evidence-pack-legacy-invalid', 'legacy manifest component set is invalid')
+  }
+  for (const [name, component] of Object.entries({
+    snapshot: pack.snapshot,
+    bindingRegistry: pack.bindingRegistry,
+    routePolicy: pack.routePolicy,
+  })) {
+    const descriptor = manifest.components[name]
+    const expectedVersion = name === 'snapshot'
+      ? LEGACY_AA_SNAPSHOT_VERSION
+      : name === 'bindingRegistry'
+        ? AA_BINDING_REGISTRY_VERSION
+        : AA_ROUTE_POLICY_V1.policyVersion
+    if (!isRecord(descriptor) || descriptor.version !== expectedVersion
+      || !DIGEST_PATTERN.test(descriptor.digest)
+      || descriptor.digest !== evidenceComponentDigest(component)) {
+      invalid('aa-evidence-pack-digest-mismatch', `legacy Evidence Pack component ${name} digest does not match`)
+    }
+  }
+  if (canonicalJson(pack.snapshot.rights) !== canonicalJson(manifest.rights)) {
+    invalid('aa-evidence-pack-rights-invalid', 'legacy snapshot and manifest rights must agree')
+  }
+  return freezeTree(pack)
 }
 
 /** Validate a complete compatible Evidence Pack while preserving object identity. */

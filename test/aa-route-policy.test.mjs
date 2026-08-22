@@ -4,7 +4,7 @@ import { describe, it } from 'node:test'
 
 import { compileLocalAACatalog } from '../src/aa-catalog.mjs'
 import {
-  AA_ROUTE_POLICY_V1,
+  AA_ROUTE_POLICY_V2,
   compileAARoutePolicyCatalog,
   resolveAARoute,
 } from '../src/aa-route-policy.mjs'
@@ -13,6 +13,11 @@ const task2Fixture = JSON.parse(readFileSync(
   new URL('./fixtures/phase1-task2-catalog.json', import.meta.url),
   'utf8',
 ))
+
+for (const record of task2Fixture.seed.snapshot.records) {
+  const blended = record.pricing.price_1m_blended_7_to_2_to_1
+  record.pricing = { price_1m_normalized_7_to_2_to_1: blended }
+}
 
 function evidenceEntry({
   routeId,
@@ -30,7 +35,7 @@ function evidenceEntry({
         artificial_analysis_intelligence_index: score,
       },
       pricing: {
-        price_1m_blended_7_to_2_to_1: price,
+        price_1m_normalized_7_to_2_to_1: price,
       },
       performance: {
         median_time_to_first_answer_token_seconds: latency,
@@ -85,8 +90,8 @@ describe('compileAARoutePolicyCatalog()', () => {
       evidenceEntry({ routeId: 'route-deep', score: 50 }),
     ]))
 
-    assert.equal(catalog.policyVersion, 'aa-route-policy/v1')
-    assert.deepEqual(catalog.bandPolicy, AA_ROUTE_POLICY_V1.bandPolicy)
+    assert.equal(catalog.policyVersion, 'aa-route-policy/v2')
+    assert.deepEqual(catalog.bandPolicy, AA_ROUTE_POLICY_V2.bandPolicy)
     assert.deepEqual(catalog.levels.light.map(entry => entry.routeId), ['route-light'])
     assert.deepEqual(
       catalog.levels.standard.map(entry => entry.routeId),
@@ -159,7 +164,7 @@ describe('resolveAARoute()', () => {
     assert.equal(decision.route.routeId, 'route-a')
     assert.equal(decision.reasonCode, 'aa-price-first')
     assert.match(decision.explanation, /Standard/)
-    assert.match(decision.explanation, /AA price/)
+    assert.match(decision.explanation, /normalized AA-reported price/)
   })
 
   it('puts missing latency after measured latency for an equal price', () => {

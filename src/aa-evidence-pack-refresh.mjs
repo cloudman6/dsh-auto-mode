@@ -57,12 +57,12 @@ function recordDiff(previous, next) {
     if (left.label !== right.label) renamed.push({ recordId: id, before: left.label, after: right.label })
     const metricBefore = {
       capability: left.evaluations.artificial_analysis_intelligence_index,
-      price: left.pricing.price_1m_blended_7_to_2_to_1,
+      price: left.pricing.price_1m_normalized_7_to_2_to_1,
       latency: left.performance.median_time_to_first_answer_token_seconds,
     }
     const metricAfter = {
       capability: right.evaluations.artificial_analysis_intelligence_index,
-      price: right.pricing.price_1m_blended_7_to_2_to_1,
+      price: right.pricing.price_1m_normalized_7_to_2_to_1,
       latency: right.performance.median_time_to_first_answer_token_seconds,
     }
     if (JSON.stringify(metricBefore) !== JSON.stringify(metricAfter)) {

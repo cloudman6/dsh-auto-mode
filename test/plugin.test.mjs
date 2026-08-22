@@ -6,7 +6,7 @@ import {
   AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
   buildAAEvidencePack,
 } from '../src/aa-evidence-pack.mjs'
-import { AA_ROUTE_POLICY_V1 } from '../src/aa-route-policy.mjs'
+import { AA_ROUTE_POLICY_V2 } from '../src/aa-route-policy.mjs'
 import { createEvidenceRouteKey } from '../src/evidence-route-key.mjs'
 import { apply } from '../src/plugin.mjs'
 
@@ -133,7 +133,7 @@ function phase3Route({ model, score, price = 1, effort, temperature }) {
       label: model,
       capabilityFacts: ['fixture'],
       evaluations: { artificial_analysis_intelligence_index: score },
-      pricing: { price_1m_blended_7_to_2_to_1: price },
+      pricing: { price_1m_normalized_7_to_2_to_1: price },
       performance: { median_time_to_first_answer_token_seconds: 1 },
     },
   }
@@ -175,7 +175,7 @@ function phase4Pack(routes) {
     packId: 'plugin-fixture-pack',
     snapshot: {
       schemaVersion: 1,
-      snapshotVersion: 'aa-snapshot/v2',
+      snapshotVersion: 'aa-snapshot/v3',
       snapshotId: 'aa-phase4-plugin-fixture',
       capturedAt: '2026-08-22T10:00:00.000Z',
       source: {
@@ -184,7 +184,14 @@ function phase4Pack(routes) {
         attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
       },
       rights,
-      records: routes.map(route => ({ ...route.record, slug: null })).sort(
+      records: routes.map(route => ({
+        ...route.record,
+        slug: null,
+        pricing: {
+          ...route.record.pricing,
+          normalization: { version: 'aa-price-normalization/v1', basis: 'legacy-aa-blended' },
+        },
+      })).sort(
         (left, right) => left.recordId.localeCompare(right.recordId),
       ),
     },
@@ -201,11 +208,11 @@ function phase4Pack(routes) {
         quarantine: null,
       })),
     },
-    routePolicy: AA_ROUTE_POLICY_V1,
+    routePolicy: AA_ROUTE_POLICY_V2,
     runtimeCompatibility: {
       contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
-      minimumVersion: 1,
-      maximumVersion: 1,
+      minimumVersion: 2,
+      maximumVersion: 2,
     },
     rights,
   })

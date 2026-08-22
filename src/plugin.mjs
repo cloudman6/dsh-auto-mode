@@ -124,7 +124,7 @@ function isPhase3Seed(seed) {
 function isEvidencePack(value) {
   return isRecord(value)
     && value.manifest?.manifestVersion === 'aa-evidence-pack-manifest/v1'
-    && value.snapshot?.snapshotVersion === 'aa-snapshot/v2'
+    && ['aa-snapshot/v2', 'aa-snapshot/v3'].includes(value.snapshot?.snapshotVersion)
     && value.bindingRegistry?.registryVersion === 'aa-binding-registry/v1'
 }
 

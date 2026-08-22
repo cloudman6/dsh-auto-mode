@@ -1,15 +1,19 @@
 import { createHostRouteIdentity } from './aa-evidence-binding.mjs'
 import {
   AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
+  AA_PRICE_NORMALIZATION_VERSION,
+  AA_SNAPSHOT_VERSION,
   buildAAEvidencePack,
+  validateAAEvidencePack,
+  validateLegacyAAEvidencePackV1,
 } from './aa-evidence-pack.mjs'
-import { AA_ROUTE_POLICY_V1 } from './aa-route-policy.mjs'
+import { AA_ROUTE_POLICY_V2 } from './aa-route-policy.mjs'
 import {
   createEvidenceRouteKey,
   evidenceRouteKeyId,
 } from './evidence-route-key.mjs'
 
-export const AA_EVIDENCE_PACK_MIGRATION_VERSION = 'aa-evidence-pack-migration/v1'
+export const AA_EVIDENCE_PACK_MIGRATION_VERSION = 'aa-evidence-pack-migration/v2'
 
 export class AAEvidencePackMigrationError extends TypeError {
   constructor(code, message) {
@@ -40,6 +44,7 @@ function clone(value) {
 }
 
 function migrateRecord(record) {
+  const legacyPrice = record.pricing?.price_1m_blended_7_to_2_to_1
   return {
     recordId: record.recordId,
     label: record.label,
@@ -49,7 +54,13 @@ function migrateRecord(record) {
       : { recordId: 'legacy-unknown', label: 'Legacy unknown creator' },
     releaseDate: typeof record.releaseDate === 'string' ? record.releaseDate : null,
     evaluations: clone(record.evaluations),
-    pricing: clone(record.pricing),
+    pricing: {
+      price_1m_normalized_7_to_2_to_1: legacyPrice,
+      normalization: {
+        version: AA_PRICE_NORMALIZATION_VERSION,
+        basis: 'legacy-aa-blended',
+      },
+    },
     performance: {
       median_time_to_first_answer_token_seconds:
         record.performance?.median_time_to_first_answer_token_seconds ?? null,
@@ -125,7 +136,7 @@ export function migrateLegacyAACatalogSeed({
 
   const snapshot = {
     schemaVersion: 1,
-    snapshotVersion: 'aa-snapshot/v2',
+    snapshotVersion: AA_SNAPSHOT_VERSION,
     snapshotId: seed.snapshot.snapshotId,
     capturedAt: migrateTimestamp(seed.snapshot.source?.capturedAt),
     source: clone(source),
@@ -144,11 +155,11 @@ export function migrateLegacyAACatalogSeed({
         evidenceRouteKeyId(left.evidenceRouteKey).localeCompare(evidenceRouteKeyId(right.evidenceRouteKey))
       )),
     },
-    routePolicy: AA_ROUTE_POLICY_V1,
+    routePolicy: AA_ROUTE_POLICY_V2,
     runtimeCompatibility: {
       contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
-      minimumVersion: 1,
-      maximumVersion: 1,
+      minimumVersion: 2,
+      maximumVersion: 2,
     },
     rights,
   })
@@ -163,4 +174,26 @@ export function migrateLegacyAACatalogSeed({
       collapsedBindings,
     },
   })
+}
+
+/** Adapt one validated v1 Pack without claiming its Pro blended price was Free-derived. */
+export function migrateAAEvidencePackV1ToV2(pack) {
+  validateLegacyAAEvidencePackV1(pack)
+  const snapshot = {
+    ...clone(pack.snapshot),
+    snapshotVersion: AA_SNAPSHOT_VERSION,
+    records: pack.snapshot.records.map(migrateRecord),
+  }
+  return validateAAEvidencePack(buildAAEvidencePack({
+    packId: pack.manifest.packId,
+    snapshot,
+    bindingRegistry: clone(pack.bindingRegistry),
+    routePolicy: AA_ROUTE_POLICY_V2,
+    runtimeCompatibility: {
+      contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
+      minimumVersion: 2,
+      maximumVersion: 2,
+    },
+    rights: clone(pack.manifest.rights),
+  }))
 }

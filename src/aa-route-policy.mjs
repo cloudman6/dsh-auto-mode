@@ -3,7 +3,7 @@ import {
   AA_EVIDENCE_CATALOG_VERSION,
 } from './aa-catalog.mjs'
 
-export const AA_ROUTE_POLICY_VERSION = 'aa-route-policy/v1'
+export const AA_ROUTE_POLICY_VERSION = 'aa-route-policy/v2'
 const ACTIVE_CATALOG_VERSION = 'aa-active-catalog/v1'
 
 const LEVEL_LABELS = Object.freeze({
@@ -21,10 +21,29 @@ function freezeTree(value) {
 }
 
 export const AA_ROUTE_POLICY_V1 = freezeTree({
-  policyVersion: AA_ROUTE_POLICY_VERSION,
+  policyVersion: 'aa-route-policy/v1',
   capabilityField: 'evaluations.artificial_analysis_intelligence_index',
   capabilityMethodologyVersion: 'v4.1.1',
   priceField: 'pricing.price_1m_blended_7_to_2_to_1',
+  latencyField: 'performance.median_time_to_first_answer_token_seconds',
+  missingDataPolicy: {
+    capability: 'exclude',
+    price: 'exclude',
+    latency: 'sort-after-measured-then-route-id',
+  },
+  bandPolicy: {
+    light: { minimumInclusive: null, maximumExclusive: 35 },
+    standard: { minimumInclusive: 35, maximumExclusive: 50 },
+    deep: { minimumInclusive: 50, maximumExclusive: null },
+  },
+})
+
+export const AA_ROUTE_POLICY_V2 = freezeTree({
+  policyVersion: AA_ROUTE_POLICY_VERSION,
+  capabilityField: 'evaluations.artificial_analysis_intelligence_index',
+  capabilityMethodologyVersion: 'v4.1.1',
+  priceField: 'pricing.price_1m_normalized_7_to_2_to_1',
+  priceNormalizationVersion: 'aa-price-normalization/v1',
   latencyField: 'performance.median_time_to_first_answer_token_seconds',
   missingDataPolicy: {
     capability: 'exclude',
@@ -82,8 +101,8 @@ function compareExclusions(left, right) {
 }
 
 function handlingLevel(score) {
-  if (score < AA_ROUTE_POLICY_V1.bandPolicy.light.maximumExclusive) return 'light'
-  if (score < AA_ROUTE_POLICY_V1.bandPolicy.standard.maximumExclusive) return 'standard'
+  if (score < AA_ROUTE_POLICY_V2.bandPolicy.light.maximumExclusive) return 'light'
+  if (score < AA_ROUTE_POLICY_V2.bandPolicy.standard.maximumExclusive) return 'standard'
   return 'deep'
 }
 
@@ -98,7 +117,7 @@ function comparisonFacts(entry) {
   }
 
   const pricing = entry.aaRecord?.pricing
-  const price = pricing?.price_1m_blended_7_to_2_to_1
+  const price = pricing?.price_1m_normalized_7_to_2_to_1
   if (price === undefined || price === null) return { exclusion: 'aa-price-missing' }
   if (!finiteNumber(price) || price < 0) return { exclusion: 'aa-price-invalid' }
 
@@ -153,12 +172,13 @@ export function compileAARoutePolicyCatalog(evidenceCatalog) {
     evidenceCatalogVersion: evidenceCatalog.catalogVersion,
     bindingVersion: evidenceCatalog.bindingVersion,
     ...(evidenceCatalog.packId === undefined ? {} : { packId: evidenceCatalog.packId }),
-    capabilityField: AA_ROUTE_POLICY_V1.capabilityField,
-    capabilityMethodologyVersion: AA_ROUTE_POLICY_V1.capabilityMethodologyVersion,
-    priceField: AA_ROUTE_POLICY_V1.priceField,
-    latencyField: AA_ROUTE_POLICY_V1.latencyField,
-    missingDataPolicy: AA_ROUTE_POLICY_V1.missingDataPolicy,
-    bandPolicy: AA_ROUTE_POLICY_V1.bandPolicy,
+    capabilityField: AA_ROUTE_POLICY_V2.capabilityField,
+    capabilityMethodologyVersion: AA_ROUTE_POLICY_V2.capabilityMethodologyVersion,
+    priceField: AA_ROUTE_POLICY_V2.priceField,
+    priceNormalizationVersion: AA_ROUTE_POLICY_V2.priceNormalizationVersion,
+    latencyField: AA_ROUTE_POLICY_V2.latencyField,
+    missingDataPolicy: AA_ROUTE_POLICY_V2.missingDataPolicy,
+    bandPolicy: AA_ROUTE_POLICY_V2.bandPolicy,
     levels,
     exclusions,
   })
@@ -182,6 +202,6 @@ export function resolveAARoute(catalog, level) {
     handlingLevel: level,
     route: routes[0],
     reasonCode: 'aa-price-first',
-    explanation: `${LEVEL_LABELS[level]} AA capability band; selected by lower AA price, then lower AA latency, then stable route identity`,
+    explanation: `${LEVEL_LABELS[level]} AA capability band; selected by lower normalized AA-reported price, then lower AA latency, then stable route identity`,
   })
 }

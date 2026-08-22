@@ -31,7 +31,7 @@ function evidenceEntry({ routeId = 'assessor-light', score = 30, latency = 1 } =
     aaRecord: {
       recordId: `aa-${routeId}`,
       evaluations: { artificial_analysis_intelligence_index: score },
-      pricing: { price_1m_blended_7_to_2_to_1: 0.1 },
+      pricing: { price_1m_normalized_7_to_2_to_1: 0.1 },
       performance: { median_time_to_first_answer_token_seconds: latency },
     },
   }

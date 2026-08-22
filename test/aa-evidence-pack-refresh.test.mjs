@@ -10,13 +10,13 @@ import {
   prepareAAEvidencePackRefresh,
   validatePreparedAAEvidencePackRefresh,
 } from '../src/aa-evidence-pack-refresh.mjs'
-import { AA_ROUTE_POLICY_V1 } from '../src/aa-route-policy.mjs'
+import { AA_ROUTE_POLICY_V2 } from '../src/aa-route-policy.mjs'
 import { createEvidenceRouteKey } from '../src/evidence-route-key.mjs'
 
 const rights = { mode: 'internal-only' }
 const source = {
   methodologyVersion: 'v4.1.1',
-  terms: { version: '1.1', revisedAt: '2026-08-19', url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf' },
+  terms: { version: '1.0', revisedAt: '2024-04-28', url: 'https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf' },
   attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
 }
 const rule = {
@@ -34,20 +34,20 @@ function apiRecord(id, score = 30, price = 1) {
     id, name: id, slug: id, release_date: '2026-08-01',
     model_creator: { id: 'creator', name: 'Creator' },
     evaluations: { artificial_analysis_intelligence_index: score },
-    pricing: { price_1m_blended_7_to_2_to_1: price },
+    pricing: { price_1m_input_tokens: price, price_1m_output_tokens: price },
     performance: { median_time_to_first_answer_token_seconds: 1 },
   }
 }
 
 function acquisition(records, methodology = 4.1) {
   return {
-    schemaVersion: 1,
-    acquisitionVersion: 'aa-api-acquisition/v1',
-    endpoint: 'https://artificialanalysis.ai/api/v2/language/models',
-    promptType: 'medium',
+    schemaVersion: 2,
+    acquisitionVersion: 'aa-api-acquisition/v2',
+    endpoint: 'https://artificialanalysis.ai/api/v2/language/models/free',
+    responseShape: 'free',
     capturedAt: '2026-08-22T10:00:00.000Z',
     pages: [{
-      tier: 'pro', intelligence_index_version: methodology,
+      tier: 'free', intelligence_index_version: methodology,
       pagination: { page: 1, page_size: 200, total_pages: 1, has_more: false },
       data: records,
     }],
@@ -74,9 +74,9 @@ function initialPack() {
       schemaVersion: 1, registryVersion: 'aa-binding-registry/v1', normalizationRules: [rule],
       bindings: [binding('a', 'a'), binding('b', 'b')],
     },
-    routePolicy: AA_ROUTE_POLICY_V1,
+    routePolicy: AA_ROUTE_POLICY_V2,
     runtimeCompatibility: {
-      contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT, minimumVersion: 1, maximumVersion: 1,
+      contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT, minimumVersion: 2, maximumVersion: 2,
     },
     rights,
   })
@@ -199,7 +199,7 @@ describe('exception-driven Evidence Pack refresh', () => {
       previousPack: initialPack(), acquisition: acquisition([apiRecord('a'), apiRecord('b', 40, 2)]),
       snapshotId: 'snapshot-next', packId: 'pack-next', source, rights,
     }))
-    prepared.evidencePack.snapshot.records[0].pricing.price_1m_blended_7_to_2_to_1 = 0
+    prepared.evidencePack.snapshot.records[0].pricing.price_1m_normalized_7_to_2_to_1 = 0
 
     assert.throws(
       () => validatePreparedAAEvidencePackRefresh(prepared),

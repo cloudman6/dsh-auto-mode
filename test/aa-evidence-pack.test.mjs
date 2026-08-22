@@ -9,11 +9,11 @@ import {
   serializeEvidenceComponent,
   validateAAEvidencePack,
 } from '../src/aa-evidence-pack.mjs'
-import { AA_ROUTE_POLICY_V1 } from '../src/aa-route-policy.mjs'
+import { AA_ROUTE_POLICY_V2 } from '../src/aa-route-policy.mjs'
 
 const capturedAt = '2026-08-22T10:00:00.000Z'
 
-function apiRecord(id, score, price, latency = null) {
+function apiRecord(id, score, inputPrice, outputPrice, latency = null, cacheHitPrice = null) {
   return {
     id,
     name: `Model ${id}`,
@@ -21,7 +21,11 @@ function apiRecord(id, score, price, latency = null) {
     release_date: '2026-08-01',
     model_creator: { id: `creator-${id}`, name: `Creator ${id}` },
     evaluations: { artificial_analysis_intelligence_index: score },
-    pricing: { price_1m_blended_7_to_2_to_1: price },
+    pricing: {
+      price_1m_input_tokens: inputPrice,
+      price_1m_output_tokens: outputPrice,
+      price_1m_cache_hit_tokens: cacheHitPrice,
+    },
     performance: { median_time_to_first_answer_token_seconds: latency },
     ignored: 'not retained',
   }
@@ -31,13 +35,13 @@ function acquisition(records, pages = 1) {
   const chunks = Array.from({ length: pages }, () => [])
   records.forEach((record, index) => chunks[index % pages].push(record))
   return {
-    schemaVersion: 1,
-    acquisitionVersion: 'aa-api-acquisition/v1',
-    endpoint: 'https://artificialanalysis.ai/api/v2/language/models',
-    promptType: 'medium',
+    schemaVersion: 2,
+    acquisitionVersion: 'aa-api-acquisition/v2',
+    endpoint: 'https://artificialanalysis.ai/api/v2/language/models/free',
+    responseShape: 'free',
     capturedAt,
     pages: chunks.map((data, index) => ({
-      tier: 'pro',
+      tier: 'free',
       intelligence_index_version: 4.1,
       pagination: {
         page: index + 1,
@@ -54,9 +58,9 @@ function source() {
   return {
     methodologyVersion: 'v4.1.1',
     terms: {
-      version: '1.1',
-      revisedAt: '2026-08-19',
-      url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf',
+      version: '1.0',
+      revisedAt: '2024-04-28',
+      url: 'https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf',
     },
     attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
   }
@@ -93,10 +97,10 @@ function registry() {
 describe('Evidence Pack contracts', () => {
   it('retains every policy-eligible record across all pages independently of bindings', () => {
     const sourceBundle = acquisition([
-      apiRecord('c', 55, 3, 5),
-      apiRecord('a', 32, 1, 2),
-      apiRecord('b', 42, 2),
-      { ...apiRecord('incomplete', 20, 1), pricing: {} },
+      apiRecord('c', 55, 3, 5, 5),
+      apiRecord('a', 32, 1, 3, 2),
+      apiRecord('b', 42, 2, 4, null, 1),
+      { ...apiRecord('incomplete', 20, 1, 2), pricing: {} },
     ], 2)
 
     const result = buildPolicyEligibleAASnapshot({
@@ -109,12 +113,25 @@ describe('Evidence Pack contracts', () => {
     assert.deepEqual(result.snapshot.records.map(record => record.recordId), ['a', 'b', 'c'])
     assert.deepEqual(result.exclusions, [{ recordId: 'incomplete', reasonCode: 'aa-price-missing' }])
     assert.equal(result.snapshot.records[1].performance.median_time_to_first_answer_token_seconds, null)
+    assert.deepEqual(result.snapshot.records[0].pricing, {
+      price_1m_normalized_7_to_2_to_1: 1.2,
+      normalization: {
+        version: 'aa-price-normalization/v1',
+        basis: 'derived-free-prices',
+        price_1m_input_tokens: 1,
+        price_1m_output_tokens: 3,
+        price_1m_cache_hit_tokens: null,
+        cachePriceBasis: 'input-substitution',
+      },
+    })
+    assert.equal(result.snapshot.records[1].pricing.price_1m_normalized_7_to_2_to_1, 1.5)
+    assert.equal(result.snapshot.records[1].pricing.normalization.cachePriceBasis, 'cache-hit')
     assert.equal('ignored' in result.snapshot.records[0], false)
     assert.equal(Object.isFrozen(result), true)
   })
 
   it('is deterministic under page and record reordering', () => {
-    const records = [apiRecord('a', 32, 1), apiRecord('b', 42, 2)]
+    const records = [apiRecord('a', 32, 1, 2), apiRecord('b', 42, 2, 3)]
     const first = buildPolicyEligibleAASnapshot({
       acquisition: acquisition(records, 2), snapshotId: 'snapshot', source: source(), rights: { mode: 'internal-only' },
     })
@@ -134,18 +151,18 @@ describe('Evidence Pack contracts', () => {
 
   it('validates independent components, digests, runtime compatibility, and rights', () => {
     const snapshot = buildPolicyEligibleAASnapshot({
-      acquisition: acquisition([apiRecord('a', 32, 1)]),
+      acquisition: acquisition([apiRecord('a', 32, 1, 2)]),
       snapshotId: 'snapshot', source: source(), rights: { mode: 'internal-only' },
     }).snapshot
     const pack = buildAAEvidencePack({
       packId: 'pack-fixture',
       snapshot,
       bindingRegistry: registry(),
-      routePolicy: AA_ROUTE_POLICY_V1,
+      routePolicy: AA_ROUTE_POLICY_V2,
       runtimeCompatibility: {
         contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
-        minimumVersion: 1,
-        maximumVersion: 1,
+        minimumVersion: 2,
+        maximumVersion: 2,
       },
       rights: { mode: 'internal-only' },
     })
@@ -156,11 +173,11 @@ describe('Evidence Pack contracts', () => {
     assert.equal(Object.isFrozen(pack), true)
 
     const tampered = structuredClone(pack)
-    tampered.snapshot.records[0].pricing.price_1m_blended_7_to_2_to_1 = 0
+    tampered.snapshot.records[0].label = 'tampered'
     assert.throws(() => validateAAEvidencePack(tampered), error => error.code === 'aa-evidence-pack-digest-mismatch')
 
     const incompatible = structuredClone(pack)
-    incompatible.manifest.runtimeCompatibility.minimumVersion = 2
+    incompatible.manifest.runtimeCompatibility.minimumVersion = 3
     assert.throws(
       () => validateAAEvidencePack(incompatible),
       error => error.code === 'aa-evidence-pack-runtime-incompatible',
@@ -177,7 +194,7 @@ describe('Evidence Pack contracts', () => {
   it('rejects duplicate source IDs and duplicate registry keys', () => {
     assert.throws(
       () => buildPolicyEligibleAASnapshot({
-        acquisition: acquisition([apiRecord('a', 32, 1), apiRecord('a', 33, 2)]),
+        acquisition: acquisition([apiRecord('a', 32, 1, 2), apiRecord('a', 33, 2, 3)]),
         snapshotId: 'snapshot', source: source(), rights: { mode: 'internal-only' },
       }),
       error => error.code === 'aa-snapshot-record-id-duplicate',
@@ -186,14 +203,14 @@ describe('Evidence Pack contracts', () => {
     const duplicateRegistry = registry()
     duplicateRegistry.bindings.push(structuredClone(duplicateRegistry.bindings[0]))
     const snapshot = buildPolicyEligibleAASnapshot({
-      acquisition: acquisition([apiRecord('a', 32, 1)]),
+      acquisition: acquisition([apiRecord('a', 32, 1, 2)]),
       snapshotId: 'snapshot', source: source(), rights: { mode: 'internal-only' },
     }).snapshot
     assert.throws(
       () => buildAAEvidencePack({
         packId: 'pack', snapshot, bindingRegistry: duplicateRegistry,
-        routePolicy: AA_ROUTE_POLICY_V1,
-        runtimeCompatibility: { contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT, minimumVersion: 1, maximumVersion: 1 },
+        routePolicy: AA_ROUTE_POLICY_V2,
+        runtimeCompatibility: { contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT, minimumVersion: 2, maximumVersion: 2 },
         rights: { mode: 'internal-only' },
       }),
       error => error.code === 'aa-binding-registry-key-duplicate',
@@ -215,7 +232,7 @@ describe('Evidence Pack contracts', () => {
 
   it('canonicalizes Registry permutations while allowing two exact keys to cite one stable record', () => {
     const snapshot = buildPolicyEligibleAASnapshot({
-      acquisition: acquisition([apiRecord('a', 32, 1)]),
+      acquisition: acquisition([apiRecord('a', 32, 1, 2)]),
       snapshotId: 'snapshot', source: source(), rights: { mode: 'internal-only' },
     }).snapshot
     const firstRegistry = registry()
@@ -229,9 +246,9 @@ describe('Evidence Pack contracts', () => {
     const secondRegistry = structuredClone(firstRegistry)
     secondRegistry.bindings.reverse()
     const input = {
-      packId: 'pack', snapshot, routePolicy: AA_ROUTE_POLICY_V1,
+      packId: 'pack', snapshot, routePolicy: AA_ROUTE_POLICY_V2,
       runtimeCompatibility: {
-        contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT, minimumVersion: 1, maximumVersion: 1,
+        contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT, minimumVersion: 2, maximumVersion: 2,
       },
       rights: { mode: 'internal-only' },
     }

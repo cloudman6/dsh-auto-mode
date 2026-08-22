@@ -38,7 +38,7 @@ function route({
     aaRecord: {
       recordId: `aa-${model}`,
       evaluations: { artificial_analysis_intelligence_index: score },
-      pricing: { price_1m_blended_7_to_2_to_1: price },
+      pricing: { price_1m_normalized_7_to_2_to_1: price },
       performance: { median_time_to_first_answer_token_seconds: latency },
     },
     capabilityFacts: ['fixture'],

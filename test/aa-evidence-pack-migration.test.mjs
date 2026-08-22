@@ -2,8 +2,13 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import { createHostRouteIdentity } from '../src/aa-evidence-binding.mjs'
-import { migrateLegacyAACatalogSeed } from '../src/aa-evidence-pack-migration.mjs'
+import {
+  migrateAAEvidencePackV1ToV2,
+  migrateLegacyAACatalogSeed,
+} from '../src/aa-evidence-pack-migration.mjs'
 import { compileActiveAACatalog } from '../src/aa-active-catalog.mjs'
+import { evidenceComponentDigest } from '../src/aa-evidence-pack.mjs'
+import { AA_ROUTE_POLICY_V1 } from '../src/aa-route-policy.mjs'
 
 const rule = {
   schemaVersion: 1, ruleVersion: 'p/v1', providerNamespace: 'p', providerIds: ['p'],
@@ -58,7 +63,7 @@ describe('legacy catalog seed migration', () => {
     const { route, seed } = fixture()
     const result = migrateLegacyAACatalogSeed({ seed, hostRoutes: [route], ...options })
 
-    assert.equal(result.migrationVersion, 'aa-evidence-pack-migration/v1')
+    assert.equal(result.migrationVersion, 'aa-evidence-pack-migration/v2')
     assert.equal(result.evidencePack.snapshot.snapshotId, 'legacy-snapshot')
     assert.equal(result.evidencePack.bindingRegistry.bindings[0].aaRecordId, 'aa-a')
     assert.equal('hostRouteId' in result.evidencePack.bindingRegistry.bindings[0], false)
@@ -68,6 +73,47 @@ describe('legacy catalog seed migration', () => {
       evidencePack: result.evidencePack,
       hostRoutes: [{ ...route, temperature: 1, maxTokens: 8192 }],
     }).entries[0].aaRecordId, 'aa-a')
+  })
+
+  it('adapts one validated v1 Pack and preserves legacy price provenance', () => {
+    const { route, seed } = fixture()
+    const current = migrateLegacyAACatalogSeed({ seed, hostRoutes: [route], ...options }).evidencePack
+    const legacy = structuredClone(current)
+    legacy.snapshot.snapshotVersion = 'aa-snapshot/v2'
+    legacy.snapshot.records = legacy.snapshot.records.map(record => ({
+      ...record,
+      pricing: {
+        price_1m_blended_7_to_2_to_1: record.pricing.price_1m_normalized_7_to_2_to_1,
+      },
+    }))
+    legacy.routePolicy = AA_ROUTE_POLICY_V1
+    legacy.manifest.runtimeCompatibility = {
+      contract: 'aa-evidence-pack-runtime/v1', minimumVersion: 1, maximumVersion: 1,
+    }
+    legacy.manifest.components.snapshot = {
+      version: 'aa-snapshot/v2', digest: evidenceComponentDigest(legacy.snapshot),
+    }
+    legacy.manifest.components.routePolicy = {
+      version: 'aa-route-policy/v1', digest: evidenceComponentDigest(legacy.routePolicy),
+    }
+
+    const migrated = migrateAAEvidencePackV1ToV2(legacy)
+
+    assert.equal(migrated.snapshot.snapshotVersion, 'aa-snapshot/v3')
+    assert.equal(migrated.routePolicy.policyVersion, 'aa-route-policy/v2')
+    assert.equal(migrated.snapshot.records[0].pricing.normalization.basis, 'legacy-aa-blended')
+    assert.deepEqual(
+      Object.keys(migrated.snapshot.records[0].pricing.normalization).sort(),
+      ['basis', 'version'],
+    )
+    assert.equal(compileActiveAACatalog({ evidencePack: legacy, hostRoutes: [route] }).entries.length, 1)
+
+    const tampered = structuredClone(legacy)
+    tampered.snapshot.records[0].label = 'tampered'
+    assert.throws(
+      () => migrateAAEvidencePackV1ToV2(tampered),
+      error => error.code === 'aa-evidence-pack-digest-mismatch',
+    )
   })
 
   it('rejects missing exact Host materialization and conflicting collapsed keys', () => {

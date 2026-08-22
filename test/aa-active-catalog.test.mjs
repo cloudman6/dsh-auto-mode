@@ -9,7 +9,7 @@ import {
   AA_ACTIVE_CATALOG_VERSION,
   compileActiveAACatalog,
 } from '../src/aa-active-catalog.mjs'
-import { AA_ROUTE_POLICY_V1, compileAARoutePolicyCatalog } from '../src/aa-route-policy.mjs'
+import { AA_ROUTE_POLICY_V2, compileAARoutePolicyCatalog } from '../src/aa-route-policy.mjs'
 import { createEvidenceRouteKey } from '../src/evidence-route-key.mjs'
 
 const rule = {
@@ -29,7 +29,10 @@ function record(recordId, score, price) {
     creator: { recordId: 'creator', label: 'Creator' },
     releaseDate: null,
     evaluations: { artificial_analysis_intelligence_index: score },
-    pricing: { price_1m_blended_7_to_2_to_1: price },
+    pricing: {
+      price_1m_normalized_7_to_2_to_1: price,
+      normalization: { version: 'aa-price-normalization/v1', basis: 'legacy-aa-blended' },
+    },
     performance: { median_time_to_first_answer_token_seconds: 1 },
   }
 }
@@ -51,7 +54,7 @@ function pack() {
     packId: 'fixture-pack',
     snapshot: {
       schemaVersion: 1,
-      snapshotVersion: 'aa-snapshot/v2',
+      snapshotVersion: 'aa-snapshot/v3',
       snapshotId: 'fixture-snapshot',
       capturedAt: '2026-08-22T10:00:00.000Z',
       source: {
@@ -72,11 +75,11 @@ function pack() {
         binding('c', 'aa-c', { reasonCode: 'aa-bound-record-missing' }),
       ],
     },
-    routePolicy: AA_ROUTE_POLICY_V1,
+    routePolicy: AA_ROUTE_POLICY_V2,
     runtimeCompatibility: {
       contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
-      minimumVersion: 1,
-      maximumVersion: 1,
+      minimumVersion: 2,
+      maximumVersion: 2,
     },
     rights,
   })
