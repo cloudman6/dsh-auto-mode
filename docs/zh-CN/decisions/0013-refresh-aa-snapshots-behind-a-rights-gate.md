@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md
-translation-source-blob: 9a51a67208f14cce220d02531052e3d5a03a01d6
+translation-source-blob: a08065102340d290f339598f715b45b886642c79
 translation-status: current
 -->
 
@@ -36,6 +36,8 @@ Artificial Analysis 已发布版本化 Data API。官方文档把 model ID 和 c
 把 `aa-snapshot-refresh/v1` 实现为维护者运行的离线发布工作流。它不属于 DSH runtime request path。
 
 受支持的获取 adapter 只通过 HTTPS 调用 `https://artificialanalysis.ai/api/v2/language/models`，固定 `prompt_type=medium`，遵循已文档化的 pagination envelope，并且只从 `AA_API_KEY` 读取 API key。它拒绝 redirect、过大响应、意外 tier、格式错误的 pagination、重复稳定 ID 和缺少 policy 字段。原始响应和 credential 留在 Git 忽略的本地 workspace，绝不进入浏览器 client。
+
+Host route inventory 可以保留非秘密执行控制和凭据来源引用，但不得包含凭据值。承载秘密的 Host 配置字段会在 identity 推导、candidate preparation 或派生文件发布前 fail closed，错误信息不包含字段值。
 
 每次 refresh 都使用显式 manifest，固定 source endpoint、API index version、完整 capability-methodology version、capture time、maximum age、terms version、attribution，以及两种 rights mode 之一。Snapshot ID 必须不同于 predecessor；跨更早历史的唯一性仍由维护者负责：
 

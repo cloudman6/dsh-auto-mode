@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/aa-snapshot-maintenance.md
-translation-source-blob: 8b879ad1c0627e0e4e2875b45dde93f0856b8739
+translation-source-blob: d91b3cb67f17b38de3003c77339e1f4d9be8871f
 translation-status: current
 -->
 
@@ -41,6 +41,8 @@ chmod 600 local/aa-refresh-manifest.json local/aa-binding-plan.json local/host-r
 ```
 
 替换所有 placeholder。`host-routes.json` 是当前 Host 实际 materialize 的完整 route inventory。不要手算 identity，使用命令生成评审 inventory：
+
+Inventory 可以包含非秘密的执行控制以及 `apiKeyEnv` 这类凭据引用，但绝不能包含 API key、access token、authorization header、密码、私钥、client secret 或其他凭据值。`identify` 和 `prepare` 会在写出任何派生文件前拒绝承载秘密的字段名，错误信息也不会回显字段值。
 
 ```sh
 npm run aa:snapshot -- identify \

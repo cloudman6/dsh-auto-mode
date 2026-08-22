@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import {
   AA_EVIDENCE_BINDING_VERSION,
   createHostRouteIdentity,
+  HOST_ROUTE_IDENTITY_VERSION,
 } from './aa-evidence-binding.mjs'
 import {
   AA_EVIDENCE_CATALOG_SCHEMA_VERSION,
@@ -28,6 +29,17 @@ const DAY_MILLISECONDS = 24 * 60 * 60 * 1000
 const FUTURE_TOLERANCE_MILLISECONDS = 5 * 60 * 1000
 const HOST_ROUTE_PATTERN = /^host-route:v1:[a-f0-9]{64}$/
 const CONFIG_FINGERPRINT_PATTERN = /^sha256:[a-f0-9]{64}$/
+const SENSITIVE_HOST_ROUTE_FIELDS = new Set([
+  'accesstoken',
+  'apikey',
+  'authorization',
+  'clientsecret',
+  'password',
+  'privatekey',
+  'refreshtoken',
+  'secret',
+  'token',
+])
 
 export class AASnapshotRefreshError extends TypeError {
   constructor(code, message) {
@@ -259,6 +271,23 @@ function validateHostRoutes(hostRoutes) {
   if (!Array.isArray(hostRoutes)) invalid('aa-refresh-host-routes-invalid', 'hostRoutes must be an array')
   const routes = new Map()
   for (const effectiveConfig of hostRoutes) {
+    const pending = [effectiveConfig]
+    const seen = new WeakSet()
+    while (pending.length > 0) {
+      const current = pending.pop()
+      if (current === null || typeof current !== 'object' || seen.has(current)) continue
+      seen.add(current)
+      for (const [key, value] of Object.entries(current)) {
+        const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '')
+        if (SENSITIVE_HOST_ROUTE_FIELDS.has(normalizedKey)) {
+          invalid(
+            'aa-refresh-host-routes-sensitive',
+            `Host route effective configuration must not contain the ${key} credential field`,
+          )
+        }
+        pending.push(value)
+      }
+    }
     let identity
     try {
       identity = createHostRouteIdentity(effectiveConfig)
@@ -271,6 +300,24 @@ function validateHostRoutes(hostRoutes) {
     routes.set(identity.routeId, { effectiveConfig, identity })
   }
   return routes
+}
+
+/** Build the private, deterministic identity inventory used to review bindings. */
+export function buildAASnapshotHostRouteIdentityInventory(hostRoutes) {
+  const routes = [...validateHostRoutes(hostRoutes).values()]
+    .sort((left, right) => compareText(left.identity.routeId, right.identity.routeId))
+    .map(route => ({
+      hostRouteId: route.identity.routeId,
+      effectiveConfigFingerprint: route.identity.effectiveConfigFingerprint,
+      provider: route.identity.provider,
+      model: route.identity.model,
+      effectiveConfig: JSON.parse(canonicalJson(route.effectiveConfig)),
+    }))
+  return freezeTree({
+    schemaVersion: 1,
+    identityVersion: HOST_ROUTE_IDENTITY_VERSION,
+    routes,
+  })
 }
 
 function validateBindingPlan(bindingPlan, hostRoutes) {

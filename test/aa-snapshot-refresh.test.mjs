@@ -134,6 +134,18 @@ describe('prepareAASnapshotRefresh()', () => {
     )
   })
 
+  it('rejects credential material from Host routes without echoing it', () => {
+    const input = fixture()
+    const secretValue = 'must-never-be-persisted-or-echoed'
+    input.hostRoutes[0].headers = { authorization: secretValue }
+
+    assert.throws(
+      () => prepareAASnapshotRefresh({ ...input, now: NOW }),
+      error => error.code === 'aa-refresh-host-routes-sensitive'
+        && !error.message.includes(secretValue),
+    )
+  })
+
   it('requires explicit scope assertions for written-license distribution', () => {
     const input = fixture()
     input.manifest.rights = {

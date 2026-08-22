@@ -31,6 +31,8 @@ Implement `aa-snapshot-refresh/v1` as a maintainer-run, offline publication work
 
 The supported acquisition adapter calls only `https://artificialanalysis.ai/api/v2/language/models` over HTTPS with `prompt_type=medium`, follows the documented pagination envelope, and reads the API key only from `AA_API_KEY`. It rejects redirects, oversized responses, unexpected tiers, malformed pagination, duplicate stable IDs, and missing policy fields. Raw responses and credentials remain under the Git-ignored local workspace and never enter the browser client.
 
+Host route inventories may retain non-secret execution controls and references to credential sources, but must not contain credential values. Secret-bearing Host configuration fields fail closed before identity derivation, candidate preparation, or derived-file publication, and their values are not included in errors.
+
 Every refresh uses an explicit manifest that pins the source endpoint, API index version, full capability-methodology version, capture time, maximum age, terms version, attribution, and one of two rights modes. Its snapshot ID must differ from the predecessor; maintainers remain responsible for uniqueness across older history:
 
 - `internal-only`: the default. Generated snapshots remain local and must not be redistributed.

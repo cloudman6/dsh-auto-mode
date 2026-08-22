@@ -36,6 +36,8 @@ chmod 600 local/aa-refresh-manifest.json local/aa-binding-plan.json local/host-r
 
 Replace every placeholder. `host-routes.json` is the exact current Host-materialized route inventory. Derive its review inventory instead of calculating identities by hand:
 
+The inventory may include non-secret execution controls and credential references such as `apiKeyEnv`, but it must never contain an API key, access token, authorization header, password, private key, client secret, or other credential value. `identify` and `prepare` reject secret-bearing field names before writing any derived file and do not echo their values in errors.
+
 ```sh
 npm run aa:snapshot -- identify \
   --private-root local \

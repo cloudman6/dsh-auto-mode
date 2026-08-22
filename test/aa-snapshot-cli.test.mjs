@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, it } from 'node:test'
@@ -71,6 +71,32 @@ describe('AA snapshot maintainer CLI', () => {
     )
     assert.equal(statSync(output).mode & 0o777, 0o600)
     assert.deepEqual(parseOutput(lines), { routes: 3, status: 'identified' })
+  })
+
+  it('rejects credential material in Host routes without persisting or echoing it', async () => {
+    const fixture = cliFixture()
+    const output = join(fixture.root, 'sensitive-identities.json')
+    const secretValue = 'must-never-be-persisted-or-echoed'
+    writeJSON(fixture.paths['host-routes'], [{
+      provider: 'fixture-provider',
+      model: 'fixture-model',
+      apiKey: secretValue,
+    }])
+
+    await assert.rejects(
+      runAASnapshotCLI({
+        argv: [
+          'identify',
+          '--private-root', fixture.root,
+          '--host-routes', fixture.paths['host-routes'],
+          '--output', output,
+        ],
+        stdout: () => {},
+      }),
+      error => error.code === 'aa-refresh-host-routes-sensitive'
+        && !error.message.includes(secretValue),
+    )
+    assert.equal(existsSync(output), false)
   })
 
   it('prepares, applies, and rolls back an exact reviewed candidate', async () => {
