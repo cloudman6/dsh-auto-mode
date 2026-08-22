@@ -12,14 +12,14 @@ DSH Auto Mode gives individual power users of coding agents an AA-informed Auto 
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 3 Task 8 end-to-end beta proof after completed Tasks 6–7 |
+| Stage | Phase 4 snapshot refresh after completed Phase 3 Checkpoint C |
 | Existing work | Runnable AA-informed decision path plus completed catalog, assessor, level policy, persisted projection, and Light/Standard/Deep UI |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Prove displayed, persisted, and effective routes agree across browser and available real-provider scenarios |
+| Next-stage gate | Define the acquisition and rights boundary, then prove reproducible snapshot update, rejection, inspection, and rollback |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
@@ -300,7 +300,7 @@ Do not decide these items autonomously:
 
 ## Current hard blocker
 
-Phases 1 and 2 have no remaining blocker. Current Phase 3 work and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
+Phases 1–3 have no remaining blocker. Current Phase 4 work and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
 ## Security boundaries
 

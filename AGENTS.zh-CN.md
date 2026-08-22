@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: b255fb383afe28d514111f3a0ccd08941f94e02f
+translation-source-blob: 007110c41e326b0c88a93f30d47de0d74c519f2e
 translation-status: current
 -->
 
@@ -18,14 +18,14 @@ translation-status: current
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 阶段 3 Task 6–7 已完成，当前实施 Task 8 端到端 Beta 证明 |
+| 项目阶段 | 阶段 3 Checkpoint C 已完成，当前进入阶段 4 snapshot refresh |
 | 已有成果 | 可运行 AA 驱动决策路径，以及已完成的 catalog、assessor、级别 policy、持久投影和 Light/Standard/Deep UI |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | 所需任务处理级别 → AA 报告价格 → AA 报告延迟 → 稳定 route identity |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 通过浏览器与可用真实 provider 场景证明显示、持久化和实际 route 一致 |
+| 下一阶段入口 | 定义获取与权利边界，然后证明可复现 snapshot 更新、拒绝、检查与 rollback |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
@@ -306,7 +306,7 @@ rmdir "$main_worktree/.worktrees/<task-slug>"
 
 ## 当前硬阻塞
 
-阶段 1 和阶段 2 已无剩余阻塞。当前阶段 3 工作及后续阶段问题维护在 `PROJECT_STATUS.md` 和 `docs/open-questions.md`；不要在这里复制完整清单。
+阶段 1–3 已无剩余阻塞。当前阶段 4 工作及后续阶段问题维护在 `PROJECT_STATUS.md` 和 `docs/open-questions.md`；不要在这里复制完整清单。
 
 ## 安全边界
 

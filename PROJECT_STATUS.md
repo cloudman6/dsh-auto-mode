@@ -8,9 +8,9 @@
 
 ## Current stage
 
-Phase 0P MVP, Phase 1, Phase 2, and Phase 3 Tasks 6–7 are complete. The project is ready for Task 8: prove the AA-informed beta end to end.
+Phase 0P MVP and Phases 1–3 are complete. Checkpoint C closes the AA-informed Auto beta; Phase 4 Task 9 is next.
 
-The maintained DSH fork is pinned at `afc8d47d597dfdb058a0129a8a95403df16664b4`. The runnable plugin composes the Phase 1 AA catalog and Phase 2 assessor at `agent/prepare-step`, freezes one `auto-decision/v1` for each DSH user turn, and reuses its complete effective configuration through assembly and every `agent/request` step in that turn. Required Session events preserve the route, assessment, evidence basis, versions, reason codes, and explanation for cold reconstruction. Schema-v2 decisions publish Light/Standard/Deep semantics without a prototype tier; the maintained UI shows the exact model, optional effort, handling level, and AA or configured-fallback basis. Existing schema-v1 Sessions remain readable through an explicit legacy-only mapping.
+The maintained DSH fork is pinned at `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`. The runnable plugin composes the Phase 1 AA catalog and Phase 2 assessor at `agent/prepare-step`, freezes one `auto-decision/v1` for each DSH user turn, and reuses its complete effective configuration through assembly and every `agent/request` step in that turn. Required Session events preserve the route, assessment, evidence basis, versions, reason codes, and explanation for cold reconstruction. Schema-v2 decisions publish Light/Standard/Deep semantics without a prototype tier; the maintained UI shows the exact model, optional effort, handling level, evidence basis, and exact AA snapshot when applicable. Existing schema-v1 Sessions remain readable through an explicit legacy-only mapping.
 
 ## Accepted post-MVP direction
 
@@ -41,6 +41,7 @@ The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-
 - Completed Phase 2 Task 5 and Checkpoint B without changing live routing: compatible assessor routes run through exactly one direct, tool-free `ctx.llm.stream()` call with a hard total deadline; validated attributes map through `task-handling-policy/v1`; representative semantic and failure fixtures prove deterministic Light, Standard, Deep, and fallback explanations.
 - Completed Phase 3 Task 6: current Host routes are re-materialized before each new user turn, exact AA matches are filtered before price-first resolution, and one frozen decision drives assembly, requests, persisted facts, and cold projection. The pinned-fork suite covers all three levels, monotonic escalation, configured Host-valid Deep fallback without false AA evidence, explicit no-route failure before dispatch, and Manual non-interference.
 - Completed Phase 3 Task 7: schema-v2 projections no longer publish prototype tiers; the selector and conversation facts show localized task-handling levels, actual model and optional effort, plus AA or configured Deep fallback basis. Model-only, effort-only, combined, and level-only browser transitions preserve the 1.2-second roll, business-blue highlight, two breathing cycles, durable message placement, and English/Chinese snapshots.
+- Completed Phase 3 Task 8 and Checkpoint C: a cross-repository keyless browser fixture drives the real Web UI, agent loop, Session log, and request header through Light, Standard, Deep, and Manual. Its Standard candidates prove price-first and latency-second resolution; every automatic turn proves the displayed route and AA snapshot equal the persisted selection and effective request configuration. Focused Loader and Session tests retain fallback, no-route failure, cold reconstruction, and Manual non-interference coverage. The support matrix pins fork `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`, selection schema v2, `auto-decision/v1`, `aa-evidence-catalog/v1`, `task-assessor-contract/v1`, `task-assessor-route-policy/v1`, `task-handling-policy/v1`, and `aa-route-policy/v1`.
 
 ## Current implementation plan
 
@@ -51,7 +52,8 @@ The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-
 5. Completed: call the resolved-and-frozen assessor outside Auto recursion and implement deterministic level mapping.
 6. Completed: integrate one frozen decision path through assembly, request, Session persistence, and cold projection.
 7. Completed: migrate the live UI terminology, evidence basis, optional-effort display, and transition explanations.
-8. Next: prove all beta paths end to end in browser and available real-provider scenarios.
+8. Completed: prove all beta paths end to end across the browser, Loader, Session, and effective request boundary.
+9. Next: define and implement the versioned AA snapshot refresh workflow and rights boundary.
 
 Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md), [implementation plan](tasks/plan.md), and [task checklist](tasks/todo.md).
 
@@ -61,11 +63,13 @@ Phase 1 has no remaining blocker. Its field choices, boundaries, missing-data po
 
 Phase 2 has no remaining blocker. Tasks 4–5 freeze dynamic environment-aware assessor route resolution, bounded input, a hard 12-second timeout, discrete confidence, deterministic level mapping, and strict Deep fallbacks.
 
-Phase 3 Tasks 6–7 have no remaining blocker. Task 8 has no unresolved design decision; its real-provider verification depends on provider credentials and availability in the execution environment. Stable AA acquisition, data distribution rights, within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later roadmap phases.
+Phase 3 has no remaining blocker. Task 8 found no provider credential in the verification environment, so it makes no new live-provider-call claim; the completed keyless vertical proof covers the product-specific decision path, while the accepted Phase 0P evidence remains the historical real-provider dispatch proof.
+
+Phase 4 must resolve stable AA acquisition, attribution, retention, redistribution rights, freshness, and rollback. Adding an external dependency or remote service still requires explicit maintainer authorization. Within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later phases.
 
 ## Next action
 
-Implement Phase 3 Task 8: exercise Light, Standard, Deep, price ordering, latency tie-break, fallback, no-route failure, cold reconstruction, and Manual non-interference; prove displayed, persisted, and effective request configurations agree in browser and available real-provider scenarios.
+Implement Phase 4 Task 9: define the AA acquisition and rights boundary, then build a reproducible minimized snapshot refresh that rejects malformed updates, exposes binding and band diffs, and restores the previous valid snapshot without introducing a live runtime dependency.
 
 ## Status maintenance rules
 

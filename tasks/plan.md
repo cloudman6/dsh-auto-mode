@@ -88,11 +88,13 @@ Status: complete on 2026-08-22. Schema-v2 projections omit the prototype tier, w
 
 Exercise all three levels, price ordering, latency tie-break, low-confidence fallback, missing-catalog failure, Session reconstruction, and Manual non-interference in browser and available real-provider scenarios.
 
-Status: next.
+Status: complete on 2026-08-22. The keyless cross-repository browser fixture reaches Light, Standard, Deep, and Manual through the real Web and agent loop, proves same-level price and latency ordering, and requires the displayed route and AA snapshot, persisted selection, and effective request configuration to agree. Loader and Session fixtures cover fallback, failure, and cold reconstruction. No provider credential was available for a new Phase 3 live call, so no new provider-specific result is claimed.
 
 ### Checkpoint C
 
 Displayed, persisted, and effective request routes agree for every path. Public text says AA-informed and makes no Benchmark-quality claim.
+
+Status: complete on 2026-08-22. The pinned support matrix and all schema and policy versions are recorded in `PROJECT_STATUS.md`.
 
 ## Phase 4: Snapshot maintenance
 

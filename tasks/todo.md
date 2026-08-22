@@ -122,22 +122,24 @@
 
 **Acceptance criteria:**
 
-- [ ] Different task fixtures reach all three handling levels and different eligible routes.
-- [ ] Same-level selection follows AA price and latency ordering.
-- [ ] Displayed, persisted, and effective request configurations agree; Manual remains unchanged.
+- [x] Different task fixtures reach all three handling levels and different eligible routes.
+- [x] Same-level selection follows AA price and latency ordering.
+- [x] Displayed, persisted, and effective request configurations agree; Manual remains unchanged.
 
 **Verification:**
 
-- [ ] Focused unit, Loader, Session, GUI, and available real-provider scenarios pass.
-- [ ] Public explanations contain no Benchmark, optimality, non-inferiority, or safety claim.
+- [x] Focused unit, Loader, Session, GUI, and available real-provider scenarios pass.
+- [x] Public explanations contain no Benchmark, optimality, non-inferiority, or safety claim.
+
+The verification environment exposed no provider credential, so no new Phase 3 live-provider scenario was available and no such result is claimed. The accepted Phase 0P real-provider dispatch evidence remains the live seam proof.
 
 **Dependencies:** Tasks 6 and 7
 
 ## Checkpoint C: AA-informed beta
 
-- [ ] Tasks 1–8 are complete.
-- [ ] The product is usable from one Auto action and remains transparent.
-- [ ] The current fork, plugin, catalog, assessor, and policy versions are recorded.
+- [x] Tasks 1–8 are complete.
+- [x] The product is usable from one Auto action and remains transparent.
+- [x] The current fork, plugin, catalog, assessor, and policy versions are recorded.
 
 ## Task 9: Define and implement AA snapshot refresh
 

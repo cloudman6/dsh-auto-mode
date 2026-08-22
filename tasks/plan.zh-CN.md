@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 054b4d928ae848b03915fff6fe46223a3e085886
+translation-source-blob: b9e082a24fd2f48f3185f17bbe30ce9fdfac4cfa
 translation-status: current
 -->
 
@@ -94,11 +94,13 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 在浏览器和可用真实 provider 场景覆盖三档、价格排序、延迟 tie-break、低置信度 fallback、catalog 缺失 failure、Session 重建和 Manual 不受影响。
 
-状态：下一步。
+状态：已于 2026-08-22 完成。无密钥跨仓库浏览器 fixture 通过真实 Web 与 agent loop 到达 Light、Standard、Deep 与 Manual，证明同档价格与延迟排序，并要求界面显示的 route 与 AA snapshot、持久化 selection 和实际请求配置一致。Loader 与 Session fixture 覆盖 fallback、failure 与 cold reconstruction。环境中没有可用于阶段 3 新 live call 的 provider credential，因此不新增 provider-specific 结果声明。
 
 ### Checkpoint C
 
 所有路径的显示、持久化和实际请求 route 一致。公开文字说明由 AA 驱动，不作 Benchmark 质量声明。
+
+状态：已于 2026-08-22 完成。固定支持矩阵及全部 schema 和 policy version 已记录在 `PROJECT_STATUS.md`。
 
 ## 阶段 4：快照维护
 

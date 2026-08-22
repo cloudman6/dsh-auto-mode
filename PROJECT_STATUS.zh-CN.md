@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: b03bf66e39dc0cf7adb1dd98c3873e7a98f4397b
+translation-source-blob: b4a491ab97d243ffb8168cbe09266458366de2a2
 translation-status: current
 -->
 
@@ -14,9 +14,9 @@ translation-status: current
 
 ## 当前阶段
 
-阶段 0P MVP、阶段 1、阶段 2 和阶段 3 Task 6–7 均已完成。项目已准备进入 Task 8：端到端证明 AA 驱动的 Beta。
+阶段 0P MVP 与阶段 1–3 均已完成。Checkpoint C 已关闭 AA 驱动 Auto Beta；下一步是阶段 4 Task 9。
 
-维护者 DSH fork 固定在 `afc8d47d597dfdb058a0129a8a95403df16664b4`。可运行插件在 `agent/prepare-step` 组合阶段 1 AA catalog 与阶段 2 assessor，为每个 DSH 用户 turn 冻结一项 `auto-decision/v1`，并在该 turn 的 assembly 与每个 `agent/request` step 中复用其完整实际配置。必需 Session 事件保留 route、assessment、evidence basis、版本、reason code 与解释，供 cold reconstruction 使用。Schema v2 决策不再发布原型 tier；维护 UI 显示准确 model、可选 effort、任务处理级别和 AA 或配置 fallback 依据。现有 schema v1 Session 仍通过明确的仅旧版 mapping 可读。
+维护者 DSH fork 固定在 `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`。可运行插件在 `agent/prepare-step` 组合阶段 1 AA catalog 与阶段 2 assessor，为每个 DSH 用户 turn 冻结一项 `auto-decision/v1`，并在该 turn 的 assembly 与每个 `agent/request` step 中复用其完整实际配置。必需 Session 事件保留 route、assessment、evidence basis、版本、reason code 与解释，供 cold reconstruction 使用。Schema v2 决策不再发布原型 tier；维护 UI 显示准确 model、可选 effort、任务处理级别、证据依据及适用时的准确 AA 快照。现有 schema v1 Session 仍通过明确的仅旧版 mapping 可读。
 
 ## 已接受的 MVP 后方向
 
@@ -47,6 +47,7 @@ Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-rou
 - 完成阶段 2 Task 5 和 Checkpoint B，且不改变 live routing：兼容 assessor route 通过恰好一次直接、无工具 `ctx.llm.stream()` 调用执行，并带硬总 deadline；已校验属性通过 `task-handling-policy/v1` 映射；代表性语义和失败 fixture 证明 Light、Standard、Deep 与 fallback 解释均为确定结果。
 - 完成阶段 3 Task 6：每个新用户 turn 前重新物化当前 Host route，在价格优先解析前筛选精确 AA match，并让一项冻结决策驱动 assembly、request、持久事实与 cold projection。固定 fork suite 覆盖三档、单调升级、无虚假 AA evidence 的配置 Host-valid Deep fallback、dispatch 前明确 no-route failure，以及 Manual 不受影响。
 - 完成阶段 3 Task 7：schema v2 projection 不再发布原型 tier；selector 与 conversation fact 显示本地化任务处理级别、实际 model 与可选 effort，以及 AA 或配置 Deep fallback 依据。仅 model、仅 effort、二者同时和仅 level 变化的浏览器过渡均保留 1.2 秒滚动、业务蓝高亮、两次呼吸、持久消息位置和中英文 snapshot。
+- 完成阶段 3 Task 8 与 Checkpoint C：跨仓库无密钥浏览器 fixture 驱动真实 Web UI、agent loop、Session 日志和请求头依次经过 Light、Standard、Deep 与 Manual。常规级候选证明先比较价格、再比较延迟；每个自动 turn 都证明界面显示的 route 与 AA snapshot 等于持久化 selection 和实际请求配置。聚焦 Loader 与 Session 测试继续覆盖 fallback、no-route failure、cold reconstruction 和 Manual 不受影响。支持矩阵固定 fork `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`、selection schema v2、`auto-decision/v1`、`aa-evidence-catalog/v1`、`task-assessor-contract/v1`、`task-assessor-route-policy/v1`、`task-handling-policy/v1` 与 `aa-route-policy/v1`。
 
 ## 当前实施计划
 
@@ -57,7 +58,8 @@ Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-rou
 5. 已完成：在 Auto 递归之外调用已解析并冻结的 assessor，并实现确定性级别 mapping。
 6. 已完成：把单一冻结决策路径集成到 assembly、request、Session persistence 与 cold projection。
 7. 已完成：迁移 live UI 术语、evidence basis、可选 effort 展示和过渡解释。
-8. 下一步：在浏览器与可用真实 provider 场景中端到端证明所有 Beta 路径。
+8. 已完成：跨浏览器、Loader、Session 与实际请求边界端到端证明全部 Beta 路径。
+9. 下一步：定义并实现版本化 AA snapshot refresh 工作流与权利边界。
 
 详细依赖和验收在 [roadmap](docs/zh-CN/roadmap.md)、[实施计划](tasks/plan.zh-CN.md)和[任务清单](tasks/todo.zh-CN.md)中。
 
@@ -67,11 +69,13 @@ Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-rou
 
 阶段 2 已无剩余阻塞。Task 4–5 冻结动态环境感知 assessor route 解析、有限输入、硬 12 秒 timeout、离散 confidence、确定性级别映射和严格 Deep fallback。
 
-阶段 3 Task 6–7 已无剩余阻塞。Task 8 没有未解决的设计决策；真实 provider 验证取决于执行环境中的 provider credential 与可用性。稳定 AA 获取、数据分发权利、Session 内自适应、恢复、子 Agent 路由和官方 DSH 兼容属于后续阶段。
+阶段 3 已无剩余阻塞。Task 8 的验证环境中没有 provider credential，因此不新增 live-provider-call 声明；已完成的无密钥纵向证明覆盖产品特有决策路径，已接受的阶段 0P 证据继续作为历史真实 provider dispatch 证明。
+
+阶段 4 必须解决稳定 AA 获取、attribution、retention、redistribution rights、freshness 与 rollback。增加外部依赖或远程服务仍需维护者明确授权。Session 内自适应、恢复、子 Agent 路由和官方 DSH 兼容属于后续阶段。
 
 ## 下一步
 
-实施阶段 3 Task 8：覆盖 Light、Standard、Deep、price ordering、latency tie-break、fallback、no-route failure、cold reconstruction 与 Manual 不受影响；在浏览器及可用真实 provider 场景中证明显示、持久化和实际请求配置一致。
+实施阶段 4 Task 9：定义 AA 获取与权利边界，然后构建可复现的最小化 snapshot refresh；它必须拒绝格式错误的更新、展示 binding 与 band diff，并在不引入 live runtime dependency 的前提下恢复上一份有效 snapshot。
 
 ## 状态维护规则
 

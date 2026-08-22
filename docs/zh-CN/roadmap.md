@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: 55b3bc8e6de5e552575adfb7b8c5c10e2ed1e1d0
+translation-source-blob: 335f39451211bd79adc66d6d00a5d4c9ec8f491b
 translation-status: current
 -->
 
@@ -87,7 +87,9 @@ Task 5 和阶段 2 已于 2026-08-22 完成。`task-handling-policy/v1` 确定�
 
 Task 6 已于 2026-08-22 完成。`auto-decision/v1` 现在会在 Host 拥有的 DSH 用户 turn 边界刷新，并在该 turn 的所有 step 中保持冻结。固定 fork composition 证明三档、单调升级、明确配置的 Deep fallback、dispatch 前 no-route failure、assembly/request/Session 精确一致、cold reconstruction 和 Manual 不受影响。
 
-Task 7 已于 2026-08-22 完成。Schema v2 projection 与维护 UI 使用 Light/Standard/Deep，不再发布原型 tier；它们显示实际 model 与可选 effort，区分 AA evidence 与配置 Deep fallback，并保留 schema v1 replay。组件与浏览器 fixture 保留仅 model、仅 effort、二者同时和仅 level 变化、本地化 snapshot，以及现有动画和 conversation 位置。Task 8 仍负责浏览器与可用真实 provider 的 Beta 证明。
+Task 7 已于 2026-08-22 完成。Schema v2 projection 与维护 UI 使用 Light/Standard/Deep，不再发布原型 tier；它们显示实际 model 与可选 effort，区分 AA evidence 与配置 Deep fallback，并保留 schema v1 replay。组件与浏览器 fixture 保留仅 model、仅 effort、二者同时和仅 level 变化、本地化 snapshot，以及现有动画和 conversation 位置。
+
+Task 8 与 Checkpoint C 已于 2026-08-22 完成。无密钥跨仓库浏览器 fixture 会挂载外部插件，并通过真实 Web 与 agent loop 证明 Light、Standard、Deep、价格排序、延迟 tie-break、显示／持久化／请求精确一致、source snapshot 可见和退出 Auto 后的 Manual。Loader 与 Session fixture 继续覆盖低置信度 fallback、catalog 缺失 failure、cold reconstruction 和 Manual 不受影响。环境中没有可用于阶段 3 新 live call 的 provider credential；本次完成组合 provider-neutral 纵向证明与已接受的阶段 0P 真实 provider dispatch 证据，不新增 provider-specific 声明。
 
 ## 阶段 4：Catalog 更新与分发
 

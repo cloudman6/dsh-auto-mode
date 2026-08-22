@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: fc7ca53f5f42964ed3564b1f4edfb59d3fa8f8be
+translation-source-blob: 84f67ec453ca40b639f217e91b2255810d978e6a
 translation-status: current
 -->
 
@@ -128,22 +128,24 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] 不同 task fixture 到达三档和不同合格 route。
-- [ ] 同档选择遵循 AA price 和 latency 排序。
-- [ ] 显示、持久化和实际请求配置一致；Manual 不变。
+- [x] 不同 task fixture 到达三档和不同合格 route。
+- [x] 同档选择遵循 AA price 和 latency 排序。
+- [x] 显示、持久化和实际请求配置一致；Manual 不变。
 
 **验证：**
 
-- [ ] 聚焦 unit、Loader、Session、GUI 和可用真实 provider 场景通过。
-- [ ] 公开解释不包含 Benchmark、optimality、non-inferiority 或 safety claim。
+- [x] 聚焦 unit、Loader、Session、GUI 和可用真实 provider 场景通过。
+- [x] 公开解释不包含 Benchmark、optimality、non-inferiority 或 safety claim。
+
+验证环境没有提供 provider credential，因此没有可运行的阶段 3 新 live-provider 场景，也不声明此类结果。已接受的阶段 0P 真实 provider dispatch 证据继续作为 live seam 证明。
 
 **依赖：**Task 6、7
 
 ## Checkpoint C：AA 驱动 Beta
 
-- [ ] Task 1–8 完成。
-- [ ] 产品通过一次 Auto 操作即可使用且保持透明。
-- [ ] 当前 fork、plugin、catalog、assessor 和 policy version 已记录。
+- [x] Task 1–8 完成。
+- [x] 产品通过一次 Auto 操作即可使用且保持透明。
+- [x] 当前 fork、plugin、catalog、assessor 和 policy version 已记录。
 
 ## Task 9：定义并实现 AA snapshot 更新
 

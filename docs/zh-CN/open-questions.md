@@ -1,19 +1,12 @@
 <!--
 translation-source: docs/open-questions.md
-translation-source-blob: 0b6b91232b92bbad9a2fa3ae4b54c880a5e23e91
+translation-source-blob: a95b9fae5a4c8ff6d3f4bf1152a104a94661310b
 translation-status: current
 -->
 
 # 开放问题
 
 [English](../open-questions.md)
-
-## 阶段 3：Auto Beta
-
-1. 配置的 Deep fallback 属于全局、项目还是 Session？
-2. 哪些解释默认显示，哪些留在检查详情中？
-3. 哪种用户措辞区分 AA 匹配 route 与配置 fallback？
-4. 哪个 fork commit 和 plugin version 定义首个 Beta support matrix？
 
 ## 阶段 4：AA 更新
 
@@ -31,7 +24,8 @@ translation-status: current
 
 ## 产品与生态
 
-1. 长期载体是维护者 DSH fork、上游 extension 还是拆分 package？
-2. 经同意后可以收集哪些最小化 dogfood signal，保留多久？
-3. 社区 AA evidence binding 和 policy profile 如何评审、版本化和回滚？
-4. 哪些 Codex 与 Claude Code API 足以控制 model 和 effort？
+1. 配置的 Deep fallback 属于全局、项目还是 Session？
+2. 长期载体是维护者 DSH fork、上游 extension 还是拆分 package？
+3. 经同意后可以收集哪些最小化 dogfood signal，保留多久？
+4. 社区 AA evidence binding 和 policy profile 如何评审、版本化和回滚？
+5. 哪些 Codex 与 Claude Code API 足以控制 model 和 effort？
