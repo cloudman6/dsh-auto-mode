@@ -6,6 +6,12 @@ import { describe, it } from 'node:test'
 import { spawn } from 'node:child_process'
 
 import { createHostRouteIdentity } from '../src/aa-evidence-binding.mjs'
+import {
+  AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
+  buildAAEvidencePack,
+} from '../src/aa-evidence-pack.mjs'
+import { AA_ROUTE_POLICY_V1 } from '../src/aa-route-policy.mjs'
+import { createEvidenceRouteKey } from '../src/evidence-route-key.mjs'
 
 const projectRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const dshRoot = process.env.DSH_FORK_ROOT
@@ -61,18 +67,80 @@ function seed() {
   }
 }
 
+function evidencePack() {
+  const routes = [
+    catalogRoute(LIGHT_ROUTE, 30),
+    catalogRoute(STANDARD_ROUTE, 40),
+    catalogRoute(DEEP_ROUTE, 55),
+  ]
+  const rule = {
+    schemaVersion: 1,
+    ruleVersion: 'cli-mock/v1',
+    providerNamespace: 'cli-mock',
+    providerIds: ['cli-mock'],
+    modelAliases: Object.fromEntries(routes.map(route => [route.identity.model, route.identity.model])),
+    evidenceControls: [{ key: 'effort', source: 'reasoningEffort', required: false }],
+  }
+  const rights = { mode: 'internal-only' }
+  return buildAAEvidencePack({
+    packId: 'pinned-loader-pack',
+    snapshot: {
+      schemaVersion: 1,
+      snapshotVersion: 'aa-snapshot/v2',
+      snapshotId: 'aa-pinned-loader-pack-fixture',
+      capturedAt: '2026-08-22T10:00:00.000Z',
+      source: {
+        methodologyVersion: 'v4.1.1',
+        terms: { version: '1.1', revisedAt: '2026-08-19', url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf' },
+        attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
+      },
+      rights,
+      records: routes.map(route => route.record).sort((left, right) => left.recordId.localeCompare(right.recordId)),
+    },
+    bindingRegistry: {
+      schemaVersion: 1,
+      registryVersion: 'aa-binding-registry/v1',
+      normalizationRules: [rule],
+      bindings: routes.map(route => ({
+        evidenceRouteKey: createEvidenceRouteKey({
+          provider: route.identity.provider,
+          model: route.identity.model,
+          reasoningEffort: route.identity.model === LIGHT_ROUTE.model
+            ? LIGHT_ROUTE.reasoningEffort
+            : route.identity.model === STANDARD_ROUTE.model
+              ? STANDARD_ROUTE.reasoningEffort
+              : DEEP_ROUTE.reasoningEffort,
+        }, rule),
+        aaRecordId: route.record.recordId,
+        ruleVersion: rule.ruleVersion,
+        matchBasis: ['pinned Loader fixture'],
+        limitations: [],
+        quarantine: null,
+      })),
+    },
+    routePolicy: AA_ROUTE_POLICY_V1,
+    runtimeCompatibility: {
+      contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
+      minimumVersion: 1,
+      maximumVersion: 1,
+    },
+    rights,
+  })
+}
+
 async function runScenario(task, mode, {
   hostRoutes = [LIGHT_ROUTE, STANDARD_ROUTE, DEEP_ROUTE],
   deepFallback = DEEP_ROUTE,
   root: existingRoot,
   resumeSessionId,
   coldProjectionOnly = false,
+  useEvidencePack = false,
 } = {}) {
   if (typeof process.env.TMPDIR !== 'string' || process.env.TMPDIR === '') {
     throw new Error('pinned Loader integration requires TMPDIR')
   }
   const root = existingRoot ?? await mkdtemp(join(process.env.TMPDIR, 'codex-dsh-auto-loader.'))
-  const seedPath = join(root, 'seed.json')
+  const seedPath = join(root, useEvidencePack ? 'evidence-pack.json' : 'seed.json')
   const configPath = join(root, 'cordis.yml')
   const pluginPath = join(projectRoot, 'src/plugin.mjs')
   const assessorFixturePath = join(projectRoot, 'test-support/task-assessor-llm.mjs')
@@ -82,7 +150,7 @@ async function runScenario(task, mode, {
     ? join(projectRoot, 'test-support/cold-session-driver.mjs')
     : join(dshRoot, 'examples/headless-agent/tests/fixtures/headless-driver.ts')
   const autoConfig = indent => `${indent}mode: ${mode}
-${indent}seedPath: ${quoteYaml(seedPath)}
+${indent}${useEvidencePack ? 'evidencePackPath' : 'seedPath'}: ${quoteYaml(seedPath)}
 ${indent}hostRoutes: ${JSON.stringify(hostRoutes)}
 ${deepFallback === undefined ? '' : `${indent}deepFallback: ${JSON.stringify(deepFallback)}\n`}`
   const agentConfig = indent => `${indent}- id: main
@@ -91,7 +159,7 @@ ${indent}  model: cli-manual
 ${resumeSessionId === undefined
     ? `${indent}  cwd: ${quoteYaml(root)}\n`
     : `${indent}  resumeSessionId: ${quoteYaml(resumeSessionId)}\n`}`
-  await writeFile(seedPath, `${JSON.stringify(seed(), null, 2)}\n`)
+  await writeFile(seedPath, `${JSON.stringify(useEvidencePack ? evidencePack() : seed(), null, 2)}\n`)
   await writeFile(configPath, `
 - id: cli-mock-llm
   name: ${quoteYaml(mockPath)}
@@ -212,6 +280,19 @@ function assertSelectionsMatchEffectiveHeaders(events) {
 }
 
 describe('pinned DSH Loader integration', { skip: !runIntegration }, () => {
+  it('loads the reusable Evidence Pack through Loader and persists both identities', async () => {
+    const events = sessionEvents(await run('[standard] Change two files.', 'auto', {
+      useEvidencePack: true,
+    }))
+    const decision = events.find(event => event.type === 'dsh-auto-mode/selection')
+
+    assert.equal(decision.data.handlingLevel, 'standard')
+    assert.equal(decision.data.evidencePackId, 'pinned-loader-pack')
+    assert.match(decision.data.evidenceRouteKeyId, /^evidence-route-key:v1:/)
+    assert.match(decision.data.effectiveConfigFingerprint, /^sha256:/)
+    assertSelectionsMatchEffectiveHeaders(events)
+  })
+
   it('covers Light, Standard, and Deep with persisted request/header equality', async () => {
     const fixtures = [
       ['[light] Format one line.', 'light', LIGHT_ROUTE],

@@ -57,6 +57,14 @@ function migrateRecord(record) {
   }
 }
 
+function migrateTimestamp(value) {
+  const milliseconds = Date.parse(value)
+  if (!Number.isFinite(milliseconds)) {
+    invalid('aa-migration-input-invalid', 'legacy snapshot capturedAt is invalid')
+  }
+  return new Date(milliseconds).toISOString()
+}
+
 /** Convert one reviewed schema-v1 catalog seed into the accepted reusable pack. */
 export function migrateLegacyAACatalogSeed({
   seed,
@@ -119,7 +127,7 @@ export function migrateLegacyAACatalogSeed({
     schemaVersion: 1,
     snapshotVersion: 'aa-snapshot/v2',
     snapshotId: seed.snapshot.snapshotId,
-    capturedAt: seed.snapshot.source?.capturedAt,
+    capturedAt: migrateTimestamp(seed.snapshot.source?.capturedAt),
     source: clone(source),
     rights: clone(rights),
     records: seed.snapshot.records.map(migrateRecord)

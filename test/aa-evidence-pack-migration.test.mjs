@@ -45,7 +45,11 @@ function fixture() {
 const options = {
   packId: 'migrated-pack',
   normalizationRules: [rule],
-  source: { methodologyVersion: 'v4.1.1', attribution: 'Fixture' },
+  source: {
+    methodologyVersion: 'v4.1.1',
+    terms: { version: '1.1', revisedAt: '2026-08-19', url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf' },
+    attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
+  },
   rights: { mode: 'internal-only' },
 }
 

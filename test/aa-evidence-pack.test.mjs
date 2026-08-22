@@ -6,6 +6,7 @@ import {
   buildAAEvidencePack,
   buildPolicyEligibleAASnapshot,
   evidenceComponentDigest,
+  serializeEvidenceComponent,
   validateAAEvidencePack,
 } from '../src/aa-evidence-pack.mjs'
 import { AA_ROUTE_POLICY_V1 } from '../src/aa-route-policy.mjs'
@@ -70,7 +71,7 @@ function registry() {
       ruleVersion: 'fixture-normalization/v1',
       providerNamespace: 'fixture',
       providerIds: ['fixture'],
-      modelAliases: { 'model-a': 'model-a' },
+      modelAliases: { 'model-a': 'model-a', 'model-b': 'model-b' },
       evidenceControls: [{ key: 'reasoningEffort', source: 'reasoningEffort', required: false }],
     }],
     bindings: [{
@@ -197,5 +198,47 @@ describe('Evidence Pack contracts', () => {
       }),
       error => error.code === 'aa-binding-registry-key-duplicate',
     )
+  })
+
+  it('rejects oversized and accessor-backed nondeterministic components', () => {
+    assert.throws(
+      () => serializeEvidenceComponent({ payload: 'x'.repeat(16 * 1024 * 1024) }),
+      error => error.code === 'aa-evidence-pack-component-too-large',
+    )
+    const accessor = {}
+    Object.defineProperty(accessor, 'value', { enumerable: true, get: () => 'unstable' })
+    assert.throws(
+      () => serializeEvidenceComponent(accessor),
+      error => error.code === 'aa-evidence-pack-invalid',
+    )
+  })
+
+  it('canonicalizes Registry permutations while allowing two exact keys to cite one stable record', () => {
+    const snapshot = buildPolicyEligibleAASnapshot({
+      acquisition: acquisition([apiRecord('a', 32, 1)]),
+      snapshotId: 'snapshot', source: source(), rights: { mode: 'internal-only' },
+    }).snapshot
+    const firstRegistry = registry()
+    firstRegistry.bindings.push({
+      ...structuredClone(firstRegistry.bindings[0]),
+      evidenceRouteKey: {
+        ...structuredClone(firstRegistry.bindings[0].evidenceRouteKey),
+        modelKey: 'model-b',
+      },
+    })
+    const secondRegistry = structuredClone(firstRegistry)
+    secondRegistry.bindings.reverse()
+    const input = {
+      packId: 'pack', snapshot, routePolicy: AA_ROUTE_POLICY_V1,
+      runtimeCompatibility: {
+        contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT, minimumVersion: 1, maximumVersion: 1,
+      },
+      rights: { mode: 'internal-only' },
+    }
+
+    const first = buildAAEvidencePack({ ...input, bindingRegistry: firstRegistry })
+    const second = buildAAEvidencePack({ ...input, bindingRegistry: secondRegistry })
+    assert.deepEqual(second, first)
+    assert.equal(first.bindingRegistry.bindings.filter(binding => binding.aaRecordId === 'a').length, 2)
   })
 })

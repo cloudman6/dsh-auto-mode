@@ -178,7 +178,11 @@ function phase4Pack(routes) {
       snapshotVersion: 'aa-snapshot/v2',
       snapshotId: 'aa-phase4-plugin-fixture',
       capturedAt: '2026-08-22T10:00:00.000Z',
-      source: { methodologyVersion: 'v4.1.1', attribution: 'Fixture' },
+      source: {
+        methodologyVersion: 'v4.1.1',
+        terms: { version: '1.1', revisedAt: '2026-08-19', url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf' },
+        attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
+      },
       rights,
       records: routes.map(route => ({ ...route.record, slug: null })).sort(
         (left, right) => left.recordId.localeCompare(right.recordId),

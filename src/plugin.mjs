@@ -16,9 +16,38 @@ const SELECTION_EVENT = 'dsh-auto-mode/selection'
 const RESOLUTION_FAILURE_EVENT = 'dsh-auto-mode/resolution-failure'
 const MODE_EVENT = 'dsh-auto-mode/mode'
 const EVIDENCE_STATUS = 'experimental-unadmitted'
+const MAX_ROUTING_ARTIFACT_BYTES = 16 * 1024 * 1024
+const MAX_ROUTING_ARTIFACT_DEPTH = 64
+const MAX_ROUTING_ARTIFACT_NODES = 250_000
 
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function validateArtifactComplexity(value) {
+  const pending = [{ value, depth: 0 }]
+  let nodes = 0
+  while (pending.length > 0) {
+    const current = pending.pop()
+    nodes += 1
+    if (nodes > MAX_ROUTING_ARTIFACT_NODES || current.depth > MAX_ROUTING_ARTIFACT_DEPTH) {
+      throw new TypeError('dsh-auto-mode: routing artifact is too complex')
+    }
+    if (current.value !== null && typeof current.value === 'object') {
+      for (const child of Object.values(current.value)) {
+        pending.push({ value: child, depth: current.depth + 1 })
+      }
+    }
+  }
+  return value
+}
+
+function readRoutingArtifact(path) {
+  const bytes = readFileSync(path)
+  if (bytes.byteLength > MAX_ROUTING_ARTIFACT_BYTES) {
+    throw new TypeError('dsh-auto-mode: routing artifact exceeds 16 MiB')
+  }
+  return validateArtifactComplexity(JSON.parse(bytes.toString('utf8')))
 }
 
 function loadSeed(config) {
@@ -27,14 +56,21 @@ function loadSeed(config) {
     throw new TypeError('dsh-auto-mode: Auto mode requires seed or seedPath')
   }
   const path = resolve(process.cwd(), config.seedPath)
-  return JSON.parse(readFileSync(path, 'utf8'))
+  return readRoutingArtifact(path)
 }
 
 function loadRoutingArtifact(config) {
-  if (config.evidencePack !== undefined) return config.evidencePack
+  const evidenceInputs = Number(config.evidencePack !== undefined)
+    + Number(typeof config.evidencePackPath === 'string' && config.evidencePackPath.trim() !== '')
+  const seedInputs = Number(config.seed !== undefined)
+    + Number(typeof config.seedPath === 'string' && config.seedPath.trim() !== '')
+  if (evidenceInputs > 1 || seedInputs > 1 || (evidenceInputs > 0 && seedInputs > 0)) {
+    throw new TypeError('dsh-auto-mode: configure exactly one routing artifact input')
+  }
+  if (config.evidencePack !== undefined) return validateArtifactComplexity(config.evidencePack)
   if (typeof config.evidencePackPath === 'string' && config.evidencePackPath.trim() !== '') {
     const path = resolve(process.cwd(), config.evidencePackPath)
-    return JSON.parse(readFileSync(path, 'utf8'))
+    return readRoutingArtifact(path)
   }
   return loadSeed(config)
 }

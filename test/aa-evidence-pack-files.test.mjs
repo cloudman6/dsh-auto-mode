@@ -17,7 +17,11 @@ import { prepareAAEvidencePackRefresh } from '../src/aa-evidence-pack-refresh.mj
 import { AA_ROUTE_POLICY_V1 } from '../src/aa-route-policy.mjs'
 
 const rights = { mode: 'internal-only' }
-const source = { methodologyVersion: 'v4.1.1', terms: { version: '1.1' }, attribution: 'Fixture' }
+const source = {
+  methodologyVersion: 'v4.1.1',
+  terms: { version: '1.1', revisedAt: '2026-08-19', url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf' },
+  attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
+}
 const rule = {
   schemaVersion: 1, ruleVersion: 'fixture/v1', providerNamespace: 'fixture',
   providerIds: ['p'], modelAliases: { a: 'a' }, evidenceControls: [],

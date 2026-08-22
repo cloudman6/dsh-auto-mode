@@ -16,8 +16,8 @@ import { createEvidenceRouteKey } from '../src/evidence-route-key.mjs'
 const rights = { mode: 'internal-only' }
 const source = {
   methodologyVersion: 'v4.1.1',
-  terms: { version: '1.1', revisedAt: '2026-08-19', url: 'https://example.invalid/terms' },
-  attribution: 'Fixture',
+  terms: { version: '1.1', revisedAt: '2026-08-19', url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf' },
+  attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
 }
 const rule = {
   schemaVersion: 1,

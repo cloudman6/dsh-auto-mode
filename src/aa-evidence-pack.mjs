@@ -13,6 +13,10 @@ export const AA_BINDING_REGISTRY_VERSION = 'aa-binding-registry/v1'
 export const AA_EVIDENCE_PACK_MANIFEST_VERSION = 'aa-evidence-pack-manifest/v1'
 export const AA_EVIDENCE_PACK_RUNTIME_CONTRACT = 'aa-evidence-pack-runtime/v1'
 export const AA_EVIDENCE_PACK_RUNTIME_VERSION = 1
+export const AA_EVIDENCE_PACK_TERMS_VERSION = '1.1'
+export const AA_EVIDENCE_PACK_TERMS_REVISED_AT = '2026-08-19'
+export const AA_EVIDENCE_PACK_TERMS_URL = 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf'
+export const AA_EVIDENCE_PACK_ATTRIBUTION = 'Source: Artificial Analysis (artificialanalysis.ai)'
 
 const AA_ENDPOINT = 'https://artificialanalysis.ai/api/v2/language/models'
 const MAX_RECORDS = 10_000
@@ -227,7 +231,13 @@ function validateSnapshot(snapshot) {
   if (snapshot.source.methodologyVersion !== 'v4.1.1') {
     invalid('aa-snapshot-methodology-mismatch', 'snapshot methodology must remain v4.1.1')
   }
-  requiredString(snapshot.source.attribution, 'snapshot.source.attribution', 'aa-snapshot-invalid')
+  if (snapshot.source.attribution !== AA_EVIDENCE_PACK_ATTRIBUTION
+    || !isRecord(snapshot.source.terms)
+    || snapshot.source.terms.version !== AA_EVIDENCE_PACK_TERMS_VERSION
+    || snapshot.source.terms.revisedAt !== AA_EVIDENCE_PACK_TERMS_REVISED_AT
+    || snapshot.source.terms.url !== AA_EVIDENCE_PACK_TERMS_URL) {
+    invalid('aa-evidence-pack-rights-invalid', 'snapshot must retain the reviewed AA terms and attribution')
+  }
   const ids = new Set()
   let previous = null
   for (const record of snapshot.records) {
@@ -303,7 +313,7 @@ function validateStringList(value, path, { allowEmpty = true } = {}) {
   }
 }
 
-export function validateBindingRegistry(registry) {
+export function validateBindingRegistry(registry, { requireCanonicalOrder = true } = {}) {
   if (!isRecord(registry) || registry.schemaVersion !== AA_BINDING_REGISTRY_SCHEMA_VERSION
     || registry.registryVersion !== AA_BINDING_REGISTRY_VERSION
     || !Array.isArray(registry.normalizationRules) || registry.normalizationRules.length === 0
@@ -312,12 +322,18 @@ export function validateBindingRegistry(registry) {
   }
   const ruleVersions = new Set()
   const providerIds = new Set()
+  let previousRuleVersion = null
   for (const candidate of registry.normalizationRules) {
     const rule = validateProviderNormalizationRule(candidate)
     if (ruleVersions.has(rule.ruleVersion)) {
       invalid('aa-binding-registry-rule-duplicate', `rule version ${rule.ruleVersion} occurs more than once`)
     }
     ruleVersions.add(rule.ruleVersion)
+    if (requireCanonicalOrder && previousRuleVersion !== null
+      && previousRuleVersion.localeCompare(rule.ruleVersion) >= 0) {
+      invalid('aa-binding-registry-order-invalid', 'normalization rules must be sorted by rule version')
+    }
+    previousRuleVersion = rule.ruleVersion
     for (const providerId of rule.providerIds) {
       if (providerIds.has(providerId)) {
         invalid('aa-binding-registry-rule-ambiguous', `provider ${providerId} is owned by more than one rule`)
@@ -326,11 +342,16 @@ export function validateBindingRegistry(registry) {
     }
   }
   const keys = new Set()
+  let previousKeyId = null
   for (const binding of registry.bindings) {
     if (!isRecord(binding)) invalid('aa-binding-registry-invalid', 'binding must be an object')
     const keyId = evidenceRouteKeyId(binding.evidenceRouteKey)
     if (keys.has(keyId)) invalid('aa-binding-registry-key-duplicate', `binding key ${keyId} occurs more than once`)
+    if (requireCanonicalOrder && previousKeyId !== null && previousKeyId.localeCompare(keyId) >= 0) {
+      invalid('aa-binding-registry-order-invalid', 'bindings must be sorted by EvidenceRouteKey ID')
+    }
     keys.add(keyId)
+    previousKeyId = keyId
     requiredString(binding.aaRecordId, 'binding.aaRecordId', 'aa-binding-registry-invalid', 128)
     requiredString(binding.ruleVersion, 'binding.ruleVersion', 'aa-binding-registry-invalid', 128)
     if (!ruleVersions.has(binding.ruleVersion)) {
@@ -362,6 +383,12 @@ function validateManifest(manifest, components) {
   }
   requiredString(manifest.packId, 'manifest.packId', 'aa-evidence-pack-manifest-invalid', 128)
   validateRights(manifest.rights)
+  if (!isRecord(manifest.components)
+    || Object.keys(manifest.components).sort().join('\0') !== [
+      'bindingRegistry', 'routePolicy', 'snapshot',
+    ].join('\0')) {
+    invalid('aa-evidence-pack-manifest-invalid', 'manifest must contain exactly the three component descriptors')
+  }
   const compatibility = manifest.runtimeCompatibility
   if (!isRecord(compatibility) || compatibility.contract !== AA_EVIDENCE_PACK_RUNTIME_CONTRACT
     || !Number.isInteger(compatibility.minimumVersion)
@@ -411,7 +438,13 @@ export function buildAAEvidencePack({
   rights,
 }) {
   validateSnapshot(snapshot)
-  validateBindingRegistry(bindingRegistry)
+  validateBindingRegistry(bindingRegistry, { requireCanonicalOrder: false })
+  const canonicalRegistry = JSON.parse(canonicalJson(bindingRegistry))
+  canonicalRegistry.normalizationRules.sort((left, right) => left.ruleVersion.localeCompare(right.ruleVersion))
+  canonicalRegistry.bindings.sort((left, right) => (
+    evidenceRouteKeyId(left.evidenceRouteKey).localeCompare(evidenceRouteKeyId(right.evidenceRouteKey))
+  ))
+  validateBindingRegistry(canonicalRegistry)
   validateRoutePolicy(routePolicy)
   validateRights(rights)
   const manifest = {
@@ -422,9 +455,9 @@ export function buildAAEvidencePack({
     rights: JSON.parse(canonicalJson(rights)),
     components: {
       snapshot: { version: snapshot.snapshotVersion, digest: evidenceComponentDigest(snapshot) },
-      bindingRegistry: { version: bindingRegistry.registryVersion, digest: evidenceComponentDigest(bindingRegistry) },
+      bindingRegistry: { version: canonicalRegistry.registryVersion, digest: evidenceComponentDigest(canonicalRegistry) },
       routePolicy: { version: routePolicy.policyVersion, digest: evidenceComponentDigest(routePolicy) },
     },
   }
-  return validateAAEvidencePack({ snapshot, bindingRegistry, routePolicy, manifest })
+  return validateAAEvidencePack({ snapshot, bindingRegistry: canonicalRegistry, routePolicy, manifest })
 }

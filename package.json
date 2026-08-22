@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "aa:evidence-pack": "node scripts/aa-evidence-pack.mjs",
     "aa:snapshot": "node scripts/aa-snapshot-refresh.mjs",
     "test": "node --test"
   },

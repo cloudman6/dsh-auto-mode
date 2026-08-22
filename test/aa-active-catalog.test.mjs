@@ -54,7 +54,11 @@ function pack() {
       snapshotVersion: 'aa-snapshot/v2',
       snapshotId: 'fixture-snapshot',
       capturedAt: '2026-08-22T10:00:00.000Z',
-      source: { methodologyVersion: 'v4.1.1', attribution: 'Fixture' },
+      source: {
+        methodologyVersion: 'v4.1.1',
+        terms: { version: '1.1', revisedAt: '2026-08-19', url: 'https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf' },
+        attribution: 'Source: Artificial Analysis (artificialanalysis.ai)',
+      },
       rights,
       records: [record('aa-a', 30, 1), record('aa-b', 40, 2), record('aa-c', 55, 3)],
     },

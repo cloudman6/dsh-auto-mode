@@ -1,0 +1,139 @@
+{
+  "snapshot": {
+    "schemaVersion": 1,
+    "snapshotVersion": "aa-snapshot/v2",
+    "snapshotId": "synthetic-example-snapshot",
+    "capturedAt": "2026-08-22T00:00:00.000Z",
+    "source": {
+      "methodologyVersion": "v4.1.1",
+      "terms": {
+        "version": "1.1",
+        "revisedAt": "2026-08-19",
+        "url": "https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf"
+      },
+      "attribution": "Source: Artificial Analysis (artificialanalysis.ai)"
+    },
+    "rights": {
+      "mode": "internal-only"
+    },
+    "records": [
+      {
+        "recordId": "synthetic-record-a",
+        "label": "Synthetic Model A (high)",
+        "slug": "synthetic-model-a-high",
+        "creator": {
+          "recordId": "synthetic-creator",
+          "label": "Synthetic Creator"
+        },
+        "releaseDate": "2026-08-01",
+        "evaluations": {
+          "artificial_analysis_intelligence_index": 40
+        },
+        "pricing": {
+          "price_1m_blended_7_to_2_to_1": 1
+        },
+        "performance": {
+          "median_time_to_first_answer_token_seconds": 2
+        }
+      }
+    ]
+  },
+  "bindingRegistry": {
+    "schemaVersion": 1,
+    "registryVersion": "aa-binding-registry/v1",
+    "normalizationRules": [
+      {
+        "schemaVersion": 1,
+        "ruleVersion": "synthetic-provider/v1",
+        "providerNamespace": "synthetic-provider",
+        "providerIds": [
+          "synthetic-provider"
+        ],
+        "modelAliases": {
+          "synthetic-model-a": "synthetic-model-a"
+        },
+        "evidenceControls": [
+          {
+            "key": "reasoningEffort",
+            "source": "reasoningEffort",
+            "required": false
+          }
+        ]
+      }
+    ],
+    "bindings": [
+      {
+        "evidenceRouteKey": {
+          "schemaVersion": 1,
+          "providerNamespace": "synthetic-provider",
+          "modelKey": "synthetic-model-a",
+          "evidenceControls": {
+            "reasoningEffort": "high"
+          }
+        },
+        "aaRecordId": "synthetic-record-a",
+        "ruleVersion": "synthetic-provider/v1",
+        "matchBasis": [
+          "synthetic exact model and effort"
+        ],
+        "limitations": [
+          "example only"
+        ],
+        "quarantine": null
+      }
+    ]
+  },
+  "routePolicy": {
+    "policyVersion": "aa-route-policy/v1",
+    "capabilityField": "evaluations.artificial_analysis_intelligence_index",
+    "capabilityMethodologyVersion": "v4.1.1",
+    "priceField": "pricing.price_1m_blended_7_to_2_to_1",
+    "latencyField": "performance.median_time_to_first_answer_token_seconds",
+    "missingDataPolicy": {
+      "capability": "exclude",
+      "price": "exclude",
+      "latency": "sort-after-measured-then-route-id"
+    },
+    "bandPolicy": {
+      "light": {
+        "minimumInclusive": null,
+        "maximumExclusive": 35
+      },
+      "standard": {
+        "minimumInclusive": 35,
+        "maximumExclusive": 50
+      },
+      "deep": {
+        "minimumInclusive": 50,
+        "maximumExclusive": null
+      }
+    }
+  },
+  "manifest": {
+    "schemaVersion": 1,
+    "manifestVersion": "aa-evidence-pack-manifest/v1",
+    "packId": "synthetic-example-pack",
+    "runtimeCompatibility": {
+      "contract": "aa-evidence-pack-runtime/v1",
+      "minimumVersion": 1,
+      "maximumVersion": 1
+    },
+    "rights": {
+      "mode": "internal-only"
+    },
+    "components": {
+      "snapshot": {
+        "version": "aa-snapshot/v2",
+        "digest": "sha256:f573f98e9178b570304b634346ca3fca45a158a1acd7e5f1547a16e1cac6695e"
+      },
+      "bindingRegistry": {
+        "version": "aa-binding-registry/v1",
+        "digest": "sha256:39382ffa0e094226532b6df7a8b7c12662e255af9d69b6ec0ee3182b5daa1653"
+      },
+      "routePolicy": {
+        "version": "aa-route-policy/v1",
+        "digest": "sha256:1e7ee83677a1f373f8a51abf41f252283ea66e14bed070ecdc8750bce8c3f4e5"
+      }
+    }
+  }
+}
