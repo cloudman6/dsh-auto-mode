@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: 20c20eef560f2737d42ec6af34e4aaddcc5febbb
+translation-source-blob: ca34f2327090fbb1b4c32a05580ee8ac13ae8952
 translation-status: current
 -->
 
@@ -161,3 +161,171 @@ translation-status: current
 - [x] Credential 和再分发原始数据集留在 Git 与浏览器 client 之外。
 
 **依赖：**Checkpoint C，以及新增依赖或远程服务的明确授权
+
+## Task 10：接受 Evidence Pack 架构
+
+**验收标准：**
+
+- [ ] ADR-014 固定独立 Snapshot、Binding Registry、Route Policy、Manifest、EvidenceRouteKey、ExecutionFingerprint、Active Catalog 与 GREEN/AMBER/RED 语义。
+- [ ] 决策准确说明取代 ADR-011 和 ADR-013 的哪些条款，并保留其余 rights 与 runtime-offline 边界。
+- [ ] 在不兼容 runtime 实施开始前，维护者显式把 ADR-014 从 Proposed 改为 Accepted。
+
+**验证：**
+
+- [ ] 中英文 ADR 与 decision index 保持 current 且链接有效。
+- [ ] `git diff --check` 与 conflict-marker 检查通过。
+
+**依赖：** Task 9 与维护者显式批准
+
+## Task 11：实现 Evidence Pack 契约
+
+**验收标准：**
+
+- [ ] Snapshot、Binding Registry、Route Policy 和 Manifest 可独立校验，具有确定性 serialization 和组件 digest。
+- [ ] Manifest compatibility 与 rights mode 使用稳定 reason code fail closed。
+- [ ] 真实 AA metric、credential、grant 或私有 refresh material 不进入 tracked fixture 或 browser output。
+
+**验证：**
+
+- [ ] Contract test 覆盖 valid、malformed、duplicate、oversized、incompatible、tampered 与 nondeterministic input。
+- [ ] 现有 catalog 与 Manual test 保持绿色。
+
+**依赖：** Task 10
+
+## Task 12：分离 EvidenceRouteKey 与 ExecutionFingerprint
+
+**验收标准：**
+
+- [ ] Provider-scoped normalization 从声明的 evidence-defining control 推导精确 canonical EvidenceRouteKey。
+- [ ] 完整 Host-materialized configuration 继续生成持久化 ExecutionFingerprint，用于 assembly/request equality。
+- [ ] 仅执行默认值变化保留 evidence match；model、reasoning、variant 或已声明 evidence-control 变化不能 collision。
+
+**验证：**
+
+- [ ] Mixed-provider test 覆盖零个、一个和多个 evidence control，以及 temperature、token、stop、credential-reference、variant 与 effort 变化。
+- [ ] Fuzzy name/slug matching 和 ambiguous normalization 以稳定 reason 失败。
+
+**依赖：** Task 11
+
+## Task 13：构建完整 policy-eligible AA Snapshot
+
+**验收标准：**
+
+- [ ] 扫描固定 acquisition 的每一页；独立于 binding 或当前 Host route，保留每条 capability 与 price 有效的唯一 record。
+- [ ] 只保留 policy 使用的稳定 identity、display、capability、price、latency 与 source field；nullable latency 遵循现有排序规则。
+- [ ] Bound、stable-ID integrity、methodology、rights、freshness 与 credential 保护继续 fail closed。
+
+**验证：**
+
+- [ ] 离线 fixture 覆盖多页 acquisition、eligible unbound addition、incomplete exclusion、duplicate、page reorder、oversized data 与不变的确定性输出。
+- [ ] Runtime test 证明不发生 AA network call。
+
+**依赖：** Task 11
+
+## Task 14：实现长期 Binding Registry
+
+**验收标准：**
+
+- [ ] 精确 EvidenceRouteKey-to-AA-record mapping 独立于当前 Host inventory 与单个 Snapshot ID。
+- [ ] Binding 从 Host availability 派生 active 或 dormant 状态，并支持 quarantine，且不修改无关 mapping。
+- [ ] 结构化唯一匹配 provider rule 可以自动生成 candidate；name、slug、similarity 和 latest-record guess 不能绑定或替换 record。
+
+**验证：**
+
+- [ ] Fixture 覆盖 active、dormant、reactivated、unbound、quarantined、duplicate-key、duplicate-record、ambiguous、missing-record 与 stable-ID replacement。
+- [ ] Registry permutation test 产生相同 serialization 与 lookup result。
+
+**依赖：** Tasks 12 和 13
+
+## Checkpoint D1：Evidence 契约
+
+- [ ] Tasks 10–14 在 Accepted ADR-014 下完成。
+- [ ] Identity、Snapshot 与 Registry fixture provider-neutral 且确定性。
+- [ ] 现有 Runtime 行为通过显式 compatibility path 保持可用。
+
+## Task 15：派生运行时 Active Catalog
+
+**验收标准：**
+
+- [ ] 当前 Host route 在 Route Policy 分档和排序前，与精确 Registry key 和当前 Snapshot record 连接。
+- [ ] Active entry 保留 EvidenceRouteKey、AA record identity、Snapshot identity、Binding Registry version 与完整 ExecutionFingerprint。
+- [ ] Dormant、unbound、quarantined、malformed、incompatible 与 Host-invalid item 以稳定 exclusion 隔离。
+
+**验证：**
+
+- [ ] 添加一条已有 dormant binding 的 Host route，无需修改 Snapshot 或 Registry 即可激活。
+- [ ] Discovery order、仅执行默认值和无关 invalid record 不能改变有效 winner。
+
+**依赖：** Task 14
+
+## Task 16：自动化例外驱动 refresh
+
+**验收标准：**
+
+- [ ] GREEN update 无需人工批准即可原子应用；AMBER update 隔离受影响 evidence，同时保留有效推进；RED update 保留上一份有效 pack。
+- [ ] 分类覆盖 metric、stable-ID 不变的 rename、unbound record、dormant transition、missing bound record、normalization ambiguity、methodology、schema、terms、rights、compatibility 与 digest integrity。
+- [ ] 每次应用 update 都保留确定性报告和经过验证的 rollback。
+
+**验证：**
+
+- [ ] 离线文件测试覆盖每个 GREEN/AMBER/RED reason、interruption、tampering、stale predecessor、atomic replacement 与 rollback。
+- [ ] Report 或 CLI stdout 不暴露 credential、raw response body 或真实 tracked AA data。
+
+**依赖：** Tasks 13–15
+
+## Checkpoint D2：自动化 evidence maintenance
+
+- [ ] Tasks 15–16 完成。
+- [ ] 常规 AA metric update 不需要人工动作。
+- [ ] Semantic 或 contract exception 不能静默改变 active evidence。
+
+## Task 17：建立 Runtime 与 Evidence Pack 更新边界
+
+**验收标准：**
+
+- [ ] Runtime 与 Evidence Pack 独立版本化，并由一个已验证 compatibility manifest 连接。
+- [ ] 本地 installer/update operation 在原子激活前验证完整 pair，并保留上一份有效 pair 用于 rollback。
+- [ ] 默认实现不增加外部 dependency、release workflow、public service 或真实数据分发路径。
+
+**验证：**
+
+- [ ] Packaging test 证明 compatible install、incompatible rejection、metric-only pack update、Runtime-only compatible update、interruption safety 与 rollback。
+- [ ] Package inspection 证明私有 maintenance file 和真实 AA data 不在其中。
+
+**依赖：** Tasks 11 和 16
+
+## Task 18：迁移旧 catalog seed
+
+**验收标准：**
+
+- [ ] 一个显式 migration 把有效组合 schema-v1 seed 转成 Snapshot、Binding Registry、Route Policy reference 与 Manifest artifact。
+- [ ] Conversion 拒绝 ambiguous 或 lossy evidence mapping，不进行推断。
+- [ ] 现有 schema-v1 Session 保持可读，并保留原始冻结 evidence 与 execution facts。
+
+**验证：**
+
+- [ ] Fixture 覆盖当前 seed conversion、确定性 rerun、invalid legacy input、ambiguous control extraction 与回退到 predecessor artifact pair。
+- [ ] 相同 Host inventory 和 policy 在迁移前后产生相同 eligible winner。
+
+**依赖：** Tasks 15 和 17
+
+## Task 19：端到端证明 Evidence Pack 路径
+
+**验收标准：**
+
+- [ ] 从完整 acquisition 到本地 activation、runtime Active Catalog、Task Assessor、resolver、request、Session 与 UI 的路径工作，且 runtime 不访问 AA。
+- [ ] Dormant activation、全部三个 handling level、price/latency ordering、GREEN/AMBER/RED behavior、rollback 与 cold reconstruction 可见且确定性。
+- [ ] Manual 保持不变，公开产品文本不包含不受支持的 AA、Benchmark、safety 或 optimality claim。
+
+**验证：**
+
+- [ ] 聚焦 unit、完整 `npm test`、固定 Loader/Session、keyless browser、migration、packaging、secret、translation 与 link check 全部通过。
+- [ ] 任何无法执行的 credential-dependent scenario 被报告为未声明，而不是被静默跳过并当成 evidence。
+
+**依赖：** Tasks 12–18
+
+## Checkpoint D3：阶段 4.1 完成
+
+- [ ] Tasks 10–19 完成，本地 Runtime/Evidence Pack pair 可安全 rollback。
+- [ ] `PROJECT_STATUS.md`、specification、architecture、routing policy、roadmap、maintenance guide、example 和 translation 描述已实现状态。
+- [ ] 除非独立满足 ADR-013 written-license gate，否则公开真实 Evidence Pack 分发保持禁用。

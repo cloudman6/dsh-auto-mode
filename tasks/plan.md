@@ -104,6 +104,78 @@ Choose the stable AA acquisition method and rights boundary, validate and minimi
 
 Status: complete on 2026-08-22. ADR-013 accepts an offline `aa-snapshot-refresh/v1` workflow with `internal-only` as the default rights mode and written AA permission required before redistributing real machine-readable metrics. The maintainer CLI derives credential-free Host identities, acquires the pinned Pro endpoint into private files, prepares deterministic minimized candidates and complete diffs, requires exact digest approval, atomically applies the reviewed seed, and verifies rollback integrity. Ninety-nine offline tests pass; only synthetic AA-shaped fixtures and placeholder examples are tracked.
 
+## Phase 4.1: Reusable Evidence Packs
+
+Status: active design gate. ADR-014 is Proposed and must be explicitly accepted before its incompatible contract replaces the accepted ADR-011/ADR-013 behavior.
+
+### Capability map
+
+| Module ID | Responsibility | Depends on |
+|---|---|---|
+| `evidence-pack-contract` | Independent Snapshot, Binding Registry, Route Policy, Manifest, compatibility, and failure schemas | ADR-014 |
+| `evidence-route-identity` | Provider-scoped EvidenceRouteKey plus separate complete ExecutionFingerprint | `evidence-pack-contract` |
+| `eligible-aa-snapshot` | Retain every policy-eligible minimized AA record from the complete pinned acquisition | `evidence-pack-contract` |
+| `binding-registry` | Long-lived exact mappings, provider normalization rules, dormant and quarantine behavior | `evidence-route-identity`, `eligible-aa-snapshot` |
+| `active-catalog` | Derive current eligible routes from Host inventory, Registry, Snapshot, and Route Policy | `binding-registry` |
+| `exception-refresh` | GREEN automatic apply, AMBER isolation, RED rejection, deterministic report and rollback | `eligible-aa-snapshot`, `binding-registry`, `active-catalog` |
+| `package-update` | Runtime/Evidence Pack compatibility and atomic local activation boundary | `evidence-pack-contract`, `exception-refresh` |
+| `seed-migration` | Explicit legacy seed conversion without changing historical Session facts | `active-catalog`, `package-update` |
+| `evidence-pack-e2e` | Runtime, Loader, Session, UI, rollback, and Manual non-interference proof | all preceding modules |
+
+Build order: contract → identity and snapshot → registry → active catalog → refresh → package update → migration → end-to-end proof.
+
+### Task 10: Accept the Evidence Pack decision
+
+Freeze ADR-014's component ownership, exact identity rules, exception classes, distribution boundary, and migration consequences. No incompatible runtime work begins while the ADR remains Proposed.
+
+### Task 11: Implement Evidence Pack contracts
+
+Add independently validated and deterministically serialized Snapshot, Binding Registry, Route Policy, and Manifest schemas. Define component digests, Runtime compatibility, rights mode, and stable failure codes.
+
+### Task 12: Separate evidence and execution identities
+
+Add versioned provider normalization rules that derive exact EvidenceRouteKeys while retaining complete ExecutionFingerprints for request equality and audit. Execution-only defaults must not invalidate evidence; evidence-defining controls must not collide.
+
+### Task 13: Build the full eligible AA Snapshot
+
+Process every page of one pinned acquisition and retain every record with the policy-required capability and price fields. Keep nullable latency behavior, stable-ID uniqueness, source bounds, and `internal-only` controls.
+
+### Task 14: Implement the long-lived Binding Registry
+
+Validate exact key-to-record mappings independently of current Host availability and one snapshot ID. Support dormant activation, deterministic structured normalization, unbound records, and quarantined semantic exceptions without fuzzy matching.
+
+### Task 15: Derive the runtime Active Catalog
+
+Join current materialized Host routes, exact Registry keys, current Snapshot records, and Route Policy. Keep complete execution fingerprints in active entries and isolate invalid or unmatched routes with stable reasons.
+
+### Task 16: Automate exception-driven refresh
+
+Classify diffs as GREEN, AMBER, or RED. Automatically and atomically apply valid GREEN updates, isolate AMBER records or bindings while advancing unrelated valid evidence, reject RED updates, and preserve deterministic reports and rollback.
+
+### Task 17: Establish Runtime/Evidence Pack update boundaries
+
+Define separately versioned local artifacts with one compatibility manifest and atomic pair activation. The default implementation remains local and dependency-free; a public update service, release workflow, or real Evidence Pack distribution requires the existing explicit authority and rights gates.
+
+### Task 18: Migrate legacy catalog seeds
+
+Provide an explicit, deterministic conversion from the current combined seed to Snapshot, Registry, and Manifest inputs. Preserve legacy Session replay and reject mappings that cannot be converted without inference.
+
+### Task 19: Prove the complete path
+
+Cover full acquisition, dormant activation, identity separation, all refresh classes, rollback, migration, offline runtime, all handling levels, exact request equality, cold Session reconstruction, UI evidence details, and Manual non-interference.
+
+### Checkpoint D1: Contract
+
+ADR-014 is Accepted; Tasks 11–12 pass focused contract and collision tests; canonical and localized documents agree.
+
+### Checkpoint D2: Automated evidence
+
+Tasks 13–16 prove routine AA updates need no human action and a newly configured route automatically activates when an exact dormant binding exists.
+
+### Checkpoint D3: Installable boundary
+
+Tasks 17–19 prove one compatible Runtime/Evidence Pack pair can be atomically activated and rolled back locally. Public real-data distribution remains a separate written-license gate.
+
 ## Risks
 
 | Risk | Impact | Mitigation |
@@ -113,8 +185,13 @@ Status: complete on 2026-08-22. ADR-013 accepts an offline `aa-snapshot-refresh/
 | Comparison fields are incomplete | Wrong same-level winner | Exclude missing capability or price; sort missing latency after measured latency for equal-price routes |
 | Effective DSH configuration is opaque | False AA binding | Fingerprint Host-materialized options; exclude unresolved or ambiguous routes |
 | AA-informed wording is mistaken for proof | Overstated product claim | Persist snapshot and reason; use required AA-informed disclaimer |
+| Provider and AA identities share no reliable structured key | False automatic binding | Keep the record unbound; require one reviewed provider normalization rule instead of fuzzy matching |
+| Evidence Pack grows beyond maintenance bounds | Refresh denial or runtime cost | Retain only policy fields, enforce record/file limits, and keep runtime compilation deterministic |
+| Automatic refresh hides a semantic break | Incorrect evidence continuity | RED on methodology, rights, stable-ID, schema, compatibility, or digest changes; isolate AMBER cases |
 
 ## Current open decisions
 
 - Formal runtime signals and reassessment boundaries for Phase 5 adaptive execution.
 - Evidence required before down-routing may enter scope.
+- Public carrier and update service remain undecided; Phase 4.1 implements a local atomic artifact boundary without adding a release workflow.
+- Public distribution of real Evidence Packs remains blocked pending the ADR-013 written grant.

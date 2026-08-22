@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 51fec4bea46885099794d4b222dbbbf4a88c8f44
+translation-source-blob: 367c76032b00026910ad302bea03f08671350722
 translation-status: current
 -->
 
@@ -110,6 +110,78 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 状态：已于 2026-08-22 完成。ADR-013 接受离线 `aa-snapshot-refresh/v1` 工作流，默认 rights mode 为 `internal-only`，分发真实机器可读指标前必须取得 AA 书面许可。维护 CLI 推导不含凭据的 Host identity，把固定 Pro endpoint 获取结果写入私有文件，准备确定性最小 candidate 与完整 diff，要求精确 digest 批准，原子应用已评审 seed，并验证 rollback 完整性。99 项离线测试通过；仓库只跟踪合成 AA-shaped fixture 与 placeholder 示例。
 
+## 阶段 4.1：可复用 Evidence Pack
+
+状态：处于 active design gate。ADR-014 仍为 Proposed；其不兼容契约取代已接受的 ADR-011/ADR-013 行为前，必须获得显式接受。
+
+### Capability map
+
+| Module ID | 职责 | 依赖 |
+|---|---|---|
+| `evidence-pack-contract` | 独立 Snapshot、Binding Registry、Route Policy、Manifest、兼容性与失败 schema | ADR-014 |
+| `evidence-route-identity` | Provider-scoped EvidenceRouteKey 与独立完整 ExecutionFingerprint | `evidence-pack-contract` |
+| `eligible-aa-snapshot` | 从完整固定 acquisition 中保留全部 policy-eligible 最小化 AA records | `evidence-pack-contract` |
+| `binding-registry` | 长期精确 mapping、provider normalization rule、dormant 与 quarantine 行为 | `evidence-route-identity`、`eligible-aa-snapshot` |
+| `active-catalog` | 从 Host inventory、Registry、Snapshot 和 Route Policy 派生当前 eligible routes | `binding-registry` |
+| `exception-refresh` | GREEN 自动应用、AMBER 隔离、RED 拒绝、确定性报告与 rollback | `eligible-aa-snapshot`、`binding-registry`、`active-catalog` |
+| `package-update` | Runtime/Evidence Pack 兼容性和原子本地激活边界 | `evidence-pack-contract`、`exception-refresh` |
+| `seed-migration` | 显式转换旧 seed，不改变历史 Session facts | `active-catalog`、`package-update` |
+| `evidence-pack-e2e` | Runtime、Loader、Session、UI、rollback 与 Manual 非干扰证明 | 所有前置模块 |
+
+构建顺序：contract → identity 与 snapshot → registry → active catalog → refresh → package update → migration → 端到端证明。
+
+### Task 10：接受 Evidence Pack 决策
+
+冻结 ADR-014 的组件 owner、精确 identity rule、exception class、分发边界与迁移后果。ADR 仍为 Proposed 时不开始不兼容 runtime 工作。
+
+### Task 11：实现 Evidence Pack 契约
+
+增加可独立校验、确定性序列化的 Snapshot、Binding Registry、Route Policy 与 Manifest schema。定义组件 digest、Runtime compatibility、rights mode 和稳定 failure code。
+
+### Task 12：分离 evidence identity 与 execution identity
+
+增加带版本的 provider normalization rule，推导精确 EvidenceRouteKey，同时保留完整 ExecutionFingerprint 用于 request equality 和 audit。仅执行默认值不能使 evidence 失效；决定 evidence 的 control 不能 collision。
+
+### Task 13：构建完整 eligible AA Snapshot
+
+处理固定 acquisition 的每一页，保留每条拥有 policy 所需 capability 与 price 字段的 record。继续执行 nullable latency、stable-ID uniqueness、source bound 和 `internal-only` 控制。
+
+### Task 14：实现长期 Binding Registry
+
+独立于当前 Host availability 和单个 snapshot ID 校验精确 key-to-record mapping。支持 dormant activation、确定性结构化 normalization、unbound record 和 quarantined semantic exception，不使用 fuzzy matching。
+
+### Task 15：派生运行时 Active Catalog
+
+连接当前 materialized Host routes、精确 Registry keys、当前 Snapshot records 和 Route Policy。Active entry 保留完整 execution fingerprint，并用稳定 reason 隔离 invalid 或 unmatched route。
+
+### Task 16：自动化例外驱动 refresh
+
+把 diff 分类为 GREEN、AMBER 或 RED。自动且原子应用有效 GREEN update；隔离 AMBER record 或 binding，同时推进无关有效 evidence；拒绝 RED update；保留确定性报告与 rollback。
+
+### Task 17：建立 Runtime/Evidence Pack 更新边界
+
+定义两个独立版本化的本地 artifact，并用一个 compatibility manifest 和原子 pair activation 连接。默认实现保持本地且无依赖；公开 update service、release workflow 或真实 Evidence Pack 分发继续受现有显式授权和权利 gate 约束。
+
+### Task 18：迁移旧 catalog seed
+
+提供显式、确定性的转换，把当前组合 seed 转成 Snapshot、Registry 与 Manifest input。保留旧 Session replay，并拒绝任何必须依赖推断的 mapping。
+
+### Task 19：证明完整路径
+
+覆盖完整 acquisition、dormant activation、identity separation、全部 refresh class、rollback、migration、离线 runtime、全部 handling level、精确 request equality、cold Session reconstruction、UI evidence detail 与 Manual 非干扰。
+
+### Checkpoint D1：契约
+
+ADR-014 已 Accepted；Tasks 11–12 通过聚焦 contract 与 collision test；英文权威文档和中文翻译一致。
+
+### Checkpoint D2：Evidence 自动化
+
+Tasks 13–16 证明普通 AA 更新无需人工动作；配置一条新 route 时，只要存在精确 dormant binding 就能自动激活。
+
+### Checkpoint D3：可安装边界
+
+Tasks 17–19 证明一个兼容 Runtime/Evidence Pack pair 可以在本地原子激活和 rollback。公开真实数据分发仍是独立 written-license gate。
+
 ## 风险
 
 | 风险 | 影响 | 缓解 |
@@ -119,8 +191,13 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 | 比较字段不完整 | 同档 winner 错误 | Capability 或 price 缺失时排除；同价时，缺失 latency 排在有测量值之后 |
 | 实际 DSH 配置不透明 | 错误 AA binding | 对 Host 物化选项生成 fingerprint；排除未解析或有歧义 route |
 | AA 驱动被误解为证明 | 产品声明过度 | 持久化 snapshot 与 reason；强制 AA 驱动限定语 |
+| Provider 与 AA identity 没有可靠结构化共同键 | 错误自动 binding | 保持 record unbound；要求一条已评审 provider normalization rule，不使用 fuzzy matching |
+| Evidence Pack 超出维护边界 | Refresh 被拒绝或 runtime 成本增加 | 只保留 policy 字段，强制 record/file limit，并保持 runtime compilation 确定性 |
+| 自动 refresh 隐藏语义破坏 | 错误 evidence continuity | Methodology、rights、stable-ID、schema、compatibility 或 digest 变化时 RED；隔离 AMBER 情况 |
 
 ## 当前开放决策
 
 - 阶段 5 自适应执行的形式化 runtime signal 与重新判断边界。
 - 允许降级进入范围前需要哪些证据。
+- 公开 carrier 与 update service 尚未决定；阶段 4.1 只实现本地原子 artifact 边界，不增加 release workflow。
+- 真实 Evidence Pack 的公开分发仍被 ADR-013 written grant 阻塞。

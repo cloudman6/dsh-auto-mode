@@ -155,3 +155,171 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 - [x] Credentials and raw redistributed datasets remain outside Git and the browser client.
 
 **Dependencies:** Checkpoint C and explicit authorization for any dependency or remote service
+
+## Task 10: Accept the Evidence Pack architecture
+
+**Acceptance criteria:**
+
+- [ ] ADR-014 fixes independent Snapshot, Binding Registry, Route Policy, Manifest, EvidenceRouteKey, ExecutionFingerprint, Active Catalog, and GREEN/AMBER/RED semantics.
+- [ ] The decision states exactly which ADR-011 and ADR-013 clauses it supersedes and preserves all remaining rights and runtime-offline boundaries.
+- [ ] The maintainer explicitly changes ADR-014 from Proposed to Accepted before incompatible runtime implementation begins.
+
+**Verification:**
+
+- [ ] English and Chinese ADRs and decision indexes are current and link-valid.
+- [ ] `git diff --check` and conflict-marker checks pass.
+
+**Dependencies:** Task 9 and explicit maintainer approval
+
+## Task 11: Implement Evidence Pack contracts
+
+**Acceptance criteria:**
+
+- [ ] Snapshot, Binding Registry, Route Policy, and Manifest validate independently with deterministic serialization and component digests.
+- [ ] Manifest compatibility and rights mode fail closed with stable reason codes.
+- [ ] No real AA metrics, credential, grant, or private refresh material enters tracked fixtures or browser output.
+
+**Verification:**
+
+- [ ] Contract tests cover valid, malformed, duplicate, oversized, incompatible, tampered, and nondeterministic inputs.
+- [ ] Existing catalog and Manual tests remain green.
+
+**Dependencies:** Task 10
+
+## Task 12: Separate EvidenceRouteKey from ExecutionFingerprint
+
+**Acceptance criteria:**
+
+- [ ] Provider-scoped normalization derives exact canonical EvidenceRouteKeys from declared evidence-defining controls.
+- [ ] Complete Host-materialized configuration still produces the persisted ExecutionFingerprint used for assembly/request equality.
+- [ ] Execution-only default changes preserve an evidence match while model, reasoning, variant, or declared evidence-control changes cannot collide.
+
+**Verification:**
+
+- [ ] Mixed-provider tests cover zero, one, and several evidence controls plus temperature, token, stop, credential-reference, variant, and effort changes.
+- [ ] Fuzzy name/slug matching and ambiguous normalization fail with stable reasons.
+
+**Dependencies:** Task 11
+
+## Task 13: Build the full policy-eligible AA Snapshot
+
+**Acceptance criteria:**
+
+- [ ] Every page of the pinned acquisition is scanned and every unique record with valid capability and price is retained independently of bindings or current Host routes.
+- [ ] Only policy-consumed stable identity, display, capability, price, latency, and source fields are retained; nullable latency follows the existing ordering rule.
+- [ ] Bounds, stable-ID integrity, methodology, rights, freshness, and credential protections remain fail closed.
+
+**Verification:**
+
+- [ ] Offline fixtures cover multi-page acquisition, eligible unbound additions, incomplete exclusions, duplicates, page reordering, oversized data, and unchanged deterministic output.
+- [ ] Runtime tests prove no AA network call occurs.
+
+**Dependencies:** Task 11
+
+## Task 14: Implement the long-lived Binding Registry
+
+**Acceptance criteria:**
+
+- [ ] Exact EvidenceRouteKey-to-AA-record mappings are independent of current Host inventory and one Snapshot ID.
+- [ ] Bindings derive active or dormant status from Host availability and support quarantine without mutating unrelated mappings.
+- [ ] Structured uniquely matching provider rules may create candidates automatically; names, slugs, similarity, and latest-record guesses cannot bind or replace records.
+
+**Verification:**
+
+- [ ] Fixtures cover active, dormant, reactivated, unbound, quarantined, duplicate-key, duplicate-record, ambiguous, missing-record, and stable-ID replacement cases.
+- [ ] Registry permutation tests produce identical serialized content and lookup results.
+
+**Dependencies:** Tasks 12 and 13
+
+## Checkpoint D1: Evidence contracts
+
+- [ ] Tasks 10–14 are complete under Accepted ADR-014.
+- [ ] Identity, Snapshot, and Registry fixtures are provider-neutral and deterministic.
+- [ ] Existing Runtime behavior remains available through an explicit compatibility path.
+
+## Task 15: Derive the runtime Active Catalog
+
+**Acceptance criteria:**
+
+- [ ] Current Host routes join exact Registry keys and current Snapshot records before Route Policy assigns levels and ordering.
+- [ ] Active entries retain EvidenceRouteKey, AA record identity, Snapshot identity, Binding Registry version, and complete ExecutionFingerprint.
+- [ ] Dormant, unbound, quarantined, malformed, incompatible, and Host-invalid items are isolated with stable exclusions.
+
+**Verification:**
+
+- [ ] Adding a Host route with an existing dormant binding activates it without changing Snapshot or Registry.
+- [ ] Discovery order, execution-only defaults, and unrelated invalid records cannot change valid winners.
+
+**Dependencies:** Task 14
+
+## Task 16: Automate exception-driven refresh
+
+**Acceptance criteria:**
+
+- [ ] GREEN updates apply atomically without human approval; AMBER updates isolate affected evidence while preserving valid advancement; RED updates retain the previous valid pack.
+- [ ] Classification covers metrics, stable-ID-preserving renames, unbound records, dormant transitions, missing bound records, normalization ambiguity, methodology, schema, terms, rights, compatibility, and digest integrity.
+- [ ] Deterministic reports and verified rollback remain available for every applied update.
+
+**Verification:**
+
+- [ ] Offline file tests cover every GREEN/AMBER/RED reason, interruption, tampering, stale predecessor, atomic replacement, and rollback.
+- [ ] No report or CLI stdout exposes credentials, raw response bodies, or real tracked AA data.
+
+**Dependencies:** Tasks 13–15
+
+## Checkpoint D2: Automated evidence maintenance
+
+- [ ] Tasks 15–16 are complete.
+- [ ] Routine AA metric updates require no human action.
+- [ ] Semantic or contract exceptions cannot silently change active evidence.
+
+## Task 17: Establish Runtime and Evidence Pack update boundaries
+
+**Acceptance criteria:**
+
+- [ ] Runtime and Evidence Pack have independent versions joined by one validated compatibility manifest.
+- [ ] A local installer/update operation validates the complete pair before atomic activation and retains the previous valid pair for rollback.
+- [ ] The default implementation adds no external dependency, release workflow, public service, or real-data distribution path.
+
+**Verification:**
+
+- [ ] Packaging tests prove compatible install, incompatible rejection, metric-only pack update, Runtime-only compatible update, interruption safety, and rollback.
+- [ ] Package inspection proves private maintenance files and real AA data are absent.
+
+**Dependencies:** Tasks 11 and 16
+
+## Task 18: Migrate legacy catalog seeds
+
+**Acceptance criteria:**
+
+- [ ] One explicit migration converts valid combined schema-v1 seeds into Snapshot, Binding Registry, Route Policy reference, and Manifest artifacts.
+- [ ] Conversion rejects ambiguous or lossy evidence mappings instead of inferring them.
+- [ ] Existing schema-v1 Sessions remain readable and retain their original frozen evidence and execution facts.
+
+**Verification:**
+
+- [ ] Fixtures cover current seed conversion, deterministic rerun, invalid legacy input, ambiguous control extraction, and rollback to the predecessor artifact pair.
+- [ ] Equivalent Host inventory and policy produce the same eligible winners before and after migration.
+
+**Dependencies:** Tasks 15 and 17
+
+## Task 19: Prove the Evidence Pack path end to end
+
+**Acceptance criteria:**
+
+- [ ] Full acquisition through local activation, runtime Active Catalog, Task Assessor, resolver, request, Session, and UI works without runtime AA access.
+- [ ] Dormant activation, all three handling levels, price/latency ordering, GREEN/AMBER/RED behavior, rollback, and cold reconstruction are visible and deterministic.
+- [ ] Manual remains unchanged and public product text makes no unsupported AA, Benchmark, safety, or optimality claim.
+
+**Verification:**
+
+- [ ] Focused unit, complete `npm test`, pinned Loader/Session, keyless browser, migration, packaging, secret, translation, and link checks pass.
+- [ ] Any unavailable credential-dependent scenario is reported as unclaimed rather than silently skipped as evidence.
+
+**Dependencies:** Tasks 12–18
+
+## Checkpoint D3: Phase 4.1 complete
+
+- [ ] Tasks 10–19 are complete and the local Runtime/Evidence Pack pair is rollback-safe.
+- [ ] `PROJECT_STATUS.md`, specification, architecture, routing policy, roadmap, maintenance guide, examples, and translations describe the implemented state.
+- [ ] Public real Evidence Pack distribution remains disabled unless the ADR-013 written-license gate is independently satisfied.
