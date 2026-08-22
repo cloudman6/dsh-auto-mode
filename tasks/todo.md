@@ -107,14 +107,14 @@
 
 **Acceptance criteria:**
 
-- [ ] UI uses Light/Standard/Deep and 轻量/常规/深度 rather than fast/standard/strong.
-- [ ] The selector and conversation show the actual model, effort, task-handling level, and AA or fallback basis.
-- [ ] Existing rolling, blue highlight, two breathing cycles, and message placement remain intact.
+- [x] UI uses Light/Standard/Deep and 轻量/常规/深度 rather than fast/standard/strong.
+- [x] The selector and conversation show the actual model, effort, task-handling level, and AA or fallback basis.
+- [x] Existing rolling, blue highlight, two breathing cycles, and message placement remain intact.
 
 **Verification:**
 
-- [ ] Browser tests cover model-only, effort-only, both, and level-only changes.
-- [ ] English and Chinese snapshots are current.
+- [x] Browser tests cover model-only, effort-only, both, and level-only changes.
+- [x] English and Chinese snapshots are current.
 
 **Dependencies:** Task 6
 

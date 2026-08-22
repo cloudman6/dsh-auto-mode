@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: 7cdbc0418bce8b85fb21ba8c8c85be9ed3c8f379
+translation-source-blob: dbc0c9f27851144362360433c0d85163db5358b3
 translation-status: current
 -->
 
@@ -16,15 +16,15 @@ translation-status: current
 
 ## 当前 fork preview 运行时载体
 
-当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，再在不改变这些契约的前提下增加实验性 Auto UI。分支 `codex/auto-mode-host-contracts` 固定在精确 commit [`2a2db7a6ec3ce9969857cc41de839f911ef5902e`](https://github.com/cloudman6/deepseek-harness/commit/2a2db7a6ec3ce9969857cc41de839f911ef5902e)。
+当前 preview 运行时载体是维护者的 fork [`cloudman6/deepseek-harness`](https://github.com/cloudman6/deepseek-harness)；2026-08-14 核验时，其 `master` 位于本次审计的基线 commit。随后从该基线实现了产品无关的 A1/A2 契约，再在不改变这些契约的前提下增加实验性 Auto UI。分支 `codex/auto-mode-host-contracts` 固定在精确 commit [`afc8d47d597dfdb058a0129a8a95403df16664b4`](https://github.com/cloudman6/deepseek-harness/commit/afc8d47d597dfdb058a0129a8a95403df16664b4)。
 
 产品无关 seam 与 fork 证据已于 2026-08-16 发布到 DeepSeek Harness [Discussion #2281](https://github.com/deepseek-ai/deepseek-harness/discussions/2281)，用于获取上游设计反馈。发布不代表维护者接受，也不代表兼容官方 DSH。
 
 每个 preview build 必须记录精确 fork remote 和包含 seam 实现的 commit。它只能标识 Host build，不能标识远程模型 deployment。依据 ADR-011，实际 Host route 显式绑定到一条 AA evidence record，同时保留 semantic-match 限制；该 binding 不是 provider deployment fingerprint。公共兼容契约绝不包含本地 checkout 路径；fork 验证成功也不能表述成官方 DSH 支持。
 
-具体 MVP 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与 effort，以及持久化解释。决定变化时会携带前一条 route，使界面只把发生变化的模型和／或 effort 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，以呼吸灯方式平滑亮灭两次后恢复默认颜色，包括只切换 effort 的情况。聊天时间线会把前后模型与 effort，以及任务处理级别、原因代码和解释记录为路由事实，紧跟在触发它的用户消息之后、产生结果的助手回复之前。阶段 3 在已完成的阶段 1 离线 catalog 与阶段 2 assessor 之后复用该载体，并把术语和策略迁移到 ADR-011；生产载体仍未决定。
+具体 preview 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与可选 effort、本地化 Light/Standard/Deep 任务处理级别、AA 或配置 Deep fallback 依据，以及持久化解释。决定变化时会携带前一条 route，使界面只把发生变化的 model、effort 或 level 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，呼吸两次后恢复默认颜色。聊天时间线会把前后 route 与任务处理级别，以及依据、原因代码和解释记录为路由事实，紧跟在触发它的用户消息之后、产生结果的助手回复之前。UI 明确 AA 是启发式证据，而不是本项目 Benchmark 验证；生产载体仍未决定。
 
-Task 6 插件契约中，`mode: auto` 要求提供 inline `seed` 或 `seedPath`。`aa-evidence-catalog/v1` seed 会启用阶段 3 pipeline。可选 `hostRoutes` 是提议 request configuration 的明确 allowlist；省略时，插件从当前 DSH discovery 派生 candidate。每个 candidate 仍必须经过 `resolveCallConfig()` 物化。可选 `deepFallback` 提议一条精确配置 fallback，只有其物化 identity 仍属于合格 Host 集合时才能使用。插件不定义这些配置值属于全局、项目还是 Session；该 carrier scope 仍是开放产品决策。历史阶段 0P seed shape 仅作为兼容路径保留，直到 UI migration 移除原型契约。
+阶段 3 插件契约中，`mode: auto` 要求提供 inline `seed` 或 `seedPath`。`aa-evidence-catalog/v1` seed 会启用阶段 3 pipeline。可选 `hostRoutes` 是提议 request configuration 的明确 allowlist；省略时，插件从当前 DSH discovery 派生 candidate。每个 candidate 仍必须经过 `resolveCallConfig()` 物化。可选 `deepFallback` 提议一条精确配置 fallback，只有其物化 identity 仍属于合格 Host 集合时才能使用。插件不定义这些配置值属于全局、项目还是 Session；该 carrier scope 仍是开放产品决策。历史阶段 0P seed shape 作为 schema v1 兼容路径保留；维护 client 只在回放这些旧事件时映射其原型 tier。
 
 ### Fork 契约证据
 
@@ -33,6 +33,8 @@ Task 6 插件契约中，`mode: auto` 要求提供 inline `seed` 或 `seedPath`�
 组合 JSONL 探针在 `agent/prepare-step` 中修改所选模型，验证 prompt assembly 与 `agent/request` 使用同一模型，持久化必需插件决策事件，在 registration 缺失时拒绝冷加载，并在恢复精确 registration 后成功加载。2026-08-15 的验证通过 402 项相关测试、`pnpm typecheck`、`pnpm lint` 与 `pnpm doc-sync` 全部 28 项 gate。
 
 阶段 3 Task 6 在不改变 A1 或 A2 的情况下增加插件侧 composition 证据。针对同一固定 commit，78 项项目测试覆盖动态 route discovery 与精确物化、三档、同一决策跨 tool step 复用、单调升级、配置 fallback、dispatch 前明确 failure、Manual 不受影响，以及使用相同 route 与解释的真实持久 Session cold reconstruction。`resume()` 读取 Session 前必须已经存在必需 namespace registration；已验证 cold 路径会先激活插件，再以编程方式 resume。在更早 composition layer 内、Auto 插件注册前就 resume 的 declarative root 不属于已测试 ordering，不能声明支持。
+
+阶段 3 Task 7 只更新外部插件 projection 与 fork UI 载体。Schema v2 append validation 拒绝原型 tier，同时 schema v1 replay 仍可读取。完整 fork GUI suite 通过 3,767 项测试、1 项 skip；针对本机 Chrome 的聚焦已构建浏览器 replay 通过中英文 snapshot，以及仅 model、仅 effort、二者同时和仅 level 变化的动画场景。完整仓库 Web suite 仍需要其配置的 Playwright 浏览器 artifact，而验证环境中缺少该 artifact。
 
 该证据只关闭固定 fork 的 A1/A2 与限定范围的 MVP 载体。它不代表兼容官方 DSH，也不决定生产载体。
 
@@ -105,7 +107,7 @@ A1 与 A2 已在维护者 fork 解决。其他需求只在消费它们的 roadma
 | A3p | 带版本的 Host-route-to-AA evidence binding | 阶段 1 AA catalog | DSH selection 清单存在；ADR-011 把实际 Host route identity 与 AA evidence identity 分开 | 插件 |
 | A3 | 可选 resolved deployment fingerprint | 未来要求精确 deployment identity 的声明 | 需要专项审计；不在当前关键路径 | Provider adapter 或 DSH 上游 |
 | A4 | 固定辅助调用的可扩展 purpose 与审计分类 | Task Assessor 运行 | 需要专项审计 | 接口开放时由插件实现，否则 DSH 上游 |
-| A5p | Auto/manual 与持久解释所需的一个已验证载体 | 阶段 1–3 可用性 | MVP 载体已在固定 fork 验证；术语和 AA 详情仍需迁移 | Fork UI 加插件 Session projection 与命令 |
+| A5p | Auto/manual 与持久解释所需的一个已验证载体 | 阶段 1–3 可用性 | 任务处理级别、精确 route 事实、AA/fallback 依据、动画与旧版 replay 已在固定 fork 验证 | Fork UI 加插件 Session projection 与命令 |
 | A5 | 通用 Auto/manual 与解释 UI 扩展契约 | 兼容官方版本且面向用户的发布 | 需要专项审计 | 客户端插件或 DSH 上游 |
 | B1 | 语义约束所需的持久类型化 child-creation metadata | 进程内 child 路由 | 已核实不完整 | 通用 DSH seam 加插件 schema |
 | B2 | 外部 subagent 创建时 model/effort capability | 外部 child 路由 | 被审计 provider 已核实缺失 | Provider adapter；需要时增加共享 capability 声明 |
@@ -118,7 +120,7 @@ A1 与 A2 已在维护者 fork 解决。其他需求只在消费它们的 roadma
 
 1. **已完成：**在范围窄的 DSH 设计说明中冻结 A1、A2 的产品无关契约。
 2. **已完成：**为基线缺失行为增加 core contract test。
-3. **已完成：**实现并验证 seam，当前由 fork commit `2a2db7a6ec3ce9969857cc41de839f911ef5902e` 承载。
+3. **已完成：**实现并验证 seam，当前由 fork commit `afc8d47d597dfdb058a0129a8a95403df16664b4` 承载。
 4. **已完成：**在 Discussion #2281 发布产品无关契约与 fork 证据，获取上游反馈。
 5. **历史清单已完成：**[阶段 0P route 清单](evidence/phase-0p-route-inventory.md)记录旧 deployment-level 规则为何产生空精确交集。ADR-010 取消该 release gate；ADR-011 定义当前显式 evidence-binding 契约。
 6. **MVP 已完成：**fork UI 与插件 projection/命令覆盖显式 opt-in、Auto/manual 选择、持久化选择、实际配置与解释读取。

@@ -79,7 +79,9 @@ Combine the catalog and semantic assessor into the user-facing product loop.
 
 Acceptance: browser and real-provider scenarios prove Light, Standard, Deep, fallback, failure, and Manual paths; displayed, persisted, and effective request configurations agree.
 
-Task 6 completed on 2026-08-22. `auto-decision/v1` now refreshes at the Host-owned DSH user-turn boundary and remains frozen across every step in that turn. The pinned-fork composition proves all three levels, monotonic escalation, explicit configured Deep fallback, no-route failure before dispatch, exact assembly/request/Session equality, cold reconstruction, and Manual non-interference. Task 7 remains the live UI terminology and explanation migration; Task 8 remains the browser and available real-provider beta proof.
+Task 6 completed on 2026-08-22. `auto-decision/v1` now refreshes at the Host-owned DSH user-turn boundary and remains frozen across every step in that turn. The pinned-fork composition proves all three levels, monotonic escalation, explicit configured Deep fallback, no-route failure before dispatch, exact assembly/request/Session equality, cold reconstruction, and Manual non-interference.
+
+Task 7 completed on 2026-08-22. Schema-v2 projections and the maintained UI use Light/Standard/Deep without publishing a prototype tier, show the actual model and optional effort, distinguish AA evidence from configured Deep fallback, and retain schema-v1 replay. Component and browser fixtures preserve model-only, effort-only, combined, and level-only transitions, localized snapshots, and the existing animation and conversation placement. Task 8 remains the browser and available real-provider beta proof.
 
 ## Phase 4: Catalog refresh and distribution
 

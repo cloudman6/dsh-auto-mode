@@ -250,6 +250,7 @@ describe('DSH Auto Mode plugin', () => {
     assert.deepEqual(request, standard.effectiveConfig)
     const selection = subject.events.find(event => event.type === 'dsh-auto-mode/selection')
     assert.equal(selection.data.schemaVersion, 2)
+    assert.equal('tier' in selection.data, false)
     assert.equal(selection.data.handlingLevel, 'standard')
     assert.equal(selection.data.provider, request.provider)
     assert.equal(selection.data.model, request.model)

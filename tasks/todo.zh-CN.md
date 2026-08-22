@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: 09ed6c5a55ac6ff4d6b2fa155ec40315f1327a63
+translation-source-blob: fc7ca53f5f42964ed3564b1f4edfb59d3fa8f8be
 translation-status: current
 -->
 
@@ -113,14 +113,14 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] UI 使用 Light/Standard/Deep 和轻量/常规/深度，而不是 fast/standard/strong。
-- [ ] Selector 与 conversation 显示实际 model、effort、任务处理级别以及 AA 或 fallback 依据。
-- [ ] 现有滚动、蓝色高亮、两次呼吸和消息位置保持不变。
+- [x] UI 使用 Light/Standard/Deep 和轻量/常规/深度，而不是 fast/standard/strong。
+- [x] Selector 与 conversation 显示实际 model、effort、任务处理级别以及 AA 或 fallback 依据。
+- [x] 现有滚动、蓝色高亮、两次呼吸和消息位置保持不变。
 
 **验证：**
 
-- [ ] 浏览器测试覆盖仅 model、仅 effort、二者及仅 level 变化。
-- [ ] 中英文 snapshot 保持 current。
+- [x] 浏览器测试覆盖仅 model、仅 effort、二者及仅 level 变化。
+- [x] 中英文 snapshot 保持 current。
 
 **依赖：**Task 6
 

@@ -82,9 +82,13 @@ Status: complete on 2026-08-22. `auto-decision/v1` refreshes once per DSH user t
 
 Replace prototype labels with Light/Standard/Deep and 轻量/常规/深度. Show AA-matched versus configured-fallback reasons while preserving rolling/breathing animations and conversation placement.
 
+Status: complete on 2026-08-22. Schema-v2 projections omit the prototype tier, while the maintained selector and conversation facts display localized handling levels, actual model and optional effort, and AA or configured Deep fallback basis. Existing schema-v1 Sessions retain a legacy read path.
+
 ### Task 8: Prove Auto and Manual end to end
 
 Exercise all three levels, price ordering, latency tie-break, low-confidence fallback, missing-catalog failure, Session reconstruction, and Manual non-interference in browser and available real-provider scenarios.
+
+Status: next.
 
 ### Checkpoint C
 

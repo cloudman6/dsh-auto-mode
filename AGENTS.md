@@ -12,14 +12,14 @@ DSH Auto Mode gives individual power users of coding agents an AA-informed Auto 
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 3 Task 6 frozen Auto-decision integration after completed Phases 1–2 |
-| Existing work | Runnable MVP plus completed Phase 1 catalog and Phase 2 one-shot assessor, deterministic level-policy, and fallback pipelines |
+| Stage | Phase 3 Task 8 end-to-end beta proof after completed Tasks 6–7 |
+| Existing work | Runnable AA-informed decision path plus completed catalog, assessor, level policy, persisted projection, and Light/Standard/Deep UI |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Integrate assessment, catalog, level policy, and resolver at the verified pre-assembly boundary |
+| Next-stage gate | Prove displayed, persisted, and effective routes agree across browser and available real-provider scenarios |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 

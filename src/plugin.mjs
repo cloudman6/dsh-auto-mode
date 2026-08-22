@@ -15,11 +15,6 @@ const SELECTION_EVENT = 'dsh-auto-mode/selection'
 const RESOLUTION_FAILURE_EVENT = 'dsh-auto-mode/resolution-failure'
 const MODE_EVENT = 'dsh-auto-mode/mode'
 const EVIDENCE_STATUS = 'experimental-unadmitted'
-const PHASE3_LEVEL_TO_PROTOTYPE_TIER = Object.freeze({
-  light: 'fast',
-  standard: 'standard',
-  deep: 'strong',
-})
 
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -195,13 +190,6 @@ function phase3EvidenceMatchesBasis(value) {
     && value.routePolicyVersion === undefined
 }
 
-function phase3TierMatchesDecision(value) {
-  const expected = value.fallback
-    ? 'fallback'
-    : PHASE3_LEVEL_TO_PROTOTYPE_TIER[value.handlingLevel]
-  return value.tier === expected
-}
-
 function phase3AssessmentAuditIsValid(value) {
   return ['valid', 'fallback'].includes(value.assessmentStatus)
     && (value.taskAssessment === null || isRecord(value.taskAssessment))
@@ -223,7 +211,7 @@ function parseSelectionEvent(value) {
       || !Number.isSafeInteger(value.step) || value.step < 0
       || !['light', 'standard', 'deep'].includes(value.handlingLevel)
       || !['light', 'standard', 'deep'].includes(value.requestedHandlingLevel)
-      || !['fast', 'standard', 'strong', 'fallback'].includes(value.tier)
+      || value.tier !== undefined
       || !['aa-matched', 'configured-deep-fallback'].includes(value.routeBasis)
       || typeof value.fallback !== 'boolean'
       || typeof value.provider !== 'string' || value.provider === ''
@@ -239,7 +227,6 @@ function parseSelectionEvent(value) {
       || value.reasonCodes.some(code => typeof code !== 'string' || code === '')
       || new Set(value.reasonCodes).size !== value.reasonCodes.length
       || typeof value.reason !== 'string' || value.reason === ''
-      || !phase3TierMatchesDecision(value)
       || !phase3AssessmentAuditIsValid(value)
       || !phase3SelectionIdentityMatches(value)
       || !phase3EvidenceMatchesBasis(value)) {
@@ -536,9 +523,6 @@ export function apply(ctx, config = {}) {
         decisionVersion: selected.decisionVersion,
         decisionId: `auto-decision:turn:${payload.turn}`,
         status: selected.status,
-        tier: selected.fallback
-          ? 'fallback'
-          : PHASE3_LEVEL_TO_PROTOTYPE_TIER[selected.handlingLevel],
         requestedHandlingLevel: selected.requestedHandlingLevel,
         handlingLevel: selected.handlingLevel,
         provider: selection.provider,

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: d13729f93c47fabf6580ce4cec25bdd40061f634
+translation-source-blob: 45a2b599bb190b4757e7e1703680d2ba2227b471
 translation-status: current
 -->
 
@@ -169,7 +169,7 @@ Task 6 把该边界实现为 `auto-decision/v1`。在每个 DSH 用户 turn 的�
 
 Coordinator 只运行一次 one-shot assessor 与 resolver，之后在同一 turn 的后续所有 step 中复用深度冻结结果。Resolution 从请求档位开始，只能向上移动。配置的 Deep fallback 只有在其精确物化 identity 仍属于 Host-valid 集合时才有资格；它不携带 AA snapshot 或 record 声明。既没有 AA match 也没有有效 fallback 时，coordinator 持久化结构化 failure，并在 provider dispatch 前拒绝该 step。
 
-已解析决策使用必需 `dsh-auto-mode/selection` schema version 2；失败使用必需 `dsh-auto-mode/resolution-failure` schema version 1。Selection payload 把完整实际配置绑定到 route ID 与 fingerprint，并记录 assessment audit、请求和实际级别、AA 与 fallback 依据、evidence 和 policy 版本、reason code 与解释。Append-time parser 会拒绝 identity、tier、evidence basis 不一致或 reason 重复的事件。Session projection 在 warm 与 cold reconstruction 中折叠同一组事实。兼容的 `fast`/`standard`/`strong` projection 字段在 Task 7 前仍作为临时 carrier 数据存在，但不控制路由。
+已解析决策使用必需 `dsh-auto-mode/selection` schema version 2；失败使用必需 `dsh-auto-mode/resolution-failure` schema version 1。Selection payload 把完整实际配置绑定到 route ID 与 fingerprint，并记录 assessment audit、请求和实际级别、AA 与 fallback 依据、evidence 和 policy 版本、reason code 与解释。Append-time parser 会拒绝 identity、原型 tier、evidence basis 不一致或 reason 重复的事件。Session projection 在 warm 与 cold reconstruction 中折叠同一组事实。维护 client 仅在回放现有 Session 时映射 schema v1 的 `fast`/`standard`/`strong` 值；schema v2 绝不发布这些值。
 
 ### Session Projection 与 UI
 

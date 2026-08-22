@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 1c7b7ef33921a7faa100ddfd832f55123f556fcd
+translation-source-blob: b255fb383afe28d514111f3a0ccd08941f94e02f
 translation-status: current
 -->
 
@@ -18,14 +18,14 @@ translation-status: current
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 阶段 1–2 已完成，当前实施阶段 3 Task 6 冻结 Auto 决策集成 |
-| 已有成果 | 可运行 MVP，以及已完成的阶段 1 catalog、阶段 2 单次 assessor、确定性级别 policy 与 fallback pipeline |
+| 项目阶段 | 阶段 3 Task 6–7 已完成，当前实施 Task 8 端到端 Beta 证明 |
+| 已有成果 | 可运行 AA 驱动决策路径，以及已完成的 catalog、assessor、级别 policy、持久投影和 Light/Standard/Deep UI |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | 所需任务处理级别 → AA 报告价格 → AA 报告延迟 → 稳定 route identity |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 在已验证 pre-assembly 边界集成 assessment、catalog、级别 policy 和 resolver |
+| 下一阶段入口 | 通过浏览器与可用真实 provider 场景证明显示、持久化和实际 route 一致 |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 

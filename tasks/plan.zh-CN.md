@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 1cc520edc98a92d9b6be343c34db7e139df9cdf6
+translation-source-blob: 054b4d928ae848b03915fff6fe46223a3e085886
 translation-status: current
 -->
 
@@ -88,9 +88,13 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 用 Light/Standard/Deep 和轻量/常规/深度取代原型标签。显示 AA 匹配与配置 fallback 原因，同时保留滚动／呼吸动画和对话位置。
 
+状态：已于 2026-08-22 完成。Schema v2 projection 省略原型 tier；维护 selector 与 conversation fact 显示本地化任务处理级别、实际 model 与可选 effort，以及 AA 或配置 Deep fallback 依据。现有 schema v1 Session 保留旧版读取路径。
+
 ### Task 8：端到端证明 Auto 与 Manual
 
 在浏览器和可用真实 provider 场景覆盖三档、价格排序、延迟 tie-break、低置信度 fallback、catalog 缺失 failure、Session 重建和 Manual 不受影响。
+
+状态：下一步。
 
 ### Checkpoint C
 
