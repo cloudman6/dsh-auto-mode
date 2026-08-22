@@ -102,6 +102,8 @@ Status: complete on 2026-08-22. The pinned support matrix and all schema and pol
 
 Choose the stable AA acquisition method and rights boundary, validate and minimize the snapshot, inspect changes, and support restoring the previous valid snapshot. This task requires explicit approval before adding an external dependency or remote service.
 
+Status: complete on 2026-08-22. ADR-013 accepts an offline `aa-snapshot-refresh/v1` workflow with `internal-only` as the default rights mode and written AA permission required before redistributing real machine-readable metrics. The maintainer CLI derives credential-free Host identities, acquires the pinned Pro endpoint into private files, prepares deterministic minimized candidates and complete diffs, requires exact digest approval, atomically applies the reviewed seed, and verifies rollback integrity. Ninety-nine offline tests pass; only synthetic AA-shaped fixtures and placeholder examples are tracked.
+
 ## Risks
 
 | Risk | Impact | Mitigation |
@@ -114,4 +116,5 @@ Choose the stable AA acquisition method and rights boundary, validate and minimi
 
 ## Current open decisions
 
-- Stable AA acquisition and distribution mechanism for Phase 4.
+- Formal runtime signals and reassessment boundaries for Phase 5 adaptive execution.
+- Evidence required before down-routing may enter scope.

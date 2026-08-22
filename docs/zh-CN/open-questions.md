@@ -1,19 +1,12 @@
 <!--
 translation-source: docs/open-questions.md
-translation-source-blob: a95b9fae5a4c8ff6d3f4bf1152a104a94661310b
+translation-source-blob: a94003583ded18dc48e1dea635e38b6a32ced322
 translation-status: current
 -->
 
 # 开放问题
 
 [English](../open-questions.md)
-
-## 阶段 4：AA 更新
-
-1. 维护快照适用哪种稳定获取方式、terms、attribution 和 retention boundary？
-2. 能否分发最小化衍生 catalog，还是每个安装都必须获取自己的本地快照？
-3. 多长 freshness period 合理且不引入实时 runtime 依赖？
-4. 发布快照前，维护者如何检查模型新增、删除、版本改名和档位变化？
 
 ## 自适应执行与恢复
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 45a2b599bb190b4757e7e1703680d2ba2227b471
+translation-source-blob: 90e092421ba08defec6e4db75c592a0073a6c890
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-ADR-011 与 ADR-012 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
+ADR-011、ADR-012 与 ADR-013 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
 
 ## 原则
 
@@ -43,9 +43,9 @@ flowchart LR
 
 ### AA Snapshot Source
 
-提供 catalog 使用的带版本、本地、最小化 AA 记录快照。首版由维护者手工维护并被 Git 忽略。后续获取工具可以在 runtime 路径外更新它；运行时路由不依赖实时 AA 请求。
+提供 catalog 使用的带版本、本地、最小化 AA 记录快照。`aa-snapshot-refresh/v1` 通过仅维护者使用的离线路径获取并准备更新，记录完整实质变化报告，并要求精确 digest 批准后才原子替换 active seed。运行时路由不依赖实时 AA 请求。
 
-维护 seed 的结构见 [`examples/aa-catalog-seed.example.json`](../../examples/aa-catalog-seed.example.json)。真实 snapshot 和已评审 binding 保存在被 Git 忽略的 `local/` 目录；仓库只跟踪最小化 fixture 与 placeholder 示例。本地 loader 拒绝大于 1 MiB 的文件。
+维护 seed 的结构见 [`examples/aa-catalog-seed.example.json`](../../examples/aa-catalog-seed.example.json)。默认 `internal-only` 模式下，真实 acquisition、snapshot、已评审 binding、rollback seed、credential 与 grant document 都保存在被 Git 忽略的 `local/` 目录；仓库只跟踪合成 fixture 与 placeholder 示例。Host identity 推导拒绝承载 credential 的字段。Catalog loader 拒绝大于 1 MiB 的文件；维护边界另行限制私有文件与远程响应，并在 mutation 前校验 candidate、predecessor 和 rollback digest。
 
 ### Host Route Identity Builder
 

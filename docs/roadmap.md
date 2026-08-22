@@ -96,6 +96,8 @@ Make AA data maintenance reliable without coupling the runtime to a live remote 
 
 Acceptance: a maintainer can update the snapshot reproducibly, inspect the diff, reject malformed data, and restore the previous valid catalog.
 
+Task 9 and Phase 4 completed on 2026-08-22. ADR-013 fixes the official Pro language-model endpoint, server-side credential boundary, default internal-only rights mode, written-license distribution gate, attribution, retention, freshness, and pinned methodology. The offline maintainer workflow derives Host identities without credential values, minimizes only reviewed bindings, exposes source, record, binding, band, and ordering changes, requires exact digest approval, atomically replaces the active seed, and verifies the rollback checksum. Synthetic fixtures cover acquisition, rejection, update, binding addition/removal/replacement, rename, tamper detection, and rollback; no live AA dependency enters runtime routing.
+
 ## Phase 5: Adaptive execution
 
 Use runtime evidence to correct an initially insufficient level.

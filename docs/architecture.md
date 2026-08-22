@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted direction under ADR-011 and ADR-012. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
+Accepted direction under ADR-011, ADR-012, and ADR-013. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
 
 ## Principles
 
@@ -37,9 +37,9 @@ flowchart LR
 
 ### AA Snapshot Source
 
-Provides a versioned, local, minimized snapshot of AA records used by the catalog. The first implementation is maintained manually and Git-ignored. A later acquisition tool may refresh it outside the runtime path. Runtime routing never requires a live AA request.
+Provides a versioned, local, minimized snapshot of AA records used by the catalog. `aa-snapshot-refresh/v1` acquires and prepares updates through a maintainer-only offline path, records a complete material-change report, and requires exact digest approval before atomically replacing the active seed. Runtime routing never requires a live AA request.
 
-The maintained seed shape is illustrated by [`examples/aa-catalog-seed.example.json`](../examples/aa-catalog-seed.example.json). Real snapshots and reviewed bindings stay under the Git-ignored `local/` directory; the repository tracks only minimized fixtures and the placeholder example. The local loader rejects files larger than 1 MiB.
+The maintained seed shape is illustrated by [`examples/aa-catalog-seed.example.json`](../examples/aa-catalog-seed.example.json). Real acquisitions, snapshots, reviewed bindings, rollback seeds, credentials, and grant documents stay under the Git-ignored `local/` directory in the default `internal-only` mode; the repository tracks only synthetic fixtures and placeholder examples. Host identity derivation rejects credential-bearing fields. The catalog loader rejects files larger than 1 MiB, while the maintenance boundary separately bounds private files and remote responses and validates the candidate, predecessor, and rollback digest before mutation.
 
 ### Host Route Identity Builder
 

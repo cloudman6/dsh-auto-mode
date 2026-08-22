@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: 84f67ec453ca40b639f217e91b2255810d978e6a
+translation-source-blob: 20c20eef560f2737d42ec6af34e4aaddcc5febbb
 translation-status: current
 -->
 
@@ -151,13 +151,13 @@ translation-status: current
 
 **验收标准：**
 
-- [ ] 获取方式、attribution、rights、retention、freshness 和 minimization 已记录。
-- [ ] 畸形或不完整更新不能取代上一有效 snapshot。
-- [ ] 维护者可以检查变化并恢复上一有效 snapshot。
+- [x] 获取方式、attribution、rights、retention、freshness 和 minimization 已记录。
+- [x] 畸形或不完整更新不能取代上一有效 snapshot。
+- [x] 维护者可以检查变化并恢复上一有效 snapshot。
 
 **验证：**
 
-- [ ] Offline fixture 覆盖更新、拒绝、rollback、binding 新增、删除、替换和 AA-record rename。
-- [ ] Credential 和再分发原始数据集留在 Git 与浏览器 client 之外。
+- [x] Offline fixture 覆盖更新、拒绝、rollback、binding 新增、删除、替换和 AA-record rename。
+- [x] Credential 和再分发原始数据集留在 Git 与浏览器 client 之外。
 
 **依赖：**Checkpoint C，以及新增依赖或远程服务的明确授权

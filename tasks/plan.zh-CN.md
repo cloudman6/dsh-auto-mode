@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: b9e082a24fd2f48f3185f17bbe30ce9fdfac4cfa
+translation-source-blob: 51fec4bea46885099794d4b222dbbbf4a88c8f44
 translation-status: current
 -->
 
@@ -108,6 +108,8 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 选择稳定 AA 获取方式和数据权利边界，校验并最小化快照，检查变化并支持恢复上一有效快照。增加外部依赖或远程服务前需要明确批准。
 
+状态：已于 2026-08-22 完成。ADR-013 接受离线 `aa-snapshot-refresh/v1` 工作流，默认 rights mode 为 `internal-only`，分发真实机器可读指标前必须取得 AA 书面许可。维护 CLI 推导不含凭据的 Host identity，把固定 Pro endpoint 获取结果写入私有文件，准备确定性最小 candidate 与完整 diff，要求精确 digest 批准，原子应用已评审 seed，并验证 rollback 完整性。99 项离线测试通过；仓库只跟踪合成 AA-shaped fixture 与 placeholder 示例。
+
 ## 风险
 
 | 风险 | 影响 | 缓解 |
@@ -120,4 +122,5 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 ## 当前开放决策
 
-- 阶段 4 的稳定 AA 获取与分发机制。
+- 阶段 5 自适应执行的形式化 runtime signal 与重新判断边界。
+- 允许降级进入范围前需要哪些证据。

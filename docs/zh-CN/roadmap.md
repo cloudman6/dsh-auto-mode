@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: 335f39451211bd79adc66d6d00a5d4c9ec8f491b
+translation-source-blob: 1664c11db7d05910b2f51b444b735c53f2ae7d46
 translation-status: current
 -->
 
@@ -101,6 +101,8 @@ Task 8 与 Checkpoint C 已于 2026-08-22 完成。无密钥跨仓库浏览器 f
 - credential 和再分发的原始数据集不进入仓库或浏览器 client。
 
 验收：维护者可以可复现地更新快照、检查差异、拒绝畸形数据并恢复上一有效 catalog。
+
+Task 9 与阶段 4 已于 2026-08-22 完成。ADR-013 固定官方 Pro language-model endpoint、服务端 credential boundary、默认 internal-only rights mode、written-license 分发 gate、attribution、retention、freshness 与固定 methodology。离线维护工作流推导不含凭据值的 Host identity，只最小化已评审 binding，展示 source、record、binding、band 和排序变化，要求精确 digest 批准，原子替换 active seed，并验证 rollback checksum。合成 fixture 覆盖 acquisition、拒绝、更新、binding 新增／删除／替换、rename、tamper detection 与 rollback；runtime routing 不引入 live AA 依赖。
 
 ## 阶段 5：自适应执行
 

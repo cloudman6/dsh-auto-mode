@@ -8,7 +8,7 @@
 
 ## Current stage
 
-Phase 0P MVP and Phases 1–3 are complete. Checkpoint C closes the AA-informed Auto beta; Phase 4 Task 9 is next.
+Phase 0P MVP and Phases 1–4 are complete. ADR-013 and Task 9 close offline AA snapshot maintenance; Phase 5 adaptive execution is next.
 
 The maintained DSH fork is pinned at `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`. The runnable plugin composes the Phase 1 AA catalog and Phase 2 assessor at `agent/prepare-step`, freezes one `auto-decision/v1` for each DSH user turn, and reuses its complete effective configuration through assembly and every `agent/request` step in that turn. Required Session events preserve the route, assessment, evidence basis, versions, reason codes, and explanation for cold reconstruction. Schema-v2 decisions publish Light/Standard/Deep semantics without a prototype tier; the maintained UI shows the exact model, optional effort, handling level, evidence basis, and exact AA snapshot when applicable. Existing schema-v1 Sessions remain readable through an explicit legacy-only mapping.
 
@@ -20,9 +20,10 @@ The maintained DSH fork is pinned at `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`.
 - A versioned assessor route policy resolves one environment-valid classifier route without inspecting the task and freezes it before the call. The semantic assessor returns task attributes and confidence; deterministic Host policy chooses the level and retains final authority.
 - Executable Host route identity is separate from AA evidence identity. A versioned explicit binding maps one effective provider/model/request configuration to one stable AA record; effort and variant are optional provider dimensions, not universal required fields.
 - Within one level, the resolver prefers lower AA-reported price, then lower AA-reported latency, then stable route identity.
+- AA snapshot refresh runs only through the maintainer-owned offline `aa-snapshot-refresh/v1` workflow. Runtime routing never calls AA; real metrics remain `internal-only` unless a written AA grant covers machine-readable distribution and this model-selection product.
 - Product claims remain explicitly AA-informed and do not claim project-benchmarked quality, safety, non-inferiority, or universal optimality.
 
-The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-to-aa-evidence.md), which succeeds ADR-010 while retaining its AA-informed, price-first direction. The environment-aware assessor-route decision is recorded in [ADR-012](docs/decisions/0012-resolve-and-freeze-task-assessor-routes.md). ADR-010 remains the historical decision that superseded ADR-002, ADR-006, and ADR-008.
+The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-to-aa-evidence.md), which succeeds ADR-010 while retaining its AA-informed, price-first direction. The environment-aware assessor-route decision is recorded in [ADR-012](docs/decisions/0012-resolve-and-freeze-task-assessor-routes.md). The offline acquisition, rights, review, publication, and rollback boundary is recorded in [ADR-013](docs/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md). ADR-010 remains the historical decision that superseded ADR-002, ADR-006, and ADR-008.
 
 ## Completed foundation
 
@@ -42,6 +43,7 @@ The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-
 - Completed Phase 3 Task 6: current Host routes are re-materialized before each new user turn, exact AA matches are filtered before price-first resolution, and one frozen decision drives assembly, requests, persisted facts, and cold projection. The pinned-fork suite covers all three levels, monotonic escalation, configured Host-valid Deep fallback without false AA evidence, explicit no-route failure before dispatch, and Manual non-interference.
 - Completed Phase 3 Task 7: schema-v2 projections no longer publish prototype tiers; the selector and conversation facts show localized task-handling levels, actual model and optional effort, plus AA or configured Deep fallback basis. Model-only, effort-only, combined, and level-only browser transitions preserve the 1.2-second roll, business-blue highlight, two breathing cycles, durable message placement, and English/Chinese snapshots.
 - Completed Phase 3 Task 8 and Checkpoint C: a cross-repository keyless browser fixture drives the real Web UI, agent loop, Session log, and request header through Light, Standard, Deep, and Manual. Its Standard candidates prove price-first and latency-second resolution; every automatic turn proves the displayed route and AA snapshot equal the persisted selection and effective request configuration. Focused Loader and Session tests retain fallback, no-route failure, cold reconstruction, and Manual non-interference coverage. The support matrix pins fork `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`, selection schema v2, `auto-decision/v1`, `aa-evidence-catalog/v1`, `task-assessor-contract/v1`, `task-assessor-route-policy/v1`, `task-handling-policy/v1`, and `aa-route-policy/v1`.
+- Completed Phase 4 Task 9: `aa-snapshot-refresh/v1` fixes the official Pro acquisition contract, server-side credential boundary, source methodology, attribution, retention, freshness, minimization, and explicit rights modes. Its maintainer CLI derives credential-free Host identities, stores bounded source material privately, prepares deterministic candidates and complete source/record/binding/band/order diffs, requires exact digest approval, atomically preserves and replaces the active seed, and verifies rollback integrity. Ninety-nine offline tests pass; only synthetic AA-shaped fixtures and placeholder examples are tracked.
 
 ## Current implementation plan
 
@@ -53,7 +55,8 @@ The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-
 6. Completed: integrate one frozen decision path through assembly, request, Session persistence, and cold projection.
 7. Completed: migrate the live UI terminology, evidence basis, optional-effort display, and transition explanations.
 8. Completed: prove all beta paths end to end across the browser, Loader, Session, and effective request boundary.
-9. Next: define and implement the versioned AA snapshot refresh workflow and rights boundary.
+9. Completed: define and implement the versioned AA snapshot refresh workflow and rights boundary.
+10. Next: define formal runtime evidence and reassessment boundaries for Phase 5 monotonic adaptive execution.
 
 Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md), [implementation plan](tasks/plan.md), and [task checklist](tasks/todo.md).
 
@@ -65,11 +68,13 @@ Phase 2 has no remaining blocker. Tasks 4–5 freeze dynamic environment-aware a
 
 Phase 3 has no remaining blocker. Task 8 found no provider credential in the verification environment, so it makes no new live-provider-call claim; the completed keyless vertical proof covers the product-specific decision path, while the accepted Phase 0P evidence remains the historical real-provider dispatch proof.
 
-Phase 4 must resolve stable AA acquisition, attribution, retention, redistribution rights, freshness, and rollback. Adding an external dependency or remote service still requires explicit maintainer authorization. Within-session adaptation, recovery, child-agent routing, and official DSH compatibility belong to later phases.
+Phase 4 has no remaining implementation blocker. ADR-013 resolves stable AA acquisition, attribution, retention, freshness, minimization, review, atomic replacement, and rollback. Public distribution of real machine-readable AA metrics remains unavailable until an external written AA grant covers both distribution and this model-selection product; that external restriction does not block the completed default `internal-only` workflow.
+
+Phase 5 must define which formal runtime signals justify escalation, where reassessment may occur, and how monotonicity and persisted explanation are enforced. Recovery, child-agent routing, and official DSH compatibility remain later phases.
 
 ## Next action
 
-Implement Phase 4 Task 9: define the AA acquisition and rights boundary, then build a reproducible minimized snapshot refresh that rejects malformed updates, exposes binding and band diffs, and restores the previous valid snapshot without introducing a live runtime dependency.
+Begin Phase 5 adaptive execution by freezing the formal failure/progress signal contract and explicit reassessment boundaries before adding any within-session route change.
 
 ## Status maintenance rules
 

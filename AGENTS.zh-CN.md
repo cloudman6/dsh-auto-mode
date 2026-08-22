@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 007110c41e326b0c88a93f30d47de0d74c519f2e
+translation-source-blob: 80be8be1ee0c700c0d1987ae297f6155663841ba
 translation-status: current
 -->
 
@@ -18,20 +18,20 @@ translation-status: current
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 阶段 3 Checkpoint C 已完成，当前进入阶段 4 snapshot refresh |
-| 已有成果 | 可运行 AA 驱动决策路径，以及已完成的 catalog、assessor、级别 policy、持久投影和 Light/Standard/Deep UI |
+| 项目阶段 | 阶段 4 snapshot maintenance 已完成，当前进入阶段 5 自适应执行 |
+| 已有成果 | 可运行 AA 驱动决策路径，以及已完成的 catalog、assessor、产品集成、UI 和离线 AA snapshot refresh 工作流 |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
 | 优化顺序 | 所需任务处理级别 → AA 报告价格 → AA 报告延迟 → 稳定 route identity |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
-| 下一阶段入口 | 定义获取与权利边界，然后证明可复现 snapshot 更新、拒绝、检查与 rollback |
+| 下一阶段入口 | 定义形式化 runtime signal 与重新判断边界，实现基于证据的单调升级 |
 
 本表只保存会话定向所需摘要。进度、阻塞和下一步的权威位置是 `PROJECT_STATUS.md`，不要在两处维护完整状态。
 
 ## 新会话必读
 
-当 `PROJECT_STATUS.md` 把阶段 1–3 列为当前阶段时，在实施或评审前只读取：
+当 `PROJECT_STATUS.md` 标明当前实施阶段时，在实施或评审前只读取：
 
 1. `PROJECT_STATUS.md`。
 2. `docs/zh-CN/spec.md`。
@@ -66,11 +66,12 @@ translation-status: current
 
 ## 当前阶段约束
 
-维护者已于 2026-08-21 接受 ADR-011，并于 2026-08-22 接受 ADR-012。MVP 后实施遵循以下约束：
+维护者已于 2026-08-21 接受 ADR-011，并于 2026-08-22 接受 ADR-012 与 ADR-013。MVP 后实施遵循以下约束：
 
-- 已接受的规范、ADR-011 和 ADR-012 是约束。ADR-010 是已被取代、用于记录 AA 驱动和价格优先方向的历史来源；ADR-002、ADR-006 和 ADR-008 继续属于历史。
+- 已接受的规范、ADR-011、ADR-012 和 ADR-013 是约束。ADR-010 是已被取代、用于记录 AA 驱动和价格优先方向的历史来源；ADR-002、ADR-006 和 ADR-008 继续属于历史。
 - 已实现的 A1/A2 契约必须保持产品无关并固定到已验证 fork commit；DSH Core 不得理解 Auto Mode route 档位、Task Assessment 或 Policy Pack 语义。
 - AA 是 capability、price 和 latency 结论的外部来源；不得宣称本项目 Benchmark 质量或普遍最优。
+- 默认不得让真实 AA acquisition、snapshot、credential 与 grant document 进入 Git 或浏览器 client。Runtime routing 绝不调用 AA。再分发真实机器可读 AA metric 必须有可外部审计的书面 grant，且同时覆盖分发和本 model-selection 产品。
 - 可执行 Host route identity 与 AA evidence identity 必须分离。一条实际 provider/model/request configuration 显式绑定到一条稳定 AA record；不得要求所有 provider 都有 variant 或 effort，不得模糊推断 binding、跨越已物化执行差异或静默替换更新 AA record。
 - 内部使用 `light`、`standard`、`deep`，用户界面使用 Light/Standard/Deep 与轻量/常规/深度。已完成 MVP 的旧标签在迁移前只属于历史实现。
 - 同一处理级别内，依次优先 AA 报告价格更低、AA 报告延迟更低和稳定 route identity。不得增加本地 token-cost estimator。
@@ -306,7 +307,7 @@ rmdir "$main_worktree/.worktrees/<task-slug>"
 
 ## 当前硬阻塞
 
-阶段 1–3 已无剩余阻塞。当前阶段 4 工作及后续阶段问题维护在 `PROJECT_STATUS.md` 和 `docs/open-questions.md`；不要在这里复制完整清单。
+阶段 1–4 已无剩余实施阻塞。没有 ADR-013 要求的书面 grant 时，仍不能公开分发真实 AA metric。当前阶段 5 工作及后续阶段问题维护在 `PROJECT_STATUS.md` 和 `docs/open-questions.md`；不要在这里复制完整清单。
 
 ## 安全边界
 

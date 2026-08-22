@@ -2,13 +2,6 @@
 
 [简体中文](zh-CN/open-questions.md)
 
-## Phase 4: AA refresh
-
-1. What stable acquisition method, terms, attribution, and retention boundary apply to maintained snapshots?
-2. Can a minimized derived catalog be distributed, or must each installation acquire its own local snapshot?
-3. What freshness period is useful without forcing a live runtime dependency?
-4. How does a maintainer review model additions, removals, renamed versions, and band changes before publishing a snapshot?
-
 ## Adaptive execution and recovery
 
 1. Which formal runtime signals justify `light → standard → deep` escalation?

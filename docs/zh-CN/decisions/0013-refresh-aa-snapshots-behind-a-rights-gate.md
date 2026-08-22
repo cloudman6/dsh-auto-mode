@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md
-translation-source-blob: a08065102340d290f339598f715b45b886642c79
+translation-source-blob: ff1f688516223ac9c6f4cb02eb8500cc004835f1
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-Proposed
+Accepted
 
 ## 日期
 

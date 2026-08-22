@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted by the maintainer. [ADR-011](decisions/0011-bind-host-routes-to-aa-evidence.md) defines the current AA-informed post-MVP direction and succeeds ADR-010.
+Accepted by the maintainer. [ADR-011](decisions/0011-bind-host-routes-to-aa-evidence.md) defines the current AA-informed post-MVP direction and succeeds ADR-010. [ADR-013](decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md) governs offline AA snapshot maintenance and distribution rights.
 
 ## Product premise
 
@@ -63,7 +63,7 @@ The Host route remains authoritative for execution and capability filtering. The
 
 ### Current path
 
-- Versioned local AA snapshots, initially maintained manually and kept out of Git.
+- Versioned local AA snapshots refreshed through the reviewed offline `aa-snapshot-refresh/v1` workflow, kept out of Git by default, and distributable only under the ADR-013 rights gate.
 - Versioned Host route identities and explicit AA evidence bindings without exact-deployment claims.
 - AA-informed `light`/`standard`/`deep` catalog construction.
 - A bounded semantic Task Assessor whose concrete execution route is resolved from the current environment by a versioned policy and frozen before each call, plus deterministic level and user-task route policy.
@@ -71,7 +71,6 @@ The Host route remains authoritative for execution and capability filtering. The
 
 ### Later path
 
-- Stable AA data acquisition and snapshot refresh.
 - Within-session reassessment and evidence-triggered escalation.
 - Recovery actions only for effect classes with explicit support.
 - Parent/child routing constraints and adapters for Codex and Claude Code.

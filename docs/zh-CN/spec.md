@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/spec.md
-translation-source-blob: e173733a12b236f72edac140fac61c55bbf21198
+translation-source-blob: 7ed387defc55d410b7aaee88db18f341e25814a3
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-已由维护者接受。[ADR-011](decisions/0011-bind-host-routes-to-aa-evidence.md) 定义当前 AA 驱动的 MVP 后方向，并接替 ADR-010。
+已由维护者接受。[ADR-011](decisions/0011-bind-host-routes-to-aa-evidence.md) 定义当前 AA 驱动的 MVP 后方向，并接替 ADR-010。[ADR-013](decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md) 约束离线 AA snapshot 维护与分发权利。
 
 ## 产品前提
 
@@ -69,7 +69,7 @@ Host route 继续作为执行与 capability 过滤的权威身份。AA record �
 
 ### 当前路径
 
-- 带版本的本地 AA 快照，初期手工维护并被 Git 忽略。
+- 通过已评审离线 `aa-snapshot-refresh/v1` 工作流更新的带版本本地 AA 快照；默认不进入 Git，且只有满足 ADR-013 权利 gate 才能分发。
 - 不宣称精确 deployment 的版本化 Host route identity 与显式 AA evidence binding。
 - AA 驱动的 `light`/`standard`/`deep` catalog 编译。
 - 有限语义 Task Assessor，其具体执行 route 由版本化 policy 从当前环境解析并在每次调用前冻结；另加确定性的级别和用户任务 route 策略。
@@ -77,7 +77,6 @@ Host route 继续作为执行与 capability 过滤的权威身份。AA record �
 
 ### 后续路径
 
-- 稳定的 AA 数据获取和快照更新。
 - Session 内重新判断和基于执行证据的升级。
 - 只对明确支持的 effect class 实现恢复动作。
 - 父子 Agent 路由约束，以及 Codex 和 Claude Code adapter。

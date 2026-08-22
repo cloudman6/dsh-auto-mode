@@ -145,13 +145,13 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 
 **Acceptance criteria:**
 
-- [ ] Acquisition method, attribution, rights, retention, freshness, and minimization are documented.
-- [ ] Malformed or incomplete updates cannot replace the last valid snapshot.
-- [ ] A maintainer can inspect changes and restore the previous valid snapshot.
+- [x] Acquisition method, attribution, rights, retention, freshness, and minimization are documented.
+- [x] Malformed or incomplete updates cannot replace the last valid snapshot.
+- [x] A maintainer can inspect changes and restore the previous valid snapshot.
 
 **Verification:**
 
-- [ ] Offline fixtures cover update, rejection, rollback, binding addition, removal, replacement, and AA-record rename.
-- [ ] Credentials and raw redistributed datasets remain outside Git and the browser client.
+- [x] Offline fixtures cover update, rejection, rollback, binding addition, removal, replacement, and AA-record rename.
+- [x] Credentials and raw redistributed datasets remain outside Git and the browser client.
 
 **Dependencies:** Checkpoint C and explicit authorization for any dependency or remote service

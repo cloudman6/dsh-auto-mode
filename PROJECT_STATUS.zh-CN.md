@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: b4a491ab97d243ffb8168cbe09266458366de2a2
+translation-source-blob: 90b205078fd7c21df03637227f2d681cec6b084a
 translation-status: current
 -->
 
@@ -14,7 +14,7 @@ translation-status: current
 
 ## 当前阶段
 
-阶段 0P MVP 与阶段 1–3 均已完成。Checkpoint C 已关闭 AA 驱动 Auto Beta；下一步是阶段 4 Task 9。
+阶段 0P MVP 与阶段 1–4 均已完成。ADR-013 与 Task 9 已关闭离线 AA snapshot maintenance；下一步是阶段 5 自适应执行。
 
 维护者 DSH fork 固定在 `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`。可运行插件在 `agent/prepare-step` 组合阶段 1 AA catalog 与阶段 2 assessor，为每个 DSH 用户 turn 冻结一项 `auto-decision/v1`，并在该 turn 的 assembly 与每个 `agent/request` step 中复用其完整实际配置。必需 Session 事件保留 route、assessment、evidence basis、版本、reason code 与解释，供 cold reconstruction 使用。Schema v2 决策不再发布原型 tier；维护 UI 显示准确 model、可选 effort、任务处理级别、证据依据及适用时的准确 AA 快照。现有 schema v1 Session 仍通过明确的仅旧版 mapping 可读。
 
@@ -26,9 +26,10 @@ translation-status: current
 - 版本化 assessor route policy 在不检查任务内容的情况下解析一条适合当前环境的 classifier route，并在调用前冻结。语义 Task Assessor 返回任务属性和置信度；确定性 Host policy 选择级别并保留最终权力。
 - 可执行 Host route identity 与 AA evidence identity 相互独立。版本化显式 binding 把一条实际 provider/model/request configuration 映射到一条稳定 AA 记录；effort 和 variant 是 provider 可选维度，不是通用必填字段。
 - 同一级别内，resolver 依次优先 AA 报告价格更低、AA 报告延迟更低、稳定 route identity。
+- AA snapshot refresh 只通过维护者拥有的离线 `aa-snapshot-refresh/v1` 工作流运行。Runtime routing 绝不调用 AA；除非 AA 书面 grant 覆盖机器可读分发和本 model-selection 产品，真实 metric 保持 `internal-only`。
 - 产品声明始终明确由 AA 驱动，不宣称本项目 Benchmark 质量、安全、非劣性或普遍最优。
 
-Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-routes-to-aa-evidence.md)，它接替 ADR-010，同时保留 AA 驱动、价格优先方向。环境感知 assessor-route 决策记录在 [ADR-012](docs/zh-CN/decisions/0012-resolve-and-freeze-task-assessor-routes.md)。ADR-010 保留为取代 ADR-002、ADR-006 和 ADR-008 的历史决策。
+Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-routes-to-aa-evidence.md)，它接替 ADR-010，同时保留 AA 驱动、价格优先方向。环境感知 assessor-route 决策记录在 [ADR-012](docs/zh-CN/decisions/0012-resolve-and-freeze-task-assessor-routes.md)。离线获取、权利、评审、发布与 rollback 边界记录在 [ADR-013](docs/zh-CN/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md)。ADR-010 保留为取代 ADR-002、ADR-006 和 ADR-008 的历史决策。
 
 ## 已完成基础
 
@@ -48,6 +49,7 @@ Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-rou
 - 完成阶段 3 Task 6：每个新用户 turn 前重新物化当前 Host route，在价格优先解析前筛选精确 AA match，并让一项冻结决策驱动 assembly、request、持久事实与 cold projection。固定 fork suite 覆盖三档、单调升级、无虚假 AA evidence 的配置 Host-valid Deep fallback、dispatch 前明确 no-route failure，以及 Manual 不受影响。
 - 完成阶段 3 Task 7：schema v2 projection 不再发布原型 tier；selector 与 conversation fact 显示本地化任务处理级别、实际 model 与可选 effort，以及 AA 或配置 Deep fallback 依据。仅 model、仅 effort、二者同时和仅 level 变化的浏览器过渡均保留 1.2 秒滚动、业务蓝高亮、两次呼吸、持久消息位置和中英文 snapshot。
 - 完成阶段 3 Task 8 与 Checkpoint C：跨仓库无密钥浏览器 fixture 驱动真实 Web UI、agent loop、Session 日志和请求头依次经过 Light、Standard、Deep 与 Manual。常规级候选证明先比较价格、再比较延迟；每个自动 turn 都证明界面显示的 route 与 AA snapshot 等于持久化 selection 和实际请求配置。聚焦 Loader 与 Session 测试继续覆盖 fallback、no-route failure、cold reconstruction 和 Manual 不受影响。支持矩阵固定 fork `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`、selection schema v2、`auto-decision/v1`、`aa-evidence-catalog/v1`、`task-assessor-contract/v1`、`task-assessor-route-policy/v1`、`task-handling-policy/v1` 与 `aa-route-policy/v1`。
+- 完成阶段 4 Task 9：`aa-snapshot-refresh/v1` 固定官方 Pro acquisition contract、服务端 credential boundary、source methodology、attribution、retention、freshness、minimization 与显式 rights mode。维护 CLI 推导不含凭据的 Host identity，私有保存有界 source material，准备确定性 candidate 和完整 source/record/binding/band/order diff，要求精确 digest 批准，原子保留并替换 active seed，并验证 rollback 完整性。99 项离线测试通过；仓库只跟踪合成 AA-shaped fixture 与 placeholder 示例。
 
 ## 当前实施计划
 
@@ -59,7 +61,8 @@ Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-rou
 6. 已完成：把单一冻结决策路径集成到 assembly、request、Session persistence 与 cold projection。
 7. 已完成：迁移 live UI 术语、evidence basis、可选 effort 展示和过渡解释。
 8. 已完成：跨浏览器、Loader、Session 与实际请求边界端到端证明全部 Beta 路径。
-9. 下一步：定义并实现版本化 AA snapshot refresh 工作流与权利边界。
+9. 已完成：定义并实现版本化 AA snapshot refresh 工作流与权利边界。
+10. 下一步：为阶段 5 单调自适应执行定义形式化 runtime evidence 与重新判断边界。
 
 详细依赖和验收在 [roadmap](docs/zh-CN/roadmap.md)、[实施计划](tasks/plan.zh-CN.md)和[任务清单](tasks/todo.zh-CN.md)中。
 
@@ -71,11 +74,13 @@ Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-rou
 
 阶段 3 已无剩余阻塞。Task 8 的验证环境中没有 provider credential，因此不新增 live-provider-call 声明；已完成的无密钥纵向证明覆盖产品特有决策路径，已接受的阶段 0P 证据继续作为历史真实 provider dispatch 证明。
 
-阶段 4 必须解决稳定 AA 获取、attribution、retention、redistribution rights、freshness 与 rollback。增加外部依赖或远程服务仍需维护者明确授权。Session 内自适应、恢复、子 Agent 路由和官方 DSH 兼容属于后续阶段。
+阶段 4 已无剩余实施阻塞。ADR-013 已解决稳定 AA 获取、attribution、retention、freshness、minimization、评审、原子替换与 rollback。只有外部 AA 书面 grant 同时覆盖分发和本 model-selection 产品后，才能公开分发真实机器可读 AA metric；该外部限制不阻碍已完成的默认 `internal-only` 工作流。
+
+阶段 5 必须定义哪些形式化 runtime signal 支持升级、允许在哪些边界重新判断，以及如何强制单调性和持久解释。Recovery、子 Agent 路由和官方 DSH 兼容仍属于后续阶段。
 
 ## 下一步
 
-实施阶段 4 Task 9：定义 AA 获取与权利边界，然后构建可复现的最小化 snapshot refresh；它必须拒绝格式错误的更新、展示 binding 与 band diff，并在不引入 live runtime dependency 的前提下恢复上一份有效 snapshot。
+启动阶段 5 自适应执行：先冻结形式化 failure/progress signal contract 与显式重新判断边界，再增加任何 Session 内 route change。
 
 ## 状态维护规则
 

@@ -12,20 +12,20 @@ DSH Auto Mode gives individual power users of coding agents an AA-informed Auto 
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 4 snapshot refresh after completed Phase 3 Checkpoint C |
-| Existing work | Runnable AA-informed decision path plus completed catalog, assessor, level policy, persisted projection, and Light/Standard/Deep UI |
+| Stage | Phase 5 adaptive execution after completed Phase 4 snapshot maintenance |
+| Existing work | Runnable AA-informed decision path plus completed catalog, assessor, product integration, UI, and offline AA snapshot refresh workflow |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
 | Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
-| Next-stage gate | Define the acquisition and rights boundary, then prove reproducible snapshot update, rejection, inspection, and rollback |
+| Next-stage gate | Define formal runtime signals and reassessment boundaries for monotonic evidence-triggered escalation |
 
 This table contains only enough context to orient a session. `PROJECT_STATUS.md` is authoritative for progress, blockers, and next actions; do not maintain full status in both places.
 
 ## Required reading for a new session
 
-While `PROJECT_STATUS.md` identifies Phases 1–3 as active, read only these files before implementation or review:
+While `PROJECT_STATUS.md` identifies the current implementation phase as active, read only these files before implementation or review:
 
 1. `PROJECT_STATUS.md`.
 2. `docs/spec.md`.
@@ -60,11 +60,12 @@ Load topic documents only when relevant; do not load the entire repository indis
 
 ## Current-stage constraints
 
-The maintainer accepted ADR-011 on 2026-08-21 and ADR-012 on 2026-08-22. Post-MVP implementation proceeds under these constraints:
+The maintainer accepted ADR-011 on 2026-08-21 and ADR-012 and ADR-013 on 2026-08-22. Post-MVP implementation proceeds under these constraints:
 
-- Treat the accepted specification, ADR-011, and ADR-012 as binding. ADR-010 is the superseded historical source for the AA-informed, price-first direction; ADR-002, ADR-006, and ADR-008 remain historical.
+- Treat the accepted specification, ADR-011, ADR-012, and ADR-013 as binding. ADR-010 is the superseded historical source for the AA-informed, price-first direction; ADR-002, ADR-006, and ADR-008 remain historical.
 - Keep the implemented A1 and A2 contracts product-neutral and pinned to the verified fork commit; DSH Core must not learn Auto Mode route tiers, Task Assessment, or Policy Pack semantics.
 - Use AA as the external source for capability, price, and latency conclusions; do not claim project-Benchmarked quality or universal optimality.
+- Keep real AA acquisitions, snapshots, credentials, and grant documents out of Git and the browser client by default. Runtime routing never calls AA. Redistributing real machine-readable AA metrics requires an externally auditable written grant covering both distribution and this model-selection product.
 - Keep executable Host route identity separate from AA evidence identity. Bind one effective provider/model/request configuration explicitly to one stable AA record; do not require variant or effort across providers, infer bindings fuzzily, cross a materialized execution difference, or silently substitute a newer AA record.
 - Use `light`, `standard`, and `deep` internally and Light/Standard/Deep plus 轻量/常规/深度 in user-facing text. The completed MVP's old labels remain historical until migrated.
 - Within one handling level, prefer lower AA-reported price, then lower AA-reported latency, then stable route identity. Do not add a local token-cost estimator.
@@ -300,7 +301,7 @@ Do not decide these items autonomously:
 
 ## Current hard blocker
 
-Phases 1–3 have no remaining blocker. Current Phase 4 work and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
+Phases 1–4 have no remaining implementation blocker. Public distribution of real AA metrics remains unavailable without the written grant required by ADR-013. Current Phase 5 work and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
 ## Security boundaries
 
