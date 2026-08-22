@@ -98,6 +98,21 @@ Acceptance: a maintainer can update the snapshot reproducibly, inspect the diff,
 
 Task 9 and Phase 4 completed on 2026-08-22. ADR-013 fixes the official Pro language-model endpoint, server-side credential boundary, default internal-only rights mode, written-license distribution gate, attribution, retention, freshness, and pinned methodology. The offline maintainer workflow derives Host identities without credential values, minimizes only reviewed bindings, exposes source, record, binding, band, and ordering changes, requires exact digest approval, atomically replaces the active seed, and verifies the rollback checksum. Synthetic fixtures cover acquisition, rejection, update, binding addition/removal/replacement, rename, tamper detection, and rollback; no live AA dependency enters runtime routing.
 
+## Phase 4.1: Reusable Evidence Packs — design gate
+
+Correct the completed catalog's current-Host and full-effective-configuration coupling before adaptive execution builds on it.
+
+- Separate a full policy-eligible minimized AA Snapshot, a long-lived Binding Registry, the AA Route Policy, and one compatibility Manifest.
+- Derive exact provider-scoped EvidenceRouteKeys independently of complete ExecutionFingerprints used for request audit.
+- Compile the Active Catalog at runtime from current Host routes, exact bindings, the current Snapshot, and Route Policy.
+- Keep mappings dormant when a route is unavailable and activate them automatically when an exact Host route appears later.
+- Apply structurally valid GREEN refreshes automatically, isolate AMBER exceptions, and reject RED contract or integrity changes while retaining rollback.
+- Version Runtime and Evidence Pack independently behind one local atomic activation and migration boundary.
+
+Acceptance: routine AA metric updates require no human action; a newly configured route automatically activates when a valid dormant binding exists; execution-only defaults do not invalidate evidence; evidence-defining controls cannot collide; migration, rollback, Loader, Session, UI, and Manual non-interference checks pass. Public real-data distribution remains disabled without the ADR-013 written-license gate.
+
+Status: ADR-014 and Tasks 10–19 are planned. ADR-014 remains Proposed and must be explicitly accepted before incompatible implementation begins.
+
 ## Phase 5: Adaptive execution
 
 Use runtime evidence to correct an initially insufficient level.
