@@ -61,7 +61,10 @@ describe('AA snapshot maintainer CLI', () => {
       stdout: line => prepareOutput.push(line),
     })
     const prepared = JSON.parse(readFileSync(fixture.candidate, 'utf8'))
-    assert.equal(parseOutput(prepareOutput).digest, prepared.digest)
+    const prepareSummary = parseOutput(prepareOutput)
+    assert.equal(prepareSummary.digest, prepared.digest)
+    assert.equal(prepareSummary.snapshotId, prepared.seed.snapshot.snapshotId)
+    assert.equal('report' in prepareSummary, false)
     assert.deepEqual(parseOutput([JSON.stringify(prepared.report)]), prepared.report)
 
     const applyOutput = []

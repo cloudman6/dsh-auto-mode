@@ -17,7 +17,7 @@ Official references:
 
 This document records an engineering control, not legal advice. Under the reviewed Data Platform Terms v1.1, real raw or structured machine-readable AA data must not be redistributed, and a third-party product whose primary purpose includes model or provider selection requires prior written consent. Maintainer authorization to use the API is not that consent.
 
-The default rights mode is therefore `internal-only`. Real acquisitions, candidate snapshots, active seeds, rollback seeds, credentials, and grant documents stay under the Git-ignored `local/` directory and out of the browser client. `written-license` mode additionally requires an external grant reference plus explicit assertions that the grant covers machine-readable distribution and an AA-informed model-selection product. The grant itself must not enter Git.
+The default rights mode is therefore `internal-only`. Real acquisitions, candidate snapshots, active seeds, rollback seeds, credentials, and grant documents stay under the Git-ignored `local/` directory and out of the browser client. CLI stdout never includes AA records, metrics, or the full report; those remain in mode-`0600` private files. `written-license` mode additionally requires an external grant reference plus explicit assertions that the grant covers machine-readable distribution and an AA-informed model-selection product. The grant itself must not enter Git.
 
 Keep a raw acquisition only for the shortest period needed to review and reproduce its candidate. The current terms require every copy of raw Data and raw Data files to be deleted within 30 days after the applicable subscription ends. Conservatively treat acquisitions and any local export that retains individually identifiable AA metrics as raw Data unless a written AA grant states otherwise; the deadline applies even if a local seed is still operationally useful. Deletion is a deliberate maintainer action because the tool does not guess subscription state or remove local evidence automatically.
 
@@ -72,7 +72,7 @@ For identical acquisition, manifest, binding plan, Host routes, and predecessor 
 
 ### 3. Review
 
-The prepare command prints the candidate digest and a structured report. Review both the stdout report and `local/aa-candidate.json`. The report covers:
+The prepare command writes the structured report inside `local/aa-candidate.json` and prints only the candidate snapshot ID, digest, and status. Review the private candidate file locally; do not copy its report into public CI logs, chats, or issues. The report covers:
 
 - source-policy metadata before and after, including terms, attribution, methodology, freshness, and rights mode;
 - record additions, removals, renames, and metric changes;

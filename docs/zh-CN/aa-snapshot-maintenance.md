@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/aa-snapshot-maintenance.md
-translation-source-blob: a50c28a5302c512274f205939ee43f0a11da421b
+translation-source-blob: d8182c406b9ca0a2f86df3eefc5359c7fa45d435
 translation-status: current
 -->
 
@@ -23,7 +23,7 @@ translation-status: current
 
 本文记录工程控制，不构成法律意见。按已评审的 Data Platform Terms v1.1，不得再分发真实原始或结构化机器可读 AA 数据；主要目的包含 model 或 provider 选择的第三方产品需要事先书面同意。维护者授权使用 API 不等于获得这项同意。
 
-因此默认权利模式是 `internal-only`。真实 acquisition、candidate snapshot、active seed、rollback seed、credential 和授权文件均保存在被 Git 忽略的 `local/` 目录，不进入浏览器 client。`written-license` 模式还要求填写外部授权依据，并明确声明授权覆盖机器可读分发和 AA 驱动的模型选择产品。授权文件本身不得进入 Git。
+因此默认权利模式是 `internal-only`。真实 acquisition、candidate snapshot、active seed、rollback seed、credential 和授权文件均保存在被 Git 忽略的 `local/` 目录，不进入浏览器 client。CLI stdout 绝不包含 AA record、metric 或完整 report；这些内容留在 mode `0600` 的私有文件中。`written-license` 模式还要求填写外部授权依据，并明确声明授权覆盖机器可读分发和 AA 驱动的模型选择产品。授权文件本身不得进入 Git。
 
 原始 acquisition 只保留完成 candidate 评审和复现所需的最短时间。当前条款要求相关订阅结束后 30 天内删除 raw Data 及 raw Data file 的全部副本。除非 AA 的书面授权另有说明，应保守地把 acquisition 和任何保留可单独识别 AA metric 的本地 export 视为 raw Data；即使本地 seed 在运行上仍有用，这个期限也适用。删除由维护者明确执行，因为工具不会猜测订阅状态，也不会自动删除本地证据。
 
@@ -78,7 +78,7 @@ Prepare 会固定已评审 terms、attribution、API Intelligence Index version�
 
 ### 3. 评审
 
-Prepare 命令会输出 candidate digest 和结构化报告。同时检查 stdout 报告与 `local/aa-candidate.json`。报告覆盖：
+Prepare 命令把结构化报告写入 `local/aa-candidate.json`，stdout 只输出 candidate snapshot ID、digest 和状态。应在本地评审私有 candidate 文件，不要把 report 复制到公开 CI log、chat 或 issue。报告覆盖：
 
 - source-policy metadata 的 before/after，包括 terms、attribution、methodology、freshness 和 rights mode；
 - record 新增、删除、改名和 metric 变化；

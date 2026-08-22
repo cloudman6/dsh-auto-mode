@@ -112,7 +112,11 @@ export async function runAASnapshotCLI({
       ...(flags.now === undefined ? {} : { now: flags.now }),
     })
     writePrivateJSONFile({ allowedRoot, filePath: flags.candidate, value: prepared })
-    emit(stdout, { digest: prepared.digest, report: prepared.report, status: 'prepared' })
+    emit(stdout, {
+      digest: prepared.digest,
+      snapshotId: prepared.seed.snapshot.snapshotId,
+      status: 'prepared',
+    })
     return
   }
 
