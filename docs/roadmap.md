@@ -111,7 +111,19 @@ Correct the completed catalog's current-Host and full-effective-configuration co
 
 Acceptance: routine AA metric updates require no human action; a newly configured route automatically activates when a valid dormant binding exists; execution-only defaults do not invalidate evidence; evidence-defining controls cannot collide; migration, rollback, Loader, Session, UI, and Manual non-interference checks pass. Public real-data distribution remains disabled without the ADR-013 written-license gate.
 
-Status: complete on 2026-08-22. ADR-014 and Tasks 10–19 deliver the dependency-free Evidence Pack contracts, exact evidence identity, full eligible Snapshot compiler, long-lived Registry, runtime Active Catalog, exception-driven refresh, local atomic activation/rollback, legacy migration, and pinned Loader/Session/UI/Manual verification. The private migrated Pack retains the three existing reviewed records; a future credentialed acquisition is required to populate the full real AA record set. Public real-data distribution remains disabled by the ADR-013 written-license gate.
+Status: complete on 2026-08-22. ADR-014 and Tasks 10–19 deliver the dependency-free Evidence Pack contracts, exact evidence identity, full eligible Snapshot compiler, long-lived Registry, runtime Active Catalog, exception-driven refresh, local atomic activation/rollback, legacy migration, and pinned Loader/Session/UI/Manual verification. ADR-015 and Phase 4.2 subsequently replace the mandatory Pro/blended-field path. Public real-data distribution remains disabled by the ADR-013 written-license gate.
+
+## Phase 4.2: Free AA Evidence Packs — completed
+
+Remove the Pro subscription as an operational prerequisite while retaining exact evidence identity, offline routing, and rights controls.
+
+- Acquire every page from the official AA Free response with a user-owned server-side key.
+- Retain every record with valid Intelligence plus input/output prices in Snapshot v3.
+- Preserve AA-reported price components and derive one versioned 7:2:1 normalized price, substituting input price only when cache-hit price is absent.
+- Resolve unchanged Light/Standard/Deep bands through Route Policy v2 and Runtime v2.
+- Strictly validate and explicitly adapt valid v1 Packs without inventing legacy component prices.
+
+Acceptance: complete on 2026-08-22. A real private Free acquisition returned 610 records across four pages; 405 policy-eligible records compiled into 295 Light, 70 Standard, and 40 Deep records. Six exact DeepSeek model/effort bindings produce three active and three dormant states for the current Host inventory, with no Active Catalog exclusion. The private Pack and rollback artifacts remain mode `0600` and ignored; runtime remains offline and public real-data distribution remains disabled.
 
 ## Phase 5: Adaptive execution
 

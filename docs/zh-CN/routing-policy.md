@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routing-policy.md
-translation-source-blob: d0eb7741b10ca86ca2f6b661091f6daba5ae802f
+translation-source-blob: b7600500a10c692358d70ab133cbb782f53ee525
 translation-status: current
 -->
 
@@ -16,12 +16,12 @@ Routing Policy 实现一条简单且确定性的规则：
 判断所需任务处理级别
 → 按 availability、capability 和用户约束过滤 route
 → 只保留该级别 route
-→ 优先 AA 报告价格更低者
+→ 优先由 AA 报告价格派生的归一化价格更低者
 → 用 AA 报告延迟打破价格平局
 → 用稳定 route identity 打破剩余平局
 ```
 
-策略不估算 token，也不建立私有成本模型。能力分档、价格和延迟比较都直接来自当前带版本的 AA 快照。
+策略不估算任务 token。能力分档和延迟来自当前带版本的 AA 快照；价格比较使用由 AA 报告的 cache-hit、input、output 价格派生的版本化归一化值。
 
 ## 任务判断
 
@@ -116,7 +116,7 @@ Binding availability 是派生状态：至少一条当前 Host route 产生该 k
 
 档位边界是维护者管理、从 AA 分数推导的策略数据。它们是启发式规则，必须可见且带版本；改变边界就要改变 policy version。
 
-首版 `aa-route-policy/v1` 使用 Artificial Analysis Intelligence Index 方法版本 `v4.1.1` 和精确字段 `evaluations.artificial_analysis_intelligence_index`：
+`aa-route-policy/v2` 使用 Artificial Analysis Intelligence Index 方法版本 `v4.1.1` 和精确字段 `evaluations.artificial_analysis_intelligence_index`：
 
 | 级别 | 分数范围 |
 |---|---|
@@ -124,19 +124,19 @@ Binding availability 是派生状态：至少一条当前 Host route 产生该 k
 | `standard` | `>= 35` 且 `< 50` |
 | `deep` | `>= 50` |
 
-同一 policy 从 `pricing.price_1m_blended_7_to_2_to_1` 读取价格，从 `performance.median_time_to_first_answer_token_seconds` 读取延迟。由于 AA API 的数字 index-version 字段可能省略 patch version，snapshot 单独保存完整方法版本。
+同一 policy 从 `pricing.price_1m_normalized_7_to_2_to_1` 读取归一化价格，从 `performance.median_time_to_first_answer_token_seconds` 读取延迟。Snapshot v3 按 `(7 × cache + 2 × input + output) / 10` 推导价格；`cache` 取 AA 报告的 cache-hit 价格，仅在缺失时取 AA 报告的 input 价格。它保留全部组成项、替代依据和 `aa-price-normalization/v1`。由于 AA API 的数字 index-version 字段可能省略 patch version，snapshot 单独保存完整方法版本。
 
 ## 同一级别内解析
 
 选择级别后，resolver 按以下顺序排列合格 route：
 
-1. AA 报告价格更低；
+1. 由 AA 报告价格派生的归一化价格更低；
 2. 价格相同或 AA 无法区分时，AA 报告延迟更低；
 3. 稳定的具体 route identity。
 
-不估算输入/输出 token。如果某条 route 缺少必需价格字段，它不能意外赢得价格比较；策略必须显式处理缺失数据或排除该 route。
+不执行面向具体任务的 token 计算。如果 AA record 缺少 input 或 output 价格，就排除该 record；缺少 cache-hit 价格时使用显式 input-price 替代，绝不按零处理。
 
-`aa-route-policy/v1` 在 capability 或 price 缺失或无效时排除 route。延迟缺失或无效时保留为 `null`；在同价 route 中排在有延迟数据者之后，再按稳定 route identity 排序。这样既保留有效价格比较，也不允许未知延迟胜过已测延迟。
+`aa-route-policy/v2` 在 capability 或必需价格输入缺失或无效时排除 route。延迟缺失或无效时保留为 `null`；在同价 route 中排在有延迟数据者之后，再按稳定 route identity 排序。这样既保留有效价格比较，也不允许未知延迟胜过已测延迟。
 
 ## Fallback 与升级
 
@@ -172,7 +172,7 @@ Fallback 是保守选择，但不代表经过认证的安全。解释使用“De
 ```text
 任务处理级别：常规
 选择：DeepSeek V4 Flash / High
-依据：属于 AA 常规能力档；在该档当前可用 route 中 AA 价格更低
+依据：属于 AA 常规能力档；在该档当前可用 route 中归一化 AA 派生价格更低
 ```
 
 ## 后续自适应行为

@@ -4,7 +4,7 @@
 
 ## Objective
 
-Evolve the accepted Phase 0P MVP into an AA-informed Auto beta. The implementation will classify each task into Light, Standard, or Deep; bind each eligible effective DSH route explicitly to one stable AA evidence record; and choose the lower AA price within the selected level, using AA latency and stable Host route identity as tie-breaks.
+Evolve the accepted Phase 0P MVP into an AA-informed Auto beta. The implementation classifies each task into Light, Standard, or Deep; binds each eligible effective DSH route explicitly to one stable AA evidence record; and chooses the lower normalized AA-derived price within the selected level, using AA latency and stable Host route identity as tie-breaks.
 
 ## Accepted architecture decisions
 
@@ -178,7 +178,7 @@ Tasks 17–19 prove one compatible Runtime/Evidence Pack pair can be atomically 
 
 ## Phase 4.2: Free AA Evidence Packs
 
-Status: active under Accepted ADR-015.
+Status: completed on 2026-08-22 under Accepted ADR-015.
 
 ### Dependency graph
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 02924c7de454ec347f5d9fb622aeee5beac7e4de
+translation-source-blob: e5460f5259d10fe84bea3143d7163059a71111d0
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-ADR-011 至 ADR-014 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
+ADR-011 至 ADR-015 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
 
 ## 原则
 
@@ -43,7 +43,7 @@ flowchart LR
 
 ### AA Evidence Pack
 
-本地 Evidence Pack 包含四个可独立版本化、校验和计算 SHA-256 digest 的组件：`aa-snapshot/v2`、`aa-binding-registry/v1`、`aa-route-policy/v1` 与 `aa-evidence-pack-manifest/v1`。Snapshot 扫描获取结果的每一页，并保留每条 capability 与 price 对 policy 有效的唯一 record，不依赖当前 Host inventory 或 binding availability。Registry 保存 provider normalization rule 与长期精确 mapping；Manifest 绑定组件 digest、`aa-evidence-pack-runtime/v1` 兼容性与 rights mode。
+本地 Evidence Pack 包含四个可独立版本化、校验和计算 SHA-256 digest 的组件：`aa-snapshot/v3`、`aa-binding-registry/v1`、`aa-route-policy/v2` 与 `aa-evidence-pack-manifest/v1`。Snapshot 扫描 AA Free response 的每一页，保留每条具有有效 Intelligence 及 input/output 价格的唯一 record，不依赖当前 Host inventory 或 binding availability。每条保留 record 保存 AA 报告价格组成项、cache 替代依据、`aa-price-normalization/v1` 推导、归一化结果和可为 null 的 latency。Registry 保存 provider normalization rule 与长期精确 mapping；Manifest 绑定组件 digest、`aa-evidence-pack-runtime/v2` 兼容性与 rights mode。
 
 维护的合成结构见 [`examples/aa-evidence-pack.example.json`](../../examples/aa-evidence-pack.example.json)。`internal-only` 模式下，真实 acquisition、pack、report、rollback artifact、credential 与 grant document 都保存在被 Git 忽略的 `local/` 目录。Runtime 绝不调用 AA。私有文件边界强制路径 containment、有界 JSON、`0600` mode、组件与 predecessor digest、原子替换和经校验 rollback。
 
@@ -116,7 +116,7 @@ interface AAEvidenceCatalogExclusion {
 
 畸形、unbound、quarantined、record 缺失或不兼容 route 以稳定 reason code 排除，不使无关 route 失效。Entry、binding state 与 exclusion 确定性排序。新添加 Host route 在精确 dormant binding 与当前 record 都存在时立即激活；仅执行 default 变化会改变 ExecutionFingerprint，但保留 EvidenceRouteKey。
 
-已完成的阶段 1 policy compiler 输出冻结 entry，其中包含 `handlingLevel`、`aaCapabilityScore`、`aaPrice` 和可为 null 的 `aaLatencySeconds`。`aa-route-policy/v1` 固定 Intelligence Index 方法版本 `v4.1.1`、Light `<35`、Standard `35–<50`、Deep `>=50`、AA 7:2:1 混合价格字段和首次实际答案 token 中位时间。Capability 或 price 缺失时排除 route；同价时，缺失 latency 排在有测量值之后。
+Policy compiler 输出冻结 entry，其中包含 `handlingLevel`、`aaCapabilityScore`、`aaPrice` 和可为 null 的 `aaLatencySeconds`。`aa-route-policy/v2` 固定 Intelligence Index 方法版本 `v4.1.1`、Light `<35`、Standard `35–<50`、Deep `>=50`、本地派生的 7:2:1 cache-hit/input/output 归一化价格，以及首次实际答案 token 中位时间。Capability 或 input/output 价格缺失时排除 record；缺少 cache-hit 价格时显式替换为 input 价格。同价时，缺失 latency 排在有测量值之后。
 
 ### Task Assessor
 
@@ -142,7 +142,7 @@ Task 5 通过一次直接 `ctx.llm.stream()` 调用执行冻结 route。它不�
 4. 用户 allow/deny 限制；
 5. Host security 要求。
 
-之后按 AA price、AA latency 和稳定 route identity 排列 candidate，不使用 token cost estimator。
+之后按归一化 AA 派生价格、AA latency 和稳定 route identity 排列 candidate，不使用面向具体任务的 token cost estimator。
 
 所选级别没有 candidate 时，可以升级到下一级。catalog 无法解析任何 route 时，可以使用配置且通过 Host 验证的 Deep fallback，并明确显示 fallback 原因；否则解析失败必须可见。
 
@@ -199,7 +199,7 @@ Manual 模式绕过 Auto 决策逻辑，并保留正常 DSH 验证。
 4. 确定性策略选择 Light、Standard 或 Deep。
 5. Catalog compiler 或缓存的冻结 catalog 提供 AA 匹配 route。
 6. Resolver 排除 Host 无效 route。
-7. Resolver 选择 AA 价格更低者，再比较 AA 延迟和稳定 route ID。
+7. Resolver 选择归一化 AA 派生价格更低者，再比较 AA 延迟和稳定 route ID。
 8. Coordinator 冻结具体 provider/model/实际配置与解释。
 9. 依赖 provider 的 prompt 和工具按该选择组装。
 10. agent/request 应用同一选择。

@@ -6,17 +6,17 @@
 
 ## Project in one sentence
 
-DSH Auto Mode gives individual power users of coding agents an AA-informed Auto mode for DeepSeek Harness: a versioned assessor policy resolves and freezes one environment-valid classifier route, the semantic assessor describes the task, deterministic Host policy chooses Light, Standard, or Deep, and the resolver prefers lower AA price then lower AA latency among eligible routes in that level.
+DSH Auto Mode gives individual power users of coding agents an AA-informed Auto mode for DeepSeek Harness: a versioned assessor policy resolves and freezes one environment-valid classifier route, the semantic assessor describes the task, deterministic Host policy chooses Light, Standard, or Deep, and the resolver prefers lower normalized price derived from AA-reported prices then lower AA latency among eligible routes in that level.
 
 ## Project snapshot
 
 | Item | Current state |
 |---|---|
-| Stage | Phase 5 adaptive execution after completed Phase 4 snapshot maintenance |
+| Stage | Phase 5 adaptive execution after completed Phase 4.2 Free Evidence Packs |
 | Existing work | Runnable AA-informed decision path plus completed catalog, assessor, product integration, UI, and offline AA snapshot refresh workflow |
 | Primary user | Individual power users of coding agents |
 | Primary success metric | Real active users who continue using Auto |
-| Optimization order | Required task-handling level → AA-reported price → AA-reported latency → stable route identity |
+| Optimization order | Required task-handling level → normalized AA-derived price → AA-reported latency → stable route identity |
 | Canonical specification | `docs/spec.md` |
 | Current progress | `PROJECT_STATUS.md` |
 | Next-stage gate | Define formal runtime signals and reassessment boundaries for monotonic evidence-triggered escalation |
@@ -60,15 +60,15 @@ Load topic documents only when relevant; do not load the entire repository indis
 
 ## Current-stage constraints
 
-The maintainer accepted ADR-011 on 2026-08-21 and ADR-012 and ADR-013 on 2026-08-22. Post-MVP implementation proceeds under these constraints:
+The maintainer accepted ADR-011 on 2026-08-21 and ADR-012 through ADR-015 on 2026-08-22. Post-MVP implementation proceeds under these constraints:
 
-- Treat the accepted specification, ADR-011, ADR-012, and ADR-013 as binding. ADR-010 is the superseded historical source for the AA-informed, price-first direction; ADR-002, ADR-006, and ADR-008 remain historical.
+- Treat the accepted specification and ADR-011 through ADR-015 as binding. ADR-010 is the superseded historical source for the AA-informed, price-first direction; ADR-002, ADR-006, and ADR-008 remain historical.
 - Keep the implemented A1 and A2 contracts product-neutral and pinned to the verified fork commit; DSH Core must not learn Auto Mode route tiers, Task Assessment, or Policy Pack semantics.
 - Use AA as the external source for capability, price, and latency conclusions; do not claim project-Benchmarked quality or universal optimality.
 - Keep real AA acquisitions, snapshots, credentials, and grant documents out of Git and the browser client by default. Runtime routing never calls AA. Redistributing real machine-readable AA metrics requires an externally auditable written grant covering both distribution and this model-selection product.
 - Keep executable Host route identity separate from AA evidence identity. Bind one effective provider/model/request configuration explicitly to one stable AA record; do not require variant or effort across providers, infer bindings fuzzily, cross a materialized execution difference, or silently substitute a newer AA record.
 - Use `light`, `standard`, and `deep` internally and Light/Standard/Deep plus 轻量/常规/深度 in user-facing text. The completed MVP's old labels remain historical until migrated.
-- Within one handling level, prefer lower AA-reported price, then lower AA-reported latency, then stable route identity. Do not add a local token-cost estimator.
+- Within one handling level, prefer lower `aa-price-normalization/v1` price derived from AA-reported components, then lower AA-reported latency, then stable route identity. Do not add a task-specific token-cost estimator.
 - A versioned Task Assessor policy resolves one eligible route from the current frozen catalog without inspecting the task, freezes that route before the call, and never enters Auto recursion. The assessor may return structured task attributes only; deterministic Host policy owns the level and user-task route decision.
 - Treat ADR-009 as risk authorization, not capability evidence. Mutable Experimental Auto remains disabled until a separately accepted concrete provider design freezes every production tool entry and a versioned Host provider proves a clean isolated worktree, durable Attempt-scoped file attribution and containment, process and credential isolation, and `externalSideEffects: 'none'`; uncovered or unsupported entries fail closed.
 - Keep the implementation fork-pinned and do not claim official DSH compatibility until the corresponding roadmap gate passes.
@@ -101,7 +101,7 @@ English canonical documents and Chinese translations are governed by `docs/local
 
 ## Product invariants
 
-1. Auto is AA-informed heuristic routing: choose the required task-handling level first, then prefer lower AA price and lower AA latency among Host-valid routes in that level. Do not claim Benchmark-proven quality, safety, non-inferiority, or universal optimality.
+1. Auto is AA-informed heuristic routing: choose the required task-handling level first, then prefer lower normalized AA-derived price and lower AA latency among Host-valid routes in that level. Do not claim Benchmark-proven quality, safety, non-inferiority, or universal optimality.
 2. Do not treat user choices, parent-agent overrides, or model self-reports as correct routing labels.
 3. Host Routing Policy owns normal routing decisions; models may provide task intent or optional semantic assessment only.
 4. High-risk, unknown, low-confidence, or invalid Task Assessment selects `deep`. Missing AA matches may use only a configured Host-valid Deep fallback with an explicit fallback reason; otherwise return an explicit no-route failure.
@@ -301,7 +301,7 @@ Do not decide these items autonomously:
 
 ## Current hard blocker
 
-Phases 1–4 have no remaining implementation blocker. Public distribution of real AA metrics remains unavailable without the written grant required by ADR-013. Current Phase 5 work and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
+Phases 1–4.2 have no remaining implementation blocker. Public distribution of real AA metrics remains unavailable without the written grant required by ADR-013. Current Phase 5 work and later-phase questions are maintained in `PROJECT_STATUS.md` and `docs/open-questions.md`; do not duplicate the full list here.
 
 ## Security boundaries
 

@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted by the maintainer. [ADR-014](decisions/0014-separate-aa-evidence-packs-from-active-catalogs.md) defines the reusable Evidence Pack and runtime Active Catalog architecture. ADR-011 continues to separate executable and evidence identity, while [ADR-013](decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md) continues to govern offline acquisition, integrity, rollback, and distribution rights.
+Accepted by the maintainer. [ADR-014](decisions/0014-separate-aa-evidence-packs-from-active-catalogs.md) defines the reusable Evidence Pack and runtime Active Catalog architecture. [ADR-015](decisions/0015-derive-route-price-from-aa-free-data.md) advances acquisition and routing to the AA Free response and a locally derived, auditable normalized price. ADR-011 continues to separate executable and evidence identity, while [ADR-013](decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md) continues to govern offline acquisition, integrity, rollback, and distribution rights.
 
 ## Product premise
 
@@ -17,7 +17,7 @@ AA evidence is a useful market prior, not proof that a selected route is optimal
 - Primary user: an individual power user of coding agents.
 - Primary success metric: real active users who continue using Auto.
 - Normal interaction: one choice between Auto and manual provider/model/reasoning selection.
-- Optimization rule: determine the required task-handling level first; among eligible routes at that level, prefer the lower AA-reported price, then lower AA-reported latency.
+- Optimization rule: determine the required task-handling level first; among eligible routes at that level, prefer the lower normalized price derived from AA-reported prices, then lower AA-reported latency.
 
 ## User-facing task-handling levels
 
@@ -37,7 +37,7 @@ A concrete route remains the complete effective provider/model/request configura
 
 Evidence identity is narrower. A provider-scoped, versioned normalization rule derives an exact `EvidenceRouteKey` from the model and only those controls that distinguish AA evaluated records for that provider. Effort, variant, or another control is included only when the rule declares it; temperature, token limits, credentials, and other execution-only defaults do not invalidate evidence. Fuzzy names, slugs, guessed latest records, and ambiguous rules never create a match.
 
-One Evidence Pack contains four independently validated and digested components: a full policy-eligible minimized AA Snapshot, a long-lived `EvidenceRouteKey → stable AA record ID` Binding Registry, `aa-route-policy/v1`, and a Runtime compatibility/rights Manifest. A binding is not snapshot-scoped. It may remain dormant until a user later configures an exact matching Host route, and a quarantined binding cannot enter routing.
+One Evidence Pack contains four independently validated and digested components: a full policy-eligible minimized AA Snapshot, a long-lived `EvidenceRouteKey → stable AA record ID` Binding Registry, `aa-route-policy/v2`, and a Runtime compatibility/rights Manifest. `aa-snapshot/v3` preserves AA-reported input, output, and optional cache-hit prices plus the versioned 7:2:1 normalized result; absent cache-hit price uses input price explicitly. A binding is not snapshot-scoped. It may remain dormant until a user later configures an exact matching Host route, and a quarantined binding cannot enter routing.
 
 Runtime derives—not publishes—the Active Catalog by intersecting current Host-materialized routes, exact Registry keys, current Snapshot records, and Route Policy. The Host route remains authoritative for execution and capability filtering. Missing, unbound, quarantined, incompatible, or malformed routes receive stable exclusions without invalidating unrelated routes, and Runtime never calls AA.
 
@@ -46,7 +46,7 @@ Runtime derives—not publishes—the Active Catalog by intersecting current Hos
 - A versioned assessor policy deterministically resolves one eligible route from the current frozen catalog without inspecting the task, freezes it before the call, and never enters Auto recursion. The Task Assessor may classify task attributes and confidence only.
 - The assessor returns structured task properties, never a provider, model, or effort.
 - Deterministic Routing Policy maps those attributes to `light`, `standard`, or `deep`.
-- Route Resolver filters unavailable or incompatible routes and applies AA price-first ordering inside the selected level.
+- Route Resolver filters unavailable or incompatible routes and applies normalized AA-derived price-first ordering inside the selected level.
 - The chosen configuration is frozen before provider-dependent assembly and applied unchanged at `agent/request`.
 - The effective configuration and explanation are persisted in the served Session.
 
@@ -63,7 +63,7 @@ Runtime derives—not publishes—the Active Catalog by intersecting current Hos
 
 ### Current path
 
-- Versioned local Evidence Packs refreshed through the offline `aa-evidence-pack-refresh/v1` workflow, kept out of Git by default, and distributable only under the ADR-013 rights gate.
+- Versioned local Evidence Packs acquired from the AA Free response and refreshed through the offline `aa-evidence-pack-refresh/v1` workflow, kept out of Git by default, and distributable only under the ADR-013 rights gate.
 - Separate exact EvidenceRouteKeys and complete ExecutionFingerprints without exact-deployment claims.
 - Runtime-derived Active Catalogs with dormant activation, quarantine isolation, and AA-informed `light`/`standard`/`deep` construction.
 - A bounded semantic Task Assessor whose concrete execution route is resolved from the current environment by a versioned policy and frozen before each call, plus deterministic level and user-task route policy.
@@ -89,7 +89,7 @@ Runtime derives—not publishes—the Active Catalog by intersecting current Hos
 
 - Users can select Auto once and see the actual model and applicable execution configuration chosen for the current task.
 - Different task characteristics produce explainable differences in task-handling level and concrete route.
-- Within one level, the resolver deterministically prefers the lower AA-reported price and then lower AA-reported latency.
+- Within one level, the resolver deterministically prefers the lower normalized price derived from AA-reported prices and then lower AA-reported latency.
 - Persisted selection, displayed selection, and effective request configuration agree.
 - Manual selection remains unchanged and exits Auto for its scope.
 - Users understand that the result is AA-informed heuristic routing rather than project-benchmarked admission.

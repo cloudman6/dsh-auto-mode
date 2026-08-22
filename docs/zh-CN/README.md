@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/README.md
-translation-source-blob: 4bf8a5039870e21434d36b0568f293b9ae51879e
+translation-source-blob: ec49982675475644fa7e84f59346f18daed36c73
 translation-status: current
 -->
 
@@ -30,7 +30,7 @@ translation-status: current
 ## 实施证据
 
 - [阶段 0P 快速原型](phase-0p-fast-prototype.md)：可运行配置、本地 seed 边界、确定性策略、验收标准和真实 provider 证据。
-- [AA snapshot 维护](aa-snapshot-maintenance.md)：仅供维护者使用的 acquisition、权利 gate、确定性 candidate 评审、原子 apply 与 rollback 工作流。
+- [AA Evidence Pack 维护](aa-snapshot-maintenance.md)：仅供维护者使用的 Free acquisition、权利 gate、确定性 candidate 评审、原子 apply 与 rollback 工作流。
 - [历史阶段 0P 精确 route 清单与 A3p 证据](evidence/phase-0p-route-inventory.md)：当前显式 AA evidence-binding policy 之前的 deployment-exact 实验。
 
 ## 历史评审证据

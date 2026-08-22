@@ -1,6 +1,6 @@
 <!--
 translation-source: AGENTS.md
-translation-source-blob: 80be8be1ee0c700c0d1987ae297f6155663841ba
+translation-source-blob: 3f061608f54c8b8d49635f0fb62d18211f501555
 translation-status: current
 -->
 
@@ -12,17 +12,17 @@ translation-status: current
 
 ## 一句话项目定位
 
-为个人重度 Agent 用户提供 AA 驱动的 DeepSeek Harness Auto 模式：版本化 assessor policy 解析并冻结一条适合当前环境的 classifier route，语义 assessor 描述任务，确定性 Host policy 选择轻量、常规或深度，resolver 在该级别的合格 route 中依次优先 AA 价格更低和 AA 延迟更低者。
+为个人重度 Agent 用户提供 AA 驱动的 DeepSeek Harness Auto 模式：版本化 assessor policy 解析并冻结一条适合当前环境的 classifier route，语义 assessor 描述任务，确定性 Host policy 选择轻量、常规或深度，resolver 在该级别的合格 route 中依次优先由 AA 报告价格派生的归一化价格更低和 AA 延迟更低者。
 
 ## 项目快照
 
 | 项目 | 当前状态 |
 |---|---|
-| 项目阶段 | 阶段 4 snapshot maintenance 已完成，当前进入阶段 5 自适应执行 |
+| 项目阶段 | 阶段 4.2 Free Evidence Pack 已完成，当前进入阶段 5 自适应执行 |
 | 已有成果 | 可运行 AA 驱动决策路径，以及已完成的 catalog、assessor、产品集成、UI 和离线 AA snapshot refresh 工作流 |
 | 首要用户 | 个人重度 Agent 用户 |
 | 首要成功指标 | 持续使用 Auto 的真实活跃用户 |
-| 优化顺序 | 所需任务处理级别 → AA 报告价格 → AA 报告延迟 → 稳定 route identity |
+| 优化顺序 | 所需任务处理级别 → 归一化 AA 派生价格 → AA 报告延迟 → 稳定 route identity |
 | 核心规范 | `docs/spec.md` |
 | 当前进度 | `PROJECT_STATUS.md` |
 | 下一阶段入口 | 定义形式化 runtime signal 与重新判断边界，实现基于证据的单调升级 |
@@ -66,15 +66,15 @@ translation-status: current
 
 ## 当前阶段约束
 
-维护者已于 2026-08-21 接受 ADR-011，并于 2026-08-22 接受 ADR-012 与 ADR-013。MVP 后实施遵循以下约束：
+维护者已于 2026-08-21 接受 ADR-011，并于 2026-08-22 接受 ADR-012 至 ADR-015。MVP 后实施遵循以下约束：
 
-- 已接受的规范、ADR-011、ADR-012 和 ADR-013 是约束。ADR-010 是已被取代、用于记录 AA 驱动和价格优先方向的历史来源；ADR-002、ADR-006 和 ADR-008 继续属于历史。
+- 已接受的规范与 ADR-011 至 ADR-015 是约束。ADR-010 是已被取代、用于记录 AA 驱动和价格优先方向的历史来源；ADR-002、ADR-006 和 ADR-008 继续属于历史。
 - 已实现的 A1/A2 契约必须保持产品无关并固定到已验证 fork commit；DSH Core 不得理解 Auto Mode route 档位、Task Assessment 或 Policy Pack 语义。
 - AA 是 capability、price 和 latency 结论的外部来源；不得宣称本项目 Benchmark 质量或普遍最优。
 - 默认不得让真实 AA acquisition、snapshot、credential 与 grant document 进入 Git 或浏览器 client。Runtime routing 绝不调用 AA。再分发真实机器可读 AA metric 必须有可外部审计的书面 grant，且同时覆盖分发和本 model-selection 产品。
 - 可执行 Host route identity 与 AA evidence identity 必须分离。一条实际 provider/model/request configuration 显式绑定到一条稳定 AA record；不得要求所有 provider 都有 variant 或 effort，不得模糊推断 binding、跨越已物化执行差异或静默替换更新 AA record。
 - 内部使用 `light`、`standard`、`deep`，用户界面使用 Light/Standard/Deep 与轻量/常规/深度。已完成 MVP 的旧标签在迁移前只属于历史实现。
-- 同一处理级别内，依次优先 AA 报告价格更低、AA 报告延迟更低和稳定 route identity。不得增加本地 token-cost estimator。
+- 同一处理级别内，依次优先由 AA 报告组成项派生的较低 `aa-price-normalization/v1` 价格、AA 报告延迟更低和稳定 route identity。不得增加面向具体任务的 token-cost estimator。
 - 版本化 Task Assessor policy 从当前冻结 catalog 中解析一条合格 route，不检查任务内容，在调用前冻结该 route，且绝不进入 Auto 递归。Assessor 只能返回结构化任务属性；确定性 Host policy 拥有级别和用户任务 route 的决策权。
 - 把 ADR-009 视为风险授权，而非能力证据。只有另行接受的具体 provider 设计冻结每个 production tool entry，并且带版本 Host provider 证明干净隔离 worktree、持久 Attempt scope 文件归属与 containment、process/credential isolation，以及 `externalSideEffects: 'none'` 后，才能启用可变 Experimental Auto；未覆盖或不支持的入口都 fail closed。
 - 实施继续固定 fork；对应 roadmap gate 通过前不得宣称兼容官方 DSH。
@@ -107,7 +107,7 @@ translation-status: current
 
 ## 产品关键不变量
 
-1. Auto 是 AA 驱动的启发式路由：先选择所需任务处理级别，再在该级别的 Host-valid route 中优先 AA price 和 AA latency。不得宣称经过 Benchmark 的质量、安全、非劣性或普遍最优。
+1. Auto 是 AA 驱动的启发式路由：先选择所需任务处理级别，再在该级别的 Host-valid route 中优先归一化 AA 派生价格和 AA latency。不得宣称经过 Benchmark 的质量、安全、非劣性或普遍最优。
 2. 不把用户选择、父 Agent override 或模型自我报告当作正确路由标签。
 3. Host Routing Policy 拥有常规路由决策权；模型只提供任务意图或可选语义评估。
 4. 高风险、未知、低置信度或无效 Task Assessment 选择 `deep`。缺少 AA match 时只能使用配置且通过 Host 验证的 Deep fallback，并明确说明 fallback；否则返回明确 no-route failure。
@@ -307,7 +307,7 @@ rmdir "$main_worktree/.worktrees/<task-slug>"
 
 ## 当前硬阻塞
 
-阶段 1–4 已无剩余实施阻塞。没有 ADR-013 要求的书面 grant 时，仍不能公开分发真实 AA metric。当前阶段 5 工作及后续阶段问题维护在 `PROJECT_STATUS.md` 和 `docs/open-questions.md`；不要在这里复制完整清单。
+阶段 1–4.2 已无剩余实施阻塞。没有 ADR-013 要求的书面 grant 时，仍不能公开分发真实 AA metric。当前阶段 5 工作及后续阶段问题维护在 `PROJECT_STATUS.md` 和 `docs/open-questions.md`；不要在这里复制完整清单。
 
 ## 安全边界
 

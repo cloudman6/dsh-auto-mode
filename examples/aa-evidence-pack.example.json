@@ -1,15 +1,15 @@
 {
   "snapshot": {
     "schemaVersion": 1,
-    "snapshotVersion": "aa-snapshot/v2",
+    "snapshotVersion": "aa-snapshot/v3",
     "snapshotId": "synthetic-example-snapshot",
     "capturedAt": "2026-08-22T00:00:00.000Z",
     "source": {
       "methodologyVersion": "v4.1.1",
       "terms": {
-        "version": "1.1",
-        "revisedAt": "2026-08-19",
-        "url": "https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf"
+        "version": "1.0",
+        "revisedAt": "2024-04-28",
+        "url": "https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf"
       },
       "attribution": "Source: Artificial Analysis (artificialanalysis.ai)"
     },
@@ -30,7 +30,15 @@
           "artificial_analysis_intelligence_index": 40
         },
         "pricing": {
-          "price_1m_blended_7_to_2_to_1": 1
+          "price_1m_normalized_7_to_2_to_1": 1.2,
+          "normalization": {
+            "version": "aa-price-normalization/v1",
+            "basis": "derived-free-prices",
+            "price_1m_input_tokens": 1,
+            "price_1m_output_tokens": 3,
+            "price_1m_cache_hit_tokens": null,
+            "cachePriceBasis": "input-substitution"
+          }
         },
         "performance": {
           "median_time_to_first_answer_token_seconds": 2
@@ -93,10 +101,11 @@
     ]
   },
   "routePolicy": {
-    "policyVersion": "aa-route-policy/v1",
+    "policyVersion": "aa-route-policy/v2",
     "capabilityField": "evaluations.artificial_analysis_intelligence_index",
     "capabilityMethodologyVersion": "v4.1.1",
-    "priceField": "pricing.price_1m_blended_7_to_2_to_1",
+    "priceField": "pricing.price_1m_normalized_7_to_2_to_1",
+    "priceNormalizationVersion": "aa-price-normalization/v1",
     "latencyField": "performance.median_time_to_first_answer_token_seconds",
     "missingDataPolicy": {
       "capability": "exclude",
@@ -123,25 +132,25 @@
     "manifestVersion": "aa-evidence-pack-manifest/v1",
     "packId": "synthetic-example-pack",
     "runtimeCompatibility": {
-      "contract": "aa-evidence-pack-runtime/v1",
-      "minimumVersion": 1,
-      "maximumVersion": 1
+      "contract": "aa-evidence-pack-runtime/v2",
+      "minimumVersion": 2,
+      "maximumVersion": 2
     },
     "rights": {
       "mode": "internal-only"
     },
     "components": {
       "snapshot": {
-        "version": "aa-snapshot/v2",
-        "digest": "sha256:f573f98e9178b570304b634346ca3fca45a158a1acd7e5f1547a16e1cac6695e"
+        "version": "aa-snapshot/v3",
+        "digest": "sha256:81a26392ba7ca4c41b3ecdabc43ad3c71e46def3589d899817bfe342c7cd8b2c"
       },
       "bindingRegistry": {
         "version": "aa-binding-registry/v1",
         "digest": "sha256:bca1c3e0363ea89f195b78ec20756c1fa28234f8a1ef15619a42217e795c0159"
       },
       "routePolicy": {
-        "version": "aa-route-policy/v1",
-        "digest": "sha256:1e7ee83677a1f373f8a51abf41f252283ea66e14bed070ecdc8750bce8c3f4e5"
+        "version": "aa-route-policy/v2",
+        "digest": "sha256:94683fefe58424d8618c59a3b8c55e2347efed093eba0333546b583403b5b5c8"
       }
     }
   }

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: 2b9dd05e0169744de3e8c2d2845cc64d62806d02
+translation-source-blob: 939ea18967b074ff2c5e9f2760ba78e5bc36c43b
 translation-status: current
 -->
 
@@ -117,7 +117,19 @@ Task 9 与阶段 4 已于 2026-08-22 完成。ADR-013 固定官方 Pro language-
 
 验收：常规 AA metric 更新无需人工动作；新配置 route 在存在有效 dormant binding 时自动激活；仅执行默认值不使 evidence 失效；决定 evidence 的 control 不能 collision；migration、rollback、Loader、Session、UI 与 Manual 非干扰检查通过。没有 ADR-013 written-license gate 时，公开真实数据分发保持禁用。
 
-状态：已于 2026-08-22 完成。ADR-014 与 Tasks 10–19 交付无依赖 Evidence Pack 契约、精确 evidence identity、完整 eligible Snapshot compiler、长期 Registry、运行时 Active Catalog、exception-driven refresh、本地原子激活／rollback、旧 seed migration，以及固定 Loader/Session/UI/Manual 验证。私有迁移 Pack 保留现有三条已评审 record；填充完整真实 AA record 集仍需未来执行带 credential acquisition。ADR-013 written-license gate 继续禁止公开真实数据分发。
+状态：已于 2026-08-22 完成。ADR-014 与 Tasks 10–19 交付无依赖 Evidence Pack 契约、精确 evidence identity、完整 eligible Snapshot compiler、长期 Registry、运行时 Active Catalog、exception-driven refresh、本地原子激活／rollback、旧 seed migration，以及固定 Loader/Session/UI/Manual 验证。ADR-015 与阶段 4.2 随后取代强制 Pro/blended-field 路径。ADR-013 written-license gate 继续禁止公开真实数据分发。
+
+## 阶段 4.2：Free AA Evidence Pack——已完成
+
+取消 Pro 订阅作为运行前提，同时保留精确 evidence identity、离线 routing 与 rights control。
+
+- 使用用户自有 server-side key 获取官方 AA Free response 的全部分页。
+- 在 Snapshot v3 中保留每条具有有效 Intelligence 及 input/output 价格的 record。
+- 保留 AA 报告价格组成项，派生一项带版本的 7:2:1 归一化价格；仅在 cache-hit 价格缺失时用 input 价格替代。
+- 通过 Route Policy v2 与 Runtime v2 解析不变的 Light/Standard/Deep 档位。
+- 严格校验并显式适配有效 v1 Pack，不编造旧 evidence 的组成价格。
+
+验收：已于 2026-08-22 完成。一次真实私有 Free acquisition 从四页返回 610 条 record；405 条 policy-eligible record 编译为 Light 295、Standard 70、Deep 40。当前 Host inventory 下，六条精确 DeepSeek model/effort binding 产生三条 active 与三条 dormant 状态，Active Catalog 无 exclusion。私有 Pack 与 rollback artifact 保持 mode `0600` 且不进入 Git；runtime 继续离线，公开真实数据分发继续禁用。
 
 ## 阶段 5：自适应执行
 

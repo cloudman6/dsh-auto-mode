@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: 0d35aafa63ee910c758fb5365431bbe69cf24e5e
+translation-source-blob: 50a53093ae6c7737c0b0672254bdfd18abc4f796
 translation-status: current
 -->
 
@@ -14,7 +14,7 @@ translation-status: current
 
 ## 当前阶段
 
-阶段 0P MVP 与阶段 1–4.1 均已完成。项目现在进入阶段 5 自适应执行：下一项设计工作是形式化 runtime signal 与 reassessment boundary。
+阶段 0P MVP 与阶段 1–4.2 均已完成。项目现在继续阶段 5 自适应执行：下一项设计工作是形式化 runtime signal 与 reassessment boundary。
 
 维护者 DSH fork 固定在 `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`。可运行插件在 `agent/prepare-step` 组合阶段 1 AA catalog 与阶段 2 assessor，为每个 DSH 用户 turn 冻结一项 `auto-decision/v1`，并在该 turn 的 assembly 与每个 `agent/request` step 中复用其完整实际配置。必需 Session 事件保留 route、assessment、evidence basis、版本、reason code 与解释，供 cold reconstruction 使用。Schema v2 决策不再发布原型 tier；维护 UI 显示准确 model、可选 effort、任务处理级别、证据依据及适用时的准确 AA 快照。现有 schema v1 Session 仍通过明确的仅旧版 mapping 可读。
 
@@ -25,13 +25,15 @@ translation-status: current
 - 面向用户的任务处理级别是 Light、Standard 和 Deep；中文标签为轻量、常规、深度。
 - 版本化 assessor route policy 在不检查任务内容的情况下解析一条适合当前环境的 classifier route，并在调用前冻结。语义 Task Assessor 返回任务属性和置信度；确定性 Host policy 选择级别并保留最终权力。
 - 可执行 Host route identity 与 AA evidence identity 相互独立。完整 ExecutionFingerprint 继续作为 request equality 的权威；带 provider scope 的 EvidenceRouteKey 只包含已声明 AA-evaluated control，并通过长期精确 binding 映射到稳定 AA record。
-- 同一级别内，resolver 依次优先 AA 报告价格更低、AA 报告延迟更低、稳定 route identity。
+- 同一级别内，resolver 依次优先由 AA 报告价格派生的归一化价格更低、AA 报告延迟更低、稳定 route identity。
 - AA acquisition 与 Evidence Pack refresh 只通过维护者拥有的离线工作流运行。GREEN 自动应用，AMBER 隔离受影响 evidence，RED 保留上一 Pack。Runtime routing 绝不调用 AA；除非 AA 书面 grant 覆盖机器可读分发和本 model-selection 产品，真实 metric 保持 `internal-only`。
 - 产品声明始终明确由 AA 驱动，不宣称本项目 Benchmark 质量、安全、非劣性或普遍最优。
 
 Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-routes-to-aa-evidence.md)，它接替 ADR-010，同时保留 AA 驱动、价格优先方向。环境感知 assessor-route 决策记录在 [ADR-012](docs/zh-CN/decisions/0012-resolve-and-freeze-task-assessor-routes.md)。离线获取、权利、评审、发布与 rollback 边界记录在 [ADR-013](docs/zh-CN/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md)。ADR-010 保留为取代 ADR-002、ADR-006 和 ADR-008 的历史决策。
 
 ADR-014 已 Accepted。它分离全量 policy-eligible AA Snapshot、长期 Binding Registry 和运行时派生 Active Catalog；分离 EvidenceRouteKey 与完整 ExecutionFingerprint；并按 GREEN/AMBER/RED exception class 自动化结构有效的 refresh。其有限取代仍保留 ADR-011 的执行/证据分离，以及 ADR-013 的权利、获取、凭据、校验、原子性和 rollback 边界。
+
+ADR-015 已 Accepted。它只把强制 Pro endpoint 与 AA 原生 blended-price field 替换为 AA Free response 和 `aa-price-normalization/v1`，同时保留精确 binding、离线 runtime、attribution、默认 internal-only 和 written-license 分发 gate。
 
 ## 已完成基础
 
@@ -53,6 +55,7 @@ ADR-014 已 Accepted。它分离全量 policy-eligible AA Snapshot、长期 Bind
 - 完成阶段 3 Task 8 与 Checkpoint C：跨仓库无密钥浏览器 fixture 驱动真实 Web UI、agent loop、Session 日志和请求头依次经过 Light、Standard、Deep 与 Manual。常规级候选证明先比较价格、再比较延迟；每个自动 turn 都证明界面显示的 route 与 AA snapshot 等于持久化 selection 和实际请求配置。聚焦 Loader 与 Session 测试继续覆盖 fallback、no-route failure、cold reconstruction 和 Manual 不受影响。支持矩阵固定 fork `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`、selection schema v2、`auto-decision/v1`、`aa-evidence-catalog/v1`、`task-assessor-contract/v1`、`task-assessor-route-policy/v1`、`task-handling-policy/v1` 与 `aa-route-policy/v1`。
 - 完成阶段 4 Task 9：`aa-snapshot-refresh/v1` 固定官方 Pro acquisition contract、服务端 credential boundary、source methodology、attribution、retention、freshness、minimization 与显式 rights mode。维护 CLI 推导不含凭据的 Host identity，私有保存有界 source material，准备确定性 candidate 和完整 source/record/binding/band/order diff，要求精确 digest 批准，原子保留并替换 active seed，并验证 rollback 完整性。99 项离线测试通过；仓库只跟踪合成 AA-shaped fixture 与 placeholder 示例。
 - 完成阶段 4.1 Tasks 10–19 与 Checkpoints D1–D3：ADR-014 已 Accepted；可独立校验的 Snapshot、Registry、Policy 与 Manifest 组件使用确定性 digest 和 Runtime 兼容契约。精确 provider rule 分离 EvidenceRouteKey 与完整 ExecutionFingerprint；完整 acquisition 保留全部 policy-eligible record；`aa-binding-candidate-compiler/v1` 只自动物化预先声明的 stable-record mapping，并隔离缺失、冲突或歧义声明；dormant binding 根据当前 Host route 激活；quarantined、unbound、missing 或畸形 route 被隔离。GREEN/AMBER/RED refresh、本地原子激活、rollback、旧 seed migration、Plugin loading、Session audit 与 Manual 非干扰已实现，未新增依赖或服务。当前私有 schema-v1 seed 已迁移为 mode-`0600` 本地 Pack，保留三条 binding；未来仍需带 credential 的 acquisition 才能填充真实全市场 record。项目 suite 通过 129 项测试，固定 fork 的 7 个 Loader 场景全部通过，6 个聚焦 UI projection/view test 通过。
+- 完成阶段 4.2 Tasks 20–24 与 Checkpoint D4：有界 Evidence Pack CLI 获取完整 AA Free response 且不持久化 key；Snapshot v3 保留 Intelligence、原始 input/output/cache-hit 价格、cache 替代依据、归一化价格和可为 null 的 latency；Route Policy v2 与 Runtime v2 使用不变档位和归一化价格优先排序。有效 v1 Pack 会严格校验，并以 `legacy-aa-blended` 来源显式迁移。一次真实私有 acquisition 从四页返回 610 条 record；405 条 eligible record 编译为 Light 295、Standard 70、Deep 40。六条精确 DeepSeek model/effort binding 在当前 Host inventory 下产生三条 active 与三条 dormant entry，Active Catalog 无 exclusion。Active Pack、predecessor、source、rights 与 Host inventory 都以 mode `0600` 保存在被忽略的 `local/`；133 项离线测试通过。
 
 ## 当前实施计划
 
@@ -67,7 +70,8 @@ ADR-014 已 Accepted。它分离全量 policy-eligible AA Snapshot、长期 Bind
 9. 已完成：定义并实现版本化 AA snapshot refresh 工作流与权利边界。
 10. 已完成：接受 ADR-014 并冻结阶段 4.1 Evidence Pack 契约。
 11. 已完成：实施 Tasks 11–19，完成可复用 Evidence Pack 基础。
-12. 进行中：为阶段 5 单调自适应执行定义形式化 runtime evidence 与重新判断边界。
+12. 已完成：实施 Tasks 20–24，激活私有全市场 Free Pack，并完成 Checkpoint D4。
+13. 进行中：为阶段 5 单调自适应执行定义形式化 runtime evidence 与重新判断边界。
 
 详细依赖和验收在 [roadmap](docs/zh-CN/roadmap.md)、[实施计划](tasks/plan.zh-CN.md)和[任务清单](tasks/todo.zh-CN.md)中。
 
@@ -81,7 +85,9 @@ ADR-014 已 Accepted。它分离全量 policy-eligible AA Snapshot、长期 Bind
 
 阶段 4 已无剩余实施阻塞。ADR-013 已解决稳定 AA 获取、attribution、retention、freshness、minimization、评审、原子替换与 rollback。只有外部 AA 书面 grant 同时覆盖分发和本 model-selection 产品后，才能公开分发真实机器可读 AA metric；该外部限制不阻碍已完成的默认 `internal-only` 工作流。
 
-阶段 4.1 没有剩余实施阻碍。真实 Evidence Pack 的公开分发仍被 ADR-013 written-license gate 单独阻碍。已迁移本地 Pack 保留现有三条已评审 record 与 binding；扩展为完整真实 policy-eligible AA 集合，需要未来在 `AA_API_KEY` 可用时执行私有 acquisition，但不阻碍已实现 refresh/runtime 架构。
+阶段 4.1 没有剩余实施阻碍；其原有全市场 acquisition 后续项已由阶段 4.2 完成。真实 Evidence Pack 的公开分发仍被 ADR-013 written-license gate 单独阻碍。
+
+阶段 4.2 没有剩余实施阻碍。用户自有 Free key 已填充并激活私有全市场 Pack。公开再分发该真实机器可读 Pack 仍被 ADR-013 written-license gate 阻碍；这不影响本地 routing 或未来私有 refresh。
 
 阶段 5 必须定义哪些形式化 runtime signal 支持升级、允许在哪些边界重新判断，以及如何强制单调性和持久解释。Recovery、子 Agent 路由和官方 DSH 兼容仍属于后续阶段。
 

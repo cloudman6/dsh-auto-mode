@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0015-derive-route-price-from-aa-free-data.md
-translation-source-blob: 08aa0bdd73ee9485e25e4f6531c8761a10b2b94f
+translation-source-blob: 4ae000eaa8066d2cb562e827ecbf84743daf9078
 translation-status: current
 -->
 
@@ -107,3 +107,9 @@ Free acquisition path 默认 `internal-only`，要求 Artificial Analysis attrib
 - Snapshot record 进入 Active Catalog 前，仍需要 provider normalization rule 和精确 Binding Registry entry。
 - Runtime 与 Pack compatibility 一起升级；legacy pack 通过显式、可审计 migration basis 保持可用。
 - AA schema、methodology、terms 或 rights 变化继续判为 RED，并保留上一份有效本地 Pack。
+
+## 已评审官方来源
+
+- [Artificial Analysis Data API 文档](https://artificialanalysis.ai/data-api/docs)：Free endpoint、response field、pagination、key handling、tier 与 rate limit。
+- [Artificial Analysis Data API access 页面](https://artificialanalysis.ai/data-api)：Free internal-workflow scope、attribution 与 non-redistribution 边界。
+- [Artificial Analysis Terms of Use](https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf)：已评审一般条款 version 1.0，修订日期 2024-04-28。

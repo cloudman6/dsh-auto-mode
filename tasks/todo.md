@@ -333,7 +333,7 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 
 **Verification:**
 
-- [ ] English and Chinese ADRs and indexes are current and link-valid.
+- [x] English and Chinese ADRs and indexes are current and link-valid.
 
 **Dependencies:** Task 19 and explicit maintainer approval
 
@@ -341,12 +341,12 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 
 **Acceptance criteria:**
 
-- [ ] The Evidence Pack CLI fetches every `/api/v2/language/models/free` page using one server-side key.
-- [ ] Free, Pro, and Commercial caller tiers are accepted only with the Free response shape; redirects, malformed pagination, excessive data, and failures are rejected without leaking secrets.
+- [x] The Evidence Pack CLI fetches every `/api/v2/language/models/free` page using one server-side key.
+- [x] Free, Pro, and Commercial caller tiers are accepted only with the Free response shape; redirects, malformed pagination, excessive data, and failures are rejected without leaking secrets.
 
 **Verification:**
 
-- [ ] Focused tests cover pagination, tiers, bounds, malformed content, error redaction, and credential absence.
+- [x] Focused tests cover pagination, tiers, bounds, malformed content, error redaction, and credential absence.
 
 **Dependencies:** Task 20
 
@@ -354,13 +354,13 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 
 **Acceptance criteria:**
 
-- [ ] Policy eligibility requires Intelligence plus input/output prices and retains every matching stable record independently of bindings.
-- [ ] Snapshot records preserve raw input/output/cache-hit prices, derivation basis, normalized 7:2:1 price, and nullable latency.
-- [ ] Runtime assigns unchanged Light/Standard/Deep bands and orders by normalized price, latency, then stable route identity.
+- [x] Policy eligibility requires Intelligence plus input/output prices and retains every matching stable record independently of bindings.
+- [x] Snapshot records preserve raw input/output/cache-hit prices, derivation basis, normalized 7:2:1 price, and nullable latency.
+- [x] Runtime assigns unchanged Light/Standard/Deep bands and orders by normalized price, latency, then stable route identity.
 
 **Verification:**
 
-- [ ] RED/GREEN tests cover field absence, invalid values, cache fallback, exact formula, boundaries, ties, permutations, and tampering.
+- [x] RED/GREEN tests cover field absence, invalid values, cache fallback, exact formula, boundaries, ties, permutations, and tampering.
 
 **Dependencies:** Task 21
 
@@ -368,13 +368,13 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 
 **Acceptance criteria:**
 
-- [ ] New packs require Runtime compatibility version 2 and old v1 packs migrate through an explicit deterministic adapter.
-- [ ] Legacy Pro blended evidence is visibly marked and no component price is invented.
-- [ ] Active Catalog, assessor, Auto decision, plugin persistence, Session reconstruction, and Manual mode remain compatible.
+- [x] New packs require Runtime compatibility version 2 and old v1 packs migrate through an explicit deterministic adapter.
+- [x] Legacy Pro blended evidence is visibly marked and no component price is invented.
+- [x] Active Catalog, assessor, Auto decision, plugin persistence, Session reconstruction, and Manual mode remain compatible.
 
 **Verification:**
 
-- [ ] Migration, Loader, plugin, assessor, route, rollback, and no-runtime-network tests pass.
+- [x] Migration, Loader, plugin, assessor, route, rollback, and no-runtime-network tests pass.
 
 **Dependencies:** Task 22
 
@@ -382,18 +382,18 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 
 **Acceptance criteria:**
 
-- [ ] Maintenance docs give exact private fetch/prepare/apply/rollback commands and state attribution and non-redistribution boundaries.
-- [ ] One real Free acquisition creates a complete private candidate without tracking the key, raw response, Snapshot, or refresh report.
-- [ ] Canonical documents and translations describe normalized AA-derived pricing rather than AA-native blended pricing.
+- [x] Maintenance docs give exact private fetch/prepare/apply/rollback commands and state attribution and non-redistribution boundaries.
+- [x] One real Free acquisition creates a complete private candidate without tracking the key, raw response, Snapshot, or refresh report.
+- [x] Canonical documents and translations describe normalized AA-derived pricing rather than AA-native blended pricing.
 
 **Verification:**
 
-- [ ] Focused tests, full `npm test`, runtime smoke, secret scan, translation, links, and Git checks pass.
+- [x] Focused tests, full `npm test`, runtime smoke, secret scan, translation, links, and Git checks pass.
 
 **Dependencies:** Tasks 21–23
 
 ## Checkpoint D4: Phase 4.2 complete
 
-- [ ] Tasks 20–24 are complete.
-- [ ] A user-owned Free key can populate and activate a private full-market Evidence Pack.
-- [ ] Runtime remains offline and public real Evidence Pack distribution remains disabled.
+- [x] Tasks 20–24 are complete.
+- [x] A user-owned Free key can populate and activate a private full-market Evidence Pack.
+- [x] Runtime remains offline and public real Evidence Pack distribution remains disabled.

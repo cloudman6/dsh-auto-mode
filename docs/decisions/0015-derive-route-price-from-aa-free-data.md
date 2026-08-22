@@ -101,3 +101,9 @@ Rejected without a written grant. Free access permits local acquisition; it does
 - Provider normalization rules and exact Binding Registry entries remain necessary before a Snapshot record can enter the Active Catalog.
 - Runtime and Pack compatibility advance together, while legacy packs remain usable through an explicit, auditable migration basis.
 - AA schema, methodology, terms, or rights changes remain RED and retain the previous valid local Pack.
+
+## Reviewed official sources
+
+- [Artificial Analysis Data API documentation](https://artificialanalysis.ai/data-api/docs): Free endpoint, response fields, pagination, key handling, tiers, and rate limit.
+- [Artificial Analysis Data API access page](https://artificialanalysis.ai/data-api): Free internal-workflow scope, attribution, and non-redistribution boundary.
+- [Artificial Analysis Terms of Use](https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf): reviewed general terms, version 1.0, revised 2024-04-28.

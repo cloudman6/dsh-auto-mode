@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 11e36c3ff824c0fa4fb61bf5b00cdfc38b68b375
+translation-source-blob: 8edc43e3ac0592ebeda7c69702570800eba723af
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 目标
 
-把已接受的阶段 0P MVP 演进为 AA 驱动 Auto Beta。实现将每项任务分为 Light、Standard 或 Deep；把每条 eligible 实际 DSH route 显式绑定到一条稳定 AA evidence record；并在所选级别内选择 AA 价格更低者，以 AA 延迟和稳定 Host route identity 打破平局。
+把已接受的阶段 0P MVP 演进为 AA 驱动 Auto Beta。实现将每项任务分为 Light、Standard 或 Deep；把每条 eligible 实际 DSH route 显式绑定到一条稳定 AA evidence record；并在所选级别内选择归一化 AA 派生价格更低者，以 AA 延迟和稳定 Host route identity 打破平局。
 
 ## 已接受架构决策
 
@@ -184,7 +184,7 @@ Tasks 17–19 证明一个兼容 Runtime/Evidence Pack pair 可以在本地原�
 
 ## 阶段 4.2：Free AA Evidence Pack
 
-状态：在 Accepted ADR-015 下进行中。
+状态：已于 2026-08-22 在 Accepted ADR-015 下完成。
 
 ### 依赖图
 

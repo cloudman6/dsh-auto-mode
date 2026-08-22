@@ -6,7 +6,7 @@
 
 `aa-evidence-pack-refresh/v1` is a maintainer-only, offline workflow. Runtime loads one local compatible Evidence Pack, derives an Active Catalog from current Host routes, and never calls Artificial Analysis while routing a task.
 
-The official Pro endpoint remains pinned because the Free endpoint omits the blended-price field required by `aa-route-policy/v1`. Acquisition fixes `https://artificialanalysis.ai/api/v2/language/models`, `prompt_type=medium`, and every pagination page. `AA_API_KEY` is read only from the server-side environment and never enters the acquisition artifact, Evidence Pack, stdout, browser, or Git.
+`aa-api-acquisition/v2` pins the official `https://artificialanalysis.ai/api/v2/language/models/free` response and every pagination page. Free, Pro, and Commercial keys may return this shape; no Pro-only query or field is required. `AA_API_KEY` is read only from the server-side environment and never enters the acquisition artifact, Evidence Pack, stdout, browser, or Git.
 
 Real machine-readable AA metrics remain `internal-only`. Public distribution still requires an externally auditable written grant covering both machine-readable distribution and this model-selection product. The new packaging and automatic-update mechanics do not grant or bypass those rights.
 
@@ -14,10 +14,12 @@ Real machine-readable AA metrics remain `internal-only`. Public distribution sti
 
 One Evidence Pack contains:
 
-- `aa-snapshot/v2`: every policy-eligible record from the complete pinned acquisition, minimized to stable identity, display metadata, capability, price, latency, and source facts;
+- `aa-snapshot/v3`: every policy-eligible record from the complete Free-shaped acquisition, minimized to stable identity, display metadata, Intelligence, raw input/output/cache-hit prices, cache substitution basis, normalized price, nullable latency, and source facts;
 - `aa-binding-registry/v1`: provider normalization rules, optional stable-ID `aaRecordMappings`, and durable exact EvidenceRouteKey-to-record bindings;
-- `aa-route-policy/v1`: field choices, methodology, bands, missing-data behavior, and ordering;
-- `aa-evidence-pack-manifest/v1`: component digests, `aa-evidence-pack-runtime/v1` compatibility, and rights mode.
+- `aa-route-policy/v2`: field choices, methodology, bands, missing-data behavior, `aa-price-normalization/v1`, and ordering;
+- `aa-evidence-pack-manifest/v1`: component digests, `aa-evidence-pack-runtime/v2` compatibility, and rights mode.
+
+The normalized price is `(7 × effective cache-hit price + 2 × input price + output price) / 10`. `effective cache-hit price` is the AA-reported cache-hit price when present, including zero; otherwise it is the input price. Records missing Intelligence, input price, or output price are isolated. Missing latency remains nullable and sorts after measured latency for an equal normalized price.
 
 The Active Catalog is not stored. Runtime deterministically recompiles it from the installed Pack and current Host-materialized routes. A binding is shown as active, dormant, or quarantined according to current facts.
 
@@ -43,13 +45,20 @@ Migration requires every legacy full-configuration binding to match an exact sup
 
 ## Refresh
 
-Fetch the complete acquisition with the existing bounded command:
+Load the user-owned key into the current shell without printing it, then fetch the complete Free response with the bounded Evidence Pack command:
 
 ```bash
-npm run aa:snapshot -- fetch \
+AA_API_KEY="$(sed -n 's/^AA_API_KEY=//p' .env.local)"
+export AA_API_KEY
+
+npm run aa:evidence-pack -- fetch \
   --private-root local \
   --output local/aa-acquisition.json
 ```
+
+The command emits only `capturedAt`, page count, and status. Keep `.env.local`, acquisition data, prepared reports, active Packs, and rollback artifacts under ignored private paths with mode `0600`.
+
+The source file used for a new Free Pack records methodology `v4.1.1`, attribution `Source: Artificial Analysis (artificialanalysis.ai)`, and the reviewed general Terms of Use version `1.0`, revised `2024-04-28`, at `https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf`. The rights file remains `{ "mode": "internal-only" }` unless the ADR-013 written grant is independently satisfied.
 
 Prepare a new Pack:
 
@@ -104,7 +113,7 @@ mode: auto
 evidencePackPath: ./local/aa-evidence-pack.json
 ```
 
-The legacy `seed` and `seedPath` inputs remain readable for migration and historical compatibility. New installations should use the Evidence Pack path. Runtime rejects an incompatible or tampered Pack before assessment or user-task dispatch.
+The legacy `seed` and `seedPath` inputs remain readable for migration and historical compatibility. A valid runtime-v1 Pack is strictly validated and deterministically adapted to Snapshot v3 / Route Policy v2 with `legacy-aa-blended` provenance; no component price is invented. New installations should use the Evidence Pack path. Runtime rejects any other incompatible or tampered Pack before assessment or user-task dispatch.
 
 ## Verification
 
@@ -114,4 +123,4 @@ DSH_FORK_ROOT="$HOME/deepseek-harness/.worktrees/auto-mode-host-contracts/worksp
   node --test test/dsh-loader.test.mjs
 ```
 
-The suite covers full-page retention, incomplete exclusions, stable-ID collisions, deterministic serialization, component tampering, EvidenceRouteKey separation, dormant activation, quarantine, price-first ordering, GREEN/AMBER/RED classification, atomic apply, rollback, migration, Loader composition, cold Session reconstruction, effective-request equality, UI projection compatibility, and Manual non-interference.
+The suite covers Free pagination and tiers, bounded untrusted responses, credential redaction, full-page retention, incomplete exclusions, exact price derivation and cache fallback, stable-ID collisions, deterministic serialization, component tampering, EvidenceRouteKey separation, dormant activation, quarantine, normalized-price-first ordering, GREEN/AMBER/RED classification, atomic apply, rollback, v1-to-v2 migration, Loader composition, cold Session reconstruction, effective-request equality, UI projection compatibility, and Manual non-interference.

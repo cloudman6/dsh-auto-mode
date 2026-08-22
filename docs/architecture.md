@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted direction under ADR-011 through ADR-014. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
+Accepted direction under ADR-011 through ADR-015. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
 
 ## Principles
 
@@ -37,7 +37,7 @@ flowchart LR
 
 ### AA Evidence Pack
 
-The local Evidence Pack contains four independently versioned, validated, and SHA-256-digested components: `aa-snapshot/v2`, `aa-binding-registry/v1`, `aa-route-policy/v1`, and `aa-evidence-pack-manifest/v1`. The Snapshot scans every acquired page and retains every unique record with valid policy capability and price, regardless of current Host inventory or binding availability. The Registry holds provider normalization rules and durable exact mappings; the Manifest binds component digests, `aa-evidence-pack-runtime/v1` compatibility, and rights mode.
+The local Evidence Pack contains four independently versioned, validated, and SHA-256-digested components: `aa-snapshot/v3`, `aa-binding-registry/v1`, `aa-route-policy/v2`, and `aa-evidence-pack-manifest/v1`. The Snapshot scans every AA Free response page and retains every unique record with valid Intelligence plus input/output prices, regardless of current Host inventory or binding availability. Each retained record preserves the AA-reported price components, cache substitution basis, `aa-price-normalization/v1` derivation, normalized result, and nullable latency. The Registry holds provider normalization rules and durable exact mappings; the Manifest binds component digests, `aa-evidence-pack-runtime/v2` compatibility, and rights mode.
 
 The maintained synthetic shape is illustrated by [`examples/aa-evidence-pack.example.json`](../examples/aa-evidence-pack.example.json). Real acquisitions, packs, reports, rollback artifacts, credentials, and grant documents stay under the Git-ignored `local/` directory in `internal-only` mode. Runtime never calls AA. The private file boundary enforces path containment, bounded JSON, mode `0600`, component and predecessor digests, atomic replacement, and validated rollback.
 
@@ -110,7 +110,7 @@ interface AAEvidenceCatalogExclusion {
 
 Malformed, unbound, quarantined, missing-record, or incompatible routes are excluded with stable reason codes without invalidating unrelated routes. Entries, binding states, and exclusions are sorted deterministically. A newly added Host route activates immediately when its exact dormant binding and current record exist; execution-only default changes alter the ExecutionFingerprint but preserve the EvidenceRouteKey.
 
-The completed Phase 1 policy compiler emits frozen entries with `handlingLevel`, `aaCapabilityScore`, `aaPrice`, and nullable `aaLatencySeconds`. `aa-route-policy/v1` pins Intelligence Index methodology `v4.1.1`, Light `<35`, Standard `35–<50`, Deep `>=50`, the AA 7:2:1 blended-price field, and median time to first answer token. Missing capability or price excludes a route; missing latency sorts after measured latency within an equal-price group.
+The policy compiler emits frozen entries with `handlingLevel`, `aaCapabilityScore`, `aaPrice`, and nullable `aaLatencySeconds`. `aa-route-policy/v2` pins Intelligence Index methodology `v4.1.1`, Light `<35`, Standard `35–<50`, Deep `>=50`, the locally derived 7:2:1 cache-hit/input/output normalized price, and median time to first answer token. Missing capability or input/output price excludes a record; absent cache-hit price explicitly substitutes input price. Missing latency sorts after measured latency within an equal-price group.
 
 ### Task Assessor
 
@@ -136,7 +136,7 @@ Filters the frozen catalog by:
 4. user allow/deny restrictions;
 5. Host security requirements.
 
-It then orders candidates by AA price, AA latency, and stable route identity. No token-cost estimator is involved.
+It then orders candidates by normalized AA-derived price, AA latency, and stable route identity. No task-specific token-cost estimator is involved.
 
 If the chosen level has no candidate, it may escalate to the next level. If the catalog cannot resolve any route, a configured Host-valid deep fallback may be used with an explicit fallback reason. Otherwise resolution fails visibly.
 
@@ -193,7 +193,7 @@ Manual mode bypasses Auto decision logic and retains normal DSH validation.
 4. Deterministic policy chooses Light, Standard, or Deep.
 5. Catalog compiler or cached frozen catalog exposes eligible AA-matched routes.
 6. Resolver filters Host-invalid routes.
-7. Resolver chooses lower AA price, then lower AA latency, then stable route ID.
+7. Resolver chooses lower normalized AA-derived price, then lower AA latency, then stable route ID.
 8. Coordinator freezes the concrete provider/model/effective configuration and explanation.
 9. Provider-dependent prompt and tools assemble from that selection.
 10. agent/request applies the same selection.

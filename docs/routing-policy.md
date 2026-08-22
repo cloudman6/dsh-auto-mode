@@ -10,12 +10,12 @@ Routing Policy implements a simple, deterministic rule:
 infer the required task-handling level
 → filter routes by availability, capability, and user constraints
 → keep routes assigned to that level
-→ prefer lower AA-reported price
+→ prefer lower normalized price derived from AA-reported prices
 → break ties with lower AA-reported latency
 → break remaining ties with stable route identity
 ```
 
-The policy does not estimate token counts or build a private cost model. Capability bands, prices, and latency comparisons come directly from the current versioned AA snapshot.
+The policy does not estimate task token counts. Capability bands and latency come from the current versioned AA snapshot; price comparison uses the versioned normalized value derived from AA-reported cache-hit, input, and output prices.
 
 ## Task assessment
 
@@ -110,7 +110,7 @@ Binding availability is derived: `active` when at least one current Host route p
 
 Band boundaries are maintainer-owned policy data derived from AA scores. They are heuristics and must be visible and versioned; changing them changes the policy version.
 
-The initial `aa-route-policy/v1` uses Artificial Analysis Intelligence Index methodology `v4.1.1` and the exact field `evaluations.artificial_analysis_intelligence_index`:
+`aa-route-policy/v2` uses Artificial Analysis Intelligence Index methodology `v4.1.1` and the exact field `evaluations.artificial_analysis_intelligence_index`:
 
 | Level | Score range |
 |---|---|
@@ -118,19 +118,19 @@ The initial `aa-route-policy/v1` uses Artificial Analysis Intelligence Index met
 | `standard` | `>= 35` and `< 50` |
 | `deep` | `>= 50` |
 
-The same policy reads price from `pricing.price_1m_blended_7_to_2_to_1` and latency from `performance.median_time_to_first_answer_token_seconds`. The snapshot stores the full methodology version separately because the AA API's numeric index-version field may omit a patch version.
+The same policy reads normalized price from `pricing.price_1m_normalized_7_to_2_to_1` and latency from `performance.median_time_to_first_answer_token_seconds`. Snapshot v3 derives that price as `(7 × cache + 2 × input + output) / 10`, where `cache` is the AA-reported cache-hit price or, only when absent, the AA-reported input price. It preserves every component, the substitution basis, and `aa-price-normalization/v1`. The snapshot stores the full methodology version separately because the AA API's numeric index-version field may omit a patch version.
 
 ## Resolution inside one level
 
 After a level is selected, the resolver orders eligible routes by:
 
-1. lower AA-reported price;
+1. lower normalized price derived from AA-reported prices;
 2. lower AA-reported latency when price is equal or AA does not distinguish it;
 3. stable concrete route identity.
 
-No estimated input/output token calculation is performed. If AA lacks the required price field for a route, that route does not win a price comparison by accident; the policy either applies an explicit missing-data rule or excludes it.
+No task-specific token calculation is performed. If AA lacks input or output price for a record, that record is excluded; a missing cache-hit price uses the explicit input-price substitution and is never treated as zero.
 
-`aa-route-policy/v1` excludes a route when capability or price is missing or invalid. Missing or invalid latency remains represented as `null`; among equal-price routes it sorts after measured latency and then by stable route identity. This preserves a valid price comparison without allowing unknown latency to beat measured latency.
+`aa-route-policy/v2` excludes a route when capability or required price input is missing or invalid. Missing or invalid latency remains represented as `null`; among equal-price routes it sorts after measured latency and then by stable route identity. This preserves a valid price comparison without allowing unknown latency to beat measured latency.
 
 ## Fallback and escalation
 
@@ -166,7 +166,7 @@ The UI may summarize this as:
 ```text
 Task handling level: Standard
 Selected: DeepSeek V4 Flash / High
-Reason: standard AA capability band; lower AA price among available routes in this band
+Reason: standard AA capability band; lower normalized AA-derived price among available routes in this band
 ```
 
 ## Later adaptive behavior

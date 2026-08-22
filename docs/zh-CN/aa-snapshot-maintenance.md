@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/aa-snapshot-maintenance.md
-translation-source-blob: b03f4726ddc667baf2203cb1583775d3a08e49fb
+translation-source-blob: 8a96edac8522f746c80d6ad57de5a072528b8636
 translation-status: current
 -->
 
@@ -12,7 +12,7 @@ translation-status: current
 
 `aa-evidence-pack-refresh/v1` 是仅维护者使用的离线工作流。Runtime 加载一份本地兼容 Evidence Pack，从当前 Host route 派生 Active Catalog，在路由用户任务时绝不调用 Artificial Analysis。
 
-继续固定官方 Pro endpoint，因为 Free endpoint 缺少 `aa-route-policy/v1` 所需的 blended-price 字段。获取固定 `https://artificialanalysis.ai/api/v2/language/models`、`prompt_type=medium` 与全部分页。`AA_API_KEY` 只从服务端环境读取，不进入 acquisition artifact、Evidence Pack、stdout、browser 或 Git。
+`aa-api-acquisition/v2` 固定官方 `https://artificialanalysis.ai/api/v2/language/models/free` response 与全部分页。Free、Pro 和 Commercial key 都可以返回该 shape；不再需要 Pro-only query 或字段。`AA_API_KEY` 只从服务端环境读取，不进入 acquisition artifact、Evidence Pack、stdout、browser 或 Git。
 
 真实机器可读 AA metric 继续保持 `internal-only`。公开分发仍需一份可外部审计的书面 grant，同时覆盖机器可读分发与本 model-selection 产品。新的 packaging 与自动更新机制不授予或绕过这些权利。
 
@@ -20,10 +20,12 @@ translation-status: current
 
 一份 Evidence Pack 包含：
 
-- `aa-snapshot/v2`：完整固定 acquisition 中全部 policy-eligible record，最小化为稳定 identity、display metadata、capability、price、latency 与 source fact；
+- `aa-snapshot/v3`：完整 Free-shaped acquisition 中全部 policy-eligible record，最小化为稳定 identity、display metadata、Intelligence、原始 input/output/cache-hit 价格、cache 替代依据、归一化价格、可为 null 的 latency 与 source fact；
 - `aa-binding-registry/v1`：provider normalization rule、可选 stable-ID `aaRecordMappings` 与长期精确 EvidenceRouteKey-to-record binding；
-- `aa-route-policy/v1`：field choice、methodology、band、missing-data behavior 与 ordering；
-- `aa-evidence-pack-manifest/v1`：组件 digest、`aa-evidence-pack-runtime/v1` 兼容性与 rights mode。
+- `aa-route-policy/v2`：field choice、methodology、band、missing-data behavior、`aa-price-normalization/v1` 与 ordering；
+- `aa-evidence-pack-manifest/v1`：组件 digest、`aa-evidence-pack-runtime/v2` 兼容性与 rights mode。
+
+归一化价格为 `(7 × effective cache-hit price + 2 × input price + output price) / 10`。存在 AA 报告 cache-hit 价格时，`effective cache-hit price` 使用该值，包括零；缺失时才使用 input 价格。缺少 Intelligence、input 价格或 output 价格的 record 会被隔离。缺失 latency 保持为 null，并在归一化价格相同时排在有测量值之后。
 
 Active Catalog 不落盘。Runtime 根据已安装 Pack 与当前 Host-materialized route 确定性重新编译。Binding 根据当前事实显示为 active、dormant 或 quarantined。
 
@@ -49,13 +51,20 @@ npm run aa:evidence-pack -- migrate \
 
 ## Refresh
 
-通过现有有界命令获取完整 acquisition：
+把用户自有 key 加载进当前 shell 且不打印，然后用 bounded Evidence Pack command 获取完整 Free response：
 
 ```bash
-npm run aa:snapshot -- fetch \
+AA_API_KEY="$(sed -n 's/^AA_API_KEY=//p' .env.local)"
+export AA_API_KEY
+
+npm run aa:evidence-pack -- fetch \
   --private-root local \
   --output local/aa-acquisition.json
 ```
+
+该命令只输出 `capturedAt`、页数和状态。`.env.local`、acquisition 数据、prepared report、active Pack 与 rollback artifact 必须保留在被忽略的私有路径，文件 mode 为 `0600`。
+
+新 Free Pack 使用的 source 文件记录 methodology `v4.1.1`、attribution `Source: Artificial Analysis (artificialanalysis.ai)`，以及已评审的一般 Terms of Use version `1.0`、修订日期 `2024-04-28` 和 URL `https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf`。除非另行满足 ADR-013 written grant，rights 文件继续使用 `{ "mode": "internal-only" }`。
 
 准备新 Pack：
 
@@ -110,7 +119,7 @@ mode: auto
 evidencePackPath: ./local/aa-evidence-pack.json
 ```
 
-旧 `seed` 与 `seedPath` 为迁移和历史兼容继续可读。新安装应使用 Evidence Pack 路径。Runtime 在 assessment 或用户任务 dispatch 前拒绝不兼容或 tampered Pack。
+旧 `seed` 与 `seedPath` 为迁移和历史兼容继续可读。有效 runtime-v1 Pack 会先被严格校验，再确定性适配到 Snapshot v3 / Route Policy v2，并标记 `legacy-aa-blended` 来源；不会编造任何组成价格。新安装应使用 Evidence Pack 路径。Runtime 在 assessment 或用户任务 dispatch 前拒绝其他不兼容或 tampered Pack。
 
 ## 验证
 
@@ -120,4 +129,4 @@ DSH_FORK_ROOT="$HOME/deepseek-harness/.worktrees/auto-mode-host-contracts/worksp
   node --test test/dsh-loader.test.mjs
 ```
 
-测试覆盖全分页保留、不完整排除、stable-ID collision、确定性 serialization、组件 tamper、EvidenceRouteKey 分离、dormant activation、quarantine、price-first ordering、GREEN/AMBER/RED classification、原子 apply、rollback、migration、Loader composition、cold Session reconstruction、effective-request equality、UI projection compatibility 与 Manual 非干扰。
+测试覆盖 Free pagination 与 tier、受限不可信 response、credential redaction、全分页保留、不完整排除、精确价格推导与 cache fallback、stable-ID collision、确定性 serialization、组件 tamper、EvidenceRouteKey 分离、dormant activation、quarantine、归一化价格优先排序、GREEN/AMBER/RED classification、原子 apply、rollback、v1-to-v2 migration、Loader composition、cold Session reconstruction、effective-request equality、UI projection compatibility 与 Manual 非干扰。
