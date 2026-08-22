@@ -2,6 +2,12 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import { createHostRouteIdentity } from '../src/aa-evidence-binding.mjs'
+import {
+  AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
+  buildAAEvidencePack,
+} from '../src/aa-evidence-pack.mjs'
+import { AA_ROUTE_POLICY_V1 } from '../src/aa-route-policy.mjs'
+import { createEvidenceRouteKey } from '../src/evidence-route-key.mjs'
 import { apply } from '../src/plugin.mjs'
 
 function seed() {
@@ -154,6 +160,53 @@ function phase3Seed(routes) {
   }
 }
 
+function phase4Pack(routes) {
+  const modelAliases = Object.fromEntries(routes.map(route => [route.effectiveConfig.model, route.effectiveConfig.model]))
+  const rule = {
+    schemaVersion: 1,
+    ruleVersion: 'plugin-fixture/v1',
+    providerNamespace: 'p',
+    providerIds: ['p'],
+    modelAliases,
+    evidenceControls: [{ key: 'effort', source: 'reasoningEffort', required: false }],
+  }
+  const rights = { mode: 'internal-only' }
+  return buildAAEvidencePack({
+    packId: 'plugin-fixture-pack',
+    snapshot: {
+      schemaVersion: 1,
+      snapshotVersion: 'aa-snapshot/v2',
+      snapshotId: 'aa-phase4-plugin-fixture',
+      capturedAt: '2026-08-22T10:00:00.000Z',
+      source: { methodologyVersion: 'v4.1.1', attribution: 'Fixture' },
+      rights,
+      records: routes.map(route => ({ ...route.record, slug: null })).sort(
+        (left, right) => left.recordId.localeCompare(right.recordId),
+      ),
+    },
+    bindingRegistry: {
+      schemaVersion: 1,
+      registryVersion: 'aa-binding-registry/v1',
+      normalizationRules: [rule],
+      bindings: routes.map(route => ({
+        evidenceRouteKey: createEvidenceRouteKey(route.effectiveConfig, rule),
+        aaRecordId: route.record.recordId,
+        ruleVersion: rule.ruleVersion,
+        matchBasis: ['fixture'],
+        limitations: [],
+        quarantine: null,
+      })),
+    },
+    routePolicy: AA_ROUTE_POLICY_V1,
+    runtimeCompatibility: {
+      contract: AA_EVIDENCE_PACK_RUNTIME_CONTRACT,
+      minimumVersion: 1,
+      maximumVersion: 1,
+    },
+    rights,
+  })
+}
+
 function assessmentOutput({ level }) {
   if (level === 'light') {
     return {
@@ -202,6 +255,51 @@ function agent() {
 }
 
 describe('DSH Auto Mode plugin', () => {
+  it('loads a compatible Evidence Pack and persists evidence and execution identities', async () => {
+    const light = phase3Route({ model: 'light-pack', score: 30, effort: 'off' })
+    const standard = phase3Route({ model: 'standard-pack', score: 40, effort: 'high', temperature: 0 })
+    const deep = phase3Route({ model: 'deep-pack', score: 55, effort: 'max' })
+    const ctx = new FakeContext()
+    ctx.llm.outputs.push(assessmentOutput({ level: 'standard' }))
+    apply(ctx, {
+      mode: 'auto',
+      evidencePack: phase4Pack([light, standard, deep]),
+      hostRoutes: [
+        light.effectiveConfig,
+        { ...standard.effectiveConfig, temperature: 1, maxTokens: 8192 },
+        deep.effectiveConfig,
+      ],
+      deepFallback: deep.effectiveConfig,
+    })
+    const subject = agent()
+    const signal = new AbortController().signal
+
+    await ctx.waterfall(
+      'agent/prepare-step',
+      [{ agent: subject, messages: [{ content: [{ type: 'text', text: 'Change two files.' }] }], turn: 1, step: 0, signal }],
+      () => Promise.resolve({ kind: 'enter' }),
+    )
+    await ctx.waterfall(
+      'system-prompt/assemble', [{}, { agent: subject }], () => Promise.resolve({ variables: {} }),
+    )
+    const request = await ctx.waterfall(
+      'agent/request',
+      [{ agent: subject, turn: 1, step: 0, signal }],
+      () => Promise.resolve({ provider: 'manual', model: 'manual' }),
+    )
+
+    assert.equal(request.model, 'standard-pack')
+    assert.equal(request.temperature, 1)
+    const event = subject.events.find(candidate => candidate.type === 'dsh-auto-mode/selection')
+    assert.equal(event.data.aaSnapshotId, 'aa-phase4-plugin-fixture')
+    assert.equal(event.data.evidencePackId, 'plugin-fixture-pack')
+    assert.equal(event.data.bindingRegistryVersion, 'aa-binding-registry/v1')
+    assert.equal(event.data.evidencePackManifestVersion, 'aa-evidence-pack-manifest/v1')
+    assert.match(event.data.evidenceRouteKeyId, /^evidence-route-key:v1:/)
+    assert.match(event.data.effectiveConfigFingerprint, /^sha256:/)
+    assert.deepEqual(ctx.namespace.events['dsh-auto-mode/selection'].parse(event.data), event.data)
+  })
+
   it('freezes one Phase 3 decision across assembly, request, Session facts, and cold UI projection', async () => {
     const light = phase3Route({ model: 'light', score: 30, effort: 'off' })
     const standard = phase3Route({

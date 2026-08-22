@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { compileLocalAACatalog } from './aa-catalog.mjs'
+import { compileActiveAACatalog } from './aa-active-catalog.mjs'
 import { compileAARoutePolicyCatalog } from './aa-route-policy.mjs'
 import { createHostRouteIdentity } from './aa-evidence-binding.mjs'
 import { resolveFrozenAutoDecision } from './auto-decision.mjs'
@@ -27,6 +28,15 @@ function loadSeed(config) {
   }
   const path = resolve(process.cwd(), config.seedPath)
   return JSON.parse(readFileSync(path, 'utf8'))
+}
+
+function loadRoutingArtifact(config) {
+  if (config.evidencePack !== undefined) return config.evidencePack
+  if (typeof config.evidencePackPath === 'string' && config.evidencePackPath.trim() !== '') {
+    const path = resolve(process.cwd(), config.evidencePackPath)
+    return JSON.parse(readFileSync(path, 'utf8'))
+  }
+  return loadSeed(config)
 }
 
 function taskText(messages) {
@@ -73,6 +83,13 @@ function previousVisibleMessages(agent) {
 
 function isPhase3Seed(seed) {
   return isRecord(seed) && seed.catalogVersion === 'aa-evidence-catalog/v1'
+}
+
+function isEvidencePack(value) {
+  return isRecord(value)
+    && value.manifest?.manifestVersion === 'aa-evidence-pack-manifest/v1'
+    && value.snapshot?.snapshotVersion === 'aa-snapshot/v2'
+    && value.bindingRegistry?.registryVersion === 'aa-binding-registry/v1'
 }
 
 function configuredHostRoutes(config) {
@@ -156,6 +173,10 @@ async function resolveEligibleHostRoutes(llm, configured, deepFallback, signal) 
 
 function compilePhase3Catalog(seed, hostRoutes) {
   return compileAARoutePolicyCatalog(compileLocalAACatalog({ seed, hostRoutes }))
+}
+
+function compileEvidencePackCatalog(evidencePack, hostRoutes) {
+  return compileAARoutePolicyCatalog(compileActiveAACatalog({ evidencePack, hostRoutes }))
 }
 
 function phase3SelectionIdentityMatches(value) {
@@ -304,11 +325,13 @@ export function apply(ctx, config = {}) {
   }
   if (mode === 'manual') return
 
-  const seed = loadSeed(config)
+  const seed = loadRoutingArtifact(config)
+  const phase4 = isEvidencePack(seed)
   const phase3 = isPhase3Seed(seed)
-  const catalog = phase3 ? undefined : compileSeed(seed)
-  const phase3HostRoutes = phase3 ? configuredHostRoutes(config) : undefined
-  const deepFallback = phase3 ? config.deepFallback : undefined
+  const aaInformed = phase3 || phase4
+  const catalog = aaInformed ? undefined : compileSeed(seed)
+  const phase3HostRoutes = aaInformed ? configuredHostRoutes(config) : undefined
+  const deepFallback = aaInformed ? config.deepFallback : undefined
   const stateByAgent = new WeakMap()
 
   const stateFor = (agent) => {
@@ -429,7 +452,7 @@ export function apply(ctx, config = {}) {
     if (!state.active) return entered
     let decision = state.turn === payload.turn ? state.current : undefined
     if (decision === undefined) {
-      if (phase3) {
+      if (aaInformed) {
         const eligibility = await resolveEligibleHostRoutes(
           ctx.llm,
           phase3HostRoutes,
@@ -439,7 +462,9 @@ export function apply(ctx, config = {}) {
         const eligibleHostRoutes = eligibility.routes
         let compiledCatalog
         try {
-          compiledCatalog = compilePhase3Catalog(seed, eligibleHostRoutes)
+          compiledCatalog = phase4
+            ? compileEvidencePackCatalog(seed, eligibleHostRoutes)
+            : compilePhase3Catalog(seed, eligibleHostRoutes)
         } catch {
           compiledCatalog = {}
         }
@@ -489,7 +514,7 @@ export function apply(ctx, config = {}) {
     const state = stateFor(payload.agent)
     const selected = state.active ? state.assembled : undefined
     if (selected === undefined) return resolved
-    if (phase3 && selected.status === 'failure') {
+    if (aaInformed && selected.status === 'failure') {
       payload.agent.session.append(RESOLUTION_FAILURE_EVENT, {
         schemaVersion: 1,
         mode: 'auto',
@@ -512,7 +537,7 @@ export function apply(ctx, config = {}) {
       })
       throw new Error(`dsh-auto-mode: ${selected.explanation}`)
     }
-    if (phase3) {
+    if (aaInformed) {
       const selection = selected.selection
       payload.agent.session.append(SELECTION_EVENT, {
         schemaVersion: 2,
@@ -550,6 +575,16 @@ export function apply(ctx, config = {}) {
         ...(selected.routePolicyVersion === undefined
           ? {}
           : { routePolicyVersion: selected.routePolicyVersion }),
+        ...(selected.evidencePackId === undefined ? {} : { evidencePackId: selected.evidencePackId }),
+        ...(selected.evidenceRouteKeyId === undefined
+          ? {}
+          : { evidenceRouteKeyId: selected.evidenceRouteKeyId }),
+        ...(selected.bindingRegistryVersion === undefined
+          ? {}
+          : { bindingRegistryVersion: selected.bindingRegistryVersion }),
+        ...(selected.manifestVersion === undefined
+          ? {}
+          : { evidencePackManifestVersion: selected.manifestVersion }),
         assessorVersion: selected.assessorVersion,
         handlingPolicyVersion: selected.handlingPolicyVersion,
       })

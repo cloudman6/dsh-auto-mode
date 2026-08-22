@@ -152,6 +152,7 @@ export function compileAARoutePolicyCatalog(evidenceCatalog) {
     aaSnapshotId: evidenceCatalog.aaSnapshotId,
     evidenceCatalogVersion: evidenceCatalog.catalogVersion,
     bindingVersion: evidenceCatalog.bindingVersion,
+    ...(evidenceCatalog.packId === undefined ? {} : { packId: evidenceCatalog.packId }),
     capabilityField: AA_ROUTE_POLICY_V1.capabilityField,
     capabilityMethodologyVersion: AA_ROUTE_POLICY_V1.capabilityMethodologyVersion,
     priceField: AA_ROUTE_POLICY_V1.priceField,

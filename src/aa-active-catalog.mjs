@@ -157,6 +157,7 @@ export function compileActiveAACatalog({ evidencePack, hostRoutes } = {}) {
       aaRecordId: binding.aaRecordId,
       bindingVersion: registry.registryVersion,
       bindingRegistryVersion: registry.registryVersion,
+      manifestVersion: evidencePack.manifest.manifestVersion,
       evidenceBinding: binding,
       aaRecord,
     })

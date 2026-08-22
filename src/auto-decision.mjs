@@ -166,6 +166,16 @@ function resolvedFromAA({ assessment, catalog, route, resolvedLevel }) {
     evidenceBindingVersion: route.catalogRoute.bindingVersion,
     catalogVersion: catalog.evidenceCatalogVersion,
     routePolicyVersion: catalog.policyVersion,
+    ...(catalog.packId === undefined ? {} : { evidencePackId: catalog.packId }),
+    ...(route.catalogRoute.evidenceRouteKeyId === undefined
+      ? {}
+      : { evidenceRouteKeyId: route.catalogRoute.evidenceRouteKeyId }),
+    ...(route.catalogRoute.bindingRegistryVersion === undefined
+      ? {}
+      : { bindingRegistryVersion: route.catalogRoute.bindingRegistryVersion }),
+    ...(route.catalogRoute.manifestVersion === undefined
+      ? {}
+      : { manifestVersion: route.catalogRoute.manifestVersion }),
     assessorVersion: TASK_ASSESSOR_VERSION,
     handlingPolicyVersion: TASK_HANDLING_POLICY_VERSION,
     reasonCode: resolutionReason,
