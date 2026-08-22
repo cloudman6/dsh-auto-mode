@@ -1,5 +1,9 @@
 import { acquireAASnapshot } from './aa-snapshot-acquisition.mjs'
 import {
+  createHostRouteIdentity,
+  HOST_ROUTE_IDENTITY_VERSION,
+} from './aa-evidence-binding.mjs'
+import {
   applyPreparedAASnapshotFiles,
   assertDistinctPrivateJSONPaths,
   readPrivateJSONFile,
@@ -9,6 +13,10 @@ import {
 import { prepareAASnapshotRefresh } from './aa-snapshot-refresh.mjs'
 
 const COMMANDS = Object.freeze({
+  identify: Object.freeze({
+    required: Object.freeze(['private-root', 'host-routes', 'output']),
+    optional: Object.freeze([]),
+  }),
   fetch: Object.freeze({
     required: Object.freeze(['private-root', 'output']),
     optional: Object.freeze(['captured-at']),
@@ -49,7 +57,7 @@ function invalid(message) {
 
 function parseArguments(argv) {
   if (!Array.isArray(argv) || typeof argv[0] !== 'string' || COMMANDS[argv[0]] === undefined) {
-    invalid('command must be fetch, prepare, apply, or rollback')
+    invalid('command must be identify, fetch, prepare, apply, or rollback')
   }
   const command = argv[0]
   const specification = COMMANDS[command]
@@ -87,6 +95,39 @@ export async function runAASnapshotCLI({
 } = {}) {
   const { command, flags } = parseArguments(argv)
   const allowedRoot = flags['private-root']
+
+  if (command === 'identify') {
+    assertDistinctPrivateJSONPaths({
+      allowedRoot,
+      filePaths: [flags['host-routes'], flags.output],
+    })
+    const hostRoutes = readPrivateJSONFile({ allowedRoot, filePath: flags['host-routes'] })
+    if (!Array.isArray(hostRoutes)) invalid('--host-routes must contain a JSON array')
+    const seen = new Set()
+    const routes = hostRoutes.map(effectiveConfig => {
+      const identity = createHostRouteIdentity(effectiveConfig)
+      if (seen.has(identity.routeId)) invalid(`duplicate Host route ${identity.routeId}`)
+      seen.add(identity.routeId)
+      return {
+        hostRouteId: identity.routeId,
+        effectiveConfigFingerprint: identity.effectiveConfigFingerprint,
+        provider: identity.provider,
+        model: identity.model,
+        effectiveConfig,
+      }
+    }).sort((left, right) => {
+      if (left.hostRouteId < right.hostRouteId) return -1
+      if (left.hostRouteId > right.hostRouteId) return 1
+      return 0
+    })
+    writePrivateJSONFile({
+      allowedRoot,
+      filePath: flags.output,
+      value: { schemaVersion: 1, identityVersion: HOST_ROUTE_IDENTITY_VERSION, routes },
+    })
+    emit(stdout, { routes: routes.length, status: 'identified' })
+    return
+  }
 
   if (command === 'fetch') {
     const acquisition = await acquireAASnapshot({

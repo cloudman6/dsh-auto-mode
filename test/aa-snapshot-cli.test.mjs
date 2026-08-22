@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, it } from 'node:test'
@@ -43,6 +43,36 @@ function parseOutput(lines) {
 }
 
 describe('AA snapshot maintainer CLI', () => {
+  it('derives a deterministic private Host route identity inventory for binding review', async () => {
+    const fixture = cliFixture()
+    const output = join(fixture.root, 'host-route-identities.json')
+    const lines = []
+
+    await runAASnapshotCLI({
+      argv: [
+        'identify',
+        '--private-root', fixture.root,
+        '--host-routes', fixture.paths['host-routes'],
+        '--output', output,
+      ],
+      stdout: line => lines.push(line),
+    })
+
+    const inventory = JSON.parse(readFileSync(output, 'utf8'))
+    assert.equal(inventory.identityVersion, 'host-route/v1')
+    assert.deepEqual(
+      inventory.routes.map(route => route.hostRouteId),
+      [...inventory.routes.map(route => route.hostRouteId)].sort(),
+    )
+    assert.deepEqual(
+      new Set(inventory.routes.map(route => route.hostRouteId)),
+      new Set([fixture.input.light, fixture.input.standard, fixture.input.deep]
+        .map(route => route.identity.routeId)),
+    )
+    assert.equal(statSync(output).mode & 0o777, 0o600)
+    assert.deepEqual(parseOutput(lines), { routes: 3, status: 'identified' })
+  })
+
   it('prepares, applies, and rolls back an exact reviewed candidate', async () => {
     const fixture = cliFixture()
     const prepareOutput = []
@@ -153,6 +183,7 @@ describe('AA snapshot maintainer CLI', () => {
   it('rejects unknown commands, missing values, duplicate flags, and unrecognized flags', async () => {
     for (const argv of [
       ['unknown'],
+      ['identify', '--private-root', 'one', '--host-routes', 'routes'],
       ['fetch', '--private-root'],
       ['fetch', '--private-root', 'one', '--private-root', 'two', '--output', 'out'],
       ['fetch', '--private-root', 'one', '--output', 'out', '--api-key', 'secret'],

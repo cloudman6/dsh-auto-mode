@@ -31,9 +31,19 @@ chmod 700 local
 cp examples/aa-refresh-manifest.example.json local/aa-refresh-manifest.json
 cp examples/aa-binding-plan.example.json local/aa-binding-plan.json
 cp examples/host-routes.example.json local/host-routes.json
+chmod 600 local/aa-refresh-manifest.json local/aa-binding-plan.json local/host-routes.json
 ```
 
-Replace every placeholder. `host-routes.json` is the exact current Host-materialized route inventory. Each binding must use the route ID and effective-configuration fingerprint derived from that exact configuration and must point to one stable AA record ID. A different effort or any other material request control is a different Host route and cannot reuse the binding silently.
+Replace every placeholder. `host-routes.json` is the exact current Host-materialized route inventory. Derive its review inventory instead of calculating identities by hand:
+
+```sh
+npm run aa:snapshot -- identify \
+  --private-root local \
+  --host-routes local/host-routes.json \
+  --output local/host-route-identities.json
+```
+
+Review `local/host-route-identities.json`, then copy each required route ID and effective-configuration fingerprint into the binding plan and point it to one stable AA record ID. A different effort or any other material request control is a different Host route and cannot reuse the binding silently. The identity inventory is deterministically sorted by Host route ID and written with mode `0600`; stdout contains only its route count and status.
 
 All CLI inputs and outputs must be inside `--private-root`. Target parents must already exist. Every prepare input and its candidate output must resolve to a distinct real path; candidate, active, and rollback paths are likewise distinct during apply. Symlink targets, out-of-root paths, files larger than 16 MiB, excessive JSON depth or node counts, malformed JSON, duplicate options, and unknown options fail closed. Private outputs are atomically replaced with mode `0600`.
 
