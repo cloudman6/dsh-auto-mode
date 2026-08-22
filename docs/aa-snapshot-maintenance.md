@@ -15,7 +15,7 @@ Real machine-readable AA metrics remain `internal-only`. Public distribution sti
 One Evidence Pack contains:
 
 - `aa-snapshot/v2`: every policy-eligible record from the complete pinned acquisition, minimized to stable identity, display metadata, capability, price, latency, and source facts;
-- `aa-binding-registry/v1`: provider normalization rules and durable exact EvidenceRouteKey-to-record bindings;
+- `aa-binding-registry/v1`: provider normalization rules, optional stable-ID `aaRecordMappings`, and durable exact EvidenceRouteKey-to-record bindings;
 - `aa-route-policy/v1`: field choices, methodology, bands, missing-data behavior, and ordering;
 - `aa-evidence-pack-manifest/v1`: component digests, `aa-evidence-pack-runtime/v1` compatibility, and rights mode.
 
@@ -68,8 +68,10 @@ npm run aa:evidence-pack -- prepare \
 
 Preparation emits only classification and status on stdout; the metric and impact report remains inside the private prepared file.
 
-- `GREEN`: stable-ID-preserving metric/display changes, unbound record additions/removals, and ordinary execution-only changes. The candidate is automatically applicable.
-- `AMBER`: missing bound records, incomplete eligible rows, unbound current Host routes, or normalization exceptions. The valid Pack advances while affected bindings/routes are quarantined or excluded. No unrelated route is blocked.
+Before classification, `aa-binding-candidate-compiler/v1` processes every explicit `aaRecordMappings` declaration independently of current Host routes. If the named stable AA record exists and the exact EvidenceRouteKey is free, refresh adds a durable dormant-capable binding automatically. An identical binding is reused. Missing records, cross-rule ambiguity, and conflicts with an existing binding are reported and isolated; they never replace evidence. Names, slugs, similarity, discovery order, and latest-record guesses are not candidate inputs. Routine AA refresh therefore requires no user action, while a genuinely new provider/AA identity relationship still requires a reviewed exact rule declaration rather than unsafe inference.
+
+- `GREEN`: stable-ID-preserving metric/display changes, unbound record additions/removals, exact structured binding generation, and ordinary execution-only changes. The candidate is automatically applicable.
+- `AMBER`: missing bound or declared records, conflicting/ambiguous candidate declarations, incomplete eligible rows, unbound current Host routes, or normalization exceptions. The valid Pack advances while affected bindings/routes are quarantined or excluded. No unrelated route is blocked.
 - `RED`: methodology, source schema, rights, stable-ID, compatibility, or digest contract changes. No candidate Pack is produced and apply is impossible.
 
 Apply a valid GREEN or isolated AMBER update without an approval token:

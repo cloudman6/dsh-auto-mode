@@ -78,7 +78,7 @@ interface AAEvidenceBinding {
 }
 ```
 
-Each provider rule declares exact provider IDs, model aliases, and only the controls that select a distinct AA evaluated record. No control is universally required. Fuzzy names, slugs, similarity, discovery order, and guessed latest records cannot create or replace a binding. A binding is active when a current Host route derives its exact key, dormant when no route does, and quarantined when a semantic integrity exception prevents use. Snapshot refresh changes metrics without rewriting stable bindings.
+Each provider rule declares exact provider IDs, model aliases, and only the controls that select a distinct AA evaluated record. No control is universally required. A rule may also declare `aaRecordMappings` from stable AA record IDs to canonical model keys and evidence controls. During refresh, `aa-binding-candidate-compiler/v1` materializes a new binding only when that exact stable record exists and its EvidenceRouteKey is unoccupied; an identical reviewed binding is reused, while missing, conflicting, or cross-rule ambiguous declarations are isolated as AMBER. The compiler does not inspect Host availability and never consumes record names, slugs, similarity, discovery order, or a guessed latest record. A binding is active when a current Host route derives its exact key, dormant when no route does, and quarantined when a semantic integrity exception prevents use. Snapshot refresh changes metrics without rewriting stable bindings.
 
 ### Runtime Active Catalog Compiler
 

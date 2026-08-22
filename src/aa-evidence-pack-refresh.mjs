@@ -6,6 +6,7 @@ import {
   validateAAEvidencePack,
 } from './aa-evidence-pack.mjs'
 import { compileActiveAACatalog } from './aa-active-catalog.mjs'
+import { deriveStructuredBindingCandidates } from './aa-binding-candidates.mjs'
 
 export const AA_EVIDENCE_PACK_REFRESH_VERSION = 'aa-evidence-pack-refresh/v1'
 
@@ -142,7 +143,20 @@ export function prepareAAEvidencePackRefresh({
     throw error
   }
 
-  const bindingUpdate = quarantineMissingBindings(previousPack.bindingRegistry, snapshotResult.snapshot)
+  let candidateUpdate
+  try {
+    candidateUpdate = deriveStructuredBindingCandidates({
+      snapshot: snapshotResult.snapshot,
+      normalizationRules: previousPack.bindingRegistry.normalizationRules,
+      existingBindings: previousPack.bindingRegistry.bindings,
+    })
+  } catch (error) {
+    return red(error.code ?? 'aa-binding-candidate-invalid', error.message)
+  }
+  const bindingUpdate = quarantineMissingBindings({
+    ...previousPack.bindingRegistry,
+    bindings: [...previousPack.bindingRegistry.bindings, ...candidateUpdate.generated],
+  }, snapshotResult.snapshot)
   let evidencePack
   let hostImpact
   try {
@@ -171,6 +185,7 @@ export function prepareAAEvidencePackRefresh({
   ])
   const classification = bindingUpdate.quarantined.length > 0
     || snapshotResult.exclusions.length > 0
+    || candidateUpdate.exclusions.length > 0
     || hostImpact.exclusions.some(exclusion => amberHostReasons.has(exclusion.reasonCode))
     ? 'AMBER'
     : 'GREEN'
@@ -186,6 +201,9 @@ export function prepareAAEvidencePackRefresh({
       records: recordDiff(previousPack.snapshot, evidencePack.snapshot),
       eligibilityExclusions: snapshotResult.exclusions,
       bindings: {
+        generated: candidateUpdate.generated.map(binding => binding.aaRecordId),
+        reused: candidateUpdate.reused,
+        candidateExclusions: candidateUpdate.exclusions,
         quarantined: bindingUpdate.quarantined,
         restored: bindingUpdate.restored,
       },

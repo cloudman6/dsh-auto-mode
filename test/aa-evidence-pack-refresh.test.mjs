@@ -26,6 +26,7 @@ const rule = {
   providerIds: ['p'],
   modelAliases: { a: 'a', b: 'b', new: 'new' },
   evidenceControls: [],
+  aaRecordMappings: [],
 }
 
 function apiRecord(id, score = 30, price = 1) {
@@ -95,6 +96,64 @@ describe('exception-driven Evidence Pack refresh', () => {
     assert.deepEqual(prepared.report.records.added, ['unbound'])
     assert.deepEqual(prepared.report.records.metricChanges.map(change => change.recordId), ['a'])
     assert.equal(validatePreparedAAEvidencePackRefresh(prepared), prepared)
+  })
+
+  it('automatically materializes an exact rule candidate and activates its current Host route', () => {
+    const previous = structuredClone(initialPack())
+    previous.bindingRegistry.normalizationRules[0].aaRecordMappings = [{
+      aaRecordId: 'new-record', modelKey: 'new', evidenceControls: {},
+    }]
+    const rebuilt = buildAAEvidencePack({
+      packId: previous.manifest.packId,
+      snapshot: previous.snapshot,
+      bindingRegistry: previous.bindingRegistry,
+      routePolicy: previous.routePolicy,
+      runtimeCompatibility: previous.manifest.runtimeCompatibility,
+      rights,
+    })
+    const prepared = prepareAAEvidencePackRefresh({
+      previousPack: rebuilt,
+      acquisition: acquisition([apiRecord('a'), apiRecord('b', 40, 2), apiRecord('new-record', 42, 1)]),
+      snapshotId: 'snapshot-generated', packId: 'pack-generated', source, rights,
+      hostRoutes: [{ provider: 'p', model: 'new' }],
+    })
+
+    assert.equal(prepared.classification, 'GREEN')
+    assert.deepEqual(prepared.report.bindings.generated, ['new-record'])
+    assert.equal(prepared.report.hostImpact.activeRouteIds.length, 1)
+    assert.equal(
+      prepared.evidencePack.bindingRegistry.bindings.find(entry => entry.aaRecordId === 'new-record')
+        .matchBasis[0],
+      'structured stable AA record mapping in fixture/v1',
+    )
+  })
+
+  it('classifies a structured candidate conflict AMBER without replacing the reviewed binding', () => {
+    const previous = structuredClone(initialPack())
+    previous.bindingRegistry.normalizationRules[0].aaRecordMappings = [{
+      aaRecordId: 'replacement', modelKey: 'a', evidenceControls: {},
+    }]
+    const rebuilt = buildAAEvidencePack({
+      packId: previous.manifest.packId,
+      snapshot: previous.snapshot,
+      bindingRegistry: previous.bindingRegistry,
+      routePolicy: previous.routePolicy,
+      runtimeCompatibility: previous.manifest.runtimeCompatibility,
+      rights,
+    })
+    const prepared = prepareAAEvidencePackRefresh({
+      previousPack: rebuilt,
+      acquisition: acquisition([apiRecord('a'), apiRecord('b', 40, 2), apiRecord('replacement', 45, 1)]),
+      snapshotId: 'snapshot-conflict', packId: 'pack-conflict', source, rights,
+    })
+
+    assert.equal(prepared.classification, 'AMBER')
+    assert.equal(prepared.report.bindings.candidateExclusions[0].reasonCode, 'aa-binding-candidate-conflict')
+    assert.equal(
+      prepared.evidencePack.bindingRegistry.bindings.find(entry => entry.evidenceRouteKey.modelKey === 'a')
+        .aaRecordId,
+      'a',
+    )
   })
 
   it('classifies missing bound records and new unbound Host routes AMBER and isolates them', () => {

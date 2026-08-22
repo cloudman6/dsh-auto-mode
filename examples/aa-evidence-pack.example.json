@@ -58,6 +58,15 @@
             "source": "reasoningEffort",
             "required": false
           }
+        ],
+        "aaRecordMappings": [
+          {
+            "aaRecordId": "synthetic-record-a",
+            "modelKey": "synthetic-model-a",
+            "evidenceControls": {
+              "reasoningEffort": "high"
+            }
+          }
         ]
       }
     ],
@@ -128,7 +137,7 @@
       },
       "bindingRegistry": {
         "version": "aa-binding-registry/v1",
-        "digest": "sha256:39382ffa0e094226532b6df7a8b7c12662e255af9d69b6ec0ee3182b5daa1653"
+        "digest": "sha256:bca1c3e0363ea89f195b78ec20756c1fa28234f8a1ef15619a42217e795c0159"
       },
       "routePolicy": {
         "version": "aa-route-policy/v1",

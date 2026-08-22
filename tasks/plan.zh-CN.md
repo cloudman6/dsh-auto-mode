@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 26620d8a68f397bb8a3de9a51e4c18615564058b
+translation-source-blob: 5e241c67f45d8e9695b937658868a9ff7f86c1a6
 translation-status: current
 -->
 
@@ -148,7 +148,7 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 ### Task 14：实现长期 Binding Registry — 已完成
 
-独立于当前 Host availability 和单个 snapshot ID 校验精确 key-to-record mapping。支持 dormant activation、确定性结构化 normalization、unbound record 和 quarantined semantic exception，不使用 fuzzy matching。
+独立于当前 Host availability 和单个 snapshot ID 校验精确 key-to-record mapping。`aa-binding-candidate-compiler/v1` 会在精确 record 存在且 key 未占用时，把已评审 stable-record 声明自动转换为可 dormant binding；完全相同 binding 会复用，缺失、冲突或歧义声明会隔离。Name、slug、similarity 与 latest-record guess 继续禁止使用。
 
 ### Task 15：派生运行时 Active Catalog — 已完成
 

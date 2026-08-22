@@ -100,6 +100,58 @@ export function validateProviderNormalizationRule(value) {
     if (control.aliases !== undefined) normalized.aliases = validateAliases(control.aliases, `rule.evidenceControls[${index}].aliases`)
     return normalized
   }).sort((left, right) => left.key.localeCompare(right.key))
+  const controlsByKey = new Map(evidenceControls.map(control => [control.key, control]))
+  const canonicalModelKeys = new Set(Object.values(modelAliases))
+  const aaRecordMappings = value.aaRecordMappings === undefined ? [] : value.aaRecordMappings
+  if (!Array.isArray(aaRecordMappings)) {
+    invalid('evidence-route-rule-invalid', 'rule.aaRecordMappings must be an array')
+  }
+  const recordIds = new Set()
+  const mappingKeys = new Set()
+  const normalizedMappings = aaRecordMappings.map((mapping, index) => {
+    if (!isRecord(mapping)
+      || Object.keys(mapping).sort().join('\0') !== ['aaRecordId', 'evidenceControls', 'modelKey'].join('\0')) {
+      invalid('evidence-route-rule-invalid', `rule.aaRecordMappings[${index}] is invalid`)
+    }
+    const aaRecordId = boundedString(mapping.aaRecordId, `rule.aaRecordMappings[${index}].aaRecordId`)
+    const modelKey = boundedString(mapping.modelKey, `rule.aaRecordMappings[${index}].modelKey`)
+    if (recordIds.has(aaRecordId) || !canonicalModelKeys.has(modelKey) || !isRecord(mapping.evidenceControls)) {
+      invalid('evidence-route-rule-invalid', `rule.aaRecordMappings[${index}] is not an exact unique mapping`)
+    }
+    recordIds.add(aaRecordId)
+    const normalizedControls = {}
+    for (const key of Object.keys(mapping.evidenceControls).sort()) {
+      const control = controlsByKey.get(key)
+      if (control === undefined) {
+        invalid('evidence-route-rule-invalid', `rule.aaRecordMappings[${index}] uses an undeclared control`)
+      }
+      const controlValue = validateControlValue(
+        mapping.evidenceControls[key],
+        `rule.aaRecordMappings[${index}].evidenceControls.${key}`,
+      )
+      if (control.aliases !== undefined && !Object.values(control.aliases).includes(controlValue)) {
+        invalid('evidence-route-rule-invalid', `rule.aaRecordMappings[${index}] control is not a canonical alias`)
+      }
+      normalizedControls[key] = controlValue
+    }
+    for (const control of evidenceControls) {
+      if (control.required && !Object.hasOwn(normalizedControls, control.key)) {
+        invalid('evidence-route-rule-invalid', `rule.aaRecordMappings[${index}] omits a required control`)
+      }
+    }
+    const normalized = { aaRecordId, modelKey, evidenceControls: normalizedControls }
+    const keyId = evidenceRouteKeyId({
+      schemaVersion: EVIDENCE_ROUTE_KEY_SCHEMA_VERSION,
+      providerNamespace,
+      modelKey,
+      evidenceControls: normalizedControls,
+    })
+    if (mappingKeys.has(keyId)) {
+      invalid('evidence-route-rule-ambiguous', 'rule.aaRecordMappings must not map two records to one key')
+    }
+    mappingKeys.add(keyId)
+    return normalized
+  }).sort((left, right) => left.aaRecordId.localeCompare(right.aaRecordId))
   return freezeTree({
     schemaVersion: PROVIDER_NORMALIZATION_RULE_SCHEMA_VERSION,
     ruleVersion,
@@ -107,6 +159,7 @@ export function validateProviderNormalizationRule(value) {
     providerIds: [...providerIds].sort(),
     modelAliases,
     evidenceControls,
+    aaRecordMappings: normalizedMappings,
   })
 }
 

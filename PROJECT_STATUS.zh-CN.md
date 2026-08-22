@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: f0c521cc3c22d6ce34aae335250fa77d1e7da0b1
+translation-source-blob: 0d35aafa63ee910c758fb5365431bbe69cf24e5e
 translation-status: current
 -->
 
@@ -52,7 +52,7 @@ ADR-014 已 Accepted。它分离全量 policy-eligible AA Snapshot、长期 Bind
 - 完成阶段 3 Task 7：schema v2 projection 不再发布原型 tier；selector 与 conversation fact 显示本地化任务处理级别、实际 model 与可选 effort，以及 AA 或配置 Deep fallback 依据。仅 model、仅 effort、二者同时和仅 level 变化的浏览器过渡均保留 1.2 秒滚动、业务蓝高亮、两次呼吸、持久消息位置和中英文 snapshot。
 - 完成阶段 3 Task 8 与 Checkpoint C：跨仓库无密钥浏览器 fixture 驱动真实 Web UI、agent loop、Session 日志和请求头依次经过 Light、Standard、Deep 与 Manual。常规级候选证明先比较价格、再比较延迟；每个自动 turn 都证明界面显示的 route 与 AA snapshot 等于持久化 selection 和实际请求配置。聚焦 Loader 与 Session 测试继续覆盖 fallback、no-route failure、cold reconstruction 和 Manual 不受影响。支持矩阵固定 fork `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`、selection schema v2、`auto-decision/v1`、`aa-evidence-catalog/v1`、`task-assessor-contract/v1`、`task-assessor-route-policy/v1`、`task-handling-policy/v1` 与 `aa-route-policy/v1`。
 - 完成阶段 4 Task 9：`aa-snapshot-refresh/v1` 固定官方 Pro acquisition contract、服务端 credential boundary、source methodology、attribution、retention、freshness、minimization 与显式 rights mode。维护 CLI 推导不含凭据的 Host identity，私有保存有界 source material，准备确定性 candidate 和完整 source/record/binding/band/order diff，要求精确 digest 批准，原子保留并替换 active seed，并验证 rollback 完整性。99 项离线测试通过；仓库只跟踪合成 AA-shaped fixture 与 placeholder 示例。
-- 完成阶段 4.1 Tasks 10–19 与 Checkpoints D1–D3：ADR-014 已 Accepted；可独立校验的 Snapshot、Registry、Policy 与 Manifest 组件使用确定性 digest 和 Runtime 兼容契约。精确 provider rule 分离 EvidenceRouteKey 与完整 ExecutionFingerprint；完整 acquisition 保留全部 policy-eligible record；dormant binding 根据当前 Host route 激活；quarantined、unbound、missing 或畸形 route 被隔离。GREEN/AMBER/RED refresh、本地原子激活、rollback、旧 seed migration、Plugin loading、Session audit 与 Manual 非干扰已实现，未新增依赖或服务。当前私有 schema-v1 seed 已迁移为 mode-`0600` 本地 Pack，保留三条 binding；未来仍需带 credential 的 acquisition 才能填充真实全市场 record。项目 suite 通过 123 项测试，固定 fork 的 7 个 Loader 场景全部通过，6 个聚焦 UI projection/view test 通过。
+- 完成阶段 4.1 Tasks 10–19 与 Checkpoints D1–D3：ADR-014 已 Accepted；可独立校验的 Snapshot、Registry、Policy 与 Manifest 组件使用确定性 digest 和 Runtime 兼容契约。精确 provider rule 分离 EvidenceRouteKey 与完整 ExecutionFingerprint；完整 acquisition 保留全部 policy-eligible record；`aa-binding-candidate-compiler/v1` 只自动物化预先声明的 stable-record mapping，并隔离缺失、冲突或歧义声明；dormant binding 根据当前 Host route 激活；quarantined、unbound、missing 或畸形 route 被隔离。GREEN/AMBER/RED refresh、本地原子激活、rollback、旧 seed migration、Plugin loading、Session audit 与 Manual 非干扰已实现，未新增依赖或服务。当前私有 schema-v1 seed 已迁移为 mode-`0600` 本地 Pack，保留三条 binding；未来仍需带 credential 的 acquisition 才能填充真实全市场 record。项目 suite 通过 129 项测试，固定 fork 的 7 个 Loader 场景全部通过，6 个聚焦 UI projection/view test 通过。
 
 ## 当前实施计划
 

@@ -142,7 +142,7 @@ Process every page of one pinned acquisition and retain every record with the po
 
 ### Task 14: Implement the long-lived Binding Registry — completed
 
-Validate exact key-to-record mappings independently of current Host availability and one snapshot ID. Support dormant activation, deterministic structured normalization, unbound records, and quarantined semantic exceptions without fuzzy matching.
+Validate exact key-to-record mappings independently of current Host availability and one snapshot ID. `aa-binding-candidate-compiler/v1` turns reviewed stable-record declarations into dormant-capable bindings automatically when the exact record exists and key is unoccupied; identical bindings are reused, while missing, conflicting, or ambiguous declarations are isolated. Names, slugs, similarity, and latest-record guesses remain forbidden.
 
 ### Task 15: Derive the runtime Active Catalog — completed
 

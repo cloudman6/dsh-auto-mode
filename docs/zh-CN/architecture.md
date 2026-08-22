@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 20a639a8fcb2b3941fc36dc17ec0d0c3245e4e8b
+translation-source-blob: 02924c7de454ec347f5d9fb622aeee5beac7e4de
 translation-status: current
 -->
 
@@ -84,7 +84,7 @@ interface AAEvidenceBinding {
 }
 ```
 
-每条 provider rule 精确声明 provider ID、model alias，以及只会选择不同 AA evaluated record 的 control。不存在通用必填 control。Fuzzy name、slug、similarity、discovery order 与猜测 latest record 都不能创建或替换 binding。当前 Host route 推导出精确 key 时 binding 为 active；没有 route 时为 dormant；语义完整性异常阻止使用时为 quarantined。Snapshot refresh 更新 metric 时不重写稳定 binding。
+每条 provider rule 精确声明 provider ID、model alias，以及只会选择不同 AA evaluated record 的 control。不存在通用必填 control。Rule 还可声明从稳定 AA record ID 到 canonical model key 与 evidence control 的 `aaRecordMappings`。Refresh 期间，`aa-binding-candidate-compiler/v1` 只有在该精确稳定 record 存在且 EvidenceRouteKey 未被占用时才物化新 binding；相同已评审 binding 会复用，缺失、冲突或跨 rule 歧义声明会作为 AMBER 隔离。Compiler 不检查 Host availability，也绝不使用 record name、slug、similarity、discovery order 或猜测的 latest record。当前 Host route 推导出精确 key 时 binding 为 active；没有 route 时为 dormant；语义完整性异常阻止使用时为 quarantined。Snapshot refresh 更新 metric 时不重写稳定 binding。
 
 ### 运行时 Active Catalog Compiler
 

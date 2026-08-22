@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/aa-snapshot-maintenance.md
-translation-source-blob: 4a8b77086a565abdcc9746ad7a8f525f45bfe188
+translation-source-blob: b03f4726ddc667baf2203cb1583775d3a08e49fb
 translation-status: current
 -->
 
@@ -21,7 +21,7 @@ translation-status: current
 一份 Evidence Pack 包含：
 
 - `aa-snapshot/v2`：完整固定 acquisition 中全部 policy-eligible record，最小化为稳定 identity、display metadata、capability、price、latency 与 source fact；
-- `aa-binding-registry/v1`：provider normalization rule 与长期精确 EvidenceRouteKey-to-record binding；
+- `aa-binding-registry/v1`：provider normalization rule、可选 stable-ID `aaRecordMappings` 与长期精确 EvidenceRouteKey-to-record binding；
 - `aa-route-policy/v1`：field choice、methodology、band、missing-data behavior 与 ordering；
 - `aa-evidence-pack-manifest/v1`：组件 digest、`aa-evidence-pack-runtime/v1` 兼容性与 rights mode。
 
@@ -74,8 +74,10 @@ npm run aa:evidence-pack -- prepare \
 
 Prepare 只在 stdout 输出 classification 与 status；metric 和 impact report 留在私有 prepared file 内。
 
-- `GREEN`：stable-ID 不变的 metric/display 变化、unbound record 增减和普通仅执行变化。Candidate 可自动应用。
-- `AMBER`：bound record 缺失、不完整 eligible row、当前 Host route unbound 或 normalization exception。有效 Pack 前进，受影响 binding/route 被 quarantine 或排除，不阻断无关 route。
+分类前，`aa-binding-candidate-compiler/v1` 会独立于当前 Host route 处理每项显式 `aaRecordMappings` 声明。如果声明的稳定 AA record 存在且精确 EvidenceRouteKey 空闲，refresh 会自动加入一条可长期 dormant 的 binding。完全相同的 binding 会被复用。缺失 record、跨 rule 歧义以及与现有 binding 的冲突会被报告和隔离，绝不替换 evidence。Name、slug、similarity、discovery order 和 latest-record guess 都不是 candidate input。因此常规 AA refresh 无需用户操作；真正新增的 provider/AA identity 关系仍必须通过已评审精确 rule 声明，而不是不安全推断。
+
+- `GREEN`：stable-ID 不变的 metric/display 变化、unbound record 增减、精确结构化 binding 生成和普通仅执行变化。Candidate 可自动应用。
+- `AMBER`：bound 或已声明 record 缺失、candidate 声明冲突/歧义、不完整 eligible row、当前 Host route unbound 或 normalization exception。有效 Pack 前进，受影响 binding/route 被 quarantine 或排除，不阻断无关 route。
 - `RED`：methodology、source schema、rights、stable-ID、compatibility 或 digest contract 变化。不产生 candidate Pack，无法 apply。
 
 无需 approval token，直接应用有效 GREEN 或已隔离 AMBER 更新：

@@ -439,7 +439,14 @@ export function buildAAEvidencePack({
 }) {
   validateSnapshot(snapshot)
   validateBindingRegistry(bindingRegistry, { requireCanonicalOrder: false })
-  const canonicalRegistry = JSON.parse(canonicalJson(bindingRegistry))
+  const canonicalRegistry = {
+    schemaVersion: bindingRegistry.schemaVersion,
+    registryVersion: bindingRegistry.registryVersion,
+    normalizationRules: bindingRegistry.normalizationRules.map(rule => (
+      JSON.parse(canonicalJson(validateProviderNormalizationRule(rule)))
+    )),
+    bindings: JSON.parse(canonicalJson(bindingRegistry.bindings)),
+  }
   canonicalRegistry.normalizationRules.sort((left, right) => left.ruleVersion.localeCompare(right.ruleVersion))
   canonicalRegistry.bindings.sort((left, right) => (
     evidenceRouteKeyId(left.evidenceRouteKey).localeCompare(evidenceRouteKeyId(right.evidenceRouteKey))
