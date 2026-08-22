@@ -323,3 +323,77 @@ The verification environment exposed no provider credential, so no new Phase 3 l
 - [x] Tasks 10–19 are complete and the local Runtime/Evidence Pack pair is rollback-safe.
 - [x] `PROJECT_STATUS.md`, specification, architecture, routing policy, roadmap, maintenance guide, examples, and translations describe the implemented state.
 - [x] Public real Evidence Pack distribution remains disabled unless the ADR-013 written-license gate is independently satisfied.
+
+## Task 20: Accept the Free Evidence Pack decision
+
+**Acceptance criteria:**
+
+- [x] ADR-015 fixes the Free endpoint, normalized-price derivation, eligibility, missing-data, migration, and rights boundaries.
+- [x] ADR-015 explicitly supersedes only the Pro endpoint and blended-field requirements while preserving exact bindings and offline runtime.
+
+**Verification:**
+
+- [ ] English and Chinese ADRs and indexes are current and link-valid.
+
+**Dependencies:** Task 19 and explicit maintainer approval
+
+## Task 21: Implement private Free acquisition
+
+**Acceptance criteria:**
+
+- [ ] The Evidence Pack CLI fetches every `/api/v2/language/models/free` page using one server-side key.
+- [ ] Free, Pro, and Commercial caller tiers are accepted only with the Free response shape; redirects, malformed pagination, excessive data, and failures are rejected without leaking secrets.
+
+**Verification:**
+
+- [ ] Focused tests cover pagination, tiers, bounds, malformed content, error redaction, and credential absence.
+
+**Dependencies:** Task 20
+
+## Task 22: Implement Snapshot v3 and Route Policy v2
+
+**Acceptance criteria:**
+
+- [ ] Policy eligibility requires Intelligence plus input/output prices and retains every matching stable record independently of bindings.
+- [ ] Snapshot records preserve raw input/output/cache-hit prices, derivation basis, normalized 7:2:1 price, and nullable latency.
+- [ ] Runtime assigns unchanged Light/Standard/Deep bands and orders by normalized price, latency, then stable route identity.
+
+**Verification:**
+
+- [ ] RED/GREEN tests cover field absence, invalid values, cache fallback, exact formula, boundaries, ties, permutations, and tampering.
+
+**Dependencies:** Task 21
+
+## Task 23: Implement Runtime v2 compatibility
+
+**Acceptance criteria:**
+
+- [ ] New packs require Runtime compatibility version 2 and old v1 packs migrate through an explicit deterministic adapter.
+- [ ] Legacy Pro blended evidence is visibly marked and no component price is invented.
+- [ ] Active Catalog, assessor, Auto decision, plugin persistence, Session reconstruction, and Manual mode remain compatible.
+
+**Verification:**
+
+- [ ] Migration, Loader, plugin, assessor, route, rollback, and no-runtime-network tests pass.
+
+**Dependencies:** Task 22
+
+## Task 24: Prove and document the Free path
+
+**Acceptance criteria:**
+
+- [ ] Maintenance docs give exact private fetch/prepare/apply/rollback commands and state attribution and non-redistribution boundaries.
+- [ ] One real Free acquisition creates a complete private candidate without tracking the key, raw response, Snapshot, or refresh report.
+- [ ] Canonical documents and translations describe normalized AA-derived pricing rather than AA-native blended pricing.
+
+**Verification:**
+
+- [ ] Focused tests, full `npm test`, runtime smoke, secret scan, translation, links, and Git checks pass.
+
+**Dependencies:** Tasks 21–23
+
+## Checkpoint D4: Phase 4.2 complete
+
+- [ ] Tasks 20–24 are complete.
+- [ ] A user-owned Free key can populate and activate a private full-market Evidence Pack.
+- [ ] Runtime remains offline and public real Evidence Pack distribution remains disabled.

@@ -18,5 +18,6 @@
 | [ADR-012](0012-resolve-and-freeze-task-assessor-routes.md) | Accepted | Resolve one environment-valid assessor route through fixed policy and freeze it before the call |
 | [ADR-013](0013-refresh-aa-snapshots-behind-a-rights-gate.md) | Accepted | Refresh minimized AA snapshots offline behind explicit review, rollback, and data-rights gates |
 | [ADR-014](0014-separate-aa-evidence-packs-from-active-catalogs.md) | Accepted | Separate reusable evidence bindings and full eligible AA snapshots from runtime-derived Active Catalogs |
+| [ADR-015](0015-derive-route-price-from-aa-free-data.md) | Accepted | Build local Evidence Packs from AA Free data and derive a versioned normalized route price |
 
 When an ADR is superseded, retain the original file and point its status to the replacement ADR.

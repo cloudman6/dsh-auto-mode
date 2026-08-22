@@ -176,6 +176,48 @@ Tasks 13–16 prove routine AA updates need no human action and a newly configur
 
 Tasks 17–19 prove one compatible Runtime/Evidence Pack pair can be atomically activated and rolled back locally. Public real-data distribution remains a separate written-license gate.
 
+## Phase 4.2: Free AA Evidence Packs
+
+Status: active under Accepted ADR-015.
+
+### Dependency graph
+
+```text
+Free-shaped acquisition contract
+        ↓
+Snapshot v3 normalized-price contract
+        ↓
+Route Policy v2 and Active Catalog
+        ↓
+Runtime v2 compatibility migration
+        ↓
+private refresh, activation, and runtime proof
+```
+
+### Task 20: Accept the Free evidence decision
+
+Record the Free endpoint, normalized-price formula, eligibility, missing-data, rights, exact-binding, compatibility, and distribution boundaries in ADR-015.
+
+### Task 21: Acquire the complete Free dataset
+
+Add a private Evidence Pack fetch command that follows every Free page, accepts Free/Pro/Commercial caller tiers, validates the external envelope and resource bounds, and never persists or reports the key or remote error body.
+
+### Task 22: Build Snapshot v3 and Route Policy v2
+
+Retain every record with a valid Intelligence score plus input/output prices. Preserve raw comparison inputs and derive a 7:2:1 cache-hit/input/output normalized price, substituting input price only when cache-hit price is absent. Keep nullable latency and the existing handling-level boundaries.
+
+### Task 23: Preserve compatible local operation
+
+Advance the Runtime compatibility contract and migrate valid v1 packs explicitly. Preserve legacy Pro blended evidence with a visible transition basis, keep historical Session facts unchanged, and require future Free refreshes to replace the compatibility representation.
+
+### Task 24: Prove the complete Free path
+
+Cover acquisition, eligibility, price derivation, ordering, binding activation, refresh classification, atomic activation, rollback, plugin runtime, Manual non-interference, secret exclusion, and one real private Free acquisition without tracking its data.
+
+### Checkpoint D4
+
+Tasks 20–24 pass focused and full verification. A user-owned Free key can create and activate a private full-market Evidence Pack; Runtime remains offline and public real-data distribution remains disabled.
+
 ## Risks
 
 | Risk | Impact | Mitigation |
@@ -188,6 +230,8 @@ Tasks 17–19 prove one compatible Runtime/Evidence Pack pair can be atomically 
 | Provider and AA identities share no reliable structured key | False automatic binding | Keep the record unbound; require one reviewed provider normalization rule instead of fuzzy matching |
 | Evidence Pack grows beyond maintenance bounds | Refresh denial or runtime cost | Retain only policy fields, enforce record/file limits, and keep runtime compilation deterministic |
 | Automatic refresh hides a semantic break | Incorrect evidence continuity | RED on methodology, rights, stable-ID, schema, compatibility, or digest changes; isolate AMBER cases |
+| Locally derived price is mistaken for an AA-native blended field | Misleading audit and UI claims | Store raw inputs, derivation version, cache fallback basis, and normalized output separately |
+| A plugin upgrade invalidates the existing local Pack | Auto becomes unavailable before the first Free refresh | Provide one deterministic v1-to-v2 compatibility migration and preserve its legacy price basis |
 
 ## Current open decisions
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/README.md
-translation-source-blob: f771b98447d2514fa3168c0eadd7b11e157d5496
+translation-source-blob: c70069c3b3af2b5819ce951d08d3b1ee6fe03106
 translation-status: current
 -->
 
@@ -24,5 +24,6 @@ translation-status: current
 | [ADR-012](0012-resolve-and-freeze-task-assessor-routes.md) | Accepted | 通过固定 policy 解析一条适合当前环境的 assessor route，并在调用前冻结 |
 | [ADR-013](0013-refresh-aa-snapshots-behind-a-rights-gate.md) | Accepted | 在显式评审、rollback 与数据权利 gate 后离线更新最小化 AA snapshot |
 | [ADR-014](0014-separate-aa-evidence-packs-from-active-catalogs.md) | Accepted | 将可复用 evidence binding 和全量 eligible AA snapshot 与运行时派生的 Active Catalog 分离 |
+| [ADR-015](0015-derive-route-price-from-aa-free-data.md) | Accepted | 从 AA Free 数据构建本地 Evidence Pack，并派生带版本的标准化 route 价格 |
 
 ADR 被取代时保留原文件，并把状态指向替代 ADR。

@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/todo.md
-translation-source-blob: a6966e10d08025ae87bdaeb679bf67dcec0c270e
+translation-source-blob: 6f867c7bbd2029eb5e05262ab076313bfa1ad376
 translation-status: current
 -->
 
@@ -329,3 +329,77 @@ translation-status: current
 - [x] Tasks 10–19 完成，本地 Runtime/Evidence Pack pair 可安全 rollback。
 - [x] `PROJECT_STATUS.md`、specification、architecture、routing policy、roadmap、maintenance guide、example 和 translation 描述已实现状态。
 - [x] 除非独立满足 ADR-013 written-license gate，否则公开真实 Evidence Pack 分发保持禁用。
+
+## Task 20：接受 Free Evidence Pack 决策
+
+**验收标准：**
+
+- [x] ADR-015 固定 Free endpoint、normalized-price derivation、eligibility、missing-data、migration 和 rights 边界。
+- [x] ADR-015 明确只取代 Pro endpoint 和 blended-field 要求，并保留精确 binding 与离线 runtime。
+
+**验证：**
+
+- [ ] 英文、中文 ADR 与索引保持 current 且链接有效。
+
+**依赖：** Task 19 与维护者显式批准
+
+## Task 21：实现私有 Free acquisition
+
+**验收标准：**
+
+- [ ] Evidence Pack CLI 使用一个 server-side key 获取 `/api/v2/language/models/free` 的全部 page。
+- [ ] 只有符合 Free response shape 的 Free、Pro、Commercial caller tier 被接受；redirect、畸形 pagination、过量数据和失败不会泄露 secret。
+
+**验证：**
+
+- [ ] 聚焦测试覆盖 pagination、tier、bound、malformed content、error redaction 与 credential absence。
+
+**依赖：** Task 20
+
+## Task 22：实现 Snapshot v3 与 Route Policy v2
+
+**验收标准：**
+
+- [ ] Policy eligibility 要求 Intelligence 与 input/output price，并独立于 binding 保留每条符合条件的稳定 record。
+- [ ] Snapshot record 保留原始 input/output/cache-hit price、derivation basis、normalized 7:2:1 price 与 nullable latency。
+- [ ] Runtime 继续按既有 Light/Standard/Deep 边界分档，并按 normalized price、latency、稳定 route identity 排序。
+
+**验证：**
+
+- [ ] RED/GREEN 测试覆盖 field 缺失、invalid value、cache fallback、精确公式、边界、tie、permutation 与 tampering。
+
+**依赖：** Task 21
+
+## Task 23：实现 Runtime v2 compatibility
+
+**验收标准：**
+
+- [ ] 新 pack 要求 Runtime compatibility version 2；旧 v1 pack 通过显式确定性 adapter 迁移。
+- [ ] 旧 Pro blended evidence 有可见标记，且不编造组成 price。
+- [ ] Active Catalog、assessor、Auto decision、plugin persistence、Session reconstruction 与 Manual mode 保持兼容。
+
+**验证：**
+
+- [ ] Migration、Loader、plugin、assessor、route、rollback 和 runtime 无网络测试通过。
+
+**依赖：** Task 22
+
+## Task 24：证明并记录 Free 路径
+
+**验收标准：**
+
+- [ ] Maintenance docs 给出精确 private fetch/prepare/apply/rollback 命令，并说明 attribution 与 non-redistribution 边界。
+- [ ] 一次真实 Free acquisition 创建完整私有 candidate，不跟踪 key、raw response、Snapshot 或 refresh report。
+- [ ] 权威文档与翻译用 normalized AA-derived pricing 描述，不再称 AA-native blended pricing。
+
+**验证：**
+
+- [ ] 聚焦测试、完整 `npm test`、runtime smoke、secret scan、translation、link 与 Git check 通过。
+
+**依赖：** Tasks 21–23
+
+## Checkpoint D4：阶段 4.2 完成
+
+- [ ] Tasks 20–24 完成。
+- [ ] 用户自有 Free key 可以填充并激活私有全市场 Evidence Pack。
+- [ ] Runtime 继续离线，公开真实 Evidence Pack 分发继续禁用。

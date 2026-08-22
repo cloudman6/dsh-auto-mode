@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 5e241c67f45d8e9695b937658868a9ff7f86c1a6
+translation-source-blob: 11e36c3ff824c0fa4fb61bf5b00cdfc38b68b375
 translation-status: current
 -->
 
@@ -182,6 +182,48 @@ Tasks 13–16 证明普通 AA 更新无需人工动作；配置一条新 route �
 
 Tasks 17–19 证明一个兼容 Runtime/Evidence Pack pair 可以在本地原子激活和 rollback。公开真实数据分发仍是独立 written-license gate。
 
+## 阶段 4.2：Free AA Evidence Pack
+
+状态：在 Accepted ADR-015 下进行中。
+
+### 依赖图
+
+```text
+Free-shaped acquisition contract
+        ↓
+Snapshot v3 normalized-price contract
+        ↓
+Route Policy v2 与 Active Catalog
+        ↓
+Runtime v2 compatibility migration
+        ↓
+私有 refresh、activation 与 runtime 证明
+```
+
+### Task 20：接受 Free evidence 决策
+
+在 ADR-015 中记录 Free endpoint、normalized-price 公式、eligibility、missing-data、rights、精确 binding、compatibility 与 distribution 边界。
+
+### Task 21：获取完整 Free 数据集
+
+增加私有 Evidence Pack fetch command，遍历全部 Free page，接受 Free/Pro/Commercial caller tier，校验外部 envelope 与资源上限，并且绝不持久化或输出 key 与远端错误正文。
+
+### Task 22：构建 Snapshot v3 与 Route Policy v2
+
+保留每条具有有效 Intelligence score 和 input/output price 的 record。保留原始比较输入，并派生 7:2:1 cache-hit/input/output normalized price；仅在缺少 cache-hit price 时用 input price 替代。保持 nullable latency 与现有 handling-level 边界。
+
+### Task 23：保持兼容的本地运行
+
+升级 Runtime compatibility contract，并显式迁移有效 v1 pack。以可见过渡 basis 保留旧 Pro blended evidence，保持历史 Session facts 不变，并要求未来 Free refresh 替换 compatibility representation。
+
+### Task 24：证明完整 Free 路径
+
+覆盖 acquisition、eligibility、price derivation、ordering、binding activation、refresh classification、atomic activation、rollback、plugin runtime、Manual 非干扰、secret exclusion，以及一次不跟踪数据的真实私有 Free acquisition。
+
+### Checkpoint D4
+
+Tasks 20–24 通过聚焦与完整验证。用户自有 Free key 可以创建并激活私有全市场 Evidence Pack；Runtime 继续离线，公开真实数据分发继续禁用。
+
 ## 风险
 
 | 风险 | 影响 | 缓解 |
@@ -194,6 +236,8 @@ Tasks 17–19 证明一个兼容 Runtime/Evidence Pack pair 可以在本地原�
 | Provider 与 AA identity 没有可靠结构化共同键 | 错误自动 binding | 保持 record unbound；要求一条已评审 provider normalization rule，不使用 fuzzy matching |
 | Evidence Pack 超出维护边界 | Refresh 被拒绝或 runtime 成本增加 | 只保留 policy 字段，强制 record/file limit，并保持 runtime compilation 确定性 |
 | 自动 refresh 隐藏语义破坏 | 错误 evidence continuity | Methodology、rights、stable-ID、schema、compatibility 或 digest 变化时 RED；隔离 AMBER 情况 |
+| 本地派生价格被误认为 AA 原生 blended field | 审计和 UI claim 具有误导性 | 分别保存原始输入、derivation version、cache fallback basis 和 normalized output |
+| Plugin 升级使现有本地 Pack 失效 | 首次 Free refresh 前 Auto 不可用 | 提供一个确定性的 v1-to-v2 compatibility migration，并保留 legacy price basis |
 
 ## 当前开放决策
 
