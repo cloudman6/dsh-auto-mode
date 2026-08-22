@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/README.md
-translation-source-blob: 9992d0f1de55882b98e5867555bba1989ba0afc8
+translation-source-blob: d2c7bf5d88ef1c4d718c824d8301228b791a2d08
 translation-status: current
 -->
 
@@ -22,5 +22,6 @@ translation-status: current
 | [ADR-010](0010-aa-informed-heuristic-routing.md) | 被 ADR-011 取代 | 确立 AA 驱动任务级别和价格优先 route 解析，不要求 Benchmark admission gate |
 | [ADR-011](0011-bind-host-routes-to-aa-evidence.md) | Accepted | 把通用 Host route identity 绑定到 AA 证据，不建立通用 model/effort ontology |
 | [ADR-012](0012-resolve-and-freeze-task-assessor-routes.md) | Accepted | 通过固定 policy 解析一条适合当前环境的 assessor route，并在调用前冻结 |
+| [ADR-013](0013-refresh-aa-snapshots-behind-a-rights-gate.md) | Proposed | 在显式评审、rollback 与数据权利 gate 后离线更新最小化 AA snapshot |
 
 ADR 被取代时保留原文件，并把状态指向替代 ADR。
