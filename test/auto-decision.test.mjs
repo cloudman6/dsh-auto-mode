@@ -209,4 +209,19 @@ describe('resolveFrozenAutoDecision()', () => {
     assert.equal(withoutFallback.status, 'failure')
     assert.ok(withoutFallback.reasonCodes.includes('auto-route-catalog-invalid'))
   })
+
+  it('fails closed to Deep when the assessment contract itself is malformed', () => {
+    const deep = route({ model: 'deep', score: 55 })
+
+    const decision = resolveFrozenAutoDecision({
+      assessmentResult: {},
+      catalog: catalog([deep]),
+      eligibleHostRoutes: [deep.effectiveConfig],
+    })
+
+    assert.equal(decision.requestedHandlingLevel, 'deep')
+    assert.equal(decision.handlingLevel, 'deep')
+    assert.equal(decision.selection.model, 'deep')
+    assert.ok(decision.reasonCodes.includes('auto-assessment-invalid'))
+  })
 })

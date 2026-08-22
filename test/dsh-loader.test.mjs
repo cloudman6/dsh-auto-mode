@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
 import { mkdtemp, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, it } from 'node:test'
 import { spawn } from 'node:child_process'
+
+import { createHostRouteIdentity } from '../src/aa-evidence-binding.mjs'
 
 const projectRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const dshRoot = process.env.DSH_FORK_ROOT
@@ -14,44 +15,89 @@ function quoteYaml(value) {
   return `'${value.replaceAll("'", "''")}'`
 }
 
-function seed() {
+const LIGHT_ROUTE = { provider: 'cli-mock', model: 'cli-light', reasoningEffort: 'off' }
+const STANDARD_ROUTE = { provider: 'cli-mock', model: 'cli-standard', reasoningEffort: 'high' }
+const DEEP_ROUTE = { provider: 'cli-mock', model: 'cli-deep', reasoningEffort: 'high' }
+const FALLBACK_ROUTE = { provider: 'cli-mock', model: 'cli-fallback', reasoningEffort: 'high' }
+
+function catalogRoute(effectiveConfig, score) {
+  const identity = createHostRouteIdentity(effectiveConfig)
   return {
-    schemaVersion: 1,
-    source: {
-      name: 'Artificial Analysis',
-      capturedAt: '2026-08-17T00:00:00.000Z',
-      url: 'https://artificialanalysis.ai/models',
+    identity,
+    record: {
+      recordId: `aa-${effectiveConfig.model}`,
+      label: effectiveConfig.model,
+      capabilityFacts: ['pinned Loader fixture'],
+      evaluations: { artificial_analysis_intelligence_index: score },
+      pricing: { price_1m_blended_7_to_2_to_1: score / 100 },
+      performance: { median_time_to_first_answer_token_seconds: 1 },
     },
-    routes: {
-      fast: {
-        selection: { provider: 'cli-mock', model: 'cli-fast', reasoningEffort: 'off' },
-        aa: { recordId: 'fixture-fast', label: 'Fixture fast' },
-      },
-      standard: {
-        selection: { provider: 'cli-mock', model: 'cli-standard', reasoningEffort: 'high' },
-        aa: { recordId: 'fixture-standard', label: 'Fixture standard' },
-      },
-      strong: {
-        selection: { provider: 'cli-mock', model: 'cli-strong', reasoningEffort: 'high' },
-        aa: { recordId: 'fixture-strong', label: 'Fixture strong' },
-      },
-    },
-    fallback: { provider: 'cli-mock', model: 'cli-strong', reasoningEffort: 'high' },
   }
 }
 
-async function run(task, mode) {
-  const root = await mkdtemp(join(process.env.TMPDIR ?? tmpdir(), 'codex-dsh-auto-loader.'))
+function seed() {
+  const routes = [
+    catalogRoute(LIGHT_ROUTE, 30),
+    catalogRoute(STANDARD_ROUTE, 40),
+    catalogRoute(DEEP_ROUTE, 55),
+  ]
+  return {
+    schemaVersion: 1,
+    catalogVersion: 'aa-evidence-catalog/v1',
+    bindingVersion: 'aa-evidence-binding/v1',
+    snapshot: {
+      snapshotId: 'aa-pinned-loader-fixture',
+      records: routes.map(route => route.record),
+    },
+    bindings: routes.map(route => ({
+      bindingVersion: 'aa-evidence-binding/v1',
+      hostRouteId: route.identity.routeId,
+      effectiveConfigFingerprint: route.identity.effectiveConfigFingerprint,
+      aaSnapshotId: 'aa-pinned-loader-fixture',
+      aaRecordId: route.record.recordId,
+      matchBasis: ['pinned Loader fixture'],
+      limitations: [],
+    })),
+  }
+}
+
+async function runScenario(task, mode, {
+  hostRoutes = [LIGHT_ROUTE, STANDARD_ROUTE, DEEP_ROUTE],
+  deepFallback = DEEP_ROUTE,
+  root: existingRoot,
+  resumeSessionId,
+  coldProjectionOnly = false,
+} = {}) {
+  if (typeof process.env.TMPDIR !== 'string' || process.env.TMPDIR === '') {
+    throw new Error('pinned Loader integration requires TMPDIR')
+  }
+  const root = existingRoot ?? await mkdtemp(join(process.env.TMPDIR, 'codex-dsh-auto-loader.'))
   const seedPath = join(root, 'seed.json')
   const configPath = join(root, 'cordis.yml')
   const pluginPath = join(projectRoot, 'src/plugin.mjs')
+  const assessorFixturePath = join(projectRoot, 'test-support/task-assessor-llm.mjs')
   const mockPath = join(dshRoot, 'examples/headless-agent/tests/fixtures/cli-mock-llm.ts')
   const basePath = join(dshRoot, 'examples/headless-agent/cordis.yml')
-  const driverPath = join(dshRoot, 'examples/headless-agent/tests/fixtures/headless-driver.ts')
+  const driverPath = coldProjectionOnly
+    ? join(projectRoot, 'test-support/cold-session-driver.mjs')
+    : join(dshRoot, 'examples/headless-agent/tests/fixtures/headless-driver.ts')
+  const autoConfig = indent => `${indent}mode: ${mode}
+${indent}seedPath: ${quoteYaml(seedPath)}
+${indent}hostRoutes: ${JSON.stringify(hostRoutes)}
+${deepFallback === undefined ? '' : `${indent}deepFallback: ${JSON.stringify(deepFallback)}\n`}`
+  const agentConfig = indent => `${indent}- id: main
+${indent}  provider: cli-mock
+${indent}  model: cli-manual
+${resumeSessionId === undefined
+    ? `${indent}  cwd: ${quoteYaml(root)}\n`
+    : `${indent}  resumeSessionId: ${quoteYaml(resumeSessionId)}\n`}`
   await writeFile(seedPath, `${JSON.stringify(seed(), null, 2)}\n`)
   await writeFile(configPath, `
 - id: cli-mock-llm
   name: ${quoteYaml(mockPath)}
+
+- id: task-assessor-fixture
+  name: ${quoteYaml(assessorFixturePath)}
 
 - id: base
   name: '@deepseek-ai/cordis-plugin-include'
@@ -60,30 +106,63 @@ async function run(task, mode) {
     patches:
       - id: llm-deepseek
         disabled: true
+${resumeSessionId === undefined ? `
       - id: agent-spine
         config:
           agents:
-            - id: main
-              provider: cli-mock
-              model: cli-manual
-              cwd: ${quoteYaml(root)}
+${agentConfig('            ')}
           workspaceContext: false
           dshHome: ${quoteYaml(join(root, '.dsh-home'))}
           skills:
             enabled: false
           persona: 'DSH Auto Mode Loader fixture.'
+` : `
+      - id: agent-spine
+        config:
+          agents: []
+          workspaceContext: false
+          dshHome: ${quoteYaml(join(root, '.dsh-home'))}
+          skills:
+            enabled: false
+          persona: 'DSH Auto Mode Loader fixture.'
+`}
       - id: persistence
         config:
           root: ${quoteYaml(join(root, '.sessions'))}
+${resumeSessionId === undefined ? '' : `
+      - insert:
+          - id: auto-mode
+            name: ${quoteYaml(pluginPath)}
+            config:
+${autoConfig('              ')}
+${coldProjectionOnly ? '' : `
+          - id: resumed-agent-spine
+            name: '@deepseek-ai/dsh-agent-spine-demo'
+            config:
+              agents:
+${agentConfig('                ')}
+              workspaceContext: false
+              dshHome: ${quoteYaml(join(root, '.dsh-home'))}
+              skills:
+                enabled: false
+              persona: 'DSH Auto Mode Loader fixture.'
+`}`}
 
+${resumeSessionId === undefined ? `
 - id: auto-mode
   name: ${quoteYaml(pluginPath)}
   config:
-    mode: ${mode}
-    seedPath: ${quoteYaml(seedPath)}
+${autoConfig('    ')}
+` : ''}
 `)
 
-  const child = spawn('pnpm', ['exec', 'tsx', driverPath, configPath, task], {
+  const child = spawn('pnpm', [
+    'exec',
+    'tsx',
+    driverPath,
+    configPath,
+    coldProjectionOnly ? resumeSessionId : task,
+  ], {
     cwd: dshRoot,
     env: {
       ...process.env,
@@ -102,8 +181,15 @@ async function run(task, mode) {
     child.once('error', reject)
     child.once('close', resolveExit)
   })
-  assert.equal(exitCode, 0, stderr || stdout)
-  return stdout.trim().split('\n').filter(Boolean).map(line => JSON.parse(line))
+  assert.equal(exitCode, 0, [stderr, stdout].filter(Boolean).join('\n'))
+  return {
+    root,
+    records: stdout.trim().split('\n').filter(Boolean).map(line => JSON.parse(line)),
+  }
+}
+
+async function run(task, mode, options) {
+  return (await runScenario(task, mode, options)).records
 }
 
 function sessionEvents(records) {
@@ -126,50 +212,103 @@ function assertSelectionsMatchEffectiveHeaders(events) {
 }
 
 describe('pinned DSH Loader integration', { skip: !runIntegration }, () => {
-  it('selects different exact model/effort pairs and persists what request/header sends', async () => {
-    const fastEvents = sessionEvents(await run('Format this README typo.', 'auto'))
-    const strongEvents = sessionEvents(await run('Review this authentication race condition.', 'auto'))
-    const fastDecision = fastEvents.find(event => event.type === 'dsh-auto-mode/selection')
-    const strongDecision = strongEvents.find(event => event.type === 'dsh-auto-mode/selection')
-    const fastHeader = fastEvents.find(event => event.type === 'request/header')
-    const strongHeader = strongEvents.find(event => event.type === 'request/header')
-    const strongTurnSelections = strongEvents.filter(event => event.type === 'dsh-auto-mode/selection')
+  it('covers Light, Standard, and Deep with persisted request/header equality', async () => {
+    const fixtures = [
+      ['[light] Format one line.', 'light', LIGHT_ROUTE],
+      ['[standard] Change two files.', 'standard', STANDARD_ROUTE],
+      ['[deep] Design an architecture.', 'deep', DEEP_ROUTE],
+    ]
 
-    assert.deepEqual(
-      [fastDecision.data.provider, fastDecision.data.model, fastDecision.data.reasoningEffort],
-      ['cli-mock', 'cli-fast', 'off'],
-    )
-    assert.deepEqual(
-      [strongDecision.data.provider, strongDecision.data.model, strongDecision.data.reasoningEffort],
-      ['cli-mock', 'cli-strong', 'high'],
-    )
-    assert.deepEqual(fastHeader.data.header.config, {
-      provider: fastDecision.data.provider,
-      model: fastDecision.data.model,
-      reasoningEffort: fastDecision.data.reasoningEffort,
+    for (const [task, level, expectedRoute] of fixtures) {
+      const events = sessionEvents(await run(task, 'auto'))
+      const decision = events.find(event => event.type === 'dsh-auto-mode/selection')
+      const header = events.find(event => event.type === 'request/header')
+      const turnSelections = events.filter(event => event.type === 'dsh-auto-mode/selection')
+
+      assert.equal(decision.data.handlingLevel, level)
+      assert.deepEqual(
+        [decision.data.provider, decision.data.model, decision.data.reasoningEffort],
+        [expectedRoute.provider, expectedRoute.model, expectedRoute.reasoningEffort],
+      )
+      assert.deepEqual(header.data.header.config, expectedRoute)
+      assert.ok(
+        events.findIndex(event => event.type === 'user/message')
+          < events.findIndex(event => event.type === 'dsh-auto-mode/selection'),
+        'the route selection must follow its user message',
+      )
+      assert.ok(
+        events.findIndex(event => event.type === 'dsh-auto-mode/selection')
+          < events.findIndex(event => event.type === 'request/header'),
+        'the route selection must precede the effective request header',
+      )
+      assertSelectionsMatchEffectiveHeaders(events)
+      assert.equal(
+        turnSelections.every(event => event.data.decisionId === decision.data.decisionId),
+        true,
+        'one task must reuse one frozen decision across later tool-result steps',
+      )
+    }
+  })
+
+  it('escalates from Light to the first Host-valid higher level', async () => {
+    const events = sessionEvents(await run('[light] Format one line.', 'auto', {
+      hostRoutes: [STANDARD_ROUTE, DEEP_ROUTE],
+      deepFallback: DEEP_ROUTE,
+    }))
+    const decision = events.find(event => event.type === 'dsh-auto-mode/selection')
+
+    assert.equal(decision.data.requestedHandlingLevel, 'light')
+    assert.equal(decision.data.handlingLevel, 'standard')
+    assert.equal(decision.data.model, STANDARD_ROUTE.model)
+    assert.ok(decision.data.reasonCodes.includes('auto-route-level-escalated'))
+    assertSelectionsMatchEffectiveHeaders(events)
+  })
+
+  it('uses an unmatched configured Deep fallback without attaching AA evidence', async () => {
+    const events = sessionEvents(await run('[deep] Design an architecture.', 'auto', {
+      hostRoutes: [LIGHT_ROUTE, FALLBACK_ROUTE],
+      deepFallback: FALLBACK_ROUTE,
+    }))
+    const decision = events.find(event => event.type === 'dsh-auto-mode/selection')
+
+    assert.equal(decision.data.routeBasis, 'configured-deep-fallback')
+    assert.equal(decision.data.model, FALLBACK_ROUTE.model)
+    assert.equal(decision.data.aaSnapshotId, undefined)
+    assert.equal(decision.data.aaRecordId, undefined)
+    assertSelectionsMatchEffectiveHeaders(events)
+  })
+
+  it('cold-loads the required event and reconstructs the same effective route and explanation', async () => {
+    const first = await runScenario('[standard] Change two files.', 'auto')
+    const firstEvents = sessionEvents(first.records)
+    const firstDecision = firstEvents.find(event => event.type === 'dsh-auto-mode/selection')
+    const sessionId = first.records.find(record => record.type === 'result').sessionId
+
+    const resumed = await runScenario('[deep] Continue with architecture.', 'auto', {
+      root: first.root,
+      resumeSessionId: sessionId,
+      coldProjectionOnly: true,
     })
-    assert.deepEqual(strongHeader.data.header.config, {
-      provider: strongDecision.data.provider,
-      model: strongDecision.data.model,
-      reasoningEffort: strongDecision.data.reasoningEffort,
-    })
-    assert.ok(
-      fastEvents.findIndex(event => event.type === 'user/message')
-        < fastEvents.findIndex(event => event.type === 'dsh-auto-mode/selection'),
-      'the route selection must follow its user message',
-    )
-    assert.ok(
-      fastEvents.findIndex(event => event.type === 'dsh-auto-mode/selection')
-        < fastEvents.findIndex(event => event.type === 'request/header'),
-      'the route selection must precede the effective request header',
-    )
-    assertSelectionsMatchEffectiveHeaders(fastEvents)
-    assertSelectionsMatchEffectiveHeaders(strongEvents)
-    assert.equal(
-      strongTurnSelections.every(event => event.data.tier === 'strong'),
-      true,
-      'one task must not be silently reclassified from a later tool-result step',
-    )
+    const cold = resumed.records.find(record => record.type === 'cold_projection')
+
+    assert.equal(cold.sessionId, sessionId)
+    assert.equal(cold.projection.decision.provider, firstDecision.data.provider)
+    assert.equal(cold.projection.decision.model, firstDecision.data.model)
+    assert.equal(cold.projection.decision.reasoningEffort, firstDecision.data.reasoningEffort)
+    assert.equal(cold.projection.decision.routeId, firstDecision.data.routeId)
+    assert.equal(cold.projection.decision.reason, firstDecision.data.reason)
+  })
+
+  it('persists an explicit resolution failure and sends no request when no fallback is valid', async () => {
+    const events = sessionEvents(await run('[deep] Design an architecture.', 'auto', {
+      hostRoutes: [LIGHT_ROUTE],
+      deepFallback: undefined,
+    }))
+    const failure = events.find(event => event.type === 'dsh-auto-mode/resolution-failure')
+
+    assert.equal(failure.data.reasonCode, 'auto-route-unavailable')
+    assert.equal(events.some(event => event.type === 'dsh-auto-mode/selection'), false)
+    assert.equal(events.some(event => event.type === 'request/header'), false)
   })
 
   it('leaves the configured request untouched in Manual mode', async () => {

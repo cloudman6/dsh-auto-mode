@@ -31,6 +31,11 @@ function cloneConfig(value) {
   return { identity, config: freezeTree(JSON.parse(JSON.stringify(value))) }
 }
 
+function cloneAudit(value) {
+  if (value === undefined || value === null) return value
+  return freezeTree(JSON.parse(JSON.stringify(value)))
+}
+
 function unique(values) {
   return [...new Set(values)]
 }
@@ -39,6 +44,9 @@ function normalizedAssessment(result) {
   const decision = result?.decision
   if (result?.assessorVersion === TASK_ASSESSOR_VERSION
     && result?.handlingPolicyVersion === TASK_HANDLING_POLICY_VERSION
+    && ['valid', 'fallback'].includes(result.assessmentStatus)
+    && isRecord(result.assessment)
+    && (result.assessorRoute === null || isRecord(result.assessorRoute))
     && isRecord(decision)
     && decision.policyVersion === TASK_HANDLING_POLICY_VERSION
     && LEVELS.includes(decision.handlingLevel)
@@ -47,17 +55,31 @@ function normalizedAssessment(result) {
     && typeof decision.explanation === 'string'
     && decision.explanation.length > 0) {
     return {
-      valid: true,
       requestedLevel: decision.handlingLevel,
       reasonCodes: [...decision.reasonCodes],
       explanation: decision.explanation,
+      assessmentStatus: result.assessmentStatus,
+      taskAssessment: cloneAudit(result.assessment),
+      assessorRoute: cloneAudit(result.assessorRoute),
     }
   }
   return {
-    valid: false,
     requestedLevel: 'deep',
     reasonCodes: ['auto-assessment-invalid'],
     explanation: 'Deep fallback: the Task Assessment contract is invalid',
+    assessmentStatus: 'fallback',
+    taskAssessment: undefined,
+    assessorRoute: null,
+  }
+}
+
+function assessmentAudit(assessment) {
+  return {
+    assessmentStatus: assessment.assessmentStatus,
+    ...(assessment.taskAssessment === undefined
+      ? {}
+      : { taskAssessment: assessment.taskAssessment }),
+    assessorRoute: assessment.assessorRoute,
   }
 }
 
@@ -138,6 +160,7 @@ function resolvedFromAA({ assessment, catalog, route, resolvedLevel }) {
     effectiveConfigFingerprint: route.catalogRoute.effectiveConfigFingerprint,
     routeBasis: 'aa-matched',
     fallback: false,
+    ...assessmentAudit(assessment),
     aaSnapshotId: catalog.aaSnapshotId,
     aaRecordId: route.catalogRoute.aaRecordId,
     evidenceBindingVersion: route.catalogRoute.bindingVersion,
@@ -167,6 +190,7 @@ function resolvedFromFallback({ assessment, fallback, catalogReason }) {
     effectiveConfigFingerprint: fallback.identity.effectiveConfigFingerprint,
     routeBasis: 'configured-deep-fallback',
     fallback: true,
+    ...assessmentAudit(assessment),
     assessorVersion: TASK_ASSESSOR_VERSION,
     handlingPolicyVersion: TASK_HANDLING_POLICY_VERSION,
     reasonCode: 'auto-route-configured-deep-fallback',
@@ -187,6 +211,7 @@ function failed({ assessment, catalogReason }) {
     requestedHandlingLevel: assessment.requestedLevel,
     handlingLevel: 'deep',
     fallback: false,
+    ...assessmentAudit(assessment),
     assessorVersion: TASK_ASSESSOR_VERSION,
     handlingPolicyVersion: TASK_HANDLING_POLICY_VERSION,
     reasonCode: 'auto-route-unavailable',
