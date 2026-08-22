@@ -118,6 +118,16 @@ describe('prepareAASnapshotRefresh()', () => {
     )
   })
 
+  it('rejects reuse of the predecessor snapshot identity', () => {
+    const input = fixture()
+    input.manifest.snapshotId = input.previousSeed.snapshot.snapshotId
+
+    assert.throws(
+      () => prepareAASnapshotRefresh({ ...input, now: NOW }),
+      error => error.code === 'aa-refresh-snapshot-id-reused',
+    )
+  })
+
   it('requires explicit scope assertions for written-license distribution', () => {
     const input = fixture()
     input.manifest.rights = {

@@ -31,7 +31,7 @@ Implement `aa-snapshot-refresh/v1` as a maintainer-run, offline publication work
 
 The supported acquisition adapter calls only `https://artificialanalysis.ai/api/v2/language/models` over HTTPS with `prompt_type=medium`, follows the documented pagination envelope, and reads the API key only from `AA_API_KEY`. It rejects redirects, oversized responses, unexpected tiers, malformed pagination, duplicate stable IDs, and missing policy fields. Raw responses and credentials remain under the Git-ignored local workspace and never enter the browser client.
 
-Every refresh uses an explicit manifest that pins the source endpoint, API index version, full capability-methodology version, capture time, maximum age, terms version, attribution, and one of two rights modes:
+Every refresh uses an explicit manifest that pins the source endpoint, API index version, full capability-methodology version, capture time, maximum age, terms version, attribution, and one of two rights modes. Its snapshot ID must differ from the predecessor; maintainers remain responsible for uniqueness across older history:
 
 - `internal-only`: the default. Generated snapshots remain local and must not be redistributed.
 - `written-license`: requires an auditable external grant reference that explicitly covers both machine-readable distribution and an AA-informed model-selection product. The grant itself remains outside Git.

@@ -742,6 +742,9 @@ export function prepareAASnapshotRefresh({
 }) {
   const normalizedManifest = validateManifest(manifest)
   const normalizedPrevious = normalizedPreviousSeed(previousSeed)
+  if (normalizedManifest.snapshotId === normalizedPrevious.snapshot.snapshotId) {
+    invalid('aa-refresh-snapshot-id-reused', 'manifest.snapshotId must differ from its predecessor')
+  }
   const currentHostRoutes = validateHostRoutes(hostRoutes)
   const normalizedHostRoutes = [...currentHostRoutes.values()]
     .sort((left, right) => compareText(left.identity.routeId, right.identity.routeId))

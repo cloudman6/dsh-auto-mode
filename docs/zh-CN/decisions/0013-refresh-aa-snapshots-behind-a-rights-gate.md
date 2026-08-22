@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md
-translation-source-blob: 8193bc6066dc03a7d96862561e21e563ba38aacf
+translation-source-blob: 14123022d371f0fd2c36712b0ff49352171065da
 translation-status: current
 -->
 
@@ -37,7 +37,7 @@ Artificial Analysis 已发布版本化 Data API。官方文档把 model ID 和 c
 
 受支持的获取 adapter 只通过 HTTPS 调用 `https://artificialanalysis.ai/api/v2/language/models`，固定 `prompt_type=medium`，遵循已文档化的 pagination envelope，并且只从 `AA_API_KEY` 读取 API key。它拒绝 redirect、过大响应、意外 tier、格式错误的 pagination、重复稳定 ID 和缺少 policy 字段。原始响应和 credential 留在 Git 忽略的本地 workspace，绝不进入浏览器 client。
 
-每次 refresh 都使用显式 manifest，固定 source endpoint、API index version、完整 capability-methodology version、capture time、maximum age、terms version、attribution，以及两种 rights mode 之一：
+每次 refresh 都使用显式 manifest，固定 source endpoint、API index version、完整 capability-methodology version、capture time、maximum age、terms version、attribution，以及两种 rights mode 之一。Snapshot ID 必须不同于 predecessor；跨更早历史的唯一性仍由维护者负责：
 
 - `internal-only`：默认值。生成的 snapshot 只留在本地，不得再分发。
 - `written-license`：需要一个可审计的外部 grant reference，并明确覆盖机器可读分发和 AA 驱动 model-selection 产品。Grant 本身留在 Git 之外。
