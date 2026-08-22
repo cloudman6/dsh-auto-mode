@@ -9,8 +9,13 @@ import {
   readPrivateJSONFile,
   writePrivateJSONFile,
 } from './aa-snapshot-files.mjs'
+import { acquireAAFreeSnapshot } from './aa-snapshot-acquisition.mjs'
 
 const COMMANDS = Object.freeze({
+  fetch: {
+    required: ['private-root', 'output'],
+    optional: ['captured-at'],
+  },
   migrate: {
     required: ['private-root', 'seed', 'host-routes', 'rules', 'source', 'rights', 'pack-id', 'output'],
     optional: [],
@@ -47,7 +52,7 @@ function invalid(message) {
 function parseArguments(argv) {
   const command = argv?.[0]
   const specification = COMMANDS[command]
-  if (specification === undefined) invalid('command must be migrate, prepare, apply, or rollback')
+  if (specification === undefined) invalid('command must be fetch, migrate, prepare, apply, or rollback')
   const allowed = new Set([...specification.required, ...specification.optional])
   const flags = {}
   for (let index = 1; index < argv.length; index += 2) {
@@ -78,9 +83,30 @@ function read(allowedRoot, filePath) {
 }
 
 /** Execute one private, offline Evidence Pack lifecycle command. */
-export function runAAEvidencePackCLI({ argv, stdout = console.log } = {}) {
+export function runAAEvidencePackCLI({
+  argv,
+  env = process.env,
+  fetchImpl = globalThis.fetch,
+  stdout = console.log,
+} = {}) {
   const { command, flags } = parseArguments(argv)
   const allowedRoot = flags['private-root']
+
+  if (command === 'fetch') {
+    return acquireAAFreeSnapshot({
+      env,
+      fetchImpl,
+      ...(flags['captured-at'] === undefined ? {} : { capturedAt: flags['captured-at'] }),
+    }).then(acquisition => {
+      writePrivateJSONFile({ allowedRoot, filePath: flags.output, value: acquisition })
+      emit(stdout, {
+        capturedAt: acquisition.capturedAt,
+        pages: acquisition.pages.length,
+        status: 'fetched',
+      })
+      return acquisition
+    })
+  }
 
   if (command === 'migrate') {
     assertDistinctPrivateJSONPaths({

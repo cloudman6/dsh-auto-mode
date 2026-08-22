@@ -64,6 +64,37 @@ function fixture() {
 }
 
 describe('AA Evidence Pack CLI', () => {
+  it('fetches a private Free acquisition without exposing the key', async () => {
+    const value = fixture()
+    const acquisitionPath = join(value.root, 'acquisition.json')
+    const calls = []
+    const lines = []
+    const page = {
+      tier: 'free', intelligence_index_version: 4.1,
+      pagination: { page: 1, page_size: 200, total_pages: 1, has_more: false },
+      data: [],
+    }
+
+    const result = await runAAEvidencePackCLI({
+      argv: [
+        'fetch', '--private-root', value.root, '--output', acquisitionPath,
+        '--captured-at', '2026-08-22T10:00:00.000Z',
+      ],
+      env: { AA_API_KEY: 'fixture-free-secret' },
+      fetchImpl: async (url, options) => {
+        calls.push({ url: String(url), options })
+        return new Response(JSON.stringify(page), { headers: { 'content-type': 'application/json' } })
+      },
+      stdout: line => lines.push(line),
+    })
+
+    assert.equal(calls[0].url, 'https://artificialanalysis.ai/api/v2/language/models/free?page=1')
+    assert.equal(result.acquisitionVersion, 'aa-api-acquisition/v2')
+    assert.equal(JSON.stringify(result).includes('fixture-free-secret'), false)
+    assert.equal(lines.join('').includes('fixture-free-secret'), false)
+    assert.equal(readFileSync(acquisitionPath, 'utf8').includes('fixture-free-secret'), false)
+  })
+
   it('migrates a private legacy seed and emits only a bounded summary', () => {
     const value = fixture()
     const lines = []

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
+  acquireAAFreeSnapshot,
   acquireAASnapshot,
   AASnapshotAcquisitionError,
 } from '../src/aa-snapshot-acquisition.mjs'
@@ -20,6 +21,73 @@ function jsonResponse(value, init = {}) {
 }
 
 describe('acquireAASnapshot()', () => {
+  it('fetches every Free-shaped page without Pro query parameters or credential persistence', async () => {
+    const freeRecord = {
+      id: 'free-a',
+      name: 'Free A (high)',
+      model_creator: { id: 'creator-a', name: 'Creator A' },
+      evaluations: { artificial_analysis_intelligence_index: 42 },
+      pricing: { price_1m_input_tokens: 1, price_1m_output_tokens: 3 },
+      performance: { median_time_to_first_answer_token_seconds: 2 },
+    }
+    const pageOne = {
+      tier: 'free',
+      intelligence_index_version: 4.1,
+      pagination: { page: 1, page_size: 1, total_pages: 2, has_more: true },
+      data: [freeRecord],
+    }
+    const pageTwo = {
+      ...structuredClone(pageOne),
+      tier: 'commercial',
+      pagination: { page: 2, page_size: 1, total_pages: 2, has_more: false },
+      data: [{ ...freeRecord, id: 'free-b', name: 'Free B' }],
+    }
+    const calls = []
+    const acquisition = await acquireAAFreeSnapshot({
+      env: { AA_API_KEY: 'fixture-free-secret' },
+      capturedAt: '2026-08-22T10:00:00.000Z',
+      fetchImpl: async (url, options) => {
+        calls.push({ url: String(url), options })
+        return jsonResponse(calls.length === 1 ? pageOne : pageTwo)
+      },
+    })
+
+    assert.deepEqual(calls.map(call => call.url), [
+      'https://artificialanalysis.ai/api/v2/language/models/free?page=1',
+      'https://artificialanalysis.ai/api/v2/language/models/free?page=2',
+    ])
+    assert.equal(acquisition.schemaVersion, 2)
+    assert.equal(acquisition.acquisitionVersion, 'aa-api-acquisition/v2')
+    assert.equal(acquisition.responseShape, 'free')
+    assert.equal(acquisition.pages.length, 2)
+    assert.equal(JSON.stringify(acquisition).includes('fixture-free-secret'), false)
+    assert.equal(Object.isFrozen(acquisition), true)
+  })
+
+  it('accepts only documented caller tiers for the Free-shaped endpoint', async () => {
+    const envelope = {
+      tier: 'pro',
+      intelligence_index_version: 4.1,
+      pagination: { page: 1, page_size: 1, total_pages: 1, has_more: false },
+      data: [],
+    }
+    const result = await acquireAAFreeSnapshot({
+      env: { AA_API_KEY: 'secret' },
+      capturedAt: '2026-08-22T10:00:00.000Z',
+      fetchImpl: async () => jsonResponse(envelope),
+    })
+    assert.equal(result.pages[0].tier, 'pro')
+
+    await assert.rejects(
+      acquireAAFreeSnapshot({
+        env: { AA_API_KEY: 'secret' },
+        capturedAt: '2026-08-22T10:00:00.000Z',
+        fetchImpl: async () => jsonResponse({ ...envelope, tier: 'enterprise' }),
+      }),
+      error => error.code === 'aa-acquisition-response-invalid',
+    )
+  })
+
   it('fetches every page from the fixed server-side endpoint without persisting the key', async () => {
     const pageOne = structuredClone(createSnapshotRefreshFixture().acquisition.pages[0])
     const pageTwo = structuredClone(pageOne)

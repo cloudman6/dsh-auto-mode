@@ -9,6 +9,9 @@ const MAX_JSON_DEPTH = 64
 const MAX_JSON_NODES = 250_000
 const REQUEST_TIMEOUT_MILLISECONDS = 30_000
 
+export const AA_FREE_API_ACQUISITION_VERSION = 'aa-api-acquisition/v2'
+export const AA_FREE_LANGUAGE_MODELS_ENDPOINT = 'https://artificialanalysis.ai/api/v2/language/models/free'
+
 export class AASnapshotAcquisitionError extends Error {
   constructor(code, message) {
     super(message)
@@ -96,8 +99,8 @@ async function readBoundedJSON(response) {
   return validateJSONComplexity(parsed)
 }
 
-function validatePage(page, expectedPage) {
-  if (!isRecord(page) || !['pro', 'commercial'].includes(page.tier)
+function validatePage(page, expectedPage, allowedTiers) {
+  if (!isRecord(page) || !allowedTiers.includes(page.tier)
     || typeof page.intelligence_index_version !== 'number'
     || !Number.isFinite(page.intelligence_index_version)
     || !isRecord(page.pagination) || !Array.isArray(page.data)) {
@@ -114,15 +117,16 @@ function validatePage(page, expectedPage) {
   return pagination.has_more
 }
 
-/**
- * Acquire the pinned Pro language-model pages. The API key is read only from
- * the supplied environment object and is never returned or included in errors.
- */
-export async function acquireAASnapshot({
-  env = process.env,
-  fetchImpl = globalThis.fetch,
-  capturedAt = new Date().toISOString(),
-} = {}) {
+/** Acquire one fixed AA profile without returning the API key or remote error body. */
+async function acquirePages({
+  env,
+  fetchImpl,
+  capturedAt,
+  endpoint,
+  allowedTiers,
+  acquisition,
+  query,
+}) {
   const apiKey = env?.AA_API_KEY
   if (typeof apiKey !== 'string' || apiKey.trim() === '' || apiKey.length > 4096
     || /[\r\n]/.test(apiKey)) {
@@ -135,8 +139,8 @@ export async function acquireAASnapshot({
 
   const pages = []
   for (let pageNumber = 1; pageNumber <= MAX_PAGES; pageNumber += 1) {
-    const url = new URL(AA_LANGUAGE_MODELS_ENDPOINT)
-    url.searchParams.set('prompt_type', 'medium')
+    const url = new URL(endpoint)
+    for (const [name, value] of Object.entries(query)) url.searchParams.set(name, value)
     url.searchParams.set('page', String(pageNumber))
     let response
     try {
@@ -156,18 +160,52 @@ export async function acquireAASnapshot({
       invalid('aa-acquisition-request-failed', 'AA API request failed')
     }
     const page = await readBoundedJSON(response)
-    const hasMore = validatePage(page, pageNumber)
+    const hasMore = validatePage(page, pageNumber, allowedTiers)
     pages.push(page)
-    if (!hasMore) {
-      return freezeTree({
-        schemaVersion: 1,
-        acquisitionVersion: AA_API_ACQUISITION_VERSION,
-        endpoint: AA_LANGUAGE_MODELS_ENDPOINT,
-        promptType: 'medium',
-        capturedAt,
-        pages,
-      })
-    }
+    if (!hasMore) return freezeTree({ ...acquisition, capturedAt, pages })
   }
   invalid('aa-acquisition-response-invalid', 'AA API pagination exceeds the 100-page limit')
+}
+
+export async function acquireAASnapshot({
+  env = process.env,
+  fetchImpl = globalThis.fetch,
+  capturedAt = new Date().toISOString(),
+} = {}) {
+  return acquirePages({
+    env,
+    fetchImpl,
+    capturedAt,
+    endpoint: AA_LANGUAGE_MODELS_ENDPOINT,
+    allowedTiers: ['pro', 'commercial'],
+    query: { prompt_type: 'medium' },
+    acquisition: {
+      schemaVersion: 1,
+      acquisitionVersion: AA_API_ACQUISITION_VERSION,
+      endpoint: AA_LANGUAGE_MODELS_ENDPOINT,
+      promptType: 'medium',
+    },
+  })
+}
+
+/** Acquire the documented Free-shaped language-model dataset with any valid AA key tier. */
+export async function acquireAAFreeSnapshot({
+  env = process.env,
+  fetchImpl = globalThis.fetch,
+  capturedAt = new Date().toISOString(),
+} = {}) {
+  return acquirePages({
+    env,
+    fetchImpl,
+    capturedAt,
+    endpoint: AA_FREE_LANGUAGE_MODELS_ENDPOINT,
+    allowedTiers: ['free', 'pro', 'commercial'],
+    query: {},
+    acquisition: {
+      schemaVersion: 2,
+      acquisitionVersion: AA_FREE_API_ACQUISITION_VERSION,
+      endpoint: AA_FREE_LANGUAGE_MODELS_ENDPOINT,
+      responseShape: 'free',
+    },
+  })
 }
