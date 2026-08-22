@@ -1,6 +1,6 @@
 <!--
 translation-source: README.md
-translation-source-blob: 1977c85f25e195baae31054774790a5af0f410ac
+translation-source-blob: 34d0bbd22bb96289cd1ef59650311bf5228c368e
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 DSH Auto Mode 是面向个人重度 Agent 用户的 DeepSeek Harness 自适应路由插件。普通交互只有一个选择：使用 Auto，或者手动选择 provider/model/reasoning selection。Auto 根据任务上下文选择 `light`、`standard` 或 `deep` 处理级别，再在该级别的合格 route 中优先 Artificial Analysis 价格更低者，并用 AA 延迟打破平局。
 
-已接受的阶段 0P MVP 与阶段 1–3 pipeline 现在已在固定维护者 fork 上形成一条可运行决策路径。对于每个 DSH 用户 turn，插件会解析有限语义 assessment，应用确定性 Host policy 与当前 route constraint，按级别和价格从本地 AA evidence catalog 选择，并把一项实际配置冻结到 assembly、request、persistence 与 cold reconstruction。Live UI 显示 Light/Standard/Deep、实际 model 与适用 effort、证据依据，以及适用时的准确 AA snapshot。AA 是主流模型能力、价格和延迟结论的外部来源；插件不宣称经过本项目 Benchmark 的质量、普遍最优性、安全或官方 DSH 兼容。
+已接受的阶段 0P MVP 与阶段 1–4.1 现在已在固定维护者 fork 上形成一条可运行决策路径。可复用本地 Evidence Pack 保留全部 policy-eligible AA record 与长期精确 binding；Runtime 从当前 Host route 派生 Active Catalog，自动激活 dormant binding，并隔离 quarantined 或 unbound route。每个 DSH 用户 turn 中，插件执行有限语义 assessment、应用确定性 Host policy 与 route constraint、按级别和 AA 价格选择，并把一项完整实际配置冻结到 assembly、request、persistence 与 cold reconstruction。Live UI 显示 Light/Standard/Deep、实际 model 与适用 effort、证据依据，以及适用时的准确 AA snapshot。AA 是外部启发式证据；插件不宣称经过本项目 Benchmark 的质量、普遍最优性、安全或官方 DSH 兼容。
 
 ## 产品边界
 
@@ -18,7 +18,7 @@ DSH Auto Mode 从 AA 驱动的模型选择开始。完整方向包括：
 
 - Adaptive Router：在模型请求前选择任务处理级别和具体 route，并解释原因。
 - Routing Policy：把结构化任务属性映射到 `light`、`standard` 或 `deep`。
-- AA Route Catalog：把通用 Host route identity 绑定到稳定 AA evidence record，再用 AA 价格和延迟解析同档 candidate。
+- AA Evidence Pack 与 Active Catalog：把精确、带 provider scope 的 evidence key 绑定到稳定 AA record，在 runtime 派生当前可执行 candidate，再按 AA 价格与延迟解析同档 route。
 - Recovery Supervisor：检测停滞，只在已声明恢复支持允许时执行升级、continue、salvage 或 restart。
 - Delegation Policy：约束父 Agent 对子 Agent 的路由控制权。
 - 可选评估：聚焦 fixture 与 scenario 可以研究策略行为，但不成为模型质量 admission gate。
@@ -55,6 +55,8 @@ DSH Auto Mode 从 AA 驱动的模型选择开始。完整方向包括：
 ```bash
 # 运行零依赖单元测试
 npm test
+
+# Evidence Pack 生命周期命令及必需 flags：docs/zh-CN/aa-snapshot-maintenance.md
 
 # 增加真实 DSH Loader 组合覆盖
 DSH_FORK_ROOT="$HOME/deepseek-harness/.worktrees/auto-mode-host-contracts/workspace" npm test

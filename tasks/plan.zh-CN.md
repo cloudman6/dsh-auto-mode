@@ -1,6 +1,6 @@
 <!--
 translation-source: tasks/plan.md
-translation-source-blob: 3f4d221a1f50b16441dcc395cc99503ab816d9e5
+translation-source-blob: 26620d8a68f397bb8a3de9a51e4c18615564058b
 translation-status: current
 -->
 
@@ -112,7 +112,7 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 ## 阶段 4.1：可复用 Evidence Pack
 
-状态：实施中。ADR-014 已 Accepted；在阶段 5 开始前由 Tasks 11–19 实施其契约。
+状态：已于 2026-08-22 完成。ADR-014、Tasks 10–19 与 Checkpoints D1–D3 已实施并验证；阶段 5 现为 active。
 
 ### Capability map
 
@@ -134,39 +134,39 @@ Assessor 不输出具体 route；重复结构化输入映射到相同级别；ti
 
 已完成。ADR-014 已固定组件 owner、精确 identity rule、exception class、分发边界与迁移后果。
 
-### Task 11：实现 Evidence Pack 契约
+### Task 11：实现 Evidence Pack 契约 — 已完成
 
 增加可独立校验、确定性序列化的 Snapshot、Binding Registry、Route Policy 与 Manifest schema。定义组件 digest、Runtime compatibility、rights mode 和稳定 failure code。
 
-### Task 12：分离 evidence identity 与 execution identity
+### Task 12：分离 evidence identity 与 execution identity — 已完成
 
 增加带版本的 provider normalization rule，推导精确 EvidenceRouteKey，同时保留完整 ExecutionFingerprint 用于 request equality 和 audit。仅执行默认值不能使 evidence 失效；决定 evidence 的 control 不能 collision。
 
-### Task 13：构建完整 eligible AA Snapshot
+### Task 13：构建完整 eligible AA Snapshot — 已完成
 
 处理固定 acquisition 的每一页，保留每条拥有 policy 所需 capability 与 price 字段的 record。继续执行 nullable latency、stable-ID uniqueness、source bound 和 `internal-only` 控制。
 
-### Task 14：实现长期 Binding Registry
+### Task 14：实现长期 Binding Registry — 已完成
 
 独立于当前 Host availability 和单个 snapshot ID 校验精确 key-to-record mapping。支持 dormant activation、确定性结构化 normalization、unbound record 和 quarantined semantic exception，不使用 fuzzy matching。
 
-### Task 15：派生运行时 Active Catalog
+### Task 15：派生运行时 Active Catalog — 已完成
 
 连接当前 materialized Host routes、精确 Registry keys、当前 Snapshot records 和 Route Policy。Active entry 保留完整 execution fingerprint，并用稳定 reason 隔离 invalid 或 unmatched route。
 
-### Task 16：自动化例外驱动 refresh
+### Task 16：自动化例外驱动 refresh — 已完成
 
 把 diff 分类为 GREEN、AMBER 或 RED。自动且原子应用有效 GREEN update；隔离 AMBER record 或 binding，同时推进无关有效 evidence；拒绝 RED update；保留确定性报告与 rollback。
 
-### Task 17：建立 Runtime/Evidence Pack 更新边界
+### Task 17：建立 Runtime/Evidence Pack 更新边界 — 已完成
 
 定义两个独立版本化的本地 artifact，并用一个 compatibility manifest 和原子 pair activation 连接。默认实现保持本地且无依赖；公开 update service、release workflow 或真实 Evidence Pack 分发继续受现有显式授权和权利 gate 约束。
 
-### Task 18：迁移旧 catalog seed
+### Task 18：迁移旧 catalog seed — 已完成
 
 提供显式、确定性的转换，把当前组合 seed 转成 Snapshot、Registry 与 Manifest input。保留旧 Session replay，并拒绝任何必须依赖推断的 mapping。
 
-### Task 19：证明完整路径
+### Task 19：证明完整路径 — 已完成
 
 覆盖完整 acquisition、dormant activation、identity separation、全部 refresh class、rollback、migration、离线 runtime、全部 handling level、精确 request equality、cold Session reconstruction、UI evidence detail 与 Manual 非干扰。
 

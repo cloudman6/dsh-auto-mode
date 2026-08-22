@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/architecture.md
-translation-source-blob: 90e092421ba08defec6e4db75c592a0073a6c890
+translation-source-blob: 20a639a8fcb2b3941fc36dc17ec0d0c3245e4e8b
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-ADR-011、ADR-012 与 ADR-013 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
+ADR-011 至 ADR-014 下已接受的方向。已验证 DSH seam 和 fork 要求继续记录在 [DSH 集成证据](dsh-integration.md)中。
 
 ## 原则
 
@@ -30,7 +30,7 @@ flowchart LR
     U["用户任务\nAuto 或 Manual"] --> X["执行上下文"]
     X --> A["已解析并冻结的 Task Assessor"]
     A --> P["确定性级别策略"]
-    S["带版本本地 AA 快照"] --> C["AA Route Catalog Compiler"]
+    S["带版本本地 Evidence Pack"] --> C["运行时 Active Catalog Compiler"]
     D["DSH 可用 route\n与 capability"] --> C
     C --> R["Route Resolver\n价格后延迟"]
     P --> R
@@ -41,11 +41,11 @@ flowchart LR
     Q --> E["Session 事实与 UI 解释"]
 ```
 
-### AA Snapshot Source
+### AA Evidence Pack
 
-提供 catalog 使用的带版本、本地、最小化 AA 记录快照。`aa-snapshot-refresh/v1` 通过仅维护者使用的离线路径获取并准备更新，记录完整实质变化报告，并要求精确 digest 批准后才原子替换 active seed。运行时路由不依赖实时 AA 请求。
+本地 Evidence Pack 包含四个可独立版本化、校验和计算 SHA-256 digest 的组件：`aa-snapshot/v2`、`aa-binding-registry/v1`、`aa-route-policy/v1` 与 `aa-evidence-pack-manifest/v1`。Snapshot 扫描获取结果的每一页，并保留每条 capability 与 price 对 policy 有效的唯一 record，不依赖当前 Host inventory 或 binding availability。Registry 保存 provider normalization rule 与长期精确 mapping；Manifest 绑定组件 digest、`aa-evidence-pack-runtime/v1` 兼容性与 rights mode。
 
-维护 seed 的结构见 [`examples/aa-catalog-seed.example.json`](../../examples/aa-catalog-seed.example.json)。默认 `internal-only` 模式下，真实 acquisition、snapshot、已评审 binding、rollback seed、credential 与 grant document 都保存在被 Git 忽略的 `local/` 目录；仓库只跟踪合成 fixture 与 placeholder 示例。Host identity 推导拒绝承载 credential 的字段。Catalog loader 拒绝大于 1 MiB 的文件；维护边界另行限制私有文件与远程响应，并在 mutation 前校验 candidate、predecessor 和 rollback digest。
+维护的合成结构见 [`examples/aa-evidence-pack.example.json`](../../examples/aa-evidence-pack.example.json)。`internal-only` 模式下，真实 acquisition、pack、report、rollback artifact、credential 与 grant document 都保存在被 Git 忽略的 `local/` 目录。Runtime 绝不调用 AA。私有文件边界强制路径 containment、有界 JSON、`0600` mode、组件与 predecessor digest、原子替换和经校验 rollback。
 
 ### Host Route Identity Builder
 
@@ -62,27 +62,33 @@ interface HostRouteIdentity {
 
 Fingerprint 覆盖每个会改变执行语义且已由 Host 物化的请求选项。Reasoning effort 是可选且由 provider 拥有。即使 model name 相同，实际配置不同的两条 route 也不能共享 identity。
 
-### AA Evidence Binding Registry
+### Evidence Route Identity 与 Binding Registry
 
-提供从 Host route identity 到一个冻结 AA snapshot 中稳定记录的经过评审、带版本映射：
+完整执行 identity 与可复用 evidence identity 相互独立：
 
 ```ts
+interface EvidenceRouteKey {
+  schemaVersion: 1
+  providerNamespace: string
+  modelKey: string
+  evidenceControls: Readonly<Record<string, string | number | boolean>>
+}
+
 interface AAEvidenceBinding {
-  bindingVersion: string
-  hostRouteId: string
-  effectiveConfigFingerprint: string
-  aaSnapshotId: string
+  evidenceRouteKey: EvidenceRouteKey
   aaRecordId: string
+  ruleVersion: string
   matchBasis: readonly string[]
   limitations: readonly string[]
+  quarantine: null | { reasonCode: string }
 }
 ```
 
-Binding 可以引用 family、version、variant、effort、date、provider 或其他 metadata，但不存在跨 provider 的固定必填子集。Runtime 名称相似性绝不创建 binding。Snapshot refresh 显式校验 binding 新增、替换与移除，不再自动选择最新重复记录。
+每条 provider rule 精确声明 provider ID、model alias，以及只会选择不同 AA evaluated record 的 control。不存在通用必填 control。Fuzzy name、slug、similarity、discovery order 与猜测 latest record 都不能创建或替换 binding。当前 Host route 推导出精确 key 时 binding 为 active；没有 route 时为 dormant；语义完整性异常阻止使用时为 quarantined。Snapshot refresh 更新 metric 时不重写稳定 binding。
 
-### AA Route Catalog Compiler
+### 运行时 Active Catalog Compiler
 
-加载维护者指定的本地 seed，把当前 DSH route 清单与已验证 AA evidence binding 连接。Task 2 在选择能力边界或 price/latency field 前，输出确定且冻结的 evidence catalog：
+每个用户 turn 中，Runtime 校验兼容 Evidence Pack，物化当前 DSH route，推导精确 EvidenceRouteKey，与未 quarantine 的 Registry binding 及存在的 Snapshot record 求交集，再应用 Route Policy。Active Catalog 是确定性 runtime value，不是维护或分发 artifact：
 
 ```ts
 interface AAEvidenceCatalogEntry {
@@ -91,12 +97,13 @@ interface AAEvidenceCatalogEntry {
   model: string
   effectiveConfig: Readonly<Record<string, unknown>>
   effectiveConfigFingerprint: string
+  evidenceRouteKey: EvidenceRouteKey
+  evidenceRouteKeyId: string
   aaSnapshotId: string
   aaRecordId: string
-  bindingVersion: string
+  bindingRegistryVersion: string
   evidenceBinding: AAEvidenceBinding
   aaRecord: Readonly<Record<string, unknown>>
-  capabilityFacts: readonly string[]
 }
 
 interface AAEvidenceCatalogExclusion {
@@ -107,7 +114,7 @@ interface AAEvidenceCatalogExclusion {
 }
 ```
 
-格式错误或未匹配 row 以稳定 reason code 排除。Entry 与 exclusion 确定性排序，有效 route 结果不受 Host 或 seed discovery 顺序影响，且编译过程不发起网络请求。Task 3 消费该 evidence catalog，把每条合格 route 分配到一个带版本处理级别，并加入 resolver 使用的所选 AA price 与 latency facts。
+畸形、unbound、quarantined、record 缺失或不兼容 route 以稳定 reason code 排除，不使无关 route 失效。Entry、binding state 与 exclusion 确定性排序。新添加 Host route 在精确 dormant binding 与当前 record 都存在时立即激活；仅执行 default 变化会改变 ExecutionFingerprint，但保留 EvidenceRouteKey。
 
 已完成的阶段 1 policy compiler 输出冻结 entry，其中包含 `handlingLevel`、`aaCapabilityScore`、`aaPrice` 和可为 null 的 `aaLatencySeconds`。`aa-route-policy/v1` 固定 Intelligence Index 方法版本 `v4.1.1`、Light `<35`、Standard `35–<50`、Deep `>=50`、AA 7:2:1 混合价格字段和首次实际答案 token 中位时间。Capability 或 price 缺失时排除 route；同价时，缺失 latency 排在有测量值之后。
 

@@ -106,7 +106,7 @@ Status: complete on 2026-08-22. ADR-013 accepts an offline `aa-snapshot-refresh/
 
 ## Phase 4.1: Reusable Evidence Packs
 
-Status: implementation active. ADR-014 is Accepted; Tasks 11–19 implement its contracts before Phase 5 begins.
+Status: complete on 2026-08-22. ADR-014, Tasks 10–19, and Checkpoints D1–D3 are implemented and verified; Phase 5 is now active.
 
 ### Capability map
 
@@ -128,39 +128,39 @@ Build order: contract → identity and snapshot → registry → active catalog 
 
 Completed. ADR-014 freezes component ownership, exact identity rules, exception classes, distribution boundary, and migration consequences.
 
-### Task 11: Implement Evidence Pack contracts
+### Task 11: Implement Evidence Pack contracts — completed
 
 Add independently validated and deterministically serialized Snapshot, Binding Registry, Route Policy, and Manifest schemas. Define component digests, Runtime compatibility, rights mode, and stable failure codes.
 
-### Task 12: Separate evidence and execution identities
+### Task 12: Separate evidence and execution identities — completed
 
 Add versioned provider normalization rules that derive exact EvidenceRouteKeys while retaining complete ExecutionFingerprints for request equality and audit. Execution-only defaults must not invalidate evidence; evidence-defining controls must not collide.
 
-### Task 13: Build the full eligible AA Snapshot
+### Task 13: Build the full eligible AA Snapshot — completed
 
 Process every page of one pinned acquisition and retain every record with the policy-required capability and price fields. Keep nullable latency behavior, stable-ID uniqueness, source bounds, and `internal-only` controls.
 
-### Task 14: Implement the long-lived Binding Registry
+### Task 14: Implement the long-lived Binding Registry — completed
 
 Validate exact key-to-record mappings independently of current Host availability and one snapshot ID. Support dormant activation, deterministic structured normalization, unbound records, and quarantined semantic exceptions without fuzzy matching.
 
-### Task 15: Derive the runtime Active Catalog
+### Task 15: Derive the runtime Active Catalog — completed
 
 Join current materialized Host routes, exact Registry keys, current Snapshot records, and Route Policy. Keep complete execution fingerprints in active entries and isolate invalid or unmatched routes with stable reasons.
 
-### Task 16: Automate exception-driven refresh
+### Task 16: Automate exception-driven refresh — completed
 
 Classify diffs as GREEN, AMBER, or RED. Automatically and atomically apply valid GREEN updates, isolate AMBER records or bindings while advancing unrelated valid evidence, reject RED updates, and preserve deterministic reports and rollback.
 
-### Task 17: Establish Runtime/Evidence Pack update boundaries
+### Task 17: Establish Runtime/Evidence Pack update boundaries — completed
 
 Define separately versioned local artifacts with one compatibility manifest and atomic pair activation. The default implementation remains local and dependency-free; a public update service, release workflow, or real Evidence Pack distribution requires the existing explicit authority and rights gates.
 
-### Task 18: Migrate legacy catalog seeds
+### Task 18: Migrate legacy catalog seeds — completed
 
 Provide an explicit, deterministic conversion from the current combined seed to Snapshot, Registry, and Manifest inputs. Preserve legacy Session replay and reject mappings that cannot be converted without inference.
 
-### Task 19: Prove the complete path
+### Task 19: Prove the complete path — completed
 
 Cover full acquisition, dormant activation, identity separation, all refresh classes, rollback, migration, offline runtime, all handling levels, exact request equality, cold Session reconstruction, UI evidence details, and Manual non-interference.
 

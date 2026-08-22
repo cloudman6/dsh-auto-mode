@@ -1,6 +1,6 @@
 <!--
 translation-source: PROJECT_STATUS.md
-translation-source-blob: c99fe01a701711e70289fbd369c6eb02232193ab
+translation-source-blob: f0c521cc3c22d6ce34aae335250fa77d1e7da0b1
 translation-status: current
 -->
 
@@ -14,7 +14,7 @@ translation-status: current
 
 ## 当前阶段
 
-阶段 0P MVP 与阶段 1–4 均已完成。阶段 5 之前现进入阶段 4.1 可复用 Evidence Pack 实施：ADR-014 已 Accepted，Task 10 已完成，Tasks 11–19 正在进行。
+阶段 0P MVP 与阶段 1–4.1 均已完成。项目现在进入阶段 5 自适应执行：下一项设计工作是形式化 runtime signal 与 reassessment boundary。
 
 维护者 DSH fork 固定在 `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`。可运行插件在 `agent/prepare-step` 组合阶段 1 AA catalog 与阶段 2 assessor，为每个 DSH 用户 turn 冻结一项 `auto-decision/v1`，并在该 turn 的 assembly 与每个 `agent/request` step 中复用其完整实际配置。必需 Session 事件保留 route、assessment、evidence basis、版本、reason code 与解释，供 cold reconstruction 使用。Schema v2 决策不再发布原型 tier；维护 UI 显示准确 model、可选 effort、任务处理级别、证据依据及适用时的准确 AA 快照。现有 schema v1 Session 仍通过明确的仅旧版 mapping 可读。
 
@@ -24,9 +24,9 @@ translation-status: current
 - DSH Auto Mode 不建立也不要求自有模型质量 Benchmark。
 - 面向用户的任务处理级别是 Light、Standard 和 Deep；中文标签为轻量、常规、深度。
 - 版本化 assessor route policy 在不检查任务内容的情况下解析一条适合当前环境的 classifier route，并在调用前冻结。语义 Task Assessor 返回任务属性和置信度；确定性 Host policy 选择级别并保留最终权力。
-- 可执行 Host route identity 与 AA evidence identity 相互独立。版本化显式 binding 把一条实际 provider/model/request configuration 映射到一条稳定 AA 记录；effort 和 variant 是 provider 可选维度，不是通用必填字段。
+- 可执行 Host route identity 与 AA evidence identity 相互独立。完整 ExecutionFingerprint 继续作为 request equality 的权威；带 provider scope 的 EvidenceRouteKey 只包含已声明 AA-evaluated control，并通过长期精确 binding 映射到稳定 AA record。
 - 同一级别内，resolver 依次优先 AA 报告价格更低、AA 报告延迟更低、稳定 route identity。
-- AA snapshot refresh 只通过维护者拥有的离线 `aa-snapshot-refresh/v1` 工作流运行。Runtime routing 绝不调用 AA；除非 AA 书面 grant 覆盖机器可读分发和本 model-selection 产品，真实 metric 保持 `internal-only`。
+- AA acquisition 与 Evidence Pack refresh 只通过维护者拥有的离线工作流运行。GREEN 自动应用，AMBER 隔离受影响 evidence，RED 保留上一 Pack。Runtime routing 绝不调用 AA；除非 AA 书面 grant 覆盖机器可读分发和本 model-selection 产品，真实 metric 保持 `internal-only`。
 - 产品声明始终明确由 AA 驱动，不宣称本项目 Benchmark 质量、安全、非劣性或普遍最优。
 
 Route/evidence 决策记录在 [ADR-011](docs/zh-CN/decisions/0011-bind-host-routes-to-aa-evidence.md)，它接替 ADR-010，同时保留 AA 驱动、价格优先方向。环境感知 assessor-route 决策记录在 [ADR-012](docs/zh-CN/decisions/0012-resolve-and-freeze-task-assessor-routes.md)。离线获取、权利、评审、发布与 rollback 边界记录在 [ADR-013](docs/zh-CN/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md)。ADR-010 保留为取代 ADR-002、ADR-006 和 ADR-008 的历史决策。
@@ -52,6 +52,7 @@ ADR-014 已 Accepted。它分离全量 policy-eligible AA Snapshot、长期 Bind
 - 完成阶段 3 Task 7：schema v2 projection 不再发布原型 tier；selector 与 conversation fact 显示本地化任务处理级别、实际 model 与可选 effort，以及 AA 或配置 Deep fallback 依据。仅 model、仅 effort、二者同时和仅 level 变化的浏览器过渡均保留 1.2 秒滚动、业务蓝高亮、两次呼吸、持久消息位置和中英文 snapshot。
 - 完成阶段 3 Task 8 与 Checkpoint C：跨仓库无密钥浏览器 fixture 驱动真实 Web UI、agent loop、Session 日志和请求头依次经过 Light、Standard、Deep 与 Manual。常规级候选证明先比较价格、再比较延迟；每个自动 turn 都证明界面显示的 route 与 AA snapshot 等于持久化 selection 和实际请求配置。聚焦 Loader 与 Session 测试继续覆盖 fallback、no-route failure、cold reconstruction 和 Manual 不受影响。支持矩阵固定 fork `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`、selection schema v2、`auto-decision/v1`、`aa-evidence-catalog/v1`、`task-assessor-contract/v1`、`task-assessor-route-policy/v1`、`task-handling-policy/v1` 与 `aa-route-policy/v1`。
 - 完成阶段 4 Task 9：`aa-snapshot-refresh/v1` 固定官方 Pro acquisition contract、服务端 credential boundary、source methodology、attribution、retention、freshness、minimization 与显式 rights mode。维护 CLI 推导不含凭据的 Host identity，私有保存有界 source material，准备确定性 candidate 和完整 source/record/binding/band/order diff，要求精确 digest 批准，原子保留并替换 active seed，并验证 rollback 完整性。99 项离线测试通过；仓库只跟踪合成 AA-shaped fixture 与 placeholder 示例。
+- 完成阶段 4.1 Tasks 10–19 与 Checkpoints D1–D3：ADR-014 已 Accepted；可独立校验的 Snapshot、Registry、Policy 与 Manifest 组件使用确定性 digest 和 Runtime 兼容契约。精确 provider rule 分离 EvidenceRouteKey 与完整 ExecutionFingerprint；完整 acquisition 保留全部 policy-eligible record；dormant binding 根据当前 Host route 激活；quarantined、unbound、missing 或畸形 route 被隔离。GREEN/AMBER/RED refresh、本地原子激活、rollback、旧 seed migration、Plugin loading、Session audit 与 Manual 非干扰已实现，未新增依赖或服务。当前私有 schema-v1 seed 已迁移为 mode-`0600` 本地 Pack，保留三条 binding；未来仍需带 credential 的 acquisition 才能填充真实全市场 record。项目 suite 通过 123 项测试，固定 fork 的 7 个 Loader 场景全部通过，6 个聚焦 UI projection/view test 通过。
 
 ## 当前实施计划
 
@@ -65,8 +66,8 @@ ADR-014 已 Accepted。它分离全量 policy-eligible AA Snapshot、长期 Bind
 8. 已完成：跨浏览器、Loader、Session 与实际请求边界端到端证明全部 Beta 路径。
 9. 已完成：定义并实现版本化 AA snapshot refresh 工作流与权利边界。
 10. 已完成：接受 ADR-014 并冻结阶段 4.1 Evidence Pack 契约。
-11. 进行中：实施 Tasks 11–19，完成可复用 Evidence Pack 基础。
-12. 阶段 4.1 之后：为阶段 5 单调自适应执行定义形式化 runtime evidence 与重新判断边界。
+11. 已完成：实施 Tasks 11–19，完成可复用 Evidence Pack 基础。
+12. 进行中：为阶段 5 单调自适应执行定义形式化 runtime evidence 与重新判断边界。
 
 详细依赖和验收在 [roadmap](docs/zh-CN/roadmap.md)、[实施计划](tasks/plan.zh-CN.md)和[任务清单](tasks/todo.zh-CN.md)中。
 
@@ -80,13 +81,13 @@ ADR-014 已 Accepted。它分离全量 policy-eligible AA Snapshot、长期 Bind
 
 阶段 4 已无剩余实施阻塞。ADR-013 已解决稳定 AA 获取、attribution、retention、freshness、minimization、评审、原子替换与 rollback。只有外部 AA 书面 grant 同时覆盖分发和本 model-selection 产品后，才能公开分发真实机器可读 AA metric；该外部限制不阻碍已完成的默认 `internal-only` 工作流。
 
-阶段 4.1 没有已识别的技术阻碍。ADR-014 已 Accepted，因此其 internal-only identity、refresh 与 packaging 工作可以继续。真实 Evidence Pack 的公开分发仍被现有 ADR-013 written-license gate 单独阻碍；internal-only 实施与合成验证不依赖该 grant。
+阶段 4.1 没有剩余实施阻碍。真实 Evidence Pack 的公开分发仍被 ADR-013 written-license gate 单独阻碍。已迁移本地 Pack 保留现有三条已评审 record 与 binding；扩展为完整真实 policy-eligible AA 集合，需要未来在 `AA_API_KEY` 可用时执行私有 acquisition，但不阻碍已实现 refresh/runtime 架构。
 
 阶段 5 必须定义哪些形式化 runtime signal 支持升级、允许在哪些边界重新判断，以及如何强制单调性和持久解释。Recovery、子 Agent 路由和官方 DSH 兼容仍属于后续阶段。
 
 ## 下一步
 
-按依赖顺序实施 Tasks 11–19，并在开始阶段 5 自适应执行前完成阶段 4.1。
+定义阶段 5 的形式化 runtime signal、reassessment boundary、单调升级行为与持久化解释。
 
 ## 状态维护规则
 

@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted by the maintainer. [ADR-011](decisions/0011-bind-host-routes-to-aa-evidence.md) defines the current AA-informed post-MVP direction and succeeds ADR-010. [ADR-013](decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md) governs offline AA snapshot maintenance and distribution rights.
+Accepted by the maintainer. [ADR-014](decisions/0014-separate-aa-evidence-packs-from-active-catalogs.md) defines the reusable Evidence Pack and runtime Active Catalog architecture. ADR-011 continues to separate executable and evidence identity, while [ADR-013](decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md) continues to govern offline acquisition, integrity, rollback, and distribution rights.
 
 ## Product premise
 
@@ -33,13 +33,13 @@ High risk, low classifier confidence, an unknown task shape, or an unavailable r
 
 ## AA route catalog
 
-A concrete route remains the complete effective provider/model/request configuration used by DSH. Its stable Host route identity includes every Host-materialized option that can change execution semantics; reasoning effort is optional rather than an industry-wide required field.
+A concrete route remains the complete effective provider/model/request configuration used by DSH. Its `ExecutionFingerprint` covers every Host-materialized request option and remains authoritative for assembly/request equality, Session audit, and Manual equality.
 
-A versioned AA evidence binding explicitly maps one Host route identity to one stable AA model/configuration record in a frozen snapshot. The binding records the route configuration fingerprint, snapshot and AA record IDs, binding-rule version, declared match basis, relevant AA release metadata, and known limitations.
+Evidence identity is narrower. A provider-scoped, versioned normalization rule derives an exact `EvidenceRouteKey` from the model and only those controls that distinguish AA evaluated records for that provider. Effort, variant, or another control is included only when the rule declares it; temperature, token limits, credentials, and other execution-only defaults do not invalidate evidence. Fuzzy names, slugs, guessed latest records, and ambiguous rules never create a match.
 
-Bindings are maintained data, not runtime name inference. Family, version, variant, effort, dates, and provider metadata may be evidence when available, but no fixed subset is mandatory across providers. A binding never crosses a Host-materialized execution difference. Snapshot updates do not silently substitute a newer AA record; every addition, replacement, or removal is reviewed explicitly.
+One Evidence Pack contains four independently validated and digested components: a full policy-eligible minimized AA Snapshot, a long-lived `EvidenceRouteKey → stable AA record ID` Binding Registry, `aa-route-policy/v1`, and a Runtime compatibility/rights Manifest. A binding is not snapshot-scoped. It may remain dormant until a user later configures an exact matching Host route, and a quarantined binding cannot enter routing.
 
-The Host route remains authoritative for execution and capability filtering. The AA record supplies external evidence and never replaces executable route identity. An unmatched or ambiguous route is excluded with a stable reason.
+Runtime derives—not publishes—the Active Catalog by intersecting current Host-materialized routes, exact Registry keys, current Snapshot records, and Route Policy. The Host route remains authoritative for execution and capability filtering. Missing, unbound, quarantined, incompatible, or malformed routes receive stable exclusions without invalidating unrelated routes, and Runtime never calls AA.
 
 ## Routing ownership
 
@@ -63,9 +63,9 @@ The Host route remains authoritative for execution and capability filtering. The
 
 ### Current path
 
-- Versioned local AA snapshots refreshed through the reviewed offline `aa-snapshot-refresh/v1` workflow, kept out of Git by default, and distributable only under the ADR-013 rights gate.
-- Versioned Host route identities and explicit AA evidence bindings without exact-deployment claims.
-- AA-informed `light`/`standard`/`deep` catalog construction.
+- Versioned local Evidence Packs refreshed through the offline `aa-evidence-pack-refresh/v1` workflow, kept out of Git by default, and distributable only under the ADR-013 rights gate.
+- Separate exact EvidenceRouteKeys and complete ExecutionFingerprints without exact-deployment claims.
+- Runtime-derived Active Catalogs with dormant activation, quarantine isolation, and AA-informed `light`/`standard`/`deep` construction.
 - A bounded semantic Task Assessor whose concrete execution route is resolved from the current environment by a versioned policy and frozen before each call, plus deterministic level and user-task route policy.
 - Transparent DSH Web UI, persistent decision facts, and Manual non-interference.
 

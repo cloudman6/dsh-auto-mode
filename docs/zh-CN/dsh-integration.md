@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/dsh-integration.md
-translation-source-blob: fe3e2e677b105cfcc28829f282ffa521f2ebf17f
+translation-source-blob: e7f4bb7a27ee9609f8fcc2e197f7d2b06ec52ab8
 translation-status: current
 -->
 
@@ -24,7 +24,9 @@ translation-status: current
 
 具体 preview 载体现在是 fork 模型选择 UI 加插件的可选 Session projection 与 `/auto` 命令。它提供一次操作的 Auto/manual 选择、Auto 对勾状态、实际模型与可选 effort、本地化 Light/Standard/Deep 任务处理级别、AA 或配置 Deep fallback 依据、适用时的准确 AA snapshot，以及持久化解释。决定变化时会携带前一条 route，使界面只把发生变化的 model、effort 或 level 值在 1.2 秒内滚动到实际选择；Auto 和变化目标使用 DSH 业务蓝，呼吸两次后恢复默认颜色。聊天时间线会把前后 route 与任务处理级别，以及依据、source snapshot、原因代码和解释记录为路由事实，紧跟在触发它的用户消息之后、产生结果的助手回复之前。UI 明确 AA 是启发式证据，而不是本项目 Benchmark 验证；生产载体仍未决定。
 
-阶段 3 插件契约中，`mode: auto` 要求提供 inline `seed` 或 `seedPath`。`aa-evidence-catalog/v1` seed 会启用阶段 3 pipeline。可选 `hostRoutes` 是提议 request configuration 的明确 allowlist；省略时，插件从当前 DSH discovery 派生 candidate。每个 candidate 仍必须经过 `resolveCallConfig()` 物化。可选 `deepFallback` 提议一条精确配置 fallback，只有其物化 identity 仍属于合格 Host 集合时才能使用。插件不定义这些配置值属于全局、项目还是 Session；该 carrier scope 仍是开放产品决策。历史阶段 0P seed shape 作为 schema v1 兼容路径保留；维护 client 只在回放这些旧事件时映射其原型 tier。
+阶段 4.1 插件契约中，`mode: auto` 接受 inline `evidencePack` 或 `evidencePackPath`。兼容 `aa-evidence-pack-manifest/v1` 会启用运行时 Active Catalog 编译。可选 `hostRoutes` 继续作为明确 allowlist；省略时，插件从当前 DSH discovery 派生 candidate。每个 candidate 都经 `resolveCallConfig()` 物化，保留完整 ExecutionFingerprint，并且只有通过一条精确、未 quarantine 的 EvidenceRouteKey binding 才能进入 catalog。可选 `deepFallback` 只有其物化 identity 属于合格 Host 集合时才可使用。旧 `aa-evidence-catalog/v1` 与阶段 0P seed 继续作为 migration/replay 路径；schema-v1 prototype tier 只为历史 Session 映射。
+
+阶段 4.1 在固定 fork commit `9c163d4086d6f12e9a2c8f4151358a9e66955ac1` 上的验证，通过真实 Loader 加载可复用 Pack，运行 Light/Standard/Deep、升级、fallback、显式 failure、cold reconstruction 与 Manual 场景，并证明持久化 evidence identity、完整 execution identity 与 request header 一致。全部 7 个 Loader 场景通过。未改变的 client projection 契约也通过 6 个聚焦 route-change 与 view test；新增 evidence field 是附加 audit fact，不改变既有 UI animation 或术语。
 
 ### Fork 契约证据
 

@@ -62,7 +62,7 @@ The display label is “Task handling level”, not “task difficulty”. Risk 
 
 Timeout, invalid output, provider failure, unavailable assessor route, oversized input or output, and confidence below `0.8` bypass attribute mapping and produce a stable `deep` fallback code. The mapper records every contributing Host-policy reason in fixed order and builds explanations only from that versioned reason vocabulary, so repeated validated inputs produce the same level, reason codes, and explanation.
 
-## Host route identity and AA evidence binding
+## Execution identity, EvidenceRouteKey, and AA binding
 
 Execution identity and evidence identity are separate:
 
@@ -74,31 +74,39 @@ interface HostRouteIdentity {
   effectiveConfigFingerprint: string
 }
 
+interface EvidenceRouteKey {
+  schemaVersion: 1
+  providerNamespace: string
+  modelKey: string
+  evidenceControls: Readonly<Record<string, string | number | boolean>>
+}
+
 interface AAEvidenceBinding {
-  bindingVersion: string
-  hostRouteId: string
-  effectiveConfigFingerprint: string
-  aaSnapshotId: string
+  evidenceRouteKey: EvidenceRouteKey
   aaRecordId: string
+  ruleVersion: string
   matchBasis: readonly string[]
   limitations: readonly string[]
+  quarantine: null | { reasonCode: string }
 }
 ```
 
-The Host identity covers every materialized request option that changes execution semantics. Effort is one optional provider-owned option, not a required cross-provider dimension. The binding is explicit, versioned, and reviewed; names and slugs are not matched fuzzily at runtime. A binding cannot cross an effective configuration difference, and a snapshot update cannot silently substitute a different AA record.
+The Host identity and ExecutionFingerprint cover every materialized request option. The EvidenceRouteKey contains only the provider-declared model and evaluated controls that decide which AA record applies. Effort is optional and enters the key only when the provider rule declares it. Execution-only changes remain auditable without invalidating evidence; evidence-defining model, effort, variant, or other declared-control changes produce a different key. Bindings use exact equality, and names or slugs are never fuzzy-matched.
 
 Family, version, variant, effort, date, and provider metadata may be declared match evidence where they exist. A revisionless alias may carry an explicit semantic-match limitation, but it is never presented as proof of the exact AA-tested deployment.
 
-## Catalog construction
+## Runtime Active Catalog construction
 
-The catalog compiler:
+The runtime compiler:
 
 1. reads DSH's currently available concrete routes;
-2. materializes and fingerprints each route's effective Host request configuration;
-3. joins the route through one validated AA evidence binding;
-4. excludes unmatched, unavailable, capability-incompatible, or user-disallowed routes;
-5. assigns each remaining route to one versioned AA capability band: `light`, `standard`, or `deep`;
-6. freezes the resulting catalog and source-snapshot identity for one decision.
+2. materializes each route's effective configuration and complete ExecutionFingerprint;
+3. derives one exact EvidenceRouteKey through the provider's versioned rule;
+4. intersects it with a non-quarantined Registry binding and current Snapshot record;
+5. excludes unbound, unavailable, malformed, capability-incompatible, or user-disallowed routes;
+6. assigns each remaining route to one versioned AA capability band and freezes the runtime-derived catalog for one decision.
+
+Binding availability is derived: `active` when at least one current Host route produces the key, `dormant` when none does, and `quarantined` when an integrity exception prevents use. Adding a route therefore activates a pre-existing exact binding without an AA refresh or human action.
 
 Band boundaries are maintainer-owned policy data derived from AA scores. They are heuristics and must be visible and versioned; changing them changes the policy version.
 

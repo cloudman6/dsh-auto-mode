@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/spec.md
-translation-source-blob: 7ed387defc55d410b7aaee88db18f341e25814a3
+translation-source-blob: a42e0e632c89edffadce50ee36afe18b72376040
 translation-status: current
 -->
 
@@ -10,7 +10,7 @@ translation-status: current
 
 ## 状态
 
-已由维护者接受。[ADR-011](decisions/0011-bind-host-routes-to-aa-evidence.md) 定义当前 AA 驱动的 MVP 后方向，并接替 ADR-010。[ADR-013](decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md) 约束离线 AA snapshot 维护与分发权利。
+已由维护者接受。[ADR-014](decisions/0014-separate-aa-evidence-packs-from-active-catalogs.md) 定义可复用 Evidence Pack 与运行时 Active Catalog 架构。ADR-011 继续分离可执行 identity 与 evidence identity；[ADR-013](decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md) 继续约束离线获取、完整性、rollback 与分发权利。
 
 ## 产品前提
 
@@ -39,13 +39,13 @@ AA 证据是有用的市场先验，不证明某条 route 对某位用户的具�
 
 ## AA route catalog
 
-具体 route 仍是 DSH 实际使用的完整 provider/model/request configuration。其稳定 Host route identity 包含所有可能改变执行语义且已由 Host 物化的选项；reasoning effort 是可选字段，不是行业通用必填字段。
+具体 route 仍是 DSH 实际使用的完整 provider/model/request configuration。其 `ExecutionFingerprint` 覆盖所有 Host 已物化请求选项，并继续作为 assembly/request equality、Session audit 与 Manual equality 的权威依据。
 
-版本化 AA evidence binding 把一条 Host route identity 显式映射到冻结 snapshot 中一条稳定 AA 模型／配置记录。Binding 记录 route configuration fingerprint、snapshot 和 AA record ID、binding-rule version、声明的 match basis、相关 AA release metadata 与已知限制。
+Evidence identity 更窄。带 provider scope 的版本化 normalization rule 从 model 与仅能区分该 provider 不同 AA evaluated record 的 control 推导精确 `EvidenceRouteKey`。只有 rule 声明时才包含 effort、variant 或其他 control；temperature、token limit、credential 与其他仅执行 default 不使 evidence 失效。Fuzzy name、slug、猜测 latest record 和有歧义 rule 都不能创建 match。
 
-Binding 是维护数据，不是 runtime 名称推断。Family、version、variant、effort、date 和 provider metadata 在存在时都可以作为证据，但不存在跨 provider 的固定必填子集。Binding 绝不跨越 Host 已物化的执行差异。Snapshot 更新不得静默替换为更新的 AA 记录；每次新增、替换或移除都要显式评审。
+一个 Evidence Pack 包含四个可独立校验和计算 digest 的组件：完整 policy-eligible 最小化 AA Snapshot、长期 `EvidenceRouteKey → 稳定 AA record ID` Binding Registry、`aa-route-policy/v1`，以及 Runtime 兼容性／权利 Manifest。Binding 不再绑定 snapshot；它可以保持 dormant，直到用户日后配置完全匹配的 Host route。Quarantined binding 不能进入 routing。
 
-Host route 继续作为执行与 capability 过滤的权威身份。AA record 只提供外部证据，绝不取代可执行 route identity。不匹配或有歧义的 route 以稳定原因排除。
+Runtime 通过当前 Host-materialized route、精确 Registry key、当前 Snapshot record 与 Route Policy 的交集派生 Active Catalog，而不是发布 Active Catalog。Host route 继续作为执行与 capability 过滤的权威。Missing、unbound、quarantined、不兼容或畸形 route 获得稳定 exclusion，不使无关 route 失效；Runtime 绝不调用 AA。
 
 ## 路由所有权
 
@@ -69,9 +69,9 @@ Host route 继续作为执行与 capability 过滤的权威身份。AA record �
 
 ### 当前路径
 
-- 通过已评审离线 `aa-snapshot-refresh/v1` 工作流更新的带版本本地 AA 快照；默认不进入 Git，且只有满足 ADR-013 权利 gate 才能分发。
-- 不宣称精确 deployment 的版本化 Host route identity 与显式 AA evidence binding。
-- AA 驱动的 `light`/`standard`/`deep` catalog 编译。
+- 通过离线 `aa-evidence-pack-refresh/v1` 工作流更新的带版本本地 Evidence Pack；默认不进入 Git，且只有满足 ADR-013 权利 gate 才能分发。
+- 相互分离的精确 EvidenceRouteKey 与完整 ExecutionFingerprint，不宣称精确 deployment。
+- 运行时派生 Active Catalog，支持 dormant activation、quarantine isolation 与 AA 驱动的 `light`/`standard`/`deep` 编译。
 - 有限语义 Task Assessor，其具体执行 route 由版本化 policy 从当前环境解析并在每次调用前冻结；另加确定性的级别和用户任务 route 策略。
 - 透明的 DSH Web UI、持久决策事实和 Manual 不受影响。
 

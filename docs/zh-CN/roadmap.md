@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/roadmap.md
-translation-source-blob: 3dd96e41557a1b12e14aa58014cabfccc5d11940
+translation-source-blob: 2b9dd05e0169744de3e8c2d2845cc64d62806d02
 translation-status: current
 -->
 
@@ -117,7 +117,7 @@ Task 9 与阶段 4 已于 2026-08-22 完成。ADR-013 固定官方 Pro language-
 
 验收：常规 AA metric 更新无需人工动作；新配置 route 在存在有效 dormant binding 时自动激活；仅执行默认值不使 evidence 失效；决定 evidence 的 control 不能 collision；migration、rollback、Loader、Session、UI 与 Manual 非干扰检查通过。没有 ADR-013 written-license gate 时，公开真实数据分发保持禁用。
 
-状态：实施中。ADR-014 已 Accepted；Task 10 已完成，Tasks 11–19 正在阶段 5 开始前实施。
+状态：已于 2026-08-22 完成。ADR-014 与 Tasks 10–19 交付无依赖 Evidence Pack 契约、精确 evidence identity、完整 eligible Snapshot compiler、长期 Registry、运行时 Active Catalog、exception-driven refresh、本地原子激活／rollback、旧 seed migration，以及固定 Loader/Session/UI/Manual 验证。私有迁移 Pack 保留现有三条已评审 record；填充完整真实 AA record 集仍需未来执行带 credential acquisition。ADR-013 written-license gate 继续禁止公开真实数据分发。
 
 ## 阶段 5：自适应执行
 

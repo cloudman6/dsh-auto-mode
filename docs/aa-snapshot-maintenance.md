@@ -1,129 +1,115 @@
-# AA snapshot maintenance
+# AA Evidence Pack maintenance
 
 [简体中文](zh-CN/aa-snapshot-maintenance.md)
 
-## Status and boundary
+## Boundary
 
-This maintainer-only workflow implements `aa-snapshot-refresh/v1` outside the DSH runtime request path. Auto continues to read one frozen local seed and never calls Artificial Analysis while routing a user task.
+`aa-evidence-pack-refresh/v1` is a maintainer-only, offline workflow. Runtime loads one local compatible Evidence Pack, derives an Active Catalog from current Host routes, and never calls Artificial Analysis while routing a task.
 
-The adapter uses the official Pro language-model endpoint because the Free endpoint omits the blended-price field required by `aa-route-policy/v1`. It fixes the endpoint to `https://artificialanalysis.ai/api/v2/language/models`, sets `prompt_type=medium`, reads `AA_API_KEY` only from the server-side environment, and follows the documented page envelope. Stable AA model and creator IDs remain the binding keys; names and slugs are display data only.
+The official Pro endpoint remains pinned because the Free endpoint omits the blended-price field required by `aa-route-policy/v1`. Acquisition fixes `https://artificialanalysis.ai/api/v2/language/models`, `prompt_type=medium`, and every pagination page. `AA_API_KEY` is read only from the server-side environment and never enters the acquisition artifact, Evidence Pack, stdout, browser, or Git.
 
-Official references:
+Real machine-readable AA metrics remain `internal-only`. Public distribution still requires an externally auditable written grant covering both machine-readable distribution and this model-selection product. The new packaging and automatic-update mechanics do not grant or bypass those rights.
 
-- [Artificial Analysis Data API documentation](https://artificialanalysis.ai/data-api/docs)
-- [Artificial Analysis Data API plans](https://artificialanalysis.ai/data-api)
-- [Artificial Analysis Terms of Use](https://artificialanalysis.ai/docs/legal/Terms-of-Use.pdf)
-- [Artificial Analysis Data Platform Terms v1.1](https://artificialanalysiscdn.com/legal/ProDataPlatformTerms.pdf)
+## Artifact model
 
-This document records an engineering control, not legal advice. Under the reviewed Data Platform Terms v1.1, real raw or structured machine-readable AA data must not be redistributed, and a third-party product whose primary purpose includes model or provider selection requires prior written consent. Maintainer authorization to use the API is not that consent.
+One Evidence Pack contains:
 
-The default rights mode is therefore `internal-only`. Real acquisitions, candidate snapshots, active seeds, rollback seeds, credentials, and grant documents stay under the Git-ignored `local/` directory and out of the browser client. CLI stdout never includes AA records, metrics, or the full report; those remain in mode-`0600` private files. `written-license` mode additionally requires an external grant reference plus explicit assertions that the grant covers machine-readable distribution and an AA-informed model-selection product. The grant itself must not enter Git.
+- `aa-snapshot/v2`: every policy-eligible record from the complete pinned acquisition, minimized to stable identity, display metadata, capability, price, latency, and source facts;
+- `aa-binding-registry/v1`: provider normalization rules and durable exact EvidenceRouteKey-to-record bindings;
+- `aa-route-policy/v1`: field choices, methodology, bands, missing-data behavior, and ordering;
+- `aa-evidence-pack-manifest/v1`: component digests, `aa-evidence-pack-runtime/v1` compatibility, and rights mode.
 
-Keep a raw acquisition only for the shortest period needed to review and reproduce its candidate. The current terms require every copy of raw Data and raw Data files to be deleted within 30 days after the applicable subscription ends. Conservatively treat acquisitions and any local export that retains individually identifiable AA metrics as raw Data unless a written AA grant states otherwise; the deadline applies even if a local seed is still operationally useful. Deletion is a deliberate maintainer action because the tool does not guess subscription state or remove local evidence automatically.
+The Active Catalog is not stored. Runtime deterministically recompiles it from the installed Pack and current Host-materialized routes. A binding is shown as active, dormant, or quarantined according to current facts.
 
-## Private files
+All private inputs and outputs must remain under one existing Git-ignored root such as `local/`. The file boundary rejects symlinks and out-of-root paths, limits JSON size and complexity, writes mode `0600`, checks component and predecessor digests, atomically replaces the active Pack, and retains one validated rollback artifact.
 
-Create a private directory before the first refresh:
+## One-time migration
 
-```sh
-mkdir -p local
-chmod 700 local
-cp examples/aa-refresh-manifest.example.json local/aa-refresh-manifest.json
-cp examples/aa-binding-plan.example.json local/aa-binding-plan.json
-cp examples/host-routes.example.json local/host-routes.json
-chmod 600 local/aa-refresh-manifest.json local/aa-binding-plan.json local/host-routes.json
-```
+Prepare private JSON files containing the legacy seed, its exact Host routes, provider normalization rules, source facts, and `{ "mode": "internal-only" }` rights. Then run:
 
-Replace every placeholder. `host-routes.json` is the exact current Host-materialized route inventory. Derive its review inventory instead of calculating identities by hand:
-
-The inventory may include non-secret execution controls and credential references such as `apiKeyEnv`, but it must never contain an API key, access token, authorization header, password, private key, client secret, or other credential value. `identify` and `prepare` reject secret-bearing field names before writing any derived file and do not echo their values in errors.
-
-```sh
-npm run aa:snapshot -- identify \
+```bash
+npm run aa:evidence-pack -- migrate \
   --private-root local \
+  --seed local/aa-catalog-seed.json \
   --host-routes local/host-routes.json \
-  --output local/host-route-identities.json
+  --rules local/provider-normalization-rules.json \
+  --source local/aa-source.json \
+  --rights local/aa-rights.json \
+  --pack-id aa-pack-migrated-v1 \
+  --output local/aa-evidence-pack.json
 ```
 
-Review `local/host-route-identities.json`, then copy each required route ID and effective-configuration fingerprint into the binding plan and point it to one stable AA record ID. A different effort or any other material request control is a different Host route and cannot reuse the binding silently. The identity inventory is deterministically sorted by Host route ID and written with mode `0600`; stdout contains only its route count and status.
+Migration requires every legacy full-configuration binding to match an exact supplied Host route. It derives the narrower key through exactly one provider rule. Two legacy routes may collapse only when they cite the same AA record; conflicting collapsed keys fail closed. Existing Sessions are not rewritten and retain their original frozen facts.
 
-All CLI inputs and outputs must be inside `--private-root`. Target parents must already exist. Every prepare input and its candidate output must resolve to a distinct real path; candidate, active, and rollback paths are likewise distinct during apply. Symlink targets, out-of-root paths, files larger than 16 MiB, excessive JSON depth or node counts, malformed JSON, duplicate options, and unknown options fail closed. Private outputs are atomically replaced with mode `0600`.
+## Refresh
 
-## Refresh sequence
+Fetch the complete acquisition with the existing bounded command:
 
-### 1. Acquire
-
-Load the API key into the process environment without putting it in a command argument or repository file, then fetch the fixed paginated endpoint:
-
-```sh
+```bash
 npm run aa:snapshot -- fetch \
   --private-root local \
   --output local/aa-acquisition.json
 ```
 
-The request rejects redirects, non-JSON or non-200 responses, pages over 16 MiB, excessive JSON depth or node counts, more than 100 pages, malformed pagination, and non-Pro/non-Commercial tiers. Errors do not include the key or response body.
+Prepare a new Pack:
 
-### 2. Prepare without mutation
-
-Set a new unique `snapshotId` in the manifest and review the current Host routes and binding plan. Then prepare a candidate:
-
-```sh
-npm run aa:snapshot -- prepare \
+```bash
+npm run aa:evidence-pack -- prepare \
   --private-root local \
+  --current local/aa-evidence-pack.json \
   --acquisition local/aa-acquisition.json \
-  --manifest local/aa-refresh-manifest.json \
-  --binding-plan local/aa-binding-plan.json \
+  --source local/aa-source.json \
+  --rights local/aa-rights.json \
   --host-routes local/host-routes.json \
-  --current local/aa-catalog-seed.json \
-  --candidate local/aa-candidate.json
+  --snapshot-id aa-snapshot-YYYY-MM-DD \
+  --pack-id aa-pack-YYYY-MM-DD \
+  --output local/aa-evidence-pack.prepared.json
 ```
 
-Preparation pins the reviewed terms, attribution, API Intelligence Index version, full `v4.1.1` capability methodology, freshness limit, and rights mode. It copies only bound records and only stable identity, display metadata, Intelligence Index, 7:2:1 blended price, and median time to first answer token. A missing or incomplete bound record rejects the whole candidate. An incomplete unbound source record is omitted.
+Preparation emits only classification and status on stdout; the metric and impact report remains inside the private prepared file.
 
-For identical acquisition, manifest, binding plan, Host routes, and predecessor seed, preparation produces the same candidate digest. The current wall clock is used only to enforce freshness and does not enter the digest.
+- `GREEN`: stable-ID-preserving metric/display changes, unbound record additions/removals, and ordinary execution-only changes. The candidate is automatically applicable.
+- `AMBER`: missing bound records, incomplete eligible rows, unbound current Host routes, or normalization exceptions. The valid Pack advances while affected bindings/routes are quarantined or excluded. No unrelated route is blocked.
+- `RED`: methodology, source schema, rights, stable-ID, compatibility, or digest contract changes. No candidate Pack is produced and apply is impossible.
 
-### 3. Review
+Apply a valid GREEN or isolated AMBER update without an approval token:
 
-The prepare command writes the structured report inside `local/aa-candidate.json` and prints only the candidate snapshot ID, digest, and status. Review the private candidate file locally; do not copy its report into public CI logs, chats, or issues. The report covers:
-
-- source-policy metadata before and after, including terms, attribution, methodology, freshness, and rights mode;
-- record additions, removals, renames, and metric changes;
-- binding additions, removals, and stable-record replacements;
-- Light/Standard/Deep band changes;
-- price/latency/stable-route ordering before and after the update.
-
-Do not approve a change whose Host identity, stable AA record, score methodology, price field, latency field, rights basis, or resulting ordering is not understood. Preparation never changes the active seed.
-
-### 4. Apply the reviewed digest
-
-Copy the exact `sha256:...` digest from the reviewed output:
-
-```sh
-npm run aa:snapshot -- apply \
+```bash
+npm run aa:evidence-pack -- apply \
   --private-root local \
-  --candidate local/aa-candidate.json \
-  --current local/aa-catalog-seed.json \
-  --rollback local/aa-catalog-seed.previous.json \
-  --approve sha256:replace-with-reviewed-digest
+  --prepared local/aa-evidence-pack.prepared.json \
+  --current local/aa-evidence-pack.json \
+  --rollback local/aa-evidence-pack.previous.json
 ```
 
-Apply revalidates the candidate and digest, verifies that the active seed is still the exact reviewed predecessor, atomically saves that predecessor and its deterministic digest in a versioned rollback envelope, and atomically replaces the active seed. A stale predecessor, altered candidate, wrong digest, or invalid seed leaves the active seed unchanged.
+Apply revalidates the prepared digest, every component digest, Runtime compatibility, rights equality, and the exact predecessor before writing rollback and active files. A stale or tampered update leaves the active Pack unchanged.
 
-### 5. Roll back
+Restore the retained predecessor:
 
-If post-apply validation fails, restore the saved seed:
-
-```sh
-npm run aa:snapshot -- rollback \
+```bash
+npm run aa:evidence-pack -- rollback \
   --private-root local \
-  --current local/aa-catalog-seed.json \
-  --rollback local/aa-catalog-seed.previous.json
+  --current local/aa-evidence-pack.json \
+  --rollback local/aa-evidence-pack.previous.json
 ```
 
-Rollback validates the envelope and saved-seed digest, then atomically restores the seed without deleting the rollback copy. A malformed or checksum-mismatched rollback file leaves the active seed unchanged. Re-run the catalog, policy, plugin, Session, and UI checks before treating either an applied or restored seed as usable.
+## Runtime configuration
 
-## Version and schema stops
+Use either an inline `evidencePack` or a private path:
 
-The refresh intentionally stops when the AA endpoint, tier, pagination, Intelligence Index version, required policy fields, terms version, attribution, or rights assertions change. Such a stop requires source review and a new versioned decision; it must not be bypassed by editing fetched data or weakening validation.
+```yaml
+mode: auto
+evidencePackPath: ./local/aa-evidence-pack.json
+```
 
-Only synthetic AA-shaped fixtures and placeholder examples belong in Git. Before any commit, inspect staged files for real AA data, `AA_API_KEY`, `.env` files, license grants, account data, and raw responses.
+The legacy `seed` and `seedPath` inputs remain readable for migration and historical compatibility. New installations should use the Evidence Pack path. Runtime rejects an incompatible or tampered Pack before assessment or user-task dispatch.
+
+## Verification
+
+```bash
+npm test
+DSH_FORK_ROOT="$HOME/deepseek-harness/.worktrees/auto-mode-host-contracts/workspace" \
+  node --test test/dsh-loader.test.mjs
+```
+
+The suite covers full-page retention, incomplete exclusions, stable-ID collisions, deterministic serialization, component tampering, EvidenceRouteKey separation, dormant activation, quarantine, price-first ordering, GREEN/AMBER/RED classification, atomic apply, rollback, migration, Loader composition, cold Session reconstruction, effective-request equality, UI projection compatibility, and Manual non-interference.

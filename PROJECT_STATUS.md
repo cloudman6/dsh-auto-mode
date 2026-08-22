@@ -8,7 +8,7 @@
 
 ## Current stage
 
-Phase 0P MVP and Phases 1–4 are complete. Phase 4.1 reusable Evidence Packs are now in implementation before Phase 5: ADR-014 is Accepted, Task 10 is complete, and Tasks 11–19 are active.
+Phase 0P MVP and Phases 1–4.1 are complete. The project now enters Phase 5 adaptive execution: formal runtime signals and reassessment boundaries are the next design work.
 
 The maintained DSH fork is pinned at `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`. The runnable plugin composes the Phase 1 AA catalog and Phase 2 assessor at `agent/prepare-step`, freezes one `auto-decision/v1` for each DSH user turn, and reuses its complete effective configuration through assembly and every `agent/request` step in that turn. Required Session events preserve the route, assessment, evidence basis, versions, reason codes, and explanation for cold reconstruction. Schema-v2 decisions publish Light/Standard/Deep semantics without a prototype tier; the maintained UI shows the exact model, optional effort, handling level, evidence basis, and exact AA snapshot when applicable. Existing schema-v1 Sessions remain readable through an explicit legacy-only mapping.
 
@@ -18,9 +18,9 @@ The maintained DSH fork is pinned at `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`.
 - DSH Auto Mode does not build or require an in-house model-quality benchmark.
 - User-facing task-handling levels are Light, Standard, and Deep; Chinese labels are 轻量、常规、深度.
 - A versioned assessor route policy resolves one environment-valid classifier route without inspecting the task and freezes it before the call. The semantic assessor returns task attributes and confidence; deterministic Host policy chooses the level and retains final authority.
-- Executable Host route identity is separate from AA evidence identity. A versioned explicit binding maps one effective provider/model/request configuration to one stable AA record; effort and variant are optional provider dimensions, not universal required fields.
+- Executable Host route identity is separate from AA evidence identity. Complete ExecutionFingerprints remain authoritative for request equality; provider-scoped EvidenceRouteKeys contain only declared AA-evaluated controls and map through long-lived exact bindings to stable AA records.
 - Within one level, the resolver prefers lower AA-reported price, then lower AA-reported latency, then stable route identity.
-- AA snapshot refresh runs only through the maintainer-owned offline `aa-snapshot-refresh/v1` workflow. Runtime routing never calls AA; real metrics remain `internal-only` unless a written AA grant covers machine-readable distribution and this model-selection product.
+- AA acquisition and Evidence Pack refresh run only through maintainer-owned offline workflows. GREEN applies automatically, AMBER isolates affected evidence, and RED retains the previous Pack. Runtime routing never calls AA; real metrics remain `internal-only` unless a written AA grant covers machine-readable distribution and this model-selection product.
 - Product claims remain explicitly AA-informed and do not claim project-benchmarked quality, safety, non-inferiority, or universal optimality.
 
 The route/evidence decisions are recorded in [ADR-011](docs/decisions/0011-bind-host-routes-to-aa-evidence.md), which succeeds ADR-010 while retaining its AA-informed, price-first direction. The environment-aware assessor-route decision is recorded in [ADR-012](docs/decisions/0012-resolve-and-freeze-task-assessor-routes.md). The offline acquisition, rights, review, publication, and rollback boundary is recorded in [ADR-013](docs/decisions/0013-refresh-aa-snapshots-behind-a-rights-gate.md). ADR-010 remains the historical decision that superseded ADR-002, ADR-006, and ADR-008.
@@ -46,6 +46,7 @@ ADR-014 is Accepted. It separates full policy-eligible AA Snapshots, long-lived 
 - Completed Phase 3 Task 7: schema-v2 projections no longer publish prototype tiers; the selector and conversation facts show localized task-handling levels, actual model and optional effort, plus AA or configured Deep fallback basis. Model-only, effort-only, combined, and level-only browser transitions preserve the 1.2-second roll, business-blue highlight, two breathing cycles, durable message placement, and English/Chinese snapshots.
 - Completed Phase 3 Task 8 and Checkpoint C: a cross-repository keyless browser fixture drives the real Web UI, agent loop, Session log, and request header through Light, Standard, Deep, and Manual. Its Standard candidates prove price-first and latency-second resolution; every automatic turn proves the displayed route and AA snapshot equal the persisted selection and effective request configuration. Focused Loader and Session tests retain fallback, no-route failure, cold reconstruction, and Manual non-interference coverage. The support matrix pins fork `9c163d4086d6f12e9a2c8f4151358a9e66955ac1`, selection schema v2, `auto-decision/v1`, `aa-evidence-catalog/v1`, `task-assessor-contract/v1`, `task-assessor-route-policy/v1`, `task-handling-policy/v1`, and `aa-route-policy/v1`.
 - Completed Phase 4 Task 9: `aa-snapshot-refresh/v1` fixes the official Pro acquisition contract, server-side credential boundary, source methodology, attribution, retention, freshness, minimization, and explicit rights modes. Its maintainer CLI derives credential-free Host identities, stores bounded source material privately, prepares deterministic candidates and complete source/record/binding/band/order diffs, requires exact digest approval, atomically preserves and replaces the active seed, and verifies rollback integrity. Ninety-nine offline tests pass; only synthetic AA-shaped fixtures and placeholder examples are tracked.
+- Completed Phase 4.1 Tasks 10–19 and Checkpoints D1–D3: ADR-014 is Accepted; independently validated Snapshot, Registry, Policy, and Manifest components use deterministic digests and a Runtime compatibility contract. Exact provider rules separate EvidenceRouteKeys from complete ExecutionFingerprints; full acquisition retains every policy-eligible record; dormant bindings activate from current Host routes; quarantined, unbound, missing, or malformed routes are isolated. GREEN/AMBER/RED refresh, atomic local activation, rollback, legacy migration, Plugin loading, Session audit, and Manual non-interference are implemented without a new dependency or service. The current private schema-v1 seed was migrated to a mode-`0600` local Pack with three preserved bindings; a future credentialed acquisition is still required to populate real full-market records. The project suite passes 123 tests, the pinned fork passes all seven Loader scenarios, and six focused UI projection/view tests pass.
 
 ## Current implementation plan
 
@@ -59,8 +60,8 @@ ADR-014 is Accepted. It separates full policy-eligible AA Snapshots, long-lived 
 8. Completed: prove all beta paths end to end across the browser, Loader, Session, and effective request boundary.
 9. Completed: define and implement the versioned AA snapshot refresh workflow and rights boundary.
 10. Completed: accept ADR-014 and freeze the Phase 4.1 Evidence Pack contracts.
-11. Active: implement Tasks 11–19 and complete the reusable Evidence Pack foundation.
-12. After Phase 4.1: define formal runtime evidence and reassessment boundaries for Phase 5 monotonic adaptive execution.
+11. Completed: implement Tasks 11–19 and complete the reusable Evidence Pack foundation.
+12. Active: define formal runtime evidence and reassessment boundaries for Phase 5 monotonic adaptive execution.
 
 Detailed dependencies and acceptance checks are in [the roadmap](docs/roadmap.md), [implementation plan](tasks/plan.md), and [task checklist](tasks/todo.md).
 
@@ -74,13 +75,13 @@ Phase 3 has no remaining blocker. Task 8 found no provider credential in the ver
 
 Phase 4 has no remaining implementation blocker. ADR-013 resolves stable AA acquisition, attribution, retention, freshness, minimization, review, atomic replacement, and rollback. Public distribution of real machine-readable AA metrics remains unavailable until an external written AA grant covers both distribution and this model-selection product; that external restriction does not block the completed default `internal-only` workflow.
 
-Phase 4.1 has no identified technical blocker. ADR-014 is Accepted, so its internal-only identity, refresh, and packaging work can proceed. Public distribution of a real Evidence Pack remains separately blocked by the existing ADR-013 written-license gate; internal-only implementation and synthetic verification do not depend on that grant.
+Phase 4.1 has no remaining implementation blocker. Public distribution of a real Evidence Pack remains separately blocked by the ADR-013 written-license gate. The migrated local Pack preserves the existing three reviewed records and bindings; expanding it to the full real policy-eligible AA set requires a future private acquisition with an available `AA_API_KEY`, but does not block the implemented refresh/runtime architecture.
 
 Phase 5 must define which formal runtime signals justify escalation, where reassessment may occur, and how monotonicity and persisted explanation are enforced. Recovery, child-agent routing, and official DSH compatibility remain later phases.
 
 ## Next action
 
-Implement Tasks 11–19 in dependency order and complete Phase 4.1 before beginning Phase 5 adaptive execution.
+Define Phase 5 formal runtime signals, reassessment boundaries, monotonic escalation behavior, and persisted explanations.
 
 ## Status maintenance rules
 

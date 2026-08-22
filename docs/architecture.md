@@ -4,7 +4,7 @@
 
 ## Status
 
-Accepted direction under ADR-011, ADR-012, and ADR-013. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
+Accepted direction under ADR-011 through ADR-014. Verified DSH seams and fork requirements remain recorded in [DSH integration evidence](dsh-integration.md).
 
 ## Principles
 
@@ -24,7 +24,7 @@ flowchart LR
     U["User task\nAuto or Manual"] --> X["Execution Context"]
     X --> A["Resolved + frozen Task Assessor"]
     A --> P["Deterministic Level Policy"]
-    S["Versioned local AA snapshot"] --> C["AA Route Catalog Compiler"]
+    S["Versioned local Evidence Pack"] --> C["Runtime Active Catalog Compiler"]
     D["DSH available routes\nand capabilities"] --> C
     C --> R["Route Resolver\nprice then latency"]
     P --> R
@@ -35,11 +35,11 @@ flowchart LR
     Q --> E["Session facts and UI explanation"]
 ```
 
-### AA Snapshot Source
+### AA Evidence Pack
 
-Provides a versioned, local, minimized snapshot of AA records used by the catalog. `aa-snapshot-refresh/v1` acquires and prepares updates through a maintainer-only offline path, records a complete material-change report, and requires exact digest approval before atomically replacing the active seed. Runtime routing never requires a live AA request.
+The local Evidence Pack contains four independently versioned, validated, and SHA-256-digested components: `aa-snapshot/v2`, `aa-binding-registry/v1`, `aa-route-policy/v1`, and `aa-evidence-pack-manifest/v1`. The Snapshot scans every acquired page and retains every unique record with valid policy capability and price, regardless of current Host inventory or binding availability. The Registry holds provider normalization rules and durable exact mappings; the Manifest binds component digests, `aa-evidence-pack-runtime/v1` compatibility, and rights mode.
 
-The maintained seed shape is illustrated by [`examples/aa-catalog-seed.example.json`](../examples/aa-catalog-seed.example.json). Real acquisitions, snapshots, reviewed bindings, rollback seeds, credentials, and grant documents stay under the Git-ignored `local/` directory in the default `internal-only` mode; the repository tracks only synthetic fixtures and placeholder examples. Host identity derivation rejects credential-bearing fields. The catalog loader rejects files larger than 1 MiB, while the maintenance boundary separately bounds private files and remote responses and validates the candidate, predecessor, and rollback digest before mutation.
+The maintained synthetic shape is illustrated by [`examples/aa-evidence-pack.example.json`](../examples/aa-evidence-pack.example.json). Real acquisitions, packs, reports, rollback artifacts, credentials, and grant documents stay under the Git-ignored `local/` directory in `internal-only` mode. Runtime never calls AA. The private file boundary enforces path containment, bounded JSON, mode `0600`, component and predecessor digests, atomic replacement, and validated rollback.
 
 ### Host Route Identity Builder
 
@@ -56,27 +56,33 @@ interface HostRouteIdentity {
 
 The fingerprint covers every Host-materialized request option that can change execution semantics. Reasoning effort is optional and provider-owned. Two routes with different effective configurations cannot share an identity even when their model names match.
 
-### AA Evidence Binding Registry
+### Evidence Route Identity and Binding Registry
 
-Provides reviewed, versioned mappings from Host route identities to stable records in one frozen AA snapshot:
+The complete execution identity remains independent from the reusable evidence identity:
 
 ```ts
+interface EvidenceRouteKey {
+  schemaVersion: 1
+  providerNamespace: string
+  modelKey: string
+  evidenceControls: Readonly<Record<string, string | number | boolean>>
+}
+
 interface AAEvidenceBinding {
-  bindingVersion: string
-  hostRouteId: string
-  effectiveConfigFingerprint: string
-  aaSnapshotId: string
+  evidenceRouteKey: EvidenceRouteKey
   aaRecordId: string
+  ruleVersion: string
   matchBasis: readonly string[]
   limitations: readonly string[]
+  quarantine: null | { reasonCode: string }
 }
 ```
 
-Bindings may cite family, version, variant, effort, date, provider, or other metadata, but no fixed subset is mandatory across providers. Runtime name similarity never creates a binding. Snapshot refresh validates binding additions, replacements, and removals explicitly rather than selecting a latest duplicate automatically.
+Each provider rule declares exact provider IDs, model aliases, and only the controls that select a distinct AA evaluated record. No control is universally required. Fuzzy names, slugs, similarity, discovery order, and guessed latest records cannot create or replace a binding. A binding is active when a current Host route derives its exact key, dormant when no route does, and quarantined when a semantic integrity exception prevents use. Snapshot refresh changes metrics without rewriting stable bindings.
 
-### AA Route Catalog Compiler
+### Runtime Active Catalog Compiler
 
-Loads a maintainer-selected local seed and joins the current DSH route inventory with validated AA evidence bindings. Task 2 emits a deterministic, frozen evidence catalog before any capability boundary or price/latency field is selected:
+For each user turn, Runtime validates the compatible Evidence Pack, materializes the current DSH routes, derives exact EvidenceRouteKeys, intersects them with non-quarantined Registry bindings and present Snapshot records, then applies Route Policy. The Active Catalog is a deterministic runtime value, never a maintained or distributed artifact:
 
 ```ts
 interface AAEvidenceCatalogEntry {
@@ -85,12 +91,13 @@ interface AAEvidenceCatalogEntry {
   model: string
   effectiveConfig: Readonly<Record<string, unknown>>
   effectiveConfigFingerprint: string
+  evidenceRouteKey: EvidenceRouteKey
+  evidenceRouteKeyId: string
   aaSnapshotId: string
   aaRecordId: string
-  bindingVersion: string
+  bindingRegistryVersion: string
   evidenceBinding: AAEvidenceBinding
   aaRecord: Readonly<Record<string, unknown>>
-  capabilityFacts: readonly string[]
 }
 
 interface AAEvidenceCatalogExclusion {
@@ -101,7 +108,7 @@ interface AAEvidenceCatalogExclusion {
 }
 ```
 
-Malformed or unmatched rows are excluded with stable reason codes. Entries and exclusions are deterministically sorted, valid-route results do not depend on Host or seed discovery order, and no network request is part of compilation. Task 3 consumes this evidence catalog, assigns each eligible route to one versioned handling level, and adds the selected AA price and latency facts used by the resolver.
+Malformed, unbound, quarantined, missing-record, or incompatible routes are excluded with stable reason codes without invalidating unrelated routes. Entries, binding states, and exclusions are sorted deterministically. A newly added Host route activates immediately when its exact dormant binding and current record exist; execution-only default changes alter the ExecutionFingerprint but preserve the EvidenceRouteKey.
 
 The completed Phase 1 policy compiler emits frozen entries with `handlingLevel`, `aaCapabilityScore`, `aaPrice`, and nullable `aaLatencySeconds`. `aa-route-policy/v1` pins Intelligence Index methodology `v4.1.1`, Light `<35`, Standard `35–<50`, Deep `>=50`, the AA 7:2:1 blended-price field, and median time to first answer token. Missing capability or price excludes a route; missing latency sorts after measured latency within an equal-price group.
 

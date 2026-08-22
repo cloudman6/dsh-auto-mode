@@ -111,7 +111,7 @@ Correct the completed catalog's current-Host and full-effective-configuration co
 
 Acceptance: routine AA metric updates require no human action; a newly configured route automatically activates when a valid dormant binding exists; execution-only defaults do not invalidate evidence; evidence-defining controls cannot collide; migration, rollback, Loader, Session, UI, and Manual non-interference checks pass. Public real-data distribution remains disabled without the ADR-013 written-license gate.
 
-Status: active. ADR-014 is Accepted; Task 10 is complete and Tasks 11–19 are being implemented before Phase 5 begins.
+Status: complete on 2026-08-22. ADR-014 and Tasks 10–19 deliver the dependency-free Evidence Pack contracts, exact evidence identity, full eligible Snapshot compiler, long-lived Registry, runtime Active Catalog, exception-driven refresh, local atomic activation/rollback, legacy migration, and pinned Loader/Session/UI/Manual verification. The private migrated Pack retains the three existing reviewed records; a future credentialed acquisition is required to populate the full real AA record set. Public real-data distribution remains disabled by the ADR-013 written-license gate.
 
 ## Phase 5: Adaptive execution
 

@@ -1,6 +1,6 @@
 <!--
 translation-source: docs/routing-policy.md
-translation-source-blob: 61eb633681792b39995f9aa64b2f1c65c8618970
+translation-source-blob: d0eb7741b10ca86ca2f6b661091f6daba5ae802f
 translation-status: current
 -->
 
@@ -68,7 +68,7 @@ type TaskHandlingLevel = 'light' | 'standard' | 'deep'
 
 Timeout、无效输出、provider failure、assessor route 不可用、input/output 超限，以及 confidence 低于 `0.8` 时，不进入属性映射，直接产生稳定的 `deep` fallback code。Mapper 以固定顺序记录每个起作用的 Host-policy reason，解释只从带版本 reason vocabulary 构造，因此重复的已校验输入会产生相同级别、reason code 与解释。
 
-## Host route identity 与 AA evidence binding
+## 执行 identity、EvidenceRouteKey 与 AA binding
 
 执行 identity 与证据 identity 相互独立：
 
@@ -80,31 +80,39 @@ interface HostRouteIdentity {
   effectiveConfigFingerprint: string
 }
 
+interface EvidenceRouteKey {
+  schemaVersion: 1
+  providerNamespace: string
+  modelKey: string
+  evidenceControls: Readonly<Record<string, string | number | boolean>>
+}
+
 interface AAEvidenceBinding {
-  bindingVersion: string
-  hostRouteId: string
-  effectiveConfigFingerprint: string
-  aaSnapshotId: string
+  evidenceRouteKey: EvidenceRouteKey
   aaRecordId: string
+  ruleVersion: string
   matchBasis: readonly string[]
   limitations: readonly string[]
+  quarantine: null | { reasonCode: string }
 }
 ```
 
-Host identity 覆盖每个会改变执行语义且已物化的请求选项。Effort 是某些 provider 拥有的可选选项，不是跨 provider 必填维度。Binding 必须显式、带版本且经过评审；runtime 不按名称或 slug 模糊匹配。Binding 不得跨越实际配置差异，snapshot 更新也不得静默替换另一条 AA 记录。
+Host identity 与 ExecutionFingerprint 覆盖每个已物化请求选项。EvidenceRouteKey 只包含 provider 声明的 model 与决定哪条 AA record 适用的 evaluated control。Effort 是可选项，只有 provider rule 声明时才进入 key。仅执行变化继续可审计，但不使 evidence 失效；决定 evidence 的 model、effort、variant 或其他已声明 control 变化会产生不同 key。Binding 使用精确相等，绝不按 name 或 slug 模糊匹配。
 
 Family、version、variant、effort、date 和 provider metadata 在存在时都可以成为声明的 match evidence。无 revision alias 可以携带显式 semantic-match 限制，但绝不能表述成命中 AA 实测精确 deployment 的证明。
 
-## Catalog 编译
+## 运行时 Active Catalog 编译
 
-Catalog compiler：
+运行时 compiler：
 
 1. 读取 DSH 当前可用的具体 route；
-2. 物化每条 route 的实际 Host request configuration 并生成 fingerprint；
-3. 通过一条已验证 AA evidence binding 连接 route；
-4. 排除未匹配、不可用、capability 不兼容或用户禁用的 route；
-5. 把每条剩余 route 分到带版本的 `light`、`standard` 或 `deep` AA 能力档；
-6. 为一次决策冻结 catalog 和来源快照 identity。
+2. 物化每条 route 的实际 configuration 与完整 ExecutionFingerprint；
+3. 通过 provider 的版本化 rule 推导一条精确 EvidenceRouteKey；
+4. 与未 quarantine 的 Registry binding 及当前 Snapshot record 求交集；
+5. 排除 unbound、不可用、畸形、capability 不兼容或用户禁用的 route；
+6. 把每条剩余 route 分到带版本的 AA 能力档，并为一次决策冻结运行时派生 catalog。
+
+Binding availability 是派生状态：至少一条当前 Host route 产生该 key 时为 `active`；没有时为 `dormant`；完整性异常阻止使用时为 `quarantined`。因此，添加 route 会自动激活已有精确 binding，无需 AA refresh 或人工动作。
 
 档位边界是维护者管理、从 AA 分数推导的策略数据。它们是启发式规则，必须可见且带版本；改变边界就要改变 policy version。
 
