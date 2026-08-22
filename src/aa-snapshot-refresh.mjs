@@ -444,6 +444,11 @@ function normalizedPreviousSeed(previousSeed) {
   return freezeTree(clone)
 }
 
+/** Return the deterministic digest used to guard a reviewed seed predecessor. */
+export function snapshotSeedDigest(seed) {
+  return sha256Json(normalizedPreviousSeed(seed))
+}
+
 function buildReport(previousSeed, nextSeed, sourceDigest) {
   const previousRecords = new Map(previousSeed.snapshot.records.map(record => [record.recordId, record]))
   const nextRecords = new Map(nextSeed.snapshot.records.map(record => [record.recordId, record]))
@@ -614,7 +619,7 @@ export function prepareAASnapshotRefresh({
   const prepared = {
     schemaVersion: AA_SNAPSHOT_REFRESH_SCHEMA_VERSION,
     refreshVersion: AA_SNAPSHOT_REFRESH_VERSION,
-    previousSeedDigest: sha256Json(normalizedPrevious),
+    previousSeedDigest: snapshotSeedDigest(normalizedPrevious),
     sourceDigest,
     seed,
     report: buildReport(normalizedPrevious, seed, sourceDigest),
